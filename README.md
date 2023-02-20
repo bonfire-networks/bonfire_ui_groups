@@ -1,78 +1,28 @@
-# Bonfire.UI.Groups
+<p align="center"> <img src="https://user-images.githubusercontent.com/1852065/220077189-33cd03af-2775-4298-9dcb-83a9932541e9.png" width="200" height="250" alt="bonfire logo" /></p>
 
-A template for creating custom extensions for [Bonfire](https://bonfire.cafe/)
+# Bonfire UI Groups
 
-## How to use it
-- Clone the repository on your `/forks` folder
-```
-cd extensions
-git clone https://github.com/bonfire-networks/bonfire_ui_groups.git {your-extension-name-here}
-cd {your-extension-name-here} 
-```
-- Rename all the modules names to match your extension name:
-    - Find & replace Bonfire.UI.Groups -> Bonfire.YourExtensionName 
-    - Find & replace bonfire_ui_groups -> bonfire_your_extension_name
-- Rename the `bonfire_ui_groups.exs` config file to match your extension name `bonfire_your_extension_name.exs`
-- Add paths to the router if you need it. If you add paths you will need to include the route module on [bonfire-app router module](https://github.com/bonfire-networks/bonfire-app/blob/main/lib/web/router.ex#L51) 
-- Add extension specific Fake functions
-- Add extension specific migrations
-- Add extension deps to deps.git and/or deps.hex 
-- Delete the bonfire extension template git history and initiate a new .git 
-    ```
-    rm -rf .git
-    git init    
-    ```
-- Create your empty extension repository on your preferred platform
-- Push your local changes
-    ```
-      git add .
-      git commit -m "first commit"
-      git create -M main
-      git remote add origin {your-remote-repository}
-      git push -u origin main
-    ```
-- Add the extension on your bonfire deps.path to include it in your local development
-- Add `use_if_enabled(Bonfire.UI.Groups.Web.Routes)` in your app's `Router` module
-- Add the extension on deps.git also (specifying the branch name) to allow others that do not have it in their fork to use it
-- Write a meaningful readme
-- TADA 🔥!
+Layout and UI components for bonfire groups extension.
 
-### Add your navigation
+## Roadmap
+[Group Milestone](https://github.com/bonfire-networks/bonfire-app/milestone/33)
 
-> **Warning**
-> The following pattern is likely to change in the coming period.
-
-Each extension can specify it's own navbar in a quite flexible way, leveraging on 2 macro: `declare_extension` and `declare_nav_link`.
+## Sponsors
+[Nlnet](https://nlnet.nl/project/Bonfire-FederatedGroups/index.html) | [Become a sponsor](https://opencollective.com/bonfire-networks)
 
 
-- On your extension homepage call the `declare_extension` macro, specifying the extension name, its icon (that will be mostly used to list the extension with the other active ones) and the default_nav.
+## 📖 Documentation
 
-```
-declare_extension(
-      "ExtensionTemplate",
-      icon: "bi:app",
-      default_nav: [
-        Bonfire.UI.Groups.Web.HomeLive,
-        Bonfire.UI.Groups.Web.AboutLive
-      ])
-```
-
-- The views you will include in the `default_nav` section, will be the ones that will be shown on the navigation sidebar. 
-
-- The last step is to call `declare_nav_link` on each of those view/components already specified in declare_extension. 
-
-```
-declare_nav_link(l("About"),
-    page: "About",
-    href: "/bonfire_ui_groups/about",
-    icon: "typcn:info-large"
-  )
-```
+* [Website](https://bonfirenetworks.org) 
+* [Set up an instance](docs/DEPLOY.md) - for testing and evaluation only!
+* [Hacking on Bonfire](docs/HACKING.md) 
+* [Code documentation](https://doc.bonfirenetworks.org/api-reference.html#content) 
+* [Community chat](https://matrix.to/#/%23bonfire-networks:matrix.org) 
 
 
 ## Copyright and License
 
-Copyright (c) 2020 Bonfire, VoxPublica, and CommonsPub Contributors
+Copyright (c) 2020-2022 Bonfire Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
