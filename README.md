@@ -2,7 +2,10 @@
 
 # Bonfire UI Groups
 
-Layout and UI components for bonfire groups extension.
+Pages and UI components for groups in Bonfire.
+
+It builds upon the schemas and functionality in `Bonfire.Classify` and `Bonfire.Tag`.
+
 
 ## Roadmap
 [Group Milestone](https://github.com/bonfire-networks/bonfire-app/milestone/33)
