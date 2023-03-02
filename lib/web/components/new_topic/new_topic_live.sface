@@ -1,0 +1,74 @@
+<Bonfire.UI.Common.OpenModalLive
+  id={Pointers.ULID.generate()}
+  title_text={l("Create a new topic")}
+  no_actions
+>
+  <div x-data="{ name: '' }" class="flex flex-col w-full gap-3 mt-6">
+
+    <div
+      data-id="upload_image"
+      class="relative flex justify-center w-24 h-24 py-10 mx-auto bg-center bg-cover rounded-full bg-base-content/5"
+      style={"background-image: url()"}
+    >
+      <div class="space-y-1 text-center">
+        <div class="flex text-sm text-base-content/70">
+          <label
+            class="absolute inset-0 flex flex-col items-center justify-center w-full h-full text-sm font-medium text-white transition duration-150 ease-in-out rounded-lg opacity-0 cursor-pointer bg-base-100 bg-opacity-40 hover:opacity-60 focus-within:opacity-60"
+          >
+            <div class="text-center">
+              <span>{l("Add an icon")}</span>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="w-full form-control">
+      <input
+        x-model="name"
+        id="name"
+        name="named[name]"
+        type="text"
+        placeholder={l("Type the topic name")}
+        class="w-full text-sm input input-bordered"
+      />
+    </div>
+    
+    <div class="w-full form-control">
+      <select class="w-full select select-bordered">
+        <option selected>Announcements: Only mods can post</option>
+        <option>Curated: Members can post</option>
+        <option>Public: Anyone can post</option>
+      </select>
+    </div>
+
+    <!-- <div class="w-full rounded form-control bg-base-content/5">
+      <div class="p-4">
+        <div class="flex items-center justify-between gap-6">
+          <div class="flex flex-col gap-1">
+            <div class="text-sm font-bold">{l("Discoverable")}</div>
+            <div class="text-sm font-light text-base-content/70">{l("Make it publicly discoverable")}</div>
+          </div>
+          <input
+            value="false"
+            type="checkbox"
+            class="toggle"
+          />
+        </div>
+      </div>
+    </div> -->
+
+    <button
+      x-bind:disabled="name.length == 0"
+      type="button"
+      class="w-full mt-3 normal-case btn btn-primary"
+    >
+      {l("Create")}
+    </button>
+  </div>
+  <:open_btn>
+    <button type="button" class="rounded btn btn-ghost btn-square btn-xs">
+      <Icon iconify="mdi:plus" class="w-4 h-4 text-base-content/70" />
+    </button>
+  </:open_btn>
+</Bonfire.UI.Common.OpenModalLive>
