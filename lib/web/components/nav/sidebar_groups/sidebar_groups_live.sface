@@ -1,10 +1,13 @@
 <div class="flex flex-col gap-4 pt-4 mt-4 border-t border-base-content/10">
   <nav class="">
     <div class="flex items-center justify-between group">
-      <LiveRedirect to="/group/" class="text-[10px] link link-hover px-2 font-semibold tracking-[0.175rem] uppercase text-base-content/70">{l("Welcome")}</LiveRedirect>
+      <LiveRedirect
+        to="/group/"
+        class="text-[10px] link link-hover px-2 font-semibold tracking-[0.175rem] uppercase text-base-content/70"
+      >{l("Welcome")}</LiveRedirect>
       <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
         <Bonfire.UI.Groups.NewTopicLive />
-        <button alt={l "settings"} class="rounded btn btn-ghost btn-square btn-xs">
+        <button alt={l("settings")} class="rounded btn btn-ghost btn-square btn-xs">
           <Icon iconify="ph:gear-fill" class="w-4 h-4 text-base-content/70" />
         </button>
       </div>
@@ -34,15 +37,17 @@
           <span class="text-sm font-medium text-base-content/70">{l("Introduce yourself")}</span>
         </LiveRedirect>
       </li>
-
     </ul>
   </nav>
   <nav class="">
     <div class="flex items-center justify-between group">
-      <LiveRedirect to="/group/" class="text-[10px] link link-hover px-2 font-semibold tracking-[0.175rem] uppercase text-base-content/70">{l("Mega super team")}</LiveRedirect>
+      <LiveRedirect
+        to="/group/"
+        class="text-[10px] link link-hover px-2 font-semibold tracking-[0.175rem] uppercase text-base-content/70"
+      >{l("Mega super team")}</LiveRedirect>
       <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
         <Bonfire.UI.Groups.NewTopicLive />
-        <button alt={l "settings"} class="rounded btn btn-ghost btn-square btn-xs">
+        <button alt={l("settings")} class="rounded btn btn-ghost btn-square btn-xs">
           <Icon iconify="ph:gear-fill" class="w-4 h-4 text-base-content/70" />
         </button>
       </div>
@@ -72,15 +77,17 @@
           <span class="text-sm font-medium text-base-content/70">{l("Introduce yourself")}</span>
         </LiveRedirect>
       </li>
-
     </ul>
   </nav>
   <nav class="">
     <div class="flex items-center justify-between group">
-      <LiveRedirect to="/group/" class="text-[10px] link link-hover px-2 font-semibold tracking-[0.175rem] uppercase text-base-content/70">{l("SciFi")}</LiveRedirect>
+      <LiveRedirect
+        to="/group/"
+        class="text-[10px] link link-hover px-2 font-semibold tracking-[0.175rem] uppercase text-base-content/70"
+      >{l("SciFi")}</LiveRedirect>
       <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
         <Bonfire.UI.Groups.NewTopicLive />
-        <button alt={l "settings"} class="rounded btn btn-ghost btn-square btn-xs">
+        <button alt={l("settings")} class="rounded btn btn-ghost btn-square btn-xs">
           <Icon iconify="ph:gear-fill" class="w-4 h-4 text-base-content/70" />
         </button>
       </div>
@@ -110,7 +117,6 @@
           <span class="text-sm font-medium text-base-content/70">{l("Introduce yourself")}</span>
         </LiveRedirect>
       </li>
-
     </ul>
-  </nav>   
+  </nav>
 </div>

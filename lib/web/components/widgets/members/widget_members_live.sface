@@ -1,6 +1,6 @@
 <Bonfire.UI.Common.WidgetBlockLive widget_title={e(@widget_title, "Members")}>
   <div class="grid grid-cols-1 gap-4 p-3 pt-6">
-    <span class="text-xs font-medium tracking-wider uppercase text-base-content/70">{l "Moderators"}</span>
+    <span class="text-xs font-medium tracking-wider uppercase text-base-content/70">{l("Moderators")}</span>
     {#for user <- @mods}
       <div class="">
         <Bonfire.UI.Common.ProfileItemLive
@@ -13,7 +13,7 @@
     {/for}
   </div>
   <div class="grid grid-cols-1 gap-4 py-3 mx-3 mt-3 border-t border-base-content/10">
-        <span class="text-xs font-medium tracking-wider uppercase text-base-content/70">{l "Members"}</span>
+    <span class="text-xs font-medium tracking-wider uppercase text-base-content/70">{l("Members")}</span>
     {#for user <- @mods}
       <div class="">
         <Bonfire.UI.Common.ProfileItemLive

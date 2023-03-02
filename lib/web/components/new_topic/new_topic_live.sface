@@ -4,17 +4,14 @@
   no_actions
 >
   <div x-data="{ name: '' }" class="flex flex-col w-full gap-3 mt-6">
-
     <div
       data-id="upload_image"
       class="relative flex justify-center w-24 h-24 py-10 mx-auto bg-center bg-cover rounded-full bg-base-content/5"
-      style={"background-image: url()"}
+      style="background-image: url()"
     >
       <div class="space-y-1 text-center">
         <div class="flex text-sm text-base-content/70">
-          <label
-            class="absolute inset-0 flex flex-col items-center justify-center w-full h-full text-sm font-medium text-white transition duration-150 ease-in-out rounded-lg opacity-0 cursor-pointer bg-base-100 bg-opacity-40 hover:opacity-60 focus-within:opacity-60"
-          >
+          <label class="absolute inset-0 flex flex-col items-center justify-center w-full h-full text-sm font-medium text-white transition duration-150 ease-in-out rounded-lg opacity-0 cursor-pointer bg-base-100 bg-opacity-40 hover:opacity-60 focus-within:opacity-60">
             <div class="text-center">
               <span>{l("Add an icon")}</span>
             </div>
@@ -33,7 +30,7 @@
         class="w-full text-sm input input-bordered"
       />
     </div>
-    
+
     <div class="w-full form-control">
       <select class="w-full select select-bordered">
         <option selected>Announcements: Only mods can post</option>

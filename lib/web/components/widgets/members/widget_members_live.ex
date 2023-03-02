@@ -4,5 +4,4 @@ defmodule Bonfire.UI.Groups.WidgetMembersLive do
   prop mods, :any, default: []
   prop members, :any, default: []
   prop widget_title, :string, default: nil
-
 end
