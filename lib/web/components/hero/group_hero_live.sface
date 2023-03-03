@@ -1,0 +1,102 @@
+<div class="relative">
+  <div class="border-b border-base-300">
+    <div class="">
+      <div
+        class="relative bg-center mt-0 bg-cover bg-no-repeat bg-base-200 h-[250px]"
+        style={"background-image: url('#{Media.banner_url(@current_user)}')"}
+      >
+        
+      </div>
+      <div class="flex flex-col items-start px-4 mx-auto mb-3">
+        <div class="flex items-start justify-between w-full mt-6">
+          <div class="flex flex-col flex-1 gap-2">
+          <div class="flex flex-col gap-1 ">
+            <div class="flex items-center text-xl font-bold text-base-content">Group name</div>
+            <div class="flex items-center">
+              <span class="text-sm font-normal text-base-content/70">groupname@bonfire.cafe</span>
+            </div>
+
+            <div class="mt-1">
+              <div class="w-full leading-6 prose md:prose-sm prose-p:pt-2">
+                {rich(e(@current_user, :profile, :summary, ""))}
+              </div>
+            </div>
+
+           <div class="flex items-center gap-2 mt-3">
+              <Icon iconify="material-symbols:calendar-month" class="w-5 h-5 text-base-content/100" />
+              <span class="text-xs text-base-content/70">Created 12 Feb</span>
+            </div>
+          </div>
+        </div>
+          
+          <div class="flex items-center gap-3">
+            <LiveRedirect
+              :if={@current_user && is_admin?(@current_user)}
+              to={~p"/settings/profile"}
+              class="normal-case rounded btn btn-sm btn-primary"
+            >
+              {l("Edit group")}
+            </LiveRedirect>
+
+
+            <div aria-haspopup="true" class="dropdown dropdown-end">
+              <label tabindex="0" class="btn h-[34px] w-[34px] btn-sm btn-square btn-ghost rounded">
+                <Icon solid="DotsVertical" class="w-4 h-4" />
+              </label>
+              <ul
+                tabindex="0"
+                role="menu"
+                aria-orientation="vertical"
+                class="!block mt-1 rounded shadow dropdown_actions w-60 md:w-48 menu md:menu-compact dropdown-content bg-neutral"
+              >
+               
+
+                
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-8 mt-6 text-base-content">
+          <LivePatch
+            class={
+              "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
+              "font-medium text-primary with_tab": @selected_tab in ["timeline", "posts", "boosts"]
+            }
+            to={~p"/user/"}
+          >
+            <strong
+              :if={Bonfire.Me.Settings.get([:ui, :metrics, :posts_count], nil, @__context__)}
+              class="text-base-content"
+            >
+              {e(@user, :character, :posts_count, 0)}
+            </strong>
+            <span>{l("Activities")}</span>
+          </LivePatch>
+
+          <LivePatch
+            class={
+              "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
+              "font-medium text-primary with_tab": @selected_tab == "topics"
+            }
+            to={~p"/groups/test/topics"}
+          >
+            <span>{l("Topics")}</span>
+          </LivePatch>
+
+          <LivePatch
+            class={
+              "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
+              "font-medium text-primary with_tab": @selected_tab == "topics"
+            }
+            to={~p"/groups/test/topics"}
+          >
+            <span>{l("Members")}</span>
+          </LivePatch>
+        </div>
+      </div>
+   
+            
+    </div>
+  </div>
+</div>
