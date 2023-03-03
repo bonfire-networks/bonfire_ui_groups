@@ -32,48 +32,56 @@ defmodule Bonfire.UI.Groups.Web.GroupLive do
        selected_tab: "timeline",
        nav_items: Bonfire.Common.ExtensionModule.default_nav(:bonfire_ui_social),
        sidebar_widgets: [
-        users: [
-         secondary: [
-           {Bonfire.UI.Topic.WidgetAboutLive, [title: "About " , group: "Welcome", group_link: "/welcome", about: "A sub for ALL parents, step parents, parents-to-be, guardians, caretakers, and anyone else who prefers to base their parenting choices on actual, evidence-backed scientific research.", date: "16 Feb"]},
-           {Bonfire.UI.Groups.WidgetMembersLive, [mods: [], members: []]}
+         users: [
+           secondary: [
+             {Bonfire.UI.Topic.WidgetAboutLive,
+              [
+                title: "About ",
+                group: "Welcome",
+                group_link: "/welcome",
+                about:
+                  "A sub for ALL parents, step parents, parents-to-be, guardians, caretakers, and anyone else who prefers to base their parenting choices on actual, evidence-backed scientific research.",
+                date: "16 Feb"
+              ]},
+             {Bonfire.UI.Groups.WidgetMembersLive, [mods: [], members: []]}
+           ]
+         ],
+         guests: [
+           secondary: nil
          ]
-        ],
-        guests: [
-          secondary: nil
-        ]
-      ],
+       ],
        page_title: "group name"
      )}
   end
 
   def do_handle_params(%{"tab" => tab} = params, _url, socket)
-    when tab in ["posts", "boosts", "timeline"] do
-  debug(tab, "load tab")
+      when tab in ["posts", "boosts", "timeline"] do
+    debug(tab, "load tab")
 
-  Bonfire.Social.Feeds.LiveHandler.user_feed_assign_or_load_async(
-    tab,
-    nil,
-    params,
-    socket
-  )
-  end
-
-  def do_handle_params(%{"tab" => tab} = params, _url, socket)
-    when tab in ["followers", "followed", "requests", "requested"] do
-  debug(tab, "load tab")
-
-  {:noreply,
-  assign(
-    socket,
-    Bonfire.Social.Feeds.LiveHandler.load_user_feed_assigns(
+    Bonfire.Social.Feeds.LiveHandler.user_feed_assign_or_load_async(
       tab,
       nil,
       params,
       socket
     )
+  end
 
-    # |> debug("ffff")
-  )}
+  def do_handle_params(%{"tab" => tab} = params, _url, socket)
+      when tab in ["followers", "followed", "requests", "requested"] do
+    debug(tab, "load tab")
+
+    {:noreply,
+     assign(
+       socket,
+       Bonfire.Social.Feeds.LiveHandler.load_user_feed_assigns(
+         tab,
+         nil,
+         params,
+         socket
+       )
+
+       # |> debug("ffff")
+     )}
   end
 
   def do_handle_event(
