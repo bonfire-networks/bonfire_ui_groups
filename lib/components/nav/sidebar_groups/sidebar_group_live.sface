@@ -5,9 +5,13 @@
   >{e(@category, :profile, :name, nil)}</LiveRedirect>
   <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
     <Dynamic.Component module={Bonfire.UI.Topics.NewTopicLive} parent={@category} />
-    <button alt={l("settings")} class="rounded btn btn-ghost btn-square btn-xs">
+    <LiveRedirect
+      to={"#{path(@category)}/settings"}
+      alt={l("settings")}
+      class="rounded btn btn-ghost btn-square btn-xs"
+    >
       <Icon iconify="ph:gear-fill" class="w-4 h-4 text-base-content/70" />
-    </button>
+    </LiveRedirect>
   </div>
 </div>
 

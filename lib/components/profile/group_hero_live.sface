@@ -3,21 +3,21 @@
     <div class="">
       <div
         class="relative bg-center mt-0 bg-cover bg-no-repeat bg-base-200 h-[250px]"
-        style={"background-image: url('#{Media.banner_url(@current_user)}')"}
+        style={"background-image: url('#{Media.banner_url(@group)}')"}
       >
       </div>
       <div class="flex flex-col items-start px-4 mx-auto mb-3">
         <div class="flex items-start justify-between w-full mt-6">
           <div class="flex flex-col flex-1 gap-2">
             <div class="flex flex-col gap-1">
-              <div class="flex items-center text-xl font-bold text-base-content">Group name</div>
+              <div class="flex items-center text-xl font-bold text-base-content">{e(@group, :profile, :name, "")}</div>
               <div class="flex items-center">
-                <span class="text-sm font-normal text-base-content/70">groupname@bonfire.cafe</span>
+                <span class="text-sm font-normal text-base-content/70">{Bonfire.Me.Characters.display_username(@group, true)}</span>
               </div>
 
               <div class="mt-1">
                 <div class="w-full leading-6 prose md:prose-sm prose-p:pt-2">
-                  {rich(e(@current_user, :profile, :summary, ""))}
+                  {rich(e(@group, :profile, :summary, ""))}
                 </div>
               </div>
 
@@ -31,10 +31,10 @@
           <div class="flex items-center gap-3">
             <LiveRedirect
               :if={@current_user && is_admin?(@current_user)}
-              to={~p"/settings/profile"}
+              to={"#{@permalink}/settings"}
               class="normal-case rounded btn btn-sm btn-primary"
             >
-              {l("Edit group")}
+              {l("Settings")}
             </LiveRedirect>
 
             <div aria-haspopup="true" class="dropdown dropdown-end">
@@ -58,7 +58,7 @@
               "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
               "font-medium text-primary with_tab": @selected_tab in ["timeline", "posts", "boosts"]
             }
-            to={~p"/user/"}
+            to={@permalink}
           >
             <strong
               :if={Bonfire.Me.Settings.get([:ui, :metrics, :posts_count], nil, @__context__)}
@@ -74,7 +74,7 @@
               "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
               "font-medium text-primary with_tab": @selected_tab == "topics"
             }
-            to={~p"/groups/test/topics"}
+            to={"#{@permalink}/discover"}
           >
             <span>{l("Topics")}</span>
           </LivePatch>
@@ -84,7 +84,7 @@
               "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
               "font-medium text-primary with_tab": @selected_tab == "topics"
             }
-            to={~p"/groups/test/topics"}
+            to={"#{@permalink}/members"}
           >
             <span>{l("Members")}</span>
           </LivePatch>

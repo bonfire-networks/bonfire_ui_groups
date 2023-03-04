@@ -33,7 +33,7 @@ defmodule Bonfire.UI.Groups.ConnCase do
 
       alias Bonfire.UI.Groups.Fake
       import Bonfire.UI.Groups.Fake
-      # alias Bonfire.UI.Groups.Web.Router.Helpers, as: Routes
+      # alias Bonfire.UI.Groups.Router.Helpers, as: Routes
 
       # The default endpoint for testing
       @endpoint Application.compile_env!(:bonfire, :endpoint_module)
