@@ -4,11 +4,10 @@ defmodule Bonfire.UI.Groups.Web.Routes do
   defmacro __using__(_) do
     quote do
       # pages anyone can view
-      scope "/groups/", Bonfire.UI.Groups.Web do
+      scope "/group/", Bonfire.UI.Groups.Web do
         pipe_through(:browser)
 
-        live("/explore", ExploreLive)
-        live("/test", GroupLive)
+        live("/:id", GroupLive, as: :group)
       end
 
       # # pages only guests can view
@@ -23,11 +22,14 @@ defmodule Bonfire.UI.Groups.Web.Routes do
       #   pipe_through(:account_required)
       # end
 
-      # # pages you need to view as a user
-      # scope "/groups/", Bonfire.UI.Groups.Web do
-      #   pipe_through(:browser)
-      #   pipe_through(:user_required)
-      # end
+      # pages you need to view as a user
+      scope "/", Bonfire.UI.Groups.Web do
+        pipe_through(:browser)
+        pipe_through(:user_required)
+
+        live("/groups", ExploreLive)
+        live("/group", ExploreLive, as: :group)
+      end
 
       # # pages only admins can view
       # scope "/groups/admin", Bonfire.UI.Groups.Web do
