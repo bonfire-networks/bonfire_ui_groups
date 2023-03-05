@@ -12,5 +12,31 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
 
     config :bonfire_ui_groups,
       disabled: false
+
+    config :bonfire, :ui,
+      groups: [
+        sections: [
+          timeline: Bonfire.UI.Social.ProfileTimelineLive,
+          # private: Bonfire.UI.Social.MessageThreadsLive,
+          posts: Bonfire.UI.Social.ProfilePostsLive,
+          topics: Bonfire.UI.Topics.TopicsLive,
+          members: Bonfire.UI.Group.GroupMembersLive
+        ],
+        navigation: [
+          timeline: "Timeline",
+          posts: "Posts",
+          topics: "Topics",
+          members: "Members"
+          # private: "private",
+        ],
+        settings: [
+          navigation: [
+            general: "General",
+            members: "Members",
+            invites: "Invites",
+            notifications: "Notifications"
+          ]
+        ]
+      ]
   end
 end
