@@ -4,13 +4,13 @@
     class="text-[10px] link link-hover px-2 font-semibold tracking-[0.175rem] uppercase text-base-content/70"
   >{e(@category, :profile, :name, nil)}</LiveRedirect>
   <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
-    <Dynamic.Component module={Bonfire.UI.Topics.NewTopicLive} parent={@category} />
+    <!-- <Dynamic.Component module={Bonfire.UI.Topics.NewTopicLive} parent={@category} /> -->
     <LiveRedirect
-      to={"#{path(@category)}/settings"}
-      alt={l("settings")}
+      to={path(@category, :discover)}
+      alt={l("More topics")}
       class="rounded btn btn-ghost btn-square btn-xs"
     >
-      <Icon iconify="ph:gear-fill" class="w-4 h-4 text-base-content/70" />
+      <Icon iconify="material-symbols:manage-search" class="w-4 h-4 text-base-content/70" />
     </LiveRedirect>
   </div>
 </div>

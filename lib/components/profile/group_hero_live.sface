@@ -29,13 +29,19 @@
           </div>
 
           <div class="flex items-center gap-3">
-            <LiveRedirect
-              :if={@current_user && is_admin?(@current_user)}
-              to={"#{@permalink}/settings"}
-              class="normal-case rounded btn btn-sm btn-primary"
-            >
-              {l("Settings")}
-            </LiveRedirect>
+            {#if @current_user && is_admin?(@current_user)}
+              <!-- FIXME: based on boundaries -->
+
+              <Dynamic.Component
+                module={Bonfire.UI.Topics.NewTopicLive}
+                parent={@group}
+                label={l("New topic")}
+              />
+
+              <LiveRedirect to={"#{@permalink}/settings"} class="normal-case rounded btn btn-sm btn-primary">
+                {l("Settings")}
+              </LiveRedirect>
+            {/if}
 
             <div aria-haspopup="true" class="dropdown dropdown-end">
               <label tabindex="0" class="btn h-[34px] w-[34px] btn-sm btn-square btn-ghost rounded">

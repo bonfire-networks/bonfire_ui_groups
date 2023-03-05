@@ -27,8 +27,8 @@ defmodule Bonfire.UI.Groups.GroupLive do
       {:ok,
        assign(
          socket,
-         page: "group",
-         smart_input_opts: [hide_buttons: true]
+         page: "group"
+         #  smart_input_opts: [hide_buttons: true]
        )}
     end
   end

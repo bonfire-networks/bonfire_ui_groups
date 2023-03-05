@@ -55,24 +55,24 @@
       </div>
 
       <div class="w-full form-control">
-        <select class="w-full select select-bordered">
-          <option selected>Request to join</option>
-          <option>Open</option>
-          <option>Invite only</option>
+        <select name="to_boundaries[]" class="select select-bordered">
+          <option value="open">{l("Open: anyone can join and participate")}</option>
+          <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, and request to join")}</option>
+          <option value="private">{l("Private: only people who are invited can see and join the group")}</option>
         </select>
       </div>
 
-      <div class="w-full rounded form-control bg-base-content/5">
+      <!-- <div class="w-full rounded form-control bg-base-content/5">
         <div class="p-4">
           <div class="flex items-center justify-between gap-6">
             <div class="flex flex-col gap-1">
-              <div class="text-sm font-bold">{l("Discoverable")}</div>
-              <div class="text-sm font-light text-base-content/70">{l("Make it publicly discoverable")}</div>
+              <div class="text-sm font-bold">{l("Visibility")}</div>
+              <div class="text-sm font-light text-base-content/70">{l("Make the group public so anyone can find the group, see the topics within it, and read public posts.")}</div>
             </div>
-            <input value="false" type="checkbox" class="toggle">
+            <input name="to_boundaries[]" value="visible" checked="checked" type="checkbox" class="toggle">
           </div>
         </div>
-      </div>
+      </div> -->
 
       <input type="hidden" name="context_id" value={id(@parent)}>
 
