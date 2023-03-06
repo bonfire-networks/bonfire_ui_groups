@@ -1,16 +1,18 @@
 <div class="relative">
   <div class="border-b border-base-300">
     <div class="">
-      <div
-        class="relative bg-center mt-0 bg-cover bg-no-repeat bg-base-200 h-[250px]"
-        style={"background-image: url('#{Media.banner_url(@group)}')"}
-      >
+      <div class="pt-6 bg-base-content/5">
+        <div
+          class="relative rounded bg-center bg-cover bg-no-repeat bg-base-200 w-[100px] mx-auto h-[100px]"
+          style={"background-image: url('#{Media.banner_url(@group)}')"}
+        >
+        </div>
+        <div class="pb-3 mt-3 text-xl font-bold text-center text-base-content">{e(@group, :profile, :name, "")}</div>
       </div>
-      <div class="flex flex-col items-start px-4 mx-auto mb-3">
-        <div class="flex items-start justify-between w-full mt-6">
+      <div class="flex flex-col items-start px-4 pb-3 mx-auto border-t border-base-300 bg-base-content/5">
+        <!-- <div class="flex items-start justify-between w-full mt-6">
           <div class="flex flex-col flex-1 gap-2">
             <div class="flex flex-col gap-1">
-              <div class="flex items-center text-xl font-bold text-base-content">{e(@group, :profile, :name, "")}</div>
               <div class="flex items-center">
                 <span class="text-sm font-normal text-base-content/70">{Bonfire.Me.Characters.display_username(@group, true)}</span>
               </div>
@@ -36,33 +38,17 @@
                 label={l("New topic")}
               />
 
-              <LiveRedirect to={"#{@permalink}/settings"} class="normal-case rounded btn btn-sm btn-primary">
-                {l("Settings")}
-              </LiveRedirect>
             {/if}
-
-            <div aria-haspopup="true" class="dropdown dropdown-end">
-              <label tabindex="0" class="btn h-[34px] w-[34px] btn-sm btn-square btn-ghost rounded">
-                <Icon solid="DotsVertical" class="w-4 h-4" />
-              </label>
-              <ul
-                tabindex="0"
-                role="menu"
-                aria-orientation="vertical"
-                class="!block mt-1 rounded shadow dropdown_actions w-60 md:w-48 menu md:menu-compact dropdown-content bg-neutral"
-              >
-              </ul>
-            </div>
           </div>
-        </div>
+        </div> -->
 
-        <div class="flex items-center gap-8 mt-6 text-base-content">
+        <div class="flex items-center gap-8 mt-3 text-base-content">
           <LivePatch
             class={
               "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
               "font-medium text-primary with_tab": @selected_tab in ["timeline", "posts", "boosts"]
             }
-            to={@permalink}
+            to={"#{@permalink}/timeline"}
           >
             <strong
               :if={Bonfire.Me.Settings.get([:ui, :metrics, :posts_count], nil, @__context__)}
@@ -76,17 +62,17 @@
           <LivePatch
             class={
               "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
-              "font-medium text-primary with_tab": @selected_tab == "topics"
+              "font-medium text-primary with_tab": @selected_tab == "discover"
             }
             to={"#{@permalink}/discover"}
           >
-            <span>{l("Topics")}</span>
+            <span>{l("Discover")}</span>
           </LivePatch>
 
           <LivePatch
             class={
               "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
-              "font-medium text-primary with_tab": @selected_tab == "topics"
+              "font-medium text-primary with_tab": @selected_tab == "members"
             }
             to={"#{@permalink}/members"}
           >
