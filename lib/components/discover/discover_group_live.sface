@@ -19,7 +19,7 @@
   <nav :for={{%{type: :topic} = subcategory, subchildren} <- @children} class="">
     <!-- topic in a group -->
     <Dynamic.Component
-      module={Bonfire.UI.Topics.SidebarTopicLive}
+      module={Bonfire.UI.Topics.TopicsLive}
       category={subcategory}
       children={subchildren}
     />
@@ -27,6 +27,6 @@
 
   <nav :for={{%{type: :group} = subcategory, subchildren} <- @children} class="">
     <!-- sub-group -->
-    <Bonfire.UI.Groups.SidebarGroupLive category={subcategory} children={subchildren} />
+    <Bonfire.UI.Groups.DiscoverGroupLive category={subcategory} children={subchildren} />
   </nav>
 </ul>

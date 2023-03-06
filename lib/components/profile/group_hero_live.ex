@@ -5,4 +5,5 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
   prop selected_tab, :any, default: nil
   prop group, :any, required: true
   prop permalink, :any, required: true
+  prop object_boundary, :any, default: nil
 end

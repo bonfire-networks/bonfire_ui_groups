@@ -1,0 +1,17 @@
+<#slot {@header} />
+
+<div class="flex flex-col gap-4 pt-4 mt-4 border-base-content/10">
+  <nav :for={{%{type: :group} = category, children} <- @categories} class="border-b">
+    <!-- top-level group -->
+    <Bonfire.UI.Groups.DiscoverGroupLive category={category} children={children} />
+  </nav>
+
+  <nav :for={{%{type: :topic} = category, children} <- @categories} class="">
+    <!-- topic that's not in a group -->
+    <Dynamic.Component
+      module={Bonfire.UI.Topics.TopicsLive}
+      category={category}
+      children={children}
+    />
+  </nav>
+</div>

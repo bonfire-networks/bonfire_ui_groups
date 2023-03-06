@@ -27,7 +27,8 @@ defmodule Bonfire.UI.Groups.GroupLive do
       {:ok,
        assign(
          socket,
-         page: "group"
+         page: "group",
+         showing_within: :group
          #  smart_input_opts: [hide_buttons: true]
        )}
     end
@@ -59,4 +60,12 @@ defmodule Bonfire.UI.Groups.GroupLive do
           __MODULE__
           # &do_handle_event/3
         )
+
+  def tab(selected_tab) do
+    case maybe_to_atom(selected_tab) do
+      tab when is_atom(tab) -> tab
+      _ -> :timeline
+    end
+    |> debug(selected_tab)
+  end
 end

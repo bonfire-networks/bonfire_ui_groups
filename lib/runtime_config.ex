@@ -14,13 +14,14 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
       disabled: false
 
     config :bonfire, :ui,
-      groups: [
+      group: [
         sections: [
           timeline: Bonfire.UI.Social.ProfileTimelineLive,
           # private: Bonfire.UI.Social.MessageThreadsLive,
           posts: Bonfire.UI.Social.ProfilePostsLive,
-          topics: Bonfire.UI.Topics.TopicsLive,
-          members: Bonfire.UI.Group.GroupMembersLive
+          discover: Bonfire.UI.Groups.DiscoverGroupsLive,
+          # Bonfire.UI.Groups.GroupMembersLive
+          members: Bonfire.UI.Social.ProfileFollowsLive
         ],
         navigation: [
           timeline: "Timeline",
@@ -29,6 +30,7 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
           members: "Members"
           # private: "private",
         ],
+        network: [],
         settings: [
           navigation: [
             general: "General",

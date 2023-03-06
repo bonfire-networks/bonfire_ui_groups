@@ -29,9 +29,7 @@
           </div>
 
           <div class="flex items-center gap-3">
-            {#if @current_user && is_admin?(@current_user)}
-              <!-- FIXME: based on boundaries -->
-
+            {#if Bonfire.Boundaries.can?(@current_user, :edit, @object_boundary || @group)}
               <Dynamic.Component
                 module={Bonfire.UI.Topics.NewTopicLive}
                 parent={@group}

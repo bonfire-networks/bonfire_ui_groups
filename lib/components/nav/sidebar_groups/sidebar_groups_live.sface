@@ -7,7 +7,7 @@
   <nav :for={{%{type: :topic} = category, children} <- @categories} class="">
     <!-- topic that's not in a group -->
     <Dynamic.Component
-      module={Bonfire.UI.Groups.SidebarTopicLive}
+      module={Bonfire.UI.Topics.SidebarTopicLive}
       category={category}
       children={children}
     />
