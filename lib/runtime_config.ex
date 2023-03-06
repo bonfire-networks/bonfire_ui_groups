@@ -21,7 +21,8 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
           posts: Bonfire.UI.Social.ProfilePostsLive,
           discover: Bonfire.UI.Groups.DiscoverGroupsLive,
           # Bonfire.UI.Groups.GroupMembersLive
-          members: Bonfire.UI.Social.ProfileFollowsLive
+          members: Bonfire.UI.Social.ProfileFollowsLive,
+          settings: Bonfire.UI.Groups.SettingsLive
         ],
         navigation: [
           timeline: "Timeline",
@@ -32,11 +33,17 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
         ],
         network: [],
         settings: [
+          sections: [
+            general: Bonfire.UI.Group.Settings.GeneralLive,
+            members: Bonfire.UI.Group.Settings.GeneralLive,
+            notifications: Bonfire.UI.Group.Settings.GeneralLive,
+            moderation: Bonfire.UI.Group.Settings.GeneralLive
+          ],
           navigation: [
             general: "General",
             members: "Members",
-            invites: "Invites",
-            notifications: "Notifications"
+            notifications: "Notifications",
+            moderation: "Moderation"
           ]
         ]
       ]

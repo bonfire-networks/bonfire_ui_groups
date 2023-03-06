@@ -28,6 +28,7 @@ defmodule Bonfire.UI.Groups.GroupLive do
        assign(
          socket,
          page: "group",
+         nav_items: Bonfire.Common.ExtensionModule.default_nav(:bonfire_ui_social),
          showing_within: :group
          #  smart_input_opts: [hide_buttons: true]
        )}

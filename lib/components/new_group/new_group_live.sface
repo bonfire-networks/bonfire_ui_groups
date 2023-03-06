@@ -5,9 +5,10 @@
   open_btn_wrapper_class="flex flex-1 w-full"
   no_actions
 >
-  <div x-data="{ name: '' }" class="flex flex-col w-full gap-3 mt-3">
+  <div x-data="{ name: '' }" class="">
     <Form
       for={:category}
+      class="flex flex-col w-full gap-3 mt-3"
       submit="Bonfire.UI.Groups:new"
       action="Bonfire.UI.Groups:new"
       change="Bonfire.Classify:validate"
