@@ -34,14 +34,14 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
         network: [],
         settings: [
           sections: [
-            general: Bonfire.UI.Group.Settings.GeneralLive,
-            members: Bonfire.UI.Group.Settings.GeneralLive,
-            notifications: Bonfire.UI.Group.Settings.GeneralLive,
-            moderation: Bonfire.UI.Group.Settings.GeneralLive
+            nil: Bonfire.UI.Groups.Settings.GeneralLive,
+            membership: Bonfire.UI.Groups.Settings.GeneralLive,
+            notifications: Bonfire.UI.Groups.Settings.GeneralLive,
+            moderation: Bonfire.UI.Groups.Settings.GeneralLive
           ],
           navigation: [
-            general: "General",
-            members: "Members",
+            nil: "General",
+            membership: "Members",
             notifications: "Notifications",
             moderation: "Moderation"
           ]

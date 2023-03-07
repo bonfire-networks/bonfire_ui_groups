@@ -3,5 +3,4 @@ defmodule Bonfire.UI.Groups.Settings.GeneralLive do
 
   prop selected_tab, :any, default: nil
   prop group, :any, required: true
-
 end

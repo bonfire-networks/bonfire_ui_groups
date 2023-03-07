@@ -3,6 +3,7 @@ defmodule Bonfire.UI.Groups.SettingsLive do
   import Bonfire.UI.Me.Integration
 
   prop selected_tab, :any, default: nil
+  prop tab_id, :any, default: nil
   prop group, :any, required: true
   prop permalink, :any, required: true
   prop object_boundary, :any, default: nil

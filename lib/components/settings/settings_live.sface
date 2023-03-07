@@ -1,11 +1,14 @@
 <Bonfire.UI.Common.TabsLive
-  selected_tab={@selected_tab}
-  path_prefix={"/group/#{e(@group, :character, :username, "")}/settings/"}
-  tabs={Config.get([:ui, :group, :settings, :navigation], general: l("General"))}
+  selected_tab={@tab_id || @selected_tab}
+  path_prefix={"/group/#{e(@category, :character, :username, "")}/settings/"}
+  tabs={Config.get([:ui, :group, :settings, :navigation], settings: l("General"))}
 />
 
 <Dynamic.Component
-    module={Config.get([:ui, :group, :settings, :sections, tab(@selected_tab)], Bonfire.UI.Groups.Settings.GeneralLive)}
-    {...assigns}
-  >
+  module={Config.get(
+    [:ui, :group, :settings, :sections, tab(@tab_id || @selected_tab)],
+    Bonfire.UI.Groups.Settings.GeneralLive
+  )}
+  {...assigns}
+>
 </Dynamic.Component>

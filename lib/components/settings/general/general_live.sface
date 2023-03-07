@@ -17,7 +17,7 @@
         </label>
       </div>
     </div>
-  </div> 
+  </div>
 
   <div class="w-full form-control">
     <input
@@ -45,10 +45,7 @@
     </select>
   </div>
 
-  <button
-    type="submit"
-    class="w-full mt-3 normal-case btn btn-primary"
-  >
+  <button type="submit" class="w-full mt-3 normal-case btn btn-primary">
     {l("Edit")}
   </button>
 </div>
