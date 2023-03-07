@@ -1,4 +1,4 @@
-<div class="flex items-center justify-between group">
+<div class="flex items-center justify-between px-1 group">
   <LiveRedirect
     to={path(@category)}
     class="text-[10px] link link-hover px-2 font-semibold tracking-[0.175rem] uppercase text-base-content/70"
