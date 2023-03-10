@@ -4,10 +4,12 @@ defmodule Bonfire.UI.Groups.Routes do
   defmacro __using__(_) do
     quote do
       # pages anyone can view
-      scope "/group/", Bonfire.UI.Groups do
+      scope "/", Bonfire.UI.Groups do
         pipe_through(:browser)
 
-        live("/:id", GroupLive, as: :group)
+        live("/&:id", GroupLive, as: :group)
+        live("/&:id/follow", GroupLive, :follow, as: :group)
+        live("/&:id/discover", GroupLive, :discover, as: :group)
       end
 
       # # pages only guests can view
@@ -28,14 +30,13 @@ defmodule Bonfire.UI.Groups.Routes do
         pipe_through(:user_required)
 
         live("/groups", ExploreLive, as: :group)
-        live("/group", ExploreLive)
-        live("/group", ExploreLive, as: Bonfire.UI.Groups.GroupLive)
-        live("/group/:id/settings", GroupLive, :settings, as: :group)
-        live("/group/:id/discover", GroupLive, :discover, as: :group)
-        live("/group/:id/members", GroupLive, :members, as: :group)
-        live("/group/:id/submitted", GroupLive, :submitted, as: :group)
-        live("/group/:id/:tab", GroupLive, as: :group)
-        live("/group/:id/:tab/:tab_id", GroupLive, as: :group)
+        # live("/&", ExploreLive)
+        live("/&", ExploreLive, as: Bonfire.UI.Groups.GroupLive)
+        live("/&:id/settings", GroupLive, :settings, as: :group)
+        live("/&:id/members", GroupLive, :members, as: :group)
+        live("/&:id/submitted", GroupLive, :submitted, as: :group)
+        live("/&:id/:tab", GroupLive, as: :group)
+        live("/&:id/:tab/:tab_id", GroupLive, as: :group)
       end
 
       # # pages only admins can view

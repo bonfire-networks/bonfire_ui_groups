@@ -18,18 +18,18 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
         sections: [
           timeline: Bonfire.UI.Social.ProfileTimelineLive,
           # private: Bonfire.UI.Social.MessageThreadsLive,
-          posts: Bonfire.UI.Social.ProfilePostsLive,
+          # posts: Bonfire.UI.Social.ProfilePostsLive,
           discover: Bonfire.UI.Groups.DiscoverGroupsLive,
           # Bonfire.UI.Groups.GroupMembersLive
           members: Bonfire.UI.Social.ProfileFollowsLive,
-          settings: Bonfire.UI.Groups.SettingsLive
+          settings: Bonfire.UI.Groups.SettingsLive,
+          follow: Bonfire.UI.Me.RemoteInteractionFormLive
         ],
         navigation: [
-          timeline: "Timeline",
-          posts: "Posts",
-          topics: "Topics",
-          members: "Members"
-          # private: "private",
+          timeline: l("Timeline"),
+          posts: l("Posts"),
+          topics: l("Topics"),
+          members: l("Members")
         ],
         network: [],
         settings: [
@@ -40,10 +40,10 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
             moderation: Bonfire.UI.Groups.Settings.GeneralLive
           ],
           navigation: [
-            nil: "General",
-            membership: "Members",
-            notifications: "Notifications",
-            moderation: "Moderation"
+            nil: l("General"),
+            membership: l("Members"),
+            notifications: l("Notifications"),
+            moderation: l("Moderation")
           ]
         ]
       ]

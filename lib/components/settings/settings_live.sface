@@ -1,6 +1,6 @@
 <Bonfire.UI.Common.TabsLive
   selected_tab={@tab_id || @selected_tab}
-  path_prefix={"/group/#{e(@category, :character, :username, "")}/settings/"}
+  path_prefix={"#{@permalink}/settings/"}
   tabs={Config.get([:ui, :group, :settings, :navigation], settings: l("General"))}
 />
 
