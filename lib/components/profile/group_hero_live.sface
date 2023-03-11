@@ -4,7 +4,7 @@
       class="hero relative bg-no-repeat min-h-[200px]"
       style={"background-image: url('#{Media.banner_url(@group)}');"}
     >
-      <div class="hero-overlay hero-content absolute bottom-0 bg-opacity-60 h-auto text-center text-neutral-content">
+      <div class="hero-overlay hero-content absolute bottom-0 bg-opacity-40 h-auto text-center text-neutral-content">
         <h1 class="mb-0 text-2xl font-bold">{e(@group, :profile, :name, "")}</h1>
       </div>
     </div>
