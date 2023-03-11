@@ -17,28 +17,6 @@
         "phx-target": "#modal"
       }
     >
-      <!-- 
-      NOTE: let's upload in settings for now
-      <div
-        data-id="upload_image"
-        class="relative rounded flex justify-center px-6 py-10 bg-center bg-cover bg-base-content/5 h-[200px]"
-        style="background-image: url()"
-      >
-        <div class="space-y-1 text-center">
-          <div class="flex text-sm text-base-content/70">
-            <label class="absolute inset-0 flex flex-col items-center justify-center w-full h-full text-sm font-medium text-white transition duration-150 ease-in-out rounded-lg opacity-0 cursor-pointer bg-base-100 bg-opacity-40 hover:opacity-60 focus-within:opacity-60">
-              <div class="text-center">
-                <span>{l("Upload a background image")}</span>
-                <p class="pl-1">{l("or drag and drop")}</p>
-              </div>
-              <p class="block mt-2 text-xs text-center text-base-content/70">
-                {l("PNG, JPG, GIF up to 10MB")}
-              </p>
-            </label>
-          </div>
-        </div>
-      </div> -->
-
       <div class="w-full form-control">
         <input
           x-model="name"

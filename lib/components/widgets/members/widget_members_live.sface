@@ -1,5 +1,5 @@
-<Bonfire.UI.Common.WidgetBlockLive widget_title={e(@widget_title, "Members")}>
-  <div class="grid grid-cols-1 gap-4 p-3 pt-6">
+<!-- <Bonfire.UI.Common.WidgetBlockLive widget_title={e(@widget_title, l "Members")}>
+ <div class="grid grid-cols-1 gap-4 p-3 pt-6">
     <span class="text-xs font-medium tracking-wider uppercase text-base-content/70">{l("Moderators")}</span>
     {#for user <- @mods}
       <div class="">
@@ -25,4 +25,4 @@
       </div>
     {/for}
   </div>
-</Bonfire.UI.Common.WidgetBlockLive>
+</Bonfire.UI.Common.WidgetBlockLive>  -->

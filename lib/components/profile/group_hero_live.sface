@@ -1,16 +1,16 @@
 <div class="relative">
   <div class="border-b border-base-300">
-    <div class="">
-      <div class="pt-6 bg-base-content/5">
-        <div
-          class="relative rounded bg-center bg-cover bg-no-repeat bg-base-200 w-[100px] mx-auto h-[100px]"
-          style={"background-image: url('#{Media.banner_url(@group)}')"}
-        >
-        </div>
-        <div class="pb-3 mt-3 text-xl font-bold text-center text-base-content">{e(@group, :profile, :name, "")}</div>
+    <div
+      class="hero relative bg-no-repeat min-h-[200px]"
+      style={"background-image: url('#{Media.banner_url(@group)}');"}
+    >
+      <div class="hero-overlay hero-content absolute bottom-0 bg-opacity-60 h-auto text-center text-neutral-content">
+        <h1 class="mb-0 text-2xl font-bold">{e(@group, :profile, :name, "")}</h1>
       </div>
-      <div class="flex flex-col items-start px-4 pb-3 mx-auto border-t border-base-300 bg-base-content/5">
-        <!-- <div class="flex items-start justify-between w-full mt-6">
+    </div>
+
+    <div class="flex flex-col items-start px-4 pb-3 mx-auto border-t border-base-300 bg-base-content/5">
+      <!-- <div class="flex items-start justify-between w-full mt-6">
           <div class="flex flex-col flex-1 gap-2">
             <div class="flex flex-col gap-1">
               <div class="flex items-center">
@@ -42,43 +42,42 @@
           </div>
         </div> -->
 
-        <div class="flex items-center gap-8 mt-3 text-base-content">
-          <LivePatch
-            class={
-              "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
-              "font-medium text-primary with_tab": @selected_tab in ["timeline", "posts", "boosts"]
-            }
-            to={"#{@permalink}/timeline"}
+      <div class="flex items-center gap-8 mt-3 text-base-content">
+        <LivePatch
+          class={
+            "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
+            "font-medium text-primary with_tab": @selected_tab in ["timeline", "posts", "boosts"]
+          }
+          to={"#{@permalink}/timeline"}
+        >
+          <strong
+            :if={Bonfire.Me.Settings.get([:ui, :metrics, :posts_count], nil, @__context__)}
+            class="text-base-content"
           >
-            <strong
-              :if={Bonfire.Me.Settings.get([:ui, :metrics, :posts_count], nil, @__context__)}
-              class="text-base-content"
-            >
-              {e(@user, :character, :posts_count, 0)}
-            </strong>
-            <span>{l("Activities")}</span>
-          </LivePatch>
+            {e(@user, :character, :posts_count, 0)}
+          </strong>
+          <span>{l("Activities")}</span>
+        </LivePatch>
 
-          <LivePatch
-            class={
-              "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
-              "font-medium text-primary with_tab": @selected_tab == "discover"
-            }
-            to={"#{@permalink}/discover"}
-          >
-            <span>{l("Discover")}</span>
-          </LivePatch>
+        <LivePatch
+          class={
+            "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
+            "font-medium text-primary with_tab": @selected_tab == "discover"
+          }
+          to={"#{@permalink}/discover"}
+        >
+          <span>{l("Discover")}</span>
+        </LivePatch>
 
-          <LivePatch
-            class={
-              "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
-              "font-medium text-primary with_tab": @selected_tab == "members"
-            }
-            to={"#{@permalink}/members"}
-          >
-            <span>{l("Members")}</span>
-          </LivePatch>
-        </div>
+        <LivePatch
+          class={
+            "flex items-baseline gap-2 text-sm text-base-content/70 hover:underline relative",
+            "font-medium text-primary with_tab": @selected_tab == "members"
+          }
+          to={"#{@permalink}/members"}
+        >
+          <span>{l("Members")}</span>
+        </LivePatch>
       </div>
     </div>
   </div>

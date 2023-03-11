@@ -1,51 +1,52 @@
 <div class="flex flex-col gap-3 p-4 pt-0">
-  <div
-    data-id="upload_image"
-    class="relative rounded flex justify-center px-6 py-10 bg-center bg-cover bg-base-content/5 h-[200px]"
-    style="background-image: url()"
-  >
-    <div class="space-y-1 text-center">
-      <div class="flex text-sm text-base-content/70">
-        <label class="absolute inset-0 flex flex-col items-center justify-center w-full h-full text-sm font-medium text-white transition duration-150 ease-in-out rounded-lg opacity-0 cursor-pointer bg-base-100 bg-opacity-40 hover:opacity-60 focus-within:opacity-60">
-          <div class="text-center">
-            <span>{l("Upload a background image")}</span>
-            <p class="pl-1">{l("or drag and drop")}</p>
-          </div>
-          <p class="block mt-2 text-xs text-center text-base-content/70">
-            {l("PNG, JPG, GIF up to 10MB")}
-          </p>
-        </label>
+  {#if !Bonfire.Classify.ensure_update_allowed(@current_user, @category)}
+    {l("Sorry, you cannot edit this group.")}
+  {#else}
+    <Bonfire.Files.Web.UploadBannerLive
+      id={:upload_banner}
+      object={@category}
+      set_field={:category}
+      set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
+    />
+    <!-- <Bonfire.Files.Web.UploadIconLive
+    id={:upload_icon}
+        class="inline-block w-24 h-24"
+        object={@current_user}
+        set_field={:current_user}
+        set_fn={&Bonfire.Me.Profiles.LiveHandler.set_profile_image/5}
+        opts={%{"data-id" => "preview_icon"}}
+      /> -->
+
+    <form phx-submit="Bonfire.Classify:edit">
+      <div class="w-full form-control">
+        <input
+          id="name"
+          name="profile[name]"
+          value={e(@category, :profile, :name, nil) || e(@category, :character, :username, nil)}
+          type="text"
+          placeholder={l("Type the group name")}
+          class="w-full text-sm input input-bordered"
+        />
       </div>
-    </div>
-  </div>
+      <div class="w-full form-control">
+        <textarea
+          name="profile[summary]"
+          class="w-full textarea textarea-bordered"
+          placeholder="Write a short description"
+        >{e(@category, :profile, :summary, nil)}</textarea>
+      </div>
 
-  <div class="w-full form-control">
-    <input
-      x-model="name"
-      id="name"
-      name="name"
-      type="text"
-      placeholder={l("Type the group name")}
-      class="w-full text-sm input input-bordered"
-    />
-  </div>
-  <div class="w-full form-control">
-    <textarea
-      name="summary"
-      class="w-full textarea textarea-bordered"
-      placeholder="Write a short description"
-    />
-  </div>
-
-  <div class="w-full form-control">
+      <!-- <div class="w-full form-control">
     <select name="to_boundaries[]" class="select select-bordered">
       <option value="open">{l("Open: anyone can join and participate")}</option>
       <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, and request to join")}</option>
       <option value="private">{l("Private: only people who are invited can see and join the group")}</option>
     </select>
-  </div>
+  </div> -->
 
-  <button type="submit" class="w-full mt-3 normal-case btn btn-primary">
-    {l("Edit")}
-  </button>
+      <button type="submit" class="w-full mt-3 normal-case btn btn-primary">
+        {l("Edit")}
+      </button>
+    </form>
+  {/if}
 </div>

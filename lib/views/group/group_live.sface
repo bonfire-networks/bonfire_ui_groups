@@ -7,6 +7,7 @@
 >
   <Dynamic.Component
     module={Config.get([:ui, :group, :sections, tab(@selected_tab)], Bonfire.UI.Social.ProfileTimelineLive)}
+    permalink={@permalink}
     {...assigns}
   >
     <:header>
@@ -17,7 +18,7 @@
         )}
         group={@category}
         object_boundary={@object_boundary}
-        permalink={path(@category)}
+        permalink={@permalink}
         selected_tab={@selected_tab}
       />
     </:header>
