@@ -1,6 +1,5 @@
 defmodule Bonfire.UI.Groups.GroupLive do
   use Bonfire.UI.Common.Web, :surface_live_view
-  alias Bonfire.UI.Me.LivePlugs
 
   declare_extension("Groups",
     icon: "emojione:circus-tent",
@@ -9,20 +8,9 @@ defmodule Bonfire.UI.Groups.GroupLive do
     ]
   )
 
-  def mount(params, session, socket) do
-    live_plug(params, session, socket, [
-      LivePlugs.LoadCurrentAccount,
-      LivePlugs.LoadCurrentUser,
-      # LivePlugs.LoadCurrentUserCircles,
-      # LivePlugs.LoadCurrentAccountUsers,
-      Bonfire.UI.Common.LivePlugs.StaticChanged,
-      Bonfire.UI.Common.LivePlugs.Csrf,
-      Bonfire.UI.Common.LivePlugs.Locale,
-      &mounted/3
-    ])
-  end
+  on_mount {LivePlugs, [Bonfire.UI.Me.LivePlugs.LoadCurrentUser]}
 
-  defp mounted(params, session, socket) do
+  def mount(params, session, socket) do
     with {:ok, socket} <- Bonfire.Classify.LiveHandler.mounted(params, session, socket) do
       {:ok,
        assign(
