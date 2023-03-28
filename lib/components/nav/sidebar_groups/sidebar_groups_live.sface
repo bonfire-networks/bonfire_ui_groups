@@ -22,32 +22,32 @@
       <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
         <Bonfire.UI.Topics.NewTopicLive /> 
         <button alt={l("settings")} class="rounded btn btn-ghost btn-square btn-xs">
-          <Icon iconify="ph:gear-fill" class="w-4 h-4 text-base-content/70" />
+          <#Icon iconify="ph:gear-fill" class="w-4 h-4 text-base-content/70" />
         </button>
       </div>
     </div>
     <ul class="gap-1 my-2 menu">
       <li class="flex items-center gap-5">
         <LiveRedirect to="/+test_topic" class="flex items-center w-full gap-3 px-2 py-2 rounded-md">
-          <Icon iconify="mingcute:paper-fill" class="w-4 h-4 text-base-content/70" />
+          <#Icon iconify="mingcute:paper-fill" class="w-4 h-4 text-base-content/70" />
           <span class="text-sm font-medium text-base-content/70">{l("Rules")}</span>
         </LiveRedirect>
       </li>
       <li class="flex items-center gap-5">
         <LiveRedirect to="/+test_topic" class="flex items-center w-full gap-3 px-2 py-2 rounded-md">
-          <Icon iconify="gridicons:speaker" class="w-4 h-4 text-base-content/70" />
+          <#Icon iconify="gridicons:speaker" class="w-4 h-4 text-base-content/70" />
           <span class="text-sm font-medium text-base-content/70">{l("Announcements")}</span>
         </LiveRedirect>
       </li>
       <li class="flex items-center gap-5">
         <LiveRedirect to="/+test_topic" class="flex items-center w-full gap-3 px-2 py-2 rounded-md">
-          <Icon iconify="mingcute:hashtag-fill" class="w-4 h-4 text-base-content/70" />
+          <#Icon iconify="mingcute:hashtag-fill" class="w-4 h-4 text-base-content/70" />
           <span class="text-sm font-medium text-base-content/70">{l("Welcome")}</span>
         </LiveRedirect>
       </li>
       <li class="flex items-center gap-5">
         <LiveRedirect to="/+test_topic" class="flex items-center w-full gap-3 px-2 py-2 rounded-md">
-          <Icon iconify="mingcute:hashtag-fill" class="w-4 h-4 text-base-content/70" />
+          <#Icon iconify="mingcute:hashtag-fill" class="w-4 h-4 text-base-content/70" />
           <span class="text-sm font-medium text-base-content/70">{l("Introduce yourself")}</span>
         </LiveRedirect>
       </li>

@@ -24,7 +24,7 @@
               </div>
 
               <div class="flex items-center gap-2 mt-3">
-                <Icon iconify="material-symbols:calendar-month" class="w-5 h-5 text-base-content/100" />
+                <#Icon iconify="material-symbols:calendar-month" class="w-5 h-5 text-base-content/100" />
                 <span class="text-xs text-base-content/70">Created 12 Feb</span>
               </div>
             </div>

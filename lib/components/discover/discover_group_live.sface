@@ -10,7 +10,7 @@
       alt={l("More topics")}
       class="rounded btn btn-ghost btn-square btn-xs"
     >
-      <Icon iconify="material-symbols:manage-search" class="w-4 h-4 text-base-content/70" />
+      <#Icon iconify="material-symbols:manage-search" class="w-4 h-4 text-base-content/70" />
     </LiveRedirect>
   </div>
 </div>
