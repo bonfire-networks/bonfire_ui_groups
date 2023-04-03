@@ -1,5 +1,5 @@
 <Bonfire.UI.Common.OpenModalLive
-  id="new_group"
+  id="create_new_group"
   reusable_modal_id={if @__context__[:sticky], do: "persistent_modal"}
   title_text={l("Create a new group")}
   open_btn_wrapper_class="flex flex-1 w-full"
