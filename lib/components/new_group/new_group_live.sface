@@ -7,7 +7,8 @@
 >
   <div x-data="{ name: '' }" class="">
     <Form
-      for={:category}
+      for={%{}}
+      as={:category}
       class="flex flex-col w-full gap-3 mt-3"
       submit="Bonfire.UI.Groups:new"
       action="Bonfire.UI.Groups:new"
