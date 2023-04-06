@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4 pt-4 mt-4 border-t border-base-content/10">
+<div class="flex flex-col gap-4 pt-4 mt-4">
   <nav :for={{%{type: :group} = category, children} <- @categories} class="">
     <!-- top-level group -->
     <Bonfire.UI.Groups.SidebarGroupLive category={category} children={children} />
