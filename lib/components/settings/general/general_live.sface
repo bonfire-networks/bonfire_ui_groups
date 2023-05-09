@@ -28,7 +28,7 @@
           class="w-full text-sm input input-bordered"
         />
       </div>
-      <div class="w-full form-control">
+      <div class="w-full mt-3 form-control">
         <textarea
           name="profile[summary]"
           class="w-full textarea textarea-bordered"
@@ -48,5 +48,18 @@
         {l("Edit")}
       </button>
     </form>
+
+    <div class="flex flex-col p-2 mt-6 space-y-3 border rounded border-error/30 bg-error/5">
+      <div class="">
+        <div class="text-base font-semibold text-error-content">{l("Super powers")}</div>
+        <p class="mt-0 text-sm text-error-content">
+          {l("Archive this group. It will be hidden from the public, but you can restore it later.")}
+        </p>
+      </div>
+        
+      <button 
+        class="btn btn-error btn-outline normal-case">{l "Archive"}
+      </button>
+    </div>
   {/if}
 </div>

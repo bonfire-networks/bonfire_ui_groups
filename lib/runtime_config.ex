@@ -37,12 +37,14 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
             nil: Bonfire.UI.Groups.Settings.GeneralLive,
             membership: Bonfire.UI.Groups.Settings.GeneralLive,
             notifications: Bonfire.UI.Groups.Settings.GeneralLive,
-            moderation: Bonfire.UI.Groups.Settings.GeneralLive
+            moderation: Bonfire.UI.Groups.Settings.GeneralLive,
+            roles: Bonfire.UI.Groups.Settings.GeneralLive
           ],
           navigation: [
             nil: l("General"),
             membership: l("Members"),
             notifications: l("Notifications"),
+            roles: l("Roles"),
             moderation: l("Moderation")
           ]
         ]

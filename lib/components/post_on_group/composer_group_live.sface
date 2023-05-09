@@ -1,0 +1,9 @@
+<Bonfire.UI.Common.SmartInputButtonLive
+  :if={@current_user}
+  smart_input_opts={%{
+    text_suggestion: "+#{e(@category, :character, :username, nil)}",
+    to_circles: [id(@category)]
+  }}
+  prompt={l("Publish in group")}
+  class="normal-case rounded btn mr-2 btn-primary btn-sm btn-outline"
+/>

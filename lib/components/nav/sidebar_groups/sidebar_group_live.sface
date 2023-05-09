@@ -1,10 +1,15 @@
-<div class="flex items-center justify-between mx-1 group">
+<!-- <div class=""> -->
   <LiveRedirect
     to={path(@category)}
-    class="text-[10px] link link-hover px-2 font-semibold tracking-[0.175rem] uppercase text-base-content/70"
-  >{e(@category, :profile, :name, nil)}</LiveRedirect>
-  <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
-    <!-- <Dynamic.Component module={Bonfire.UI.Topics.NewTopicLive} parent={@category} /> -->
+    class="flex items-center w-full gap-4 px-2 py-2 rounded-md group"
+  >
+    <div
+      class="hero relative bg-no-repeat h-[20px] w-[20px] rounded-full bg-cover bg-center]"
+      style={"background-image: url('#{Media.banner_url(@category)}');"}
+    ></div>
+    <span class="text-[16px] font-normal capitalize text-base-content">{e(@category, :profile, :name, nil)}</span>
+  </LiveRedirect>
+  <!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
     <LiveRedirect
       to={path(@category, :discover)}
       alt={l("More topics")}
@@ -12,21 +17,20 @@
     >
       <#Icon iconify="material-symbols:manage-search" class="w-4 h-4 text-base-content/70" />
     </LiveRedirect>
-  </div>
-</div>
+  </div> -->
 
-<ul class="gap-1 my-2 menu">
-  <nav :for={{%{type: :topic} = subcategory, subchildren} <- @children} class="">
-    <!-- topic in a group -->
-    <Dynamic.Component
-      module={Bonfire.UI.Topics.SidebarTopicLive}
-      category={subcategory}
-      children={subchildren}
-    />
-  </nav>
 
-  <nav :for={{%{type: :group} = subcategory, subchildren} <- @children} class="">
-    <!-- sub-group -->
-    <Bonfire.UI.Groups.SidebarGroupLive category={subcategory} children={subchildren} />
-  </nav>
-</ul>
+<!-- <ul class="menu"> -->
+  <!-- <Dynamic.Component
+    :for={{%{type: :topic} = subcategory, subchildren} <- @children}
+    module={Bonfire.UI.Topics.SidebarTopicLive}
+    category={subcategory}
+    children={subchildren}
+  /> -->
+  <!-- sub-group -->
+  <!-- <Bonfire.UI.Groups.SidebarGroupLive 
+    :for={{%{type: :group} = subcategory, subchildren} <- @children} 
+    category={subcategory} 
+    children={subchildren} 
+  /> -->
+<!-- </ul> -->
