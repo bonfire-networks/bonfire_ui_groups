@@ -1,65 +1,207 @@
-<div class="flex flex-col gap-3 p-4 pt-0">
+<div class="flex flex-col gap-1 p-4 pt-0">
   {#if !Bonfire.Classify.ensure_update_allowed(@current_user, @category)}
     {l("Sorry, you cannot edit this group.")}
   {#else}
-    <Bonfire.Files.Web.UploadBannerLive
-      id={:upload_banner}
-      object={@category}
-      set_field={:category}
-      set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
-    />
-    <!-- <Bonfire.Files.Web.UploadIconLive
-    id={:upload_icon}
-        class="inline-block w-24 h-24"
-        object={@current_user}
-        set_field={:current_user}
-        set_fn={&Bonfire.Me.Profiles.LiveHandler.set_profile_image/5}
-        opts={%{"data-id" => "preview_icon"}}
-      /> -->
 
-    <form phx-submit="Bonfire.Classify:edit">
-      <div class="w-full form-control">
-        <input
-          id="name"
-          name="profile[name]"
-          value={e(@category, :profile, :name, nil) || e(@category, :character, :username, nil)}
-          type="text"
-          placeholder={l("Type the group name")}
-          class="w-full text-sm input input-bordered"
-        />
+    <div class="mt-2">
+      <div
+        x-data="{
+          open: false
+        }"
+        class="p-3 rounded-lg border border-base-content/30"
+        >
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-1">
+            <div class="text-base font-bold text-base-content">{l("Edit the appearance")}</div>
+          </div>
+          <button
+            x-show="!open"
+            type="button"
+            x-on:click="open = !open"
+            class="normal-case btn-circle btn btn-ghost btn-sm"
+          >
+            <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
+          </button>
+          <button
+            x-show="open"
+            type="button"
+            x-on:click="open = !open"
+            class="normal-case btn-circle btn btn-ghost btn-sm"
+          >
+            <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
+          </button>
+        </div>
+        <div x-show="open" x-cloak x-collapse>
+          <div class="my-3">
+          <Bonfire.Files.Web.UploadBannerLive
+            id={:upload_banner}
+            object={@category}
+            set_field={:category}
+            set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
+          />
+          </div>
+          <form phx-submit="Bonfire.Classify:edit">
+            <div class="w-full form-control">
+              <input
+                id="name"
+                name="profile[name]"
+                value={e(@category, :profile, :name, nil) || e(@category, :character, :username, nil)}
+                type="text"
+                placeholder={l("Type the group name")}
+                class="w-full text-sm input input-bordered"
+              />
+            </div>
+            <div class="w-full mt-3 form-control">
+              <textarea
+                name="profile[summary]"
+                class="w-full textarea textarea-bordered"
+                placeholder="Write a short description"
+              >{e(@category, :profile, :summary, nil)}</textarea>
+            </div>
+
+            <!-- <div class="w-full form-control">
+              <select name="to_boundaries[]" class="select select-bordered">
+                <option value="open">{l("Open: anyone can join and participate")}</option>
+                <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, and request to join")}</option>
+                <option value="private">{l("Private: only people who are invited can see and join the group")}</option>
+              </select>
+            </div> -->
+
+          <button type="submit" class="w-full btn-outline rounded-full mt-3 normal-case btn btn-primary">
+            {l("Edit appearance")}
+          </button>
+          </form>
+        </div>
       </div>
-      <div class="w-full mt-3 form-control">
-        <textarea
-          name="profile[summary]"
-          class="w-full textarea textarea-bordered"
-          placeholder="Write a short description"
-        >{e(@category, :profile, :summary, nil)}</textarea>
-      </div>
-
-      <!-- <div class="w-full form-control">
-    <select name="to_boundaries[]" class="select select-bordered">
-      <option value="open">{l("Open: anyone can join and participate")}</option>
-      <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, and request to join")}</option>
-      <option value="private">{l("Private: only people who are invited can see and join the group")}</option>
-    </select>
-  </div> -->
-
-      <button type="submit" class="w-full mt-3 normal-case btn btn-primary">
-        {l("Edit")}
-      </button>
-    </form>
-
-    <div class="flex flex-col p-2 mt-6 space-y-3 border rounded border-error/30 bg-error/5">
-      <div class="">
-        <div class="text-base font-semibold text-error-content">{l("Super powers")}</div>
-        <p class="mt-0 text-sm text-error-content">
-          {l("Archive this group. It will be hidden from the public, but you can restore it later.")}
-        </p>
-      </div>
-        
-      <button 
-        class="btn btn-error btn-outline normal-case">{l "Archive"}
-      </button>
     </div>
+
+    <div class="mt-2">
+      <div
+        x-data="{
+          open: false
+        }"
+        class="p-3 rounded-lg border border-base-content/30"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-1">
+            <div class="text-base font-bold text-base-content">{l("Edit visibility")}</div>
+          </div>
+          <button
+            x-show="!open"
+            type="button"
+            x-on:click="open = !open"
+            class="normal-case btn-circle btn btn-ghost btn-sm"
+          >
+            <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
+          </button>
+          <button
+            x-show="open"
+            type="button"
+            x-on:click="open = !open"
+            class="normal-case btn-circle btn btn-ghost btn-sm"
+          >
+            <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
+          </button>
+        </div>
+        <div x-show="open" x-cloak x-collapse>
+          <div class="w-full mt-2 form-control">
+            <select name="to_boundaries[]" class="select select-bordered">
+              <option value="open">{l("Open: anyone can join and participate")}</option>
+              <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, and request to join")}</option>
+              <option value="private">{l("Private: only people who are invited can see and join the group")}</option>
+            </select>
+            <button type="submit" class="w-full rounded-full mt-3 normal-case btn btn-outline btn-primary">
+              {l("Edit visibility")}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <div
+        x-data="{
+          open: false
+        }"
+        class="p-3 rounded-lg border border-base-content/30"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-1">
+            <div class="text-base font-bold text-base-content">{l("Edit roles")}</div>
+          </div>
+          <button
+            x-show="!open"
+            type="button"
+            x-on:click="open = !open"
+            class="normal-case btn-circle btn btn-ghost btn-sm"
+          >
+            <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
+          </button>
+          <button
+            x-show="open"
+            type="button"
+            x-on:click="open = !open"
+            class="normal-case btn-circle btn btn-ghost btn-sm"
+          >
+            <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
+          </button>
+        </div>
+        <div x-show="open" x-cloak x-collapse>
+          <div class="border border-base-content/10 mt-2 rounded">
+            <Dynamic.LiveComponent
+              :if={module_enabled?(Bonfire.Boundaries.Web.AclLive) and @current_user}
+              module={Bonfire.Boundaries.Web.AclLive}
+              setting_boundaries={true}
+              scope={:instance}
+              id={:acl}
+              acl_id={Bonfire.Boundaries.Fixtures.instance_acl()}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <div
+        x-data="{
+          open: false
+        }"
+        class="p-3 rounded-lg border border-error/30 bg-error/5"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-1">
+            <div class="text-base font-bold text-error-content">{l("Danger zone")}</div>
+          </div>
+          <button
+            x-show="!open"
+            type="button"
+            x-on:click="open = !open"
+            class="normal-case btn-circle btn btn-ghost btn-sm"
+          >
+            <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
+          </button>
+          <button
+            x-show="open"
+            type="button"
+            x-on:click="open = !open"
+            class="normal-case btn-circle btn btn-ghost btn-sm"
+          >
+            <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
+          </button>
+        </div>
+        <div x-show="open" x-cloak x-collapse>
+          <div class="">
+            <p class="mt-0 text-sm text-error-content">
+              {l("Archive this group. It will be hidden from the public, but you can restore it later.")}
+            </p>
+          </div>
+            
+          <button 
+            class="btn mt-2 w-full rounded-full btn-error btn-outline normal-case">{l "Archive"}
+          </button>
+        </div>
+      </div>
+    </div>
+  
   {/if}
 </div>

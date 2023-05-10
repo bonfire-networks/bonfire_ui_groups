@@ -1,0 +1,20 @@
+<ul
+role="tablist"
+class="flex justify-evenly border-t items-stretch gap-3 text-sm font-medium border-b border-base-content/10"
+>
+  <li class="cursor-pointer hover:bg-base-content/5 flex-1 flex place-content-center">
+    <div 
+      class={"border-primary !text-base-content border-b-4 border-transparent inline-flex px-5 pb-3 pt-5 text-base-content/70"}
+      role="tab"
+    >
+    {l("All")}
+    </div>
+  </li>
+
+  <li class="cursor-pointer hover:bg-base-content/5 flex-1 flex place-content-center">
+    <div 
+      class={"border-b-4 border-transparent inline-flex px-5 pb-3 pt-5 text-base-content/70"}
+      role="tab"
+    >{l("Moderation")}</div>
+  </li>
+</ul>
