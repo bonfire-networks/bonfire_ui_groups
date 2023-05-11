@@ -37,11 +37,13 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
             general: Bonfire.UI.Groups.Settings.GeneralLive,
             membership: Bonfire.UI.Groups.Settings.MembershipLive,
             notifications: Bonfire.UI.Groups.Settings.NotificationsLive,
+            invites: Bonfire.UI.Groups.Settings.InvitesLive
           ],
           navigation: [
             general: l("General"),
             membership: l("Members"),
-            notifications: l("Notifications")
+            notifications: l("Notifications"),
+            invites: l("Invites")
           ]
         ]
       ]
