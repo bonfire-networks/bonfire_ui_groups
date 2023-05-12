@@ -11,14 +11,18 @@
     {...assigns}
   >
     <:header>
-      <Dynamic.Component
+      <Dynamic.LiveComponent
         module={Config.get(
           [:ui, :group, :hero_component],
-          Bonfire.UI.Groups.GroupHeroLive
+          Bonfire.UI.Me.ProfileHeroFullLive
         )}
-        group={@category}
+        id={ComponentID.new(Bonfire.UI.Me.ProfileHeroFullLive, id(@category), __MODULE__)}
+        user={@category}
+        character_type={:group}
+        boundary_preset={@boundary_preset}
         object_boundary={@object_boundary}
         permalink={@permalink}
+        follows_me={false}
         selected_tab={@selected_tab}
       />
     </:header>

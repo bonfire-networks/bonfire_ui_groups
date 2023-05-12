@@ -17,6 +17,7 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
       group: [
         sections: [
           timeline: Bonfire.UI.Social.ProfileTimelineLive,
+          guest: Bonfire.UI.Groups.GuestLive,
           # private: Bonfire.UI.Social.MessageThreadsLive,
           # posts: Bonfire.UI.Social.ProfilePostsLive,
           discover: Bonfire.UI.Groups.DiscoverGroupsLive,
