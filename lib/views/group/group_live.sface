@@ -18,6 +18,7 @@
         )}
         id={ComponentID.new(Bonfire.UI.Me.ProfileHeroFullLive, id(@category), __MODULE__)}
         user={@category}
+        path={@path}
         character_type={:group}
         boundary_preset={@boundary_preset}
         object_boundary={@object_boundary}
