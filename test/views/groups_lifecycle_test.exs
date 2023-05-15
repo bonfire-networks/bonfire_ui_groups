@@ -1,4 +1,4 @@
-defmodule Bonfire.UI.Groups.GroupsLifecycleTest do
+defmodule Bonfire.UI.Groups.LiveHandlerTest do
   use Bonfire.UI.Social.ConnCase, async: true
   alias Bonfire.Social.Fake
   alias Bonfire.Social.Posts
@@ -10,7 +10,7 @@ defmodule Bonfire.UI.Groups.GroupsLifecycleTest do
 
   describe "group creation" do
     test "Create a group works" do
-
+      #
     end
 
     test "If I create an open group, anyone can join" do
