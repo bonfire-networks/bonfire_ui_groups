@@ -22,6 +22,7 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
           # posts: Bonfire.UI.Social.ProfilePostsLive,
           discover: Bonfire.UI.Groups.DiscoverGroupsLive,
           # Bonfire.UI.Groups.GroupMembersLive
+          followers: Bonfire.UI.Social.ProfileFollowsLive,
           members: Bonfire.UI.Social.ProfileFollowsLive,
           settings: Bonfire.UI.Groups.SettingsLive,
           follow: Bonfire.UI.Me.RemoteInteractionFormLive
