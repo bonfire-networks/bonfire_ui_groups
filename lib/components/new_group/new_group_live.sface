@@ -9,6 +9,7 @@
     <Form
       for={%{}}
       as={:category}
+      id="new_group_form"
       class="flex flex-col w-full gap-3 mt-3"
       submit="Bonfire.UI.Groups:new"
       action="Bonfire.UI.Groups:new"

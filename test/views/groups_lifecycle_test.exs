@@ -10,16 +10,81 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
   describe "group creation" do
     test "Create a group works" do
-      #
+      account = fake_account!()
+      me = fake_user!(account)
+      conn = conn(user: me, account: account)
+      next = "/"
+      {:ok, view, _html} = live(conn, next)
+
+      view
+      |> element("[data-id=create_new_group] div[data-role=open_modal]")
+      |> render_click()
+
+      group_name = "Friends"
+      {:ok, group_view, html} =
+        view
+        |> form("#new_group_form", name: group_name, summary: "test description", to_boundaries: ["visible"])
+        |> render_submit()
+        |> follow_redirect(conn)
+
+        assert html =~ "Created!"
+        assert html =~ group_name
     end
 
     test "If I create an open group, anyone can join" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+      name = "Friends"
+      description = "test description"
+      to_boundaries = ["open"]
+      {:ok, group} = Bonfire.Classify.Categories.create(
+        me,
+        %{category: %{
+          name: name,
+          description: description,
+          to_boundaries: to_boundaries,
+          type: :group
+        }},
+        true
+      )
+      conn = conn(user: alice, account: account)
+      next = "/&#{group.character.username}"
+      {:ok, view, _html} = live(conn, next)
+
+      assert render(view) =~ "Join"
+      assert view |> has_element?("[data-id=follow]")
+      assert view |> element("[data-id=follow]") |> render_click()
+      # assert render(view) =~ "joined"
+      # assert view |> element("[data-id=follow]") |> render_click() |> has_element?("[data-id=unfollow]")
 
     end
 
     test "If I create a visible group, anyone can request to join" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+      name = "Friends"
+      description = "test description"
+      to_boundaries = ["visible"]
+      {:ok, group} = Bonfire.Classify.Categories.create(
+        me,
+        %{category: %{
+          name: name,
+          description: description,
+          to_boundaries: to_boundaries,
+          type: :group
+        }},
+        true
+      )
+      conn = conn(user: alice, account: account)
+      next = "/&#{group.character.username}"
+      {:ok, view, _html} = live(conn, next)
 
+      assert render(view) =~ "Request to join"
+      assert view |> has_element?("[data-id=follow]")
     end
+
 
     test "If I create a private group, a user with the invite can join" do
 
@@ -30,7 +95,26 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     end
 
     test "I cannot see a private group without an invite" do
-
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+      name = "Friends"
+      description = "test description"
+      to_boundaries = ["private"]
+      {:ok, group} = Bonfire.Classify.Categories.create(
+        me,
+        %{category: %{
+          name: name,
+          description: description,
+          to_boundaries: to_boundaries,
+          type: :group
+        }},
+        true
+      )
+      conn = conn(user: alice, account: account)
+      next = "/&#{group.character.username}"
+      {:ok, view, _html} = live(conn, next)
+      refute render(view) =~ name
     end
 
     test "If I joined a group, I can leave it" do
