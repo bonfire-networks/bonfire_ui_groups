@@ -1,15 +1,15 @@
 <!-- <div class=""> -->
-  <LiveRedirect
-    to={path(@category)}
-    class="hover:bg-base-content/10 flex items-center w-full gap-4 px-2 py-2 rounded-md group"
-  >
-    <div
-      class="hero relative bg-no-repeat h-[20px] w-[20px] rounded-full bg-cover bg-center]"
-      style={"background-image: url('#{Media.banner_url(@category)}');"}
-    ></div>
-    <span class="text-[16px] font-normal capitalize text-base-content">{e(@category, :profile, :name, nil)}</span>
-  </LiveRedirect>
-  <!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
+<LiveRedirect
+  to={path(@category)}
+  class="hover:bg-base-content/10 flex items-center w-full gap-4 px-2 py-2 rounded-md group"
+>
+  <div
+    class="hero relative bg-no-repeat h-[20px] w-[20px] rounded-full bg-cover bg-center]"
+    style={"background-image: url('#{Media.banner_url(@category)}');"}
+  />
+  <span class="text-[16px] font-normal capitalize text-base-content">{e(@category, :profile, :name, nil)}</span>
+</LiveRedirect>
+<!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
     <LiveRedirect
       to={path(@category, :discover)}
       alt={l("More topics")}
@@ -19,16 +19,15 @@
     </LiveRedirect>
   </div> -->
 
-
 <!-- <ul class="menu"> -->
-  <!-- <Dynamic.Component
+<!-- <Dynamic.Component
     :for={{%{type: :topic} = subcategory, subchildren} <- @children}
     module={Bonfire.UI.Topics.SidebarTopicLive}
     category={subcategory}
     children={subchildren}
   /> -->
-  <!-- sub-group -->
-  <!-- <Bonfire.UI.Groups.SidebarGroupLive 
+<!-- sub-group -->
+<!-- <Bonfire.UI.Groups.SidebarGroupLive 
     :for={{%{type: :group} = subcategory, subchildren} <- @children} 
     category={subcategory} 
     children={subchildren} 

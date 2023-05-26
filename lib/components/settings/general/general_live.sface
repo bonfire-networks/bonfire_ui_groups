@@ -2,14 +2,13 @@
   {#if !Bonfire.Classify.ensure_update_allowed(@current_user, @category)}
     {l("Sorry, you cannot edit this group.")}
   {#else}
-
     <div class="mt-2">
       <div
         x-data="{
           open: false
         }"
         class="p-3 rounded-lg border border-base-content/30"
-        >
+      >
         <div class="flex items-center justify-between">
           <div class="flex flex-col gap-1">
             <div class="text-base font-bold text-base-content">{l("Edit the appearance")}</div>
@@ -33,12 +32,12 @@
         </div>
         <div x-show="open" x-cloak x-collapse>
           <div class="my-3">
-          <Bonfire.Files.Web.UploadBannerLive
-            id={:upload_banner}
-            object={@category}
-            set_field={:category}
-            set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
-          />
+            <Bonfire.Files.Web.UploadBannerLive
+              id={:upload_banner}
+              object={@category}
+              set_field={:category}
+              set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
+            />
           </div>
           <form phx-submit="Bonfire.Classify:edit">
             <div class="w-full form-control">
@@ -67,9 +66,9 @@
               </select>
             </div> -->
 
-          <button type="submit" class="w-full btn-outline rounded-full mt-3 normal-case btn btn-primary">
-            {l("Edit appearance")}
-          </button>
+            <button type="submit" class="w-full btn-outline rounded-full mt-3 normal-case btn btn-primary">
+              {l("Edit appearance")}
+            </button>
           </form>
         </div>
       </div>
@@ -151,7 +150,7 @@
             <Dynamic.LiveComponent
               :if={module_enabled?(Bonfire.Boundaries.Web.AclLive) and @current_user}
               module={Bonfire.Boundaries.Web.AclLive}
-              setting_boundaries={true}
+              setting_boundaries
               scope={:instance}
               id={:acl}
               acl_id={Bonfire.Boundaries.Fixtures.instance_acl()}
@@ -195,13 +194,11 @@
               {l("Archive this group. It will be hidden from the public, but you can restore it later.")}
             </p>
           </div>
-            
-          <button 
-            class="btn mt-2 w-full rounded-full btn-error btn-outline normal-case">{l "Archive"}
+
+          <button class="btn mt-2 w-full rounded-full btn-error btn-outline normal-case">{l("Archive")}
           </button>
         </div>
       </div>
     </div>
-  
   {/if}
 </div>
