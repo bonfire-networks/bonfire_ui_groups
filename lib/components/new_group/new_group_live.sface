@@ -69,7 +69,7 @@
     </Form>
   </div>
   <:open_btn>
-    <button class="flex items-center gap-2 text-base md:text-sm text-base-content/80" type="button">
+    <button class="flex items-center gap-2 text-sm text-base-content/80" type="button">
       {l("Create a new group")}
     </button>
   </:open_btn>
