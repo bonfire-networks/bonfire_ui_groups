@@ -17,6 +17,13 @@ defmodule Bonfire.UI.Groups.ExploreLive do
          categories: list,
          page_info: page_info,
          nav_items: Bonfire.Common.ExtensionModule.default_nav(:bonfire_ui_social),
+         page_header_aside: [
+           {Bonfire.UI.Groups.NewGroupLive,
+            [
+              parent_id: "explore",
+              open_btn_class: "btn btn-sm btn-primary normal-case flex items-center gap-2"
+            ]}
+         ],
          sidebar_widgets: [
            users: [
              secondary: [
