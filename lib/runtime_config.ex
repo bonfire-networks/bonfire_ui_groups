@@ -21,15 +21,15 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
           # private: Bonfire.UI.Social.MessageThreadsLive,
           # posts: Bonfire.UI.Social.ProfilePostsLive,
           discover: Bonfire.UI.Groups.DiscoverGroupsLive,
-          # Bonfire.UI.Groups.GroupMembersLive
           followers: Bonfire.UI.Social.ProfileFollowsLive,
           members: Bonfire.UI.Social.ProfileFollowsLive,
           settings: Bonfire.UI.Groups.SettingsLive,
-          follow: Bonfire.UI.Me.RemoteInteractionFormLive
+          follow: Bonfire.UI.Me.RemoteInteractionFormLive,
+          submitted: Bonfire.UI.Social.ProfileTimelineLive
         ],
         navigation: [
           timeline: l("Timeline"),
-          posts: l("Posts"),
+          # posts: l("Posts"),
           topics: l("Topics"),
           members: l("Members")
         ],
@@ -37,15 +37,18 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
         settings: [
           sections: [
             general: Bonfire.UI.Groups.Settings.GeneralLive,
-            membership: Bonfire.UI.Groups.Settings.MembershipLive,
-            notifications: Bonfire.UI.Groups.Settings.NotificationsLive,
-            invites: Bonfire.UI.Groups.Settings.InvitesLive
+            # membership: Bonfire.UI.Groups.Settings.MembershipLive,
+            invites: Bonfire.UI.Groups.Settings.InvitesLive,
+            boundaries: Bonfire.UI.Groups.Settings.BoundariesLive,
+            moderation: Bonfire.UI.Groups.Settings.FlagsLive
           ],
           navigation: [
             general: l("General"),
-            membership: l("Members"),
-            notifications: l("Notifications"),
-            invites: l("Invites")
+            members: l("Members"),
+            # invites: l("Invites"),
+            boundaries: l("Boundaries"),
+            moderation: l("Moderation"),
+            submitted: l("Mentions")
           ]
         ]
       ]

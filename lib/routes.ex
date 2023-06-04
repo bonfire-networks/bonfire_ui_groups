@@ -32,11 +32,15 @@ defmodule Bonfire.UI.Groups.Routes do
         live("/groups", ExploreLive, as: :groups)
         # live("/&", ExploreLive)
         live("/&", ExploreLive, as: Bonfire.UI.Groups.GroupLive)
-        live("/&:id/settings", GroupLive, :settings, as: :group)
+
         live("/&:id/members", GroupLive, :members, as: :group)
         live("/&:id/submitted", GroupLive, :submitted, as: :group)
         live("/&:id/:tab", GroupLive, as: :group)
         live("/&:id/:tab/:tab_id", GroupLive, as: :group)
+
+        live("/&:id/settings", GroupLive, :settings, as: :group)
+        live("/&:id/settings/mentions", GroupLive, :submitted, as: :group)
+        live("/&:id/settings/membership", GroupLive, :members, as: :group)
       end
 
       # # pages only admins can view

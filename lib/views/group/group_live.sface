@@ -6,26 +6,35 @@
   }
 >
   <Dynamic.Component
-    module={Config.get([:ui, :group, :sections, tab(@selected_tab)], Bonfire.UI.Social.ProfileTimelineLive)}
+    module={tab_component(@selected_tab) || tab_component(@tab_id |> debug("tttt")) ||
+      Bonfire.UI.Social.ProfileTimelineLive}
     permalink={@permalink}
     {...assigns}
   >
     <:header>
-      <Dynamic.LiveComponent
-        module={Config.get(
-          [:ui, :group, :hero_component],
-          Bonfire.UI.Me.ProfileHeroFullLive
-        )}
-        id={ComponentID.new(Bonfire.UI.Me.ProfileHeroFullLive, id(@category), __MODULE__)}
-        user={@category}
-        path={@path}
-        character_type={:group}
-        boundary_preset={@boundary_preset}
-        object_boundary={@object_boundary}
-        permalink={@permalink}
-        follows_me={false}
-        selected_tab={@selected_tab}
-      />
+      {#if @tab_id == "settings"}
+        <Bonfire.UI.Common.TabsLive
+          selected_tab={@tab_id || @selected_tab}
+          path_prefix={"#{@permalink}/settings/"}
+          tabs={Config.get([:ui, :group, :settings, :navigation], settings: l("General"))}
+        />
+      {#else}
+        <Dynamic.LiveComponent
+          module={Config.get(
+            [:ui, :group, :hero_component],
+            Bonfire.UI.Me.ProfileHeroFullLive
+          )}
+          id={ComponentID.new(Bonfire.UI.Me.ProfileHeroFullLive, id(@category), __MODULE__)}
+          user={@category}
+          path={@path}
+          character_type={:group}
+          boundary_preset={@boundary_preset}
+          object_boundary={@object_boundary}
+          permalink={@permalink}
+          follows_me={false}
+          selected_tab={@selected_tab}
+        />
+      {/if}
     </:header>
   </Dynamic.Component>
 </main>

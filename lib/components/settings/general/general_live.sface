@@ -9,24 +9,14 @@
         }"
         class="p-3 rounded-lg border border-base-content/30"
       >
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between cursor-pointer" x-on:click="open = !open">
           <div class="flex flex-col gap-1">
             <div class="text-base font-bold text-base-content">{l("Edit the appearance")}</div>
           </div>
-          <button
-            x-show="!open"
-            type="button"
-            x-on:click="open = !open"
-            class="normal-case btn-circle btn btn-ghost btn-sm"
-          >
+          <button x-show="!open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
             <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
           </button>
-          <button
-            x-show="open"
-            type="button"
-            x-on:click="open = !open"
-            class="normal-case btn-circle btn btn-ghost btn-sm"
-          >
+          <button x-show="open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
             <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
           </button>
         </div>
@@ -66,7 +56,7 @@
               </select>
             </div> -->
 
-            <button type="submit" class="w-full btn-outline rounded-full mt-3 normal-case btn btn-primary">
+            <button type="submit" class="w-full rounded-full mt-3 normal-case btn btn-primary">
               {l("Edit appearance")}
             </button>
           </form>
@@ -79,112 +69,16 @@
         x-data="{
           open: false
         }"
-        class="p-3 rounded-lg border border-base-content/30"
-      >
-        <div class="flex items-center justify-between">
-          <div class="flex flex-col gap-1">
-            <div class="text-base font-bold text-base-content">{l("Edit visibility")}</div>
-          </div>
-          <button
-            x-show="!open"
-            type="button"
-            x-on:click="open = !open"
-            class="normal-case btn-circle btn btn-ghost btn-sm"
-          >
-            <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
-          </button>
-          <button
-            x-show="open"
-            type="button"
-            x-on:click="open = !open"
-            class="normal-case btn-circle btn btn-ghost btn-sm"
-          >
-            <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
-          </button>
-        </div>
-        <div x-show="open" x-cloak x-collapse>
-          <div class="w-full mt-2 form-control">
-            <select name="to_boundaries[]" class="select select-bordered">
-              <option value="open">{l("Open: anyone can join and participate")}</option>
-              <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, and request to join")}</option>
-              <option value="private">{l("Private: only people who are invited can see and join the group")}</option>
-            </select>
-            <button type="submit" class="w-full rounded-full mt-3 normal-case btn btn-outline btn-primary">
-              {l("Edit visibility")}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="mt-2">
-      <div
-        x-data="{
-          open: false
-        }"
-        class="p-3 rounded-lg border border-base-content/30"
-      >
-        <div class="flex items-center justify-between">
-          <div class="flex flex-col gap-1">
-            <div class="text-base font-bold text-base-content">{l("Edit roles")}</div>
-          </div>
-          <button
-            x-show="!open"
-            type="button"
-            x-on:click="open = !open"
-            class="normal-case btn-circle btn btn-ghost btn-sm"
-          >
-            <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
-          </button>
-          <button
-            x-show="open"
-            type="button"
-            x-on:click="open = !open"
-            class="normal-case btn-circle btn btn-ghost btn-sm"
-          >
-            <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
-          </button>
-        </div>
-        <div x-show="open" x-cloak x-collapse>
-          <div class="border border-base-content/10 mt-2 rounded">
-            <Dynamic.LiveComponent
-              :if={module_enabled?(Bonfire.Boundaries.Web.AclLive) and @current_user}
-              module={Bonfire.Boundaries.Web.AclLive}
-              setting_boundaries
-              scope={:instance}
-              id={:acl}
-              acl_id={Bonfire.Boundaries.Fixtures.instance_acl()}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="mt-2">
-      <div
-        x-data="{
-          open: false
-        }"
         class="p-3 rounded-lg border border-error/30 bg-error/5"
       >
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between cursor-pointer" x-on:click="open = !open">
           <div class="flex flex-col gap-1">
             <div class="text-base font-bold text-error-content">{l("Danger zone")}</div>
           </div>
-          <button
-            x-show="!open"
-            type="button"
-            x-on:click="open = !open"
-            class="normal-case btn-circle btn btn-ghost btn-sm"
-          >
+          <button x-show="!open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
             <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
           </button>
-          <button
-            x-show="open"
-            type="button"
-            x-on:click="open = !open"
-            class="normal-case btn-circle btn btn-ghost btn-sm"
-          >
+          <button x-show="open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
             <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
           </button>
         </div>
@@ -195,7 +89,7 @@
             </p>
           </div>
 
-          <button class="btn mt-2 w-full rounded-full btn-error btn-outline normal-case">{l("Archive")}
+          <button class="btn mt-2 w-full rounded-full btn-error normal-case">{l("Archive")}
           </button>
         </div>
       </div>
