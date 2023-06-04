@@ -9,27 +9,28 @@
   />
   <span class="text-[16px] font-normal capitalize text-base-content">{e(@category, :profile, :name, nil)}</span>
 </LiveRedirect>
-<!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
-    <LiveRedirect
-      to={path(@category, :discover)}
-      alt={l("More topics")}
-      class="rounded btn btn-ghost btn-square btn-xs"
-    >
-      <#Icon iconify="material-symbols:manage-search" class="w-4 h-4 text-base-content/70" />
-    </LiveRedirect>
-  </div> -->
 
-<!-- <ul class="menu"> -->
-<!-- <Dynamic.Component
+<!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
+  <LiveRedirect
+    to={path(@category, :discover)}
+    alt={l("More topics")}
+    class="rounded btn btn-ghost btn-square btn-xs"
+  >
+    <#Icon iconify="material-symbols:manage-search" class="w-4 h-4 text-base-content/70" />
+  </LiveRedirect>
+</div> -->
+
+<ul data-description="Topics and sub-groups" class="menu">
+  <Dynamic.Component
+    :if={module_enabled?(Bonfire.UI.Topics.SidebarTopicLive)}
     :for={{%{type: :topic} = subcategory, subchildren} <- @children}
     module={Bonfire.UI.Topics.SidebarTopicLive}
     category={subcategory}
     children={subchildren}
-  /> -->
-<!-- sub-group -->
-<!-- <Bonfire.UI.Groups.SidebarGroupLive 
-    :for={{%{type: :group} = subcategory, subchildren} <- @children} 
-    category={subcategory} 
-    children={subchildren} 
-  /> -->
-<!-- </ul> -->
+  />
+  <Bonfire.UI.Groups.SidebarGroupLive
+    :for={{%{type: :group} = subcategory, subchildren} <- @children}
+    category={subcategory}
+    children={subchildren}
+  />
+</ul>

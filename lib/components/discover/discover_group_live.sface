@@ -15,9 +15,12 @@
   </div>
 </div>
 
-<ul class="gap-1 my-2 menu">
-  <nav :for={{%{type: :topic} = subcategory, subchildren} <- @children} class="">
-    <!-- topic in a group -->
+<ul class="gap-1 my-2 menu" data-description="Topics and sub-groups">
+  <nav
+    :if={module_enabled?(Bonfire.UI.Topics.TopicsLive)}
+    :for={{%{type: :topic} = subcategory, subchildren} <- @children}
+    class=""
+  >
     <Dynamic.Component
       module={Bonfire.UI.Topics.TopicsLive}
       category={subcategory}
@@ -26,7 +29,6 @@
   </nav>
 
   <nav :for={{%{type: :group} = subcategory, subchildren} <- @children} class="">
-    <!-- sub-group -->
     <Bonfire.UI.Groups.DiscoverGroupLive category={subcategory} children={subchildren} />
   </nav>
 </ul>

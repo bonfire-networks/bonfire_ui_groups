@@ -11,7 +11,10 @@ defmodule Bonfire.UI.Groups.GroupLive do
   on_mount {LivePlugs, [Bonfire.UI.Me.LivePlugs.LoadCurrentUser]}
 
   def mount(params, session, socket) do
-    with {:ok, socket} <- Bonfire.Classify.LiveHandler.mounted(params, session, socket) do
+    with {:ok, socket} <-
+           undead_mount(socket, fn ->
+             Bonfire.Classify.LiveHandler.mounted(params, session, socket)
+           end) do
       {:ok,
        assign(
          socket,

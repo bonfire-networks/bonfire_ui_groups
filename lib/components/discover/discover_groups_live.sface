@@ -6,7 +6,11 @@
     <Bonfire.UI.Groups.DiscoverGroupLive category={category} />
   </nav>
 
-  <nav :for={{%{type: :topic} = category, children} <- @categories} class="">
+  <nav
+    :if={module_enabled?(Bonfire.UI.Topics.TopicsLive)}
+    :for={{%{type: :topic} = category, children} <- @categories}
+    class=""
+  >
     <!-- topic that's not in a group -->
     <Dynamic.Component
       module={Bonfire.UI.Topics.TopicsLive}
