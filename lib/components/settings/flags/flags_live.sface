@@ -2,6 +2,6 @@
   :if={module_enabled?(Bonfire.UI.Social.FlagsLive)}
   module={Bonfire.UI.Social.FlagsLive}
   selected_tab={@selected_tab}
-  id="flags"
+  id="group_flags"
   scope={@category}
 />
