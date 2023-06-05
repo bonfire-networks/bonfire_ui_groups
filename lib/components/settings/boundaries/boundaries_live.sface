@@ -82,6 +82,7 @@
                   scope={@category}
                   id={:acl}
                   acl_id={id(acl)}
+                  acl={acl}
                 />
                 <!-- TODO: pass the ACL so it doesn't have to be queried twice -->
               {#match {:error, e}}
