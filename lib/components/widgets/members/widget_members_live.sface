@@ -1,6 +1,6 @@
 <Bonfire.UI.Common.WidgetBlockLive
   :if={@moderators != [] or @members != []}
-  widget_title={e(@widget_title, l("Members"))}
+  widget_title={@widget_title}
 >
   <div :if={@moderators != []} class="grid grid-cols-1 gap-4 px-3">
     <span class="text-xs font-medium tracking-wider text-base-content/70">{l("Moderators")}</span>
@@ -18,10 +18,7 @@
       </div>
     {/for}
   </div>
-  <div
-    :if={@members != []}
-    class="grid grid-cols-1 gap-4 p-3 py-4"
-  >
+  <div :if={@members != []} class="grid grid-cols-1 gap-4 p-3 py-4">
     <span class="text-xs font-medium tracking-wider text-base-content/70">{l("Members")}</span>
     {#for user <- @members}
       <div class="">

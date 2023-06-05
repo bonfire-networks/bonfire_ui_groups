@@ -10,26 +10,26 @@
         set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
       />
 
-    <form phx-submit="Bonfire.Classify:edit">
-      <div class="w-full mt-3 form-control">
-        <input
-          id="name"
-          name="profile[name]"
-          value={e(@category, :profile, :name, nil) || e(@category, :character, :username, nil)}
-          type="text"
-          placeholder={l("Type the group name")}
-          class="w-full text-sm input input-bordered"
-        />
-      </div>
-      <div class="w-full mt-3 form-control">
-        <textarea
-          name="profile[summary]"
-          class="w-full textarea textarea-bordered"
-          placeholder="Write a short description"
-        >{e(@category, :profile, :summary, nil)}</textarea>
-      </div>
+      <form phx-submit="Bonfire.Classify:edit">
+        <div class="w-full mt-3 form-control">
+          <input
+            id="name"
+            name="profile[name]"
+            value={e(@category, :profile, :name, nil) || e(@category, :character, :username, nil)}
+            type="text"
+            placeholder={l("Type the group name")}
+            class="w-full text-sm input input-bordered"
+          />
+        </div>
+        <div class="w-full mt-3 form-control">
+          <textarea
+            name="profile[summary]"
+            class="w-full textarea textarea-bordered"
+            placeholder="Write a short description"
+          >{e(@category, :profile, :summary, nil)}</textarea>
+        </div>
 
-      <!-- <div class="w-full form-control">
+        <!-- <div class="w-full form-control">
         <select name="to_boundaries[]" class="select select-bordered">
           <option value="open">{l("Open: anyone can join and participate")}</option>
           <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, and request to join")}</option>
@@ -37,15 +37,13 @@
         </select>
       </div> -->
 
-      <button type="submit" class="w-full rounded-full mt-3 normal-case btn btn-primary">
-        {l("Edit appearance")}
-      </button>
-    </form>
-        
+        <button type="submit" class="w-full rounded-full mt-3 normal-case btn btn-primary">
+          {l("Edit appearance")}
+        </button>
+      </form>
     </div>
 
     <div class="border-error/50 border rounded-lg p-4 mt-6 text-center bg-error/5">
-
       <div class="">
         <p class="mt-0 text-sm text-error">
           {l("Archive this group. It will be hidden from the public, but you can restore it later.")}
@@ -54,7 +52,6 @@
 
       <button class="btn mt-4 w-full rounded-full btn-error normal-case">{l("Delete group")}
       </button>
-        
     </div>
   {/if}
 </div>

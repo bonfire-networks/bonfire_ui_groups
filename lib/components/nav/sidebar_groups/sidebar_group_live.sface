@@ -20,7 +20,11 @@
   </LiveRedirect>
 </div> -->
 
-<ul :if={module_enabled?(Bonfire.UI.Topics.SidebarTopicLive)} data-description="Topics and sub-groups" class="menu">
+<ul
+  :if={module_enabled?(Bonfire.UI.Topics.SidebarTopicLive)}
+  data-description="Topics and sub-groups"
+  class="menu"
+>
   <Dynamic.Component
     :for={{%{type: :topic} = subcategory, subchildren} <- @children}
     module={Bonfire.UI.Topics.SidebarTopicLive}

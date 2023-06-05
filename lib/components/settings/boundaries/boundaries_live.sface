@@ -11,8 +11,8 @@
       >
         <div class="flex items-center justify-between cursor-pointer" x-on:click="open = !open">
           <div class="flex flex-col gap-1">
-            <div class="text-base font-bold text-base-content">{l("Edit the boundary of the group and all future group activities")}
-              TODO: make this show the current setting, and make it actually editable in backend</div>
+            <div class="text-base font-bold text-base-content">{l("Edit the main boundary of the group and all future group activities")}
+            </div>
           </div>
           <button x-show="!open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
             <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
@@ -21,8 +21,9 @@
             <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
           </button>
         </div>
-        <div x-show="open" x-cloak x-collapse>
+        <div x-show="open" x-cloak x-collapse x-bind:class="open ? '!overflow-visible' : ''">
           <div class="w-full mt-2 form-control">
+            TODO: make this show the current setting, and make it actually editable in backend
             <select name="to_boundaries[]" class="select select-bordered">
               <optgroup label={l("Current option")}>
                 {#case @boundary_preset}
@@ -61,6 +62,47 @@
       >
         <div class="flex items-center justify-between cursor-pointer" x-on:click="open = !open">
           <div class="flex flex-col gap-1">
+            <div class="text-base font-bold text-base-content">{l("Edit the custom boundary of the group and all future group activities")}</div>
+          </div>
+          <button x-show="!open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
+            <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
+          </button>
+          <button x-show="open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
+            <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
+          </button>
+        </div>
+        <div x-show="open" x-cloak x-collapse x-bind:class="open ? '!overflow-visible' : ''">
+          <div class="border border-base-content/10 mt-2 rounded">
+            {#case Acls.get_or_create_object_custom_acl(@category, current_user(@__context__))}
+              {#match {:ok, acl}}
+                <Dynamic.LiveComponent
+                  :if={module_enabled?(Bonfire.Boundaries.Web.AclLive)}
+                  module={Bonfire.Boundaries.Web.AclLive}
+                  setting_boundaries={false}
+                  scope={@category}
+                  id={:acl}
+                  acl_id={id(acl)}
+                />
+                <!-- TODO: pass the ACL so it doesn't have to be queried twice -->
+              {#match {:error, e}}
+                {e}
+              {#match _}
+                Unknown error
+            {/case}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <div
+        x-data="{
+          open: false
+        }"
+        class="p-3 rounded-lg border border-base-content/30"
+      >
+        <div class="flex items-center justify-between cursor-pointer" x-on:click="open = !open">
+          <div class="flex flex-col gap-1">
             <div class="text-base font-bold text-base-content">{l("Edit roles")}</div>
           </div>
           <button x-show="!open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
@@ -72,14 +114,7 @@
         </div>
         <div x-show="open" x-cloak x-collapse>
           <div class="border border-base-content/10 mt-2 rounded">
-            <!-- <Dynamic.LiveComponent
-              :if={module_enabled?(Bonfire.Boundaries.Web.AclLive) and @current_user}
-              module={Bonfire.Boundaries.Web.AclLive}
-              setting_boundaries
-              scope={:instance}
-              id={:acl}
-              acl_id={Bonfire.Boundaries.Fixtures.instance_acl()}
-            /> -->
+            TODO
           </div>
         </div>
       </div>
