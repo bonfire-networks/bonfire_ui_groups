@@ -2,11 +2,12 @@
   :if={@moderators != [] or @members != []}
   widget_title={e(@widget_title, l("Members"))}
 >
-  <div :if={@moderators != []} class="grid grid-cols-1 gap-4 p-3 pt-6">
-    <span class="text-xs font-medium tracking-wider uppercase text-base-content/70">{l("Moderators")}</span>
+  <div :if={@moderators != []} class="grid grid-cols-1 gap-4 px-3">
+    <span class="text-xs font-medium tracking-wider text-base-content/70">{l("Moderators")}</span>
     {#for user <- @moderators}
       <div class="">
         <Bonfire.UI.Common.ProfileItemLive
+          avatar_class="rounded-full w-8 h-8"
           show_controls={[]}
           character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
             e(user, :activity, :subject, :character, nil)}
@@ -19,12 +20,13 @@
   </div>
   <div
     :if={@members != []}
-    class="grid grid-cols-1 gap-4 py-3 mx-3 mt-3 border-t border-base-content/10"
+    class="grid grid-cols-1 gap-4 p-3 py-4"
   >
-    <span class="text-xs font-medium tracking-wider uppercase text-base-content/70">{l("Members")}</span>
+    <span class="text-xs font-medium tracking-wider text-base-content/70">{l("Members")}</span>
     {#for user <- @members}
       <div class="">
         <Bonfire.UI.Common.ProfileItemLive
+          avatar_class="rounded-full w-8 h-8"
           show_controls={[]}
           character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
             e(user, :activity, :subject, :character, nil)}

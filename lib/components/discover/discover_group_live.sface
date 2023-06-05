@@ -15,9 +15,8 @@
   </div>
 </div>
 
-<ul class="gap-1 my-2 menu" data-description="Topics and sub-groups">
+<ul :if={module_enabled?(Bonfire.UI.Topics.TopicsLive)} class="gap-1 my-2 menu" data-description="Topics and sub-groups">
   <nav
-    :if={module_enabled?(Bonfire.UI.Topics.TopicsLive)}
     :for={{%{type: :topic} = subcategory, subchildren} <- @children}
     class=""
   >

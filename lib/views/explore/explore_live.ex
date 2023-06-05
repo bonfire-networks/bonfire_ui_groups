@@ -21,7 +21,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
            {Bonfire.UI.Groups.NewGroupLive,
             [
               parent_id: "explore",
-              open_btn_class: "btn btn-sm btn-primary normal-case flex items-center gap-2"
+              open_btn_class: "btn btn-outline btn-sm btn-primary rounded-full normal-case"
             ]}
          ],
          sidebar_widgets: [
