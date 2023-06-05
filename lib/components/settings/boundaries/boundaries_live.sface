@@ -11,7 +11,8 @@
       >
         <div class="flex items-center justify-between cursor-pointer" x-on:click="open = !open">
           <div class="flex flex-col gap-1">
-            <div class="text-base font-bold text-base-content">{l("Edit the boundary of the group and all future group activities")}</div>
+            <div class="text-base font-bold text-base-content">{l("Edit the boundary of the group and all future group activities")}
+              TODO: make this show the current setting, and make it actually editable in backend</div>
           </div>
           <button x-show="!open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
             <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
@@ -23,10 +24,25 @@
         <div x-show="open" x-cloak x-collapse>
           <div class="w-full mt-2 form-control">
             <select name="to_boundaries[]" class="select select-bordered">
-              <option value="open">{l("Open: anyone can join and participate")}</option>
-              <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, but only members can post")}</option>
-              <!-- <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, and request to join")}</option> -->
-              <option value="private">{l("Private: only people who are invited can join the group and see its contents")}</option>
+              <optgroup label={l("Current option")}>
+                {#case @boundary_preset}
+                  {#match {"open", _boundary_name}}
+                    <option value="open" selected>{l("Open: anyone can join and participate")}</option>
+                  {#match {"visible", _boundary_name}}
+                    <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, but only members can post")}</option>
+                  {#match {"private", _boundary_name}}
+                    <option value="private" selected>{l("Private: only people who are invited can join the group and see its contents")}</option>
+                  {#match {id, boundary_name}}
+                    <option value={id} selected>{boundary_name}</option>
+                  {#match _}
+                {/case}
+              </optgroup>
+              <optgroup label={l("Other built-in options")}>
+                <option value="open">{l("Open: anyone can join and participate")}</option>
+                <option value="visible">{l("Visible: everyone can browse the group/topics/posts, but only members can post")}</option>
+                <!-- <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, and request to join")}</option> -->
+                <option value="private">{l("Private: only people who are invited can join the group and see its contents")}</option>
+              </optgroup>
             </select>
             <button type="submit" class="w-full rounded-full mt-3 normal-case btn btn-primary">
               {l("Edit boundary")}

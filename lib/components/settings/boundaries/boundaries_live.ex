@@ -3,4 +3,5 @@ defmodule Bonfire.UI.Groups.Settings.BoundariesLive do
 
   prop selected_tab, :any, default: nil
   prop category, :any, required: true
+  prop boundary_preset, :any, default: nil
 end

@@ -6,6 +6,7 @@ defmodule Bonfire.UI.Groups.SettingsLive do
   prop category, :any, required: true
   prop permalink, :any, required: true
   prop object_boundary, :any, default: nil
+  prop boundary_preset, :any, default: nil
 
   def tab(selected_tab) do
     case maybe_to_atom(selected_tab) do
