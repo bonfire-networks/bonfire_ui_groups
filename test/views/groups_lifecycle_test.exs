@@ -17,7 +17,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       {:ok, view, _html} = live(conn, next)
 
       view
-      |> element("[data-id=create_new_group] div[data-role=open_modal]")
+      |> element("[data-id=create_new_group-user_menu_links] div[data-role=open_modal]")
       |> render_click()
 
       group_name = "Friends"
@@ -63,8 +63,9 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       {:ok, view, _html} = live(conn, next)
 
       assert render(view) =~ "Join"
-      assert view |> has_element?("[data-id=follow]")
-      assert view |> element("[data-id=follow]") |> render_click()
+      follow_btn = element(view, "[data-role=follow_wrapper] [data-id=follow]")
+      assert has_element?(follow_btn)
+      assert follow_btn |> render_click()
       # assert render(view) =~ "joined"
       # assert view |> element("[data-id=follow]") |> render_click() |> has_element?("[data-id=unfollow]")
     end
