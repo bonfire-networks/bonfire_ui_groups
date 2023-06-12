@@ -80,6 +80,7 @@
                   module={Bonfire.Boundaries.Web.AclLive}
                   setting_boundaries={false}
                   scope={@category}
+                  usage={:ops}
                   id={:acl}
                   acl_id={id(acl)}
                   acl={acl}
@@ -115,7 +116,12 @@
         </div>
         <div x-show="open" x-cloak x-collapse>
           <div class="border border-base-content/10 mt-2 rounded">
-            TODO
+            <Dynamic.LiveComponent
+              :if={module_enabled?(Bonfire.Boundaries.Web.RolesLive) and @current_user}
+              module={Bonfire.Boundaries.Web.RolesLive}
+              id="roles"
+              scope={@category}
+            />
           </div>
         </div>
       </div>
