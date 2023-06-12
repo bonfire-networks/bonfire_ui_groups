@@ -22,33 +22,33 @@
           </button>
         </div>
         <div x-show="open" x-cloak x-collapse x-bind:class="open ? '!overflow-visible' : ''">
-          <div class="w-full mt-2 form-control">
-            TODO: make this show the current setting, and make it actually editable in backend
-            <select name="to_boundaries[]" class="select select-bordered">
-              <optgroup label={l("Current option")}>
-                {#case @boundary_preset}
-                  {#match {"open", _boundary_name}}
-                    <option value="open" selected>{l("Open: anyone can join and participate")}</option>
-                  {#match {"visible", _boundary_name}}
-                    <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, but only members can post")}</option>
-                  {#match {"private", _boundary_name}}
-                    <option value="private" selected>{l("Private: only people who are invited can join the group and see its contents")}</option>
-                  {#match {id, boundary_name}}
-                    <option value={id} selected>{boundary_name}</option>
-                  {#match _}
-                {/case}
-              </optgroup>
-              <optgroup label={l("Other built-in options")}>
-                <option value="open">{l("Open: anyone can join and participate")}</option>
-                <option value="visible">{l("Visible: everyone can browse the group/topics/posts, but only members can post")}</option>
-                <!-- <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, and request to join")}</option> -->
-                <option value="private">{l("Private: only people who are invited can join the group and see its contents")}</option>
-              </optgroup>
-            </select>
-            <button type="submit" class="w-full rounded-full mt-3 normal-case btn btn-primary">
-              {l("Edit boundary")}
-            </button>
-          </div>
+          <form phx-submit="Bonfire.Classify:reset_preset_boundary">
+            <div class="w-full mt-2 form-control">
+              <select name="to_boundaries[]" class="select select-bordered">
+                <optgroup label={l("Current option")}>
+                  {#case @boundary_preset}
+                    {#match {"open" = preset, _boundary_name}}
+                      <option value="open" selected>{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
+                    {#match {"visible" = preset, _boundary_name}}
+                      <option value="visible" selected>{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
+                    {#match {"private" = preset, _boundary_name}}
+                      <option value="private" selected>{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
+                    {#match {id, boundary_name}}
+                      <option value={id} selected>{boundary_name}</option>
+                    {#match _}
+                  {/case}
+                </optgroup>
+                <optgroup label={l("Other built-in options")}>
+                  <option value="open">{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "open"], "")}</option>
+                  <option value="visible">{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "visible"], "")}</option>
+                  <option value="private">{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "private"], "")}</option>
+                </optgroup>
+              </select>
+              <button type="submit" class="w-full rounded-full mt-3 normal-case btn btn-primary">
+                {l("Edit boundary")}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

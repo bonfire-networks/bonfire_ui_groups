@@ -15,6 +15,12 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
 
     config :bonfire, :ui,
       group: [
+        preset_descriptions: %{
+          "open" => l("anyone can join and participate"),
+          "visible" => l("everyone can browse the group/topics/posts, but only members can post"),
+          # "visible"=> l("everyone can browse the group/topics/posts, and request to join")
+          "private" => l("only people who are invited can join the group and see its contents")
+        },
         sections: [
           timeline: Bonfire.UI.Social.ProfileTimelineLive,
           guest: Bonfire.UI.Groups.GuestLive,

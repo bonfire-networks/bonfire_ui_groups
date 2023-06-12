@@ -37,34 +37,38 @@
         />
       </div>
 
-      <div  x-data="{boundaries: 'open'}" class="w-full form-control">
-        <select x-model="boundaries" id="new_group_boundaries" name="to_boundaries[]" class="select select-bordered">
+      <div x-data="{boundaries: 'open'}" class="w-full form-control">
+        <select
+          x-model="boundaries"
+          id="new_group_boundaries"
+          name="to_boundaries[]"
+          class="select select-bordered"
+        >
           <option value="open">{l("Open")}</option>
           <option value="visible" selected>{l("Visible")}</option>
           <option value="private">{l("Private")}</option>
         </select>
 
-         <div x-show="boundaries === 'open'">
+        <div x-show="boundaries === 'open'">
           <div class="alert alert-info !flex items-top mt-2 rounded">
             <#Icon solid="Globe" class="w-6 h-6" />
-            <span  class="text-sm">{l "Anyone can join and participate"}</span>
+            <span class="text-sm">{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "open"], "")}</span>
           </div>
-         </div>
+        </div>
 
-         <div x-show="boundaries === 'visible'">
+        <div x-show="boundaries === 'visible'">
           <div class="alert alert-info !flex items-top mt-2 rounded">
             <#Icon iconify="mdi:eye-outline" class="w-6 h-6" />
-            <span class="text-sm">{l "Everyone can browse the group/topics/posts, and request to join"}</span>
-          </div>  
-         </div>
-
-          <div x-show="boundaries === 'private'">
-            <div class="alert alert-info !flex items-top mt-2 rounded">
-              <#Icon iconify="heroicons-solid:lock-closed" class="w-6 h-6" />
-              <span class="text-sm">{l "Only people who are invited can see and join the group"}</span>
-            </div>
+            <span class="text-sm">{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "visible"], "")}</span>
           </div>
-        
+        </div>
+
+        <div x-show="boundaries === 'private'">
+          <div class="alert alert-info !flex items-top mt-2 rounded">
+            <#Icon iconify="heroicons-solid:lock-closed" class="w-6 h-6" />
+            <span class="text-sm">{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "private"], "")}</span>
+          </div>
+        </div>
       </div>
 
       <!-- <div class="w-full rounded form-control bg-base-content/5">

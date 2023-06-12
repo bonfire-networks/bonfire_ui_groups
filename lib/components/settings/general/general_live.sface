@@ -29,14 +29,6 @@
           >{e(@category, :profile, :summary, nil)}</textarea>
         </div>
 
-        <!-- <div class="w-full form-control">
-        <select name="to_boundaries[]" class="select select-bordered">
-          <option value="open">{l("Open: anyone can join and participate")}</option>
-          <option value="visible" selected>{l("Visible: everyone can browse the group/topics/posts, and request to join")}</option>
-          <option value="private">{l("Private: only people who are invited can see and join the group")}</option>
-        </select>
-      </div> -->
-
         <button type="submit" class="w-full rounded-full mt-3 normal-case btn btn-primary">
           {l("Edit appearance")}
         </button>
