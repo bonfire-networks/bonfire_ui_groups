@@ -1,3 +1,6 @@
+  {#if !Bonfire.Boundaries.can?(@__context__, :mediate, @category)}
+    {l("Sorry, you cannot edit this group.")}
+  {#else}
 <Dynamic.LiveComponent
   :if={module_enabled?(Bonfire.UI.Social.FlagsLive)}
   module={Bonfire.UI.Social.FlagsLive}
@@ -5,3 +8,4 @@
   id="group_flags"
   scope={@category}
 />
+{/if}
