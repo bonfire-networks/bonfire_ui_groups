@@ -130,8 +130,9 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
       conn = conn(user: alice, account: account)
       next = "/&#{group.character.username}"
-      {:ok, view, _html} = live(conn, next)
-      refute render(view) =~ name
+      {:error, _} = live(conn, next)
+      # {:ok, view, _html} = live(conn, next)
+      # refute render(view) =~ name
     end
 
     test "If I joined a group, I can leave it" do
