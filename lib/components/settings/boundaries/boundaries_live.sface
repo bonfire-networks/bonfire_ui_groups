@@ -4,26 +4,18 @@
   {#else}
     <div class="mt-2">
       <div
-        x-data="{
-          open: false
-        }"
-        class="p-3 rounded-lg border border-base-content/30"
+        class="py-6 rounded-lg bg-base-100 shadow-lg"
       >
-        <div class="flex items-center justify-between cursor-pointer" x-on:click="open = !open">
-          <div class="flex flex-col gap-1">
-            <div class="text-base font-bold text-base-content">{l("Edit the main boundary of the group and all future group activities")}
+        <div class="text-center mb-4">
+          <div class="flex flex-col text-center gap-3">
+            <div class="text-base font-medium text-base-content">{l("Edit the main boundary")}
+            <p class="text-sm text-base-content/70">{l "Editing the main boundary will affect all future activities"}</p>
             </div>
           </div>
-          <button x-show="!open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
-            <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
-          </button>
-          <button x-show="open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
-            <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
-          </button>
         </div>
-        <div x-show="open" x-cloak x-collapse x-bind:class="open ? '!overflow-visible' : ''">
+        <div>
           <form phx-submit="Bonfire.Classify:reset_preset_boundary">
-            <div class="w-full mt-2 form-control">
+            <div class="mt-2 mx-6 form-control">
               <select name="to_boundaries[]" class="select select-bordered">
                 <optgroup label={l("Current option")}>
                   {#case @boundary_preset}
@@ -44,8 +36,8 @@
                   <option value="private">{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "private"], "")}</option>
                 </optgroup>
               </select>
-              <button type="submit" class="w-full rounded-full mt-3 normal-case btn btn-primary">
-                {l("Edit boundary")}
+              <button type="submit" class="w-full rounded-full mt-4 normal-case btn btn-primary">
+                {l("Edit")}
               </button>
             </div>
           </form>
@@ -54,25 +46,22 @@
     </div>
 
     <div class="mt-2">
-      <div
-        x-data="{
-          open: false
-        }"
-        class="p-3 rounded-lg border border-base-content/30"
-      >
-        <div class="flex items-center justify-between cursor-pointer" x-on:click="open = !open">
+      <div class="py-6 rounded-lg bg-base-100 shadow-lg">
+        <div class="text-center mb-4">
+          <div class="flex flex-col text-center gap-3">
+            <div class="text-base font-medium text-base-content">{l("Assign roles")}
+            <p class="text-sm text-base-content/70">{l "Use roles to manage your group members and assign permissions"}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- <div class="flex items-center justify-between cursor-pointer" >
           <div class="flex flex-col gap-1">
             <div class="text-base font-bold text-base-content">{l("Edit the custom boundary of the group and all future group activities")}</div>
           </div>
-          <button x-show="!open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
-            <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
-          </button>
-          <button x-show="open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
-            <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
-          </button>
-        </div>
-        <div x-show="open" x-cloak x-collapse x-bind:class="open ? '!overflow-visible' : ''">
-          <div class="border border-base-content/10 mt-2 rounded">
+        </div> -->
+        <div>
+          <div class="mx-6 border rounded border-base-content/30 border-b-none">
             {#case Acls.get_or_create_object_custom_acl(@category, current_user(@__context__))}
               {#match {:ok, acl}}
                 <Dynamic.LiveComponent
@@ -97,25 +86,16 @@
     </div>
 
     <div class="mt-2">
-      <div
-        x-data="{
-          open: false
-        }"
-        class="p-3 rounded-lg border border-base-content/30"
-      >
-        <div class="flex items-center justify-between cursor-pointer" x-on:click="open = !open">
-          <div class="flex flex-col gap-1">
-            <div class="text-base font-bold text-base-content">{l("Edit roles")}</div>
+      <div class="py-6 rounded-lg bg-base-100 shadow-lg">
+        <div class="text-center mb-4">
+          <div class="flex flex-col text-center gap-3">
+            <div class="text-base font-medium text-base-content">{l("Roles")}
+            <p class="text-sm text-base-content/70">{l "Create custom roles"}</p>
+            </div>
           </div>
-          <button x-show="!open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
-            <#Icon solid="ChevronRight" class="w-6 h-6 text-base-content/70" />
-          </button>
-          <button x-show="open" type="button" class="normal-case btn-circle btn btn-ghost btn-sm">
-            <#Icon solid="ChevronDown" class="w-6 h-6 text-base-content/70" />
-          </button>
         </div>
-        <div x-show="open" x-cloak x-collapse>
-          <div class="border border-base-content/10 mt-2 rounded">
+        <div>
+          <div class="mx-6 mt-3">
             <Dynamic.LiveComponent
               :if={module_enabled?(Bonfire.Boundaries.Web.RolesLive) and @current_user}
               module={Bonfire.Boundaries.Web.RolesLive}

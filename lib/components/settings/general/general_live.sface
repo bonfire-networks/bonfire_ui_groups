@@ -35,7 +35,7 @@
       </form>
     </div>
 
-    <div class="border-error/50 border rounded-lg p-4 mt-6 text-center bg-error/5">
+    <div class="rounded-lg p-4 mt-6 text-center bg-error/5">
       <div class="">
         <p class="mt-0 text-sm text-error">
           {l("Archive this group. It will be hidden from the public, but you can restore it later.")}
