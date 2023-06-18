@@ -10,7 +10,9 @@ defmodule Bonfire.UI.Groups.GroupLive do
 
   on_mount {LivePlugs, [Bonfire.UI.Me.LivePlugs.LoadCurrentUser]}
 
-  def mount(params, session, socket) do
+  def mount(%{"id" => id} = params, session, socket) when id != "" do
+    debug(params, "ppppp")
+
     with {:ok, socket} <-
            undead_mount(socket, fn ->
              Bonfire.Classify.LiveHandler.mounted(params, session, socket)
@@ -24,6 +26,12 @@ defmodule Bonfire.UI.Groups.GroupLive do
          #  smart_input_opts: [hide_buttons: true]
        )}
     end
+  end
+
+  def mount(_params, _session, socket) do
+    {:ok,
+     socket
+     |> redirect_to("/groups")}
   end
 
   def handle_params(params, uri, socket),

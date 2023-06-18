@@ -7,6 +7,10 @@ defmodule Bonfire.UI.Groups.Routes do
       scope "/", Bonfire.UI.Groups do
         pipe_through(:browser)
 
+        live("/groups", ExploreLive, as: :groups)
+        # live("/&", ExploreLive)
+        live("/&", ExploreLive, as: Bonfire.UI.Groups.GroupLive)
+
         live("/&:id", GroupLive, as: :group)
         live("/&:id/follow", GroupLive, :follow, as: :group)
         live("/&:id/discover", GroupLive, :discover, as: :group)
@@ -28,10 +32,6 @@ defmodule Bonfire.UI.Groups.Routes do
       scope "/", Bonfire.UI.Groups do
         pipe_through(:browser)
         pipe_through(:user_required)
-
-        live("/groups", ExploreLive, as: :groups)
-        # live("/&", ExploreLive)
-        live("/&", ExploreLive, as: Bonfire.UI.Groups.GroupLive)
 
         live("/&:id/members", GroupLive, :members, as: :group)
         live("/&:id/submitted", GroupLive, :submitted, as: :group)
