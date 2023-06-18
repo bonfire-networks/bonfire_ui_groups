@@ -3,13 +3,11 @@
     {l("Sorry, you cannot edit this group.")}
   {#else}
     <div class="mt-2">
-      <div
-        class="py-6 rounded-lg bg-base-100 shadow-lg"
-      >
+      <div class="py-6 rounded-lg bg-base-100 shadow-lg">
         <div class="text-center mb-4">
           <div class="flex flex-col text-center gap-3">
             <div class="text-base font-medium text-base-content">{l("Edit the main boundary")}
-            <p class="text-sm text-base-content/70">{l "Editing the main boundary will affect all future activities"}</p>
+              <p class="text-sm text-base-content/70">{l("Editing the main boundary will affect all future activities")}</p>
             </div>
           </div>
         </div>
@@ -50,7 +48,7 @@
         <div class="text-center mb-4">
           <div class="flex flex-col text-center gap-3">
             <div class="text-base font-medium text-base-content">{l("Assign roles")}
-            <p class="text-sm text-base-content/70">{l "Use roles to manage your group members and assign permissions"}</p>
+              <p class="text-sm text-base-content/70">{l("Use roles to manage your group members and assign permissions")}</p>
             </div>
           </div>
         </div>
@@ -90,7 +88,7 @@
         <div class="text-center mb-4">
           <div class="flex flex-col text-center gap-3">
             <div class="text-base font-medium text-base-content">{l("Roles")}
-            <p class="text-sm text-base-content/70">{l "Create custom roles"}</p>
+              <p class="text-sm text-base-content/70">{l("Create custom roles")}</p>
             </div>
           </div>
         </div>

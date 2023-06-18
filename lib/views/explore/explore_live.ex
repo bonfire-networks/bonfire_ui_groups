@@ -9,7 +9,8 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     with %{edges: list, page_info: page_info} <-
            Categories.list_tree([:default, type: :group, tree_max_depth: 1],
              current_user: current_user(socket)
-           ) do
+           )
+           |> debug("grrrr") do
       {:ok,
        assign(socket,
          page: "groups",

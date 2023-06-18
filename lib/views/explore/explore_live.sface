@@ -1,4 +1,4 @@
-<ul
+<!-- <ul
   role="tablist"
   class="flex justify-evenly items-stretch gap-3 text-sm font-medium border-b border-base-content/10"
 >
@@ -24,8 +24,6 @@
       role="tab"
     >{l("Joined")}</div>
   </li>
-</ul>
+</ul> -->
 
-<nav :for={category <- @categories} class="border-b">
-  <!-- top-level group -->
-</nav>
+<Dynamic.Component module={Bonfire.UI.Groups.DiscoverGroupsLive} categories={@categories} />
