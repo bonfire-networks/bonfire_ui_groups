@@ -1,10 +1,14 @@
 <#slot {@header} />
 
-<div class="flex flex-col p-4 pt-1">
-  <nav :for={category <- @categories} class="">
+<div class="flex flex-col gap-3 p-3 pt-1">
+  <div :for={category <- @categories} class="">
     <!-- top-level group -->
-    <Bonfire.UI.Groups.DiscoverGroupLive category={category} />
-  </nav>
+    <Bonfire.UI.Social.Activity.GroupLive
+      object={category}
+      permalink={path(category)}
+    />
+    <!-- <Bonfire.UI.Groups.DiscoverGroupLive category={category} /> -->
+  </div>
 
   <nav
     :if={module_enabled?(Bonfire.UI.Topics.TopicsLive)}
