@@ -1,6 +1,6 @@
 <ul
   role="tablist"
-  class="flex justify-evenly border-t items-stretch gap-3 text-sm font-medium border-b border-base-content/10"
+  class="flex justify-evenly border-t items-stretch gap-3 text-sm font-medium border-b border-base-content/20"
 >
   <li class="cursor-pointer hover:bg-base-content/5 flex-1 flex place-content-center">
     <div
