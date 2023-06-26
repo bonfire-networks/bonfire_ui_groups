@@ -14,6 +14,7 @@
           profile={e(user, :profile, nil) || e(user, :subject, :profile, nil) ||
             e(user, :activity, :subject, :profile, nil)}
           class="btn btn-square btn-ghost btn-sm"
+          parent_id="instance_mods"
         />
       </div>
     {/for}
@@ -30,6 +31,7 @@
           profile={e(user, :profile, nil) || e(user, :subject, :profile, nil) ||
             e(user, :activity, :subject, :profile, nil)}
           class="btn btn-square btn-ghost btn-sm"
+          parent_id="instance_members"
         />
       </div>
     {/for}
