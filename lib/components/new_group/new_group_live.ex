@@ -3,5 +3,5 @@ defmodule Bonfire.UI.Groups.NewGroupLive do
 
   prop parent, :any, default: nil
   prop parent_id, :any, default: nil
-  prop open_btn_class, :css_class, default: "flex items-center gap-2 text-sm text-base-content/80"
+  prop open_btn_class, :css_class, default: "flex items-center gap-2 text-sm text-base-content/70"
 end
