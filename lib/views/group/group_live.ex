@@ -3,6 +3,7 @@ defmodule Bonfire.UI.Groups.GroupLive do
 
   declare_extension("Groups",
     icon: "emojione:circus-tent",
+    emoji: "🎪",
     default_nav: [
       Bonfire.UI.Groups.SidebarGroupsLive
     ]
