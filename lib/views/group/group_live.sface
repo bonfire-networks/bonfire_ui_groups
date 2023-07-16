@@ -24,7 +24,7 @@
             [:ui, :group, :hero_component],
             Bonfire.UI.Me.ProfileHeroFullLive
           )}
-          id={ComponentID.new(Bonfire.UI.Me.ProfileHeroFullLive, id(@category), __MODULE__)}
+          id={Text.random_string()}
           user={@category}
           path={@path}
           character_type={:group}
