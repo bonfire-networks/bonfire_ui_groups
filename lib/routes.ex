@@ -11,6 +11,7 @@ defmodule Bonfire.UI.Groups.Routes do
         # live("/&", ExploreLive)
         live("/&", ExploreLive, as: Bonfire.UI.Groups.GroupLive)
 
+        live("/group/:id", GroupLive, as: :group)
         live("/&:id", GroupLive, as: :group)
         live("/&:id/follow", GroupLive, :follow, as: :group)
         live("/&:id/discover", GroupLive, :discover, as: :group)
