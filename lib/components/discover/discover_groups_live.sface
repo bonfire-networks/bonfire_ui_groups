@@ -1,6 +1,6 @@
 <#slot {@header} />
 
-<div class="flex flex-col gap-3 p-3 pt-1">
+<div class="">
   <div :for={category <- @categories} class="">
     <!-- top-level group -->
     <Dynamic.Component
