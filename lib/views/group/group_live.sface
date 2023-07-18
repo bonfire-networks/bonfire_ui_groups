@@ -5,10 +5,11 @@
     "": !@current_user
   }
 >
+
   <Dynamic.Component
     module={tab_component(@selected_tab) || tab_component(@tab_id |> debug("tttt")) ||
       Bonfire.UI.Social.ProfileTimelineLive}
-    permalink={@permalink}
+    user={@category}
     {...assigns}
   >
     <:header>

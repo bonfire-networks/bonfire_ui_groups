@@ -1,41 +1,113 @@
-<div class="p-3 py-0 font-bold text-base-content flex gap-2">
-  {#if @parent}
-    <LiveRedirect to={@parent_link} class="text-base-content/70 link link-hover">{@parent}</LiveRedirect>
-    ﹥
-  {/if}
-  {e(@user, :profile, :name, l("Untitled topic"))}
+<div>
+  <#slot {@header} />
+  <div class={
+    "grid items-start grid-cols-1 mt-2 md:mt-4",
+    "max-w-[680px] mx-auto": !@current_user
+  }>
+    <Bonfire.UI.Common.TabsLive
+      :if={!@hide_tabs}
+      class="flex justify-between w-full border-b bg-base-300 tabs border-base-content border-opacity-20"
+      tab_class="flex flex-1 pt-4 text-base capitalize hover:bg-base-content hover:bg-opacity-10 place-content-center lined_tab"
+      item_class="text-base-content/70 text-sm pb-3 border-b-2 border-transparent font-semibold"
+      selected_tab={@selected_tab}
+      path_prefix={
+        if @character_type == :user, 
+        do: "/@#{e(@user, :character, :username, "")}/",
+        else: "/&#{e(@user, :character, :username, "")}/"
+      }
+      tabs={
+        if @character_type == :user,
+        do: Config.get([:ui, :profile, :navigation], timeline: l("Timeline")),
+        else: Config.get([:ui, :group, :profile, :navigation], timeline: l("Timeline"))}
+    />
+    <div class="p-4 border-b border-base-content/20">
+        
+      <div class="first-letter:capitalize flex-1 text-lg font-semibold text-base-content">{l "Group details"}</div>
+
+      <div class="max-w-full mt-3 prose prose-sm">
+        {e(@category, :profile, :summary, nil)}
+      </div>
+
+
+      <div class="flex items-center gap-4 mt-5">
+        <#Icon iconify="material-symbols:calendar-month" class="w-6 h-6 text-base-content/70" />
+        <span class="text-sm text-base-content">Created {@date}</span>
+      </div>
+
+      <div class="mt-5">
+        <Bonfire.Boundaries.Web.BoundariesPresetNameLive 
+          icon_class="w-6 h-6 text-base-content/70"
+          with_description
+          boundary_preset={@boundary_preset} />
+      </div>
+
+      <div class="flex items-center gap-4 mt-5">
+        <#Icon iconify="ri:group-line" class="w-6 h-6 text-base-content/70" />
+        <div class="text-sm text-base-content"><b class="font-bold">{@member_count}</b> {if e(@category, :type, nil) == :group, do: l("Members"), else: l("Followers")}</div>
+      </div>
+
+    </div>
+
+    <div class="p-4">
+      <div class="first-letter:capitalize flex-1 text-lg font-semibold text-base-content">{l "Moderators"}</div>
+      {#for user <- @moderators}
+        <div class="">
+          <Bonfire.UI.Common.ProfileItemLive
+            avatar_class="rounded-full w-8 h-8"
+            show_controls={[]}
+            character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
+              e(user, :activity, :subject, :character, nil)}
+            profile={e(user, :profile, nil) || e(user, :subject, :profile, nil) ||
+              e(user, :activity, :subject, :profile, nil)}
+            class="btn btn-square btn-ghost btn-sm"
+            parent_id="instance_mods"
+          />
+        </div>
+      {/for}
+      <div class="mt-4 first-letter:capitalize flex-1 text-lg font-semibold text-base-content">{l "Members"}</div>
+      {#for user <- @members}
+        <div class="">
+          <Bonfire.UI.Common.ProfileItemLive
+            avatar_class="rounded-full w-8 h-8"
+            show_controls={[]}
+            character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
+              e(user, :activity, :subject, :character, nil)}
+            profile={e(user, :profile, nil) || e(user, :subject, :profile, nil) ||
+              e(user, :activity, :subject, :profile, nil)}
+            class="btn btn-square btn-ghost btn-sm"
+            parent_id="instance_members"
+          />
+        </div>
+      {/for}
+    </div>
+  </div>
 </div>
 
-<span class="px-3 block text-xs font-normal text-base-content/70">{Bonfire.Me.Characters.display_username(@user, true)}</span>
 
-<div class="max-w-full px-3 mt-1 prose-sm prose leading-[22px]">
-  {e(@user, :profile, :summary, nil)}
-</div>
-<div class="flex items-center gap-2 mx-3 mt-3">
-  <#Icon iconify="material-symbols:calendar-month" class="w-5 h-5 text-base-content/70" />
-  <span class="text-xs text-base-content/70">Created {@date}</span>
-</div>
+  <!-- <div class="flex items-center gap-2 mx-3 mt-3">
+    <#Icon iconify="material-symbols:calendar-month" class="w-5 h-5 text-base-content/70" />
+    <span class="text-xs text-base-content/70">Created {@date}</span>
+  </div> -->
 
-<div class="mx-3 mt-3 cursor-default">
-  <Bonfire.Boundaries.Web.BoundariesPresetNameLive boundary_preset={@boundary_preset} />
-</div>
+  <!-- <div class="mx-3 mt-3 cursor-default">
+    <Bonfire.Boundaries.Web.BoundariesPresetNameLive boundary_preset={@boundary_preset} />
+  </div> -->
 
-<div class="flex items-center gap-4 py-3 mx-3 mt-3 border-t border-base-content/20">
-  <LiveRedirect :if={@parent} to={@parent_link} class="flex items-center gap-2">
-    <#Icon iconify="mdi:account-group" class="w-5 h-5 text-base-content/100" />
-    <!-- iconify={if e(@parent, :type, nil)==:topic, do: "mdi:comment-plus", else: "mdi:account-group"} -->
-    <span class="text-xs text-base-content/70 link link-hover">{@parent}</span>
-  </LiveRedirect>
-  <LiveRedirect
-    to={if e(@user, :type, nil) == :group,
-      do: "/&#{e(@user, :character, :username, nil)}/members",
-      else: "/+#{e(@user, :character, :username, nil)}/followers"}
-    class="flex link link-hover items-center gap-3"
-  >
-    <div class="text-xs text-base-content/70"><b class="text-base-content/100">{@member_count}</b> {if e(@user, :type, nil) == :group, do: l("Members"), else: l("Followers")}</div>
-  </LiveRedirect>
-</div>
-<!-- <div class="flex flex-col gap-3 p-3">
+  <!-- <div class="flex items-center gap-4 py-3 mx-3 mt-3 border-t border-base-content/20">
+    <LiveRedirect :if={@parent} to={@parent_link} class="flex items-center gap-2">
+      <#Icon iconify="mdi:account-group" class="w-5 h-5 text-base-content/100" />
+      <span class="text-xs text-base-content/70 link link-hover">{@parent}</span>
+    </LiveRedirect>
+    <LiveRedirect
+      to={if e(@user, :type, nil) == :group,
+        do: "/&#{e(@user, :character, :username, nil)}/members",
+        else: "/+#{e(@user, :character, :username, nil)}/followers"}
+      class="flex link link-hover items-center gap-3"
+    >
+      <div class="text-xs text-base-content/70"><b class="text-base-content/100">{@member_count}</b> {if e(@user, :type, nil) == :group, do: l("Members"), else: l("Followers")}</div>
+    </LiveRedirect>
+  </div> -->
+  <!-- <div class="flex flex-col gap-3 p-3">
     <Bonfire.UI.Common.FollowButtonLive
       :if={(not is_nil(e(@user, :character, nil)) and e(@boundary_preset, "open", nil)) ||
         e(@boundary_preset, "visible", nil) || Boundaries.can?(@current_user, :follow, @user)}
