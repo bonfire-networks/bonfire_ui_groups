@@ -21,9 +21,16 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
           # "visible"=> l("everyone can browse the group/topics/posts, and request to join")
           "private" => l("only people who are invited can join the group and see its contents")
         },
+        profile: [
+          navigation: [
+            timeline: l("Timeline"),
+            about: l("About"),
+          ]
+        ],
         sections: [
           timeline: Bonfire.UI.Social.ProfileTimelineLive,
           guest: Bonfire.UI.Groups.GuestLive,
+          about: Bonfire.UI.Groups.AboutLive,
           # private: Bonfire.UI.Social.MessageThreadsLive,
           # posts: Bonfire.UI.Social.ProfilePostsLive,
           discover: Bonfire.UI.Groups.DiscoverGroupsLive,

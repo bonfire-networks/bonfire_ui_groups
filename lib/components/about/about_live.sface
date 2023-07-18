@@ -1,0 +1,52 @@
+<div class="p-3 py-0 font-bold text-base-content flex gap-2">
+    {#if @parent}
+      <LiveRedirect to={@parent_link} class="text-base-content/70 link link-hover">{@parent}</LiveRedirect>
+      ﹥
+    {/if}
+    {e(@user, :profile, :name, l("Untitled topic"))}
+  </div>
+
+  <span class="px-3 block text-xs font-normal text-base-content/70">{Bonfire.Me.Characters.display_username(@user, true)}</span>
+
+  <div class="max-w-full px-3 mt-1 prose-sm prose leading-[22px]">
+    {e(@user, :profile, :summary, nil)}
+  </div>
+  <div class="flex items-center gap-2 mx-3 mt-3">
+    <#Icon iconify="material-symbols:calendar-month" class="w-5 h-5 text-base-content/70" />
+    <span class="text-xs text-base-content/70">Created {@date}</span>
+  </div>
+
+  <div class="mx-3 mt-3 cursor-default">
+    <Bonfire.Boundaries.Web.BoundariesPresetNameLive boundary_preset={@boundary_preset} />
+  </div>
+
+  <div class="flex items-center gap-4 py-3 mx-3 mt-3 border-t border-base-content/20">
+    <LiveRedirect :if={@parent} to={@parent_link} class="flex items-center gap-2">
+      <#Icon iconify="mdi:account-group" class="w-5 h-5 text-base-content/100" />
+      <!-- iconify={if e(@parent, :type, nil)==:topic, do: "mdi:comment-plus", else: "mdi:account-group"} -->
+      <span class="text-xs text-base-content/70 link link-hover">{@parent}</span>
+    </LiveRedirect>
+    <LiveRedirect
+      to={if e(@user, :type, nil) == :group,
+        do: "/&#{e(@user, :character, :username, nil)}/members",
+        else: "/+#{e(@user, :character, :username, nil)}/followers"}
+      class="flex link link-hover items-center gap-3"
+    >
+      <div class="text-xs text-base-content/70"><b class="text-base-content/100">{@member_count}</b> {if e(@user, :type, nil) == :group, do: l("Members"), else: l("Followers")}</div>
+    </LiveRedirect>
+  </div>
+  <!-- <div class="flex flex-col gap-3 p-3">
+    <Bonfire.UI.Common.FollowButtonLive
+      :if={(not is_nil(e(@user, :character, nil)) and e(@boundary_preset, "open", nil)) ||
+        e(@boundary_preset, "visible", nil) || Boundaries.can?(@current_user, :follow, @user)}
+      id={ComponentID.new(Bonfire.UI.Common.FollowButtonLive, id(@user), __MODULE__)}
+      object_id={ulid(@user)}
+      path={path(@user)}
+      hide_icon
+      class="w-full normal-case rounded-full btn btn-outline bg-base-content text-base-300 !border-opacity-70"
+      verb={if e(@user, :type, nil) == :group,
+        do: if(e(@boundary_preset, "open", nil), do: l("Join"), else: l("Request to join"))}
+      verb_undo={if e(@user, :type, nil) == :group, do: l("Leave")}
+      verb_already={if e(@user, :type, nil) == :group, do: l("Joined")}
+    />
+  </div> -->
