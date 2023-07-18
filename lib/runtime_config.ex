@@ -24,7 +24,7 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
         profile: [
           navigation: [
             timeline: l("Timeline"),
-            about: l("About"),
+            about: l("About")
           ]
         ],
         sections: [

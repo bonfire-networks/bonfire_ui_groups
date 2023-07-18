@@ -7,5 +7,4 @@ defmodule Bonfire.UI.Groups.AboutLive do
   prop boundary_preset, :any, default: nil
   prop user, :map, default: nil
   prop member_count, :integer, default: 0
-
 end
