@@ -23,5 +23,4 @@ defmodule Bonfire.UI.Groups.AboutLive do
 
   prop members, :list, default: []
   prop moderators, :list, default: []
-
 end
