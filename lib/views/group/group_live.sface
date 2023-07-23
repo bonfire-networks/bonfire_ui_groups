@@ -33,6 +33,8 @@
           permalink={@permalink}
           follows_me={false}
           selected_tab={@selected_tab}
+          members={@members}
+          moderators={@moderators}
         />
       {/if}
     </:header>
