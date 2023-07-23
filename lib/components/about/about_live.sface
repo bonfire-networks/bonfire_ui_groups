@@ -44,7 +44,10 @@
     </div>
 
     <div class="p-4">
-      <div class="first-letter:capitalize flex-1 text-lg font-semibold text-base-content">{l("Moderators")}</div>
+      <div
+        :if={@moderators != []}
+        class="first-letter:capitalize flex-1 text-lg font-semibold text-base-content"
+      >{l("Moderators")}</div>
       {#for user <- @moderators}
         <div class="">
           <Bonfire.UI.Common.ProfileItemLive

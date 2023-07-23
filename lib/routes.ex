@@ -3,18 +3,20 @@ defmodule Bonfire.UI.Groups.Routes do
 
   defmacro __using__(_) do
     quote do
+      aliases = ["/group/", "/&"]
+
       # pages anyone can view
       scope "/", Bonfire.UI.Groups do
         pipe_through(:browser)
 
         live("/groups", ExploreLive, as: :groups)
-        # live("/&", ExploreLive)
+        live("/group", ExploreLive)
         live("/&", ExploreLive, as: Bonfire.UI.Groups.GroupLive)
 
-        live("/group/:id", GroupLive, as: :group)
-        live("/&:id", GroupLive, as: :group)
-        live("/&:id/follow", GroupLive, :follow, as: :group)
-        live("/&:id/discover", GroupLive, :discover, as: :group)
+        live_aliases(aliases, "/:alias:id", GroupLive, as: :group)
+        live_aliases(aliases, "/:alias:id/follow", GroupLive, :follow, as: :group)
+        live_aliases(aliases, "/:alias:id/discover", GroupLive, :discover, as: :group)
+        live_aliases(aliases, "/:alias:id/about", GroupLive, :about, as: :group)
       end
 
       # # pages only guests can view
@@ -34,14 +36,14 @@ defmodule Bonfire.UI.Groups.Routes do
         pipe_through(:browser)
         pipe_through(:user_required)
 
-        live("/&:id/members", GroupLive, :members, as: :group)
-        live("/&:id/submitted", GroupLive, :submitted, as: :group)
-        live("/&:id/:tab", GroupLive, as: :group)
-        live("/&:id/:tab/:tab_id", GroupLive, as: :group)
+        live_aliases(aliases, "/:alias:id/members", GroupLive, :members, as: :group)
+        live_aliases(aliases, "/:alias:id/submitted", GroupLive, :submitted, as: :group)
+        live_aliases(aliases, "/:alias:id/:tab", GroupLive, as: :group)
+        live_aliases(aliases, "/:alias:id/:tab/:tab_id", GroupLive, as: :group)
 
-        live("/&:id/settings", GroupLive, :settings, as: :group)
-        live("/&:id/settings/mentions", GroupLive, :submitted, as: :group)
-        live("/&:id/settings/membership", GroupLive, :members, as: :group)
+        live_aliases(aliases, "/:alias:id/settings", GroupLive, :settings, as: :group)
+        live_aliases(aliases, "/:alias:id/settings/mentions", GroupLive, :submitted, as: :group)
+        live_aliases(aliases, "/:alias:id/settings/membership", GroupLive, :members, as: :group)
       end
 
       # # pages only admins can view

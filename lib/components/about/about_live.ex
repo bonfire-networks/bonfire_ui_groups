@@ -15,7 +15,7 @@ defmodule Bonfire.UI.Groups.AboutLive do
   slot header
   slot widget
 
-  prop date, :string, default: "Today"
+  prop date, :string, default: nil
   prop parent, :string, default: nil
   prop parent_link, :string, default: nil
   prop boundary_preset, :any, default: nil
