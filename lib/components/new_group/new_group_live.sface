@@ -45,8 +45,8 @@
           class="select select-bordered"
         >
           <option value="open">{l("Open")}</option>
-          <option value="visible" selected>{l("Visible")}</option>
-          <option value="private">{l("Private")}</option>
+          <option value="visible" disabled>{l("Visible")}</option>
+          <option value="private" disabled>{l("Private")}</option>
         </select>
 
         <div x-show="boundaries === 'open'">

@@ -30,8 +30,8 @@
                 </optgroup>
                 <optgroup label={l("Other built-in options")}>
                   <option value="open">{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "open"], "")}</option>
-                  <option value="visible">{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "visible"], "")}</option>
-                  <option value="private">{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "private"], "")}</option>
+                  <option value="visible" disabled>{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "visible"], "")}</option>
+                  <option value="private" disabled>{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "private"], "")}</option>
                 </optgroup>
               </select>
               <button type="submit" class="w-full rounded-full mt-4 normal-case btn btn-primary">
