@@ -23,12 +23,12 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
         },
         profile: [
           navigation: [
-            timeline: l("Timeline"),
+            nil: l("Timeline"),
             about: l("About")
           ]
         ],
         sections: [
-          timeline: Bonfire.UI.Social.ProfileTimelineLive,
+          nil: Bonfire.UI.Social.ProfileTimelineLive,
           guest: Bonfire.UI.Groups.GuestLive,
           about: Bonfire.UI.Groups.AboutLive,
           # private: Bonfire.UI.Social.MessageThreadsLive,
@@ -41,7 +41,7 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
           submitted: Bonfire.UI.Social.ProfileTimelineLive
         ],
         navigation: [
-          timeline: l("Timeline"),
+          nil: l("Timeline"),
           # posts: l("Posts"),
           topics: l("Topics"),
           members: l("Members")
@@ -49,14 +49,14 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
         network: [],
         settings: [
           sections: [
-            general: Bonfire.UI.Groups.Settings.GeneralLive,
+            nil: Bonfire.UI.Groups.Settings.GeneralLive,
             # membership: Bonfire.UI.Groups.Settings.MembershipLive,
             invites: Bonfire.UI.Groups.Settings.InvitesLive,
             boundaries: Bonfire.UI.Groups.Settings.BoundariesLive,
             moderation: Bonfire.UI.Groups.Settings.FlagsLive
           ],
           navigation: [
-            general: l("General"),
+            nil: l("General"),
             members: l("Members"),
             # invites: l("Invites"),
             boundaries: l("Boundaries"),

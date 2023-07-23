@@ -9,7 +9,7 @@
           "border-b-4 border-transparent inline-flex px-5 pb-3 pt-5 text-base-content/70",
           "border-primary !text-base-content": @selected_tab in ["timeline", "posts", "boosts"]
         }
-        to={"#{@permalink}/timeline"}
+        to={@permalink}
       >
         <strong
           :if={Bonfire.Me.Settings.get([:ui, :metrics, :posts_count], nil, @__context__)}
