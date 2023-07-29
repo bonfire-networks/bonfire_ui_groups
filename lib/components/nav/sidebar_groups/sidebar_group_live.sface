@@ -23,7 +23,7 @@
 <ul
   :if={module_enabled?(Bonfire.UI.Topics.SidebarTopicLive)}
   data-description="Topics and sub-groups"
-  class="menu p-0 m-0"
+  class="menu p-0 menu-lg m-0"
 >
   <Dynamic.Component
     :for={{%{type: :topic} = subcategory, subchildren} <- @children}
