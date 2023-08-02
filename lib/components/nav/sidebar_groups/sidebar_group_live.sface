@@ -7,7 +7,7 @@
     class="hero relative bg-no-repeat h-[20px] w-[20px] rounded-full bg-cover bg-center]"
     style={"background-image: url('#{Media.banner_url(@category)}');"}
   />
-  <span class="font-normal text-base-content/90 font-medium flex-1">{e(@category, :profile, :name, nil)}</span>
+  <span class="font-normal text-base-content/60 font-medium flex-1">{e(@category, :profile, :name, nil)}</span>
 </LiveRedirect>
 
 <!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
