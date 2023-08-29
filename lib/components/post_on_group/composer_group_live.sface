@@ -1,5 +1,5 @@
 <Bonfire.UI.Common.SmartInputButtonLive
-  :if={@current_user}
+  :if={current_user(@__context__)}
   smart_input_opts={%{
     text_suggestion: "+#{e(@category, :character, :username, nil)}",
     to_circles: [id(@category)]

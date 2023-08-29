@@ -1,4 +1,4 @@
-{#if Bonfire.Classify.ensure_update_allowed(@current_user, @category) ||
+{#if Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category) ||
     Bonfire.Boundaries.can?(@__context__, :mediate, @category)}
   <Dynamic.LiveComponent
     :if={module_enabled?(Bonfire.UI.Social.FlagsLive)}

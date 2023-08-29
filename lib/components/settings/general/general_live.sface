@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-1 p-4 pt-0">
-  {#if !Bonfire.Classify.ensure_update_allowed(@current_user, @category)}
+  {#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
     {l("Sorry, you cannot edit this group.")}
   {#else}
     <div class="mt-2">
