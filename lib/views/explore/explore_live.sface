@@ -1,4 +1,4 @@
-<!-- <ul
+{!-- <ul
   role="tablist"
   class="flex justify-evenly items-stretch gap-3 text-sm font-medium border-b border-base-content/20"
 >
@@ -24,6 +24,6 @@
       role="tab"
     >{l("Joined")}</div>
   </li>
-</ul> -->
+</ul> --}
 
 <Dynamic.Component module={Bonfire.UI.Groups.DiscoverGroupsLive} categories={@categories} />

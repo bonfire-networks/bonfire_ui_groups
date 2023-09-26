@@ -81,16 +81,16 @@
   </div>
 </div>
 
-<!-- <div class="flex items-center gap-2 mx-3 mt-3">
+{!-- <div class="flex items-center gap-2 mx-3 mt-3">
     <#Icon iconify="material-symbols:calendar-month" class="w-5 h-5 text-base-content/70" />
     <span class="text-xs text-base-content/70">Created {@date}</span>
-  </div> -->
+  </div> --}
 
-<!-- <div class="mx-3 mt-3 cursor-default">
+{!-- <div class="mx-3 mt-3 cursor-default">
     <Bonfire.Boundaries.Web.BoundariesPresetNameLive boundary_preset={@boundary_preset} />
-  </div> -->
+  </div> --}
 
-<!-- <div class="flex items-center gap-4 py-3 mx-3 mt-3 border-t border-base-content/20">
+{!-- <div class="flex items-center gap-4 py-3 mx-3 mt-3 border-t border-base-content/20">
     <LiveRedirect :if={@parent} to={@parent_link} class="flex items-center gap-2">
       <#Icon iconify="mdi:account-group" class="w-5 h-5 text-base-content/100" />
       <span class="text-xs text-base-content/70 link link-hover">{@parent}</span>
@@ -103,8 +103,8 @@
     >
       <div class="text-xs text-base-content/70"><b class="text-base-content/100">{@member_count}</b> {if e(@user, :type, nil) == :group, do: l("Members"), else: l("Followers")}</div>
     </LiveRedirect>
-  </div> -->
-<!-- <div class="flex flex-col gap-3 p-3">
+  </div> --}
+{!-- <div class="flex flex-col gap-3 p-3">
     <Bonfire.UI.Common.FollowButtonLive
       :if={(not is_nil(e(@user, :character, nil)) and e(@boundary_preset, "open", nil)) ||
         e(@boundary_preset, "visible", nil) || Boundaries.can?(@__context__, :follow, @user)}
@@ -118,4 +118,4 @@
       verb_undo={if e(@user, :type, nil) == :group, do: l("Leave")}
       verb_already={if e(@user, :type, nil) == :group, do: l("Joined")}
     />
-  </div> -->
+  </div> --}

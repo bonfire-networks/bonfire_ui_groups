@@ -6,7 +6,7 @@
 </li>
 <div class="">
   <nav :for={{%{type: :group} = category, children} <- @categories} class="">
-    <!-- top-level group -->
+    {!-- top-level group --}
     <Bonfire.UI.Groups.SidebarGroupLive category={category} children={children} />
   </nav>
 
@@ -15,7 +15,7 @@
     :for={{%{type: :topic} = category, children} <- @categories}
     class=""
   >
-    <!-- topic that's not in a group -->
+    {!-- topic that's not in a group --}
     <Dynamic.Component
       module={Bonfire.UI.Topics.SidebarTopicLive}
       category={category}
@@ -23,7 +23,7 @@
     />
   </nav>
 
-  <!-- <nav class="">
+  {!-- <nav class="">
     <div class="flex items-center justify-between group">
       <LiveRedirect
         to="/group/test"
@@ -62,5 +62,5 @@
         </LiveRedirect>
       </li>
     </ul>
-  </nav> -->
+  </nav> --}
 </div>

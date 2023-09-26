@@ -2,13 +2,13 @@
 
 <div class="">
   <div :for={category <- @categories} class="">
-    <!-- top-level group -->
+    {!-- top-level group --}
     <Dynamic.Component
       module={Bonfire.UI.Social.Activity.GroupLive}
       object={category}
       permalink={path(category)}
     />
-    <!-- <Bonfire.UI.Groups.DiscoverGroupLive category={category} /> -->
+    {!-- <Bonfire.UI.Groups.DiscoverGroupLive category={category} /> --}
   </div>
 
   <nav
@@ -16,7 +16,7 @@
     :for={{%{type: :topic} = category, children} <- @categories}
     class=""
   >
-    <!-- topic that's not in a group -->
+    {!-- topic that's not in a group --}
     <Dynamic.Component
       module={Bonfire.UI.Topics.TopicsLive}
       category={category}

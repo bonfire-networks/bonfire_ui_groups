@@ -1,4 +1,4 @@
-<!-- <div class=""> -->
+{!-- <div class=""> --}
 <LiveRedirect
   to={path(@category)}
   class="hover:bg-base-content/10 flex items-center w-full gap-4 px-2 py-2 rounded-md group"
@@ -10,7 +10,7 @@
   <span class="font-normal text-base-content/60 font-medium flex-1">{e(@category, :profile, :name, nil)}</span>
 </LiveRedirect>
 
-<!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
+{!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
   <LiveRedirect
     to={path(@category, :discover)}
     alt={l("More topics")}
@@ -18,7 +18,7 @@
   >
     <#Icon iconify="material-symbols:manage-search" class="w-4 h-4 text-base-content/70" />
   </LiveRedirect>
-</div> -->
+</div> --}
 
 <ul
   :if={module_enabled?(Bonfire.UI.Topics.SidebarTopicLive)}

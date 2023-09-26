@@ -53,11 +53,11 @@
           </div>
         </div>
 
-        <!-- <div class="flex items-center justify-between cursor-pointer" >
+        {!-- <div class="flex items-center justify-between cursor-pointer" >
           <div class="flex flex-col gap-1">
             <div class="text-base font-bold text-base-content">{l("Edit the custom boundary of the group and all future group activities")}</div>
           </div>
-        </div> -->
+        </div> --}
         <div>
           <div class="mx-6 border rounded border-base-content/30 border-b-none">
             {#case Acls.get_or_create_object_custom_acl(@category, current_user(@__context__))}
@@ -72,7 +72,7 @@
                   acl_id={id(acl)}
                   acl={acl}
                 />
-                <!-- TODO: pass the ACL so it doesn't have to be queried twice -->
+                {!-- TODO: pass the ACL so it doesn't have to be queried twice --}
               {#match {:error, e}}
                 {e}
               {#match _}
