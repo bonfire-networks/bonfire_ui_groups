@@ -1,29 +1,32 @@
-<li class="p-0 m-0">
-  <LiveRedirect to="/groups" class="flex items-center w-full gap-4 px-2 py-2 rounded-md">
-    <#Icon iconify="ri:group-line" class="w-5 h-5 text-base-content/60" />
-    <span class="font-medium text-base-content/60 flex-1">{l("Groups")}</span>
-  </LiveRedirect>
-</li>
-<div class="">
-  <nav :for={{%{type: :group} = category, children} <- @categories} class="">
-    {!-- top-level group --}
-    <Bonfire.UI.Groups.SidebarGroupLive category={category} children={children} />
-  </nav>
+<li class="text-base-content font-medium rounded-md justify-end sidebar_menu_item">
+  <div class="m-0 p-0 rounded-md !block">
+    <LiveRedirect to="/groups" class="flex items-center w-full gap-4 px-2 py-2 rounded-md">
+      <div class="flex-1 relative flex items-center gap-5 widget_content">
+        <span><#Icon iconify="ri:group-line" class="w-6 h-6 text-base-content/80" /></span>
+        <span class="font-medium text-base-content/80 flex-1 text-[15px]">{l("Groups")}</span>
+      </div>
+    </LiveRedirect>
 
-  <nav
-    :if={module_enabled?(Bonfire.UI.Topics.SidebarTopicLive)}
-    :for={{%{type: :topic} = category, children} <- @categories}
-    class=""
-  >
-    {!-- topic that's not in a group --}
-    <Dynamic.Component
-      module={Bonfire.UI.Topics.SidebarTopicLive}
-      category={category}
-      children={children}
-    />
-  </nav>
+    <div class="ml-2">
+      <nav :for={{%{type: :group} = category, children} <- @categories} class="">
+        {!-- top-level group --}
+        <Bonfire.UI.Groups.SidebarGroupLive category={category} children={children} />
+      </nav>
 
-  {!-- <nav class="">
+      <nav
+        :if={module_enabled?(Bonfire.UI.Topics.SidebarTopicLive)}
+        :for={{%{type: :topic} = category, children} <- @categories}
+        class=""
+      >
+        {!-- topic that's not in a group --}
+        <Dynamic.Component
+          module={Bonfire.UI.Topics.SidebarTopicLive}
+          category={category}
+          children={children}
+        />
+      </nav>
+
+      {!-- <nav class="">
     <div class="flex items-center justify-between group">
       <LiveRedirect
         to="/group/test"
@@ -63,4 +66,6 @@
       </li>
     </ul>
   </nav> --}
-</div>
+    </div>
+  </div>
+</li>
