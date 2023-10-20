@@ -22,7 +22,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
            {Bonfire.UI.Groups.NewGroupLive,
             [
               parent_id: "explore",
-              open_btn_class: "btn btn-outline btn-sm btn-primary rounded-full normal-case"
+              open_btn_class: "btn btn-outline btn-sm btn-primary rounded-full !border-primary/30 normal-case"
             ]}
          ],
          sidebar_widgets: [

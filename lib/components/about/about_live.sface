@@ -18,7 +18,7 @@
         else: Config.get([:ui, :group, :profile, :navigation], nil: l("Timeline"))}
     />
     <div class="p-4 border-b border-base-content/20">
-      <div class="first-letter:capitalize flex-1 text-lg font-semibold text-base-content">{l("Group details")}</div>
+      <div class="first-letter:capitalize flex-1 text-base font-semibold text-base-content">{l("Group details")}</div>
 
       <div class="max-w-full mt-3 prose prose-sm">
         {e(@category, :profile, :summary, nil)}
@@ -46,12 +46,12 @@
     <div class="p-4">
       <div
         :if={@moderators != []}
-        class="first-letter:capitalize flex-1 text-lg font-semibold text-base-content"
+        class="mb-3 first-letter:capitalize flex-1 text-base font-semibold text-base-content"
       >{l("Moderators")}</div>
       {#for user <- @moderators}
-        <div class="">
+        <div class="mb-3">
           <Bonfire.UI.Common.ProfileItemLive
-            avatar_class="rounded-full w-8 h-8"
+            avatar_class="rounded-full w-10 h-10"
             show_controls={[]}
             character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
               e(user, :activity, :subject, :character, nil)}
@@ -62,11 +62,11 @@
           />
         </div>
       {/for}
-      <div class="mt-4 first-letter:capitalize flex-1 text-lg font-semibold text-base-content">{l("Members")}</div>
+      <div class="mt-6 mb-3 first-letter:capitalize flex-1 text-lg font-semibold text-base-content">{l("Members")}</div>
       {#for user <- @members}
-        <div class="">
+        <div class="mb-3">
           <Bonfire.UI.Common.ProfileItemLive
-            avatar_class="rounded-full w-8 h-8"
+            avatar_class="rounded-full w-10 h-10"
             show_controls={[]}
             character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
               e(user, :activity, :subject, :character, nil)}
