@@ -2,7 +2,6 @@
   id={"create_new_group_#{@parent_id}"}
   reusable_modal_id={if @__context__[:sticky], do: "persistent_modal"}
   title_text={l("Create a new group")}
-  main_wrapper_class=""
   open_btn_wrapper_class={@open_btn_wrapper_class}
   no_actions
 >
