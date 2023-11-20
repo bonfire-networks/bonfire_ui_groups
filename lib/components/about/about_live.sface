@@ -51,7 +51,7 @@
       {#for user <- @moderators}
         <div class="mb-3">
           <Bonfire.UI.Common.ProfileItemLive
-            avatar_class="rounded-full w-10 h-10"
+            avatar_class="rounded-full w-10 h-10 bg-base-300"
             show_controls={[]}
             character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
               e(user, :activity, :subject, :character, nil)}
@@ -66,7 +66,7 @@
       {#for user <- @members}
         <div class="mb-3">
           <Bonfire.UI.Common.ProfileItemLive
-            avatar_class="rounded-full w-10 h-10"
+            avatar_class="rounded-full w-10 h-10 bg-base-300"
             show_controls={[]}
             character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
               e(user, :activity, :subject, :character, nil)}

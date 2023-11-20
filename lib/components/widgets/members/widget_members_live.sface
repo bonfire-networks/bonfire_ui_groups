@@ -7,7 +7,7 @@
     {#for user <- @moderators}
       <div class="">
         <Bonfire.UI.Common.ProfileItemLive
-          avatar_class="rounded-full w-8 h-8"
+          avatar_class="rounded-full w-8 h-8 bg-base-300"
           show_controls={[]}
           character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
             e(user, :activity, :subject, :character, nil)}
@@ -24,7 +24,7 @@
     {#for user <- @members}
       <div class="">
         <Bonfire.UI.Common.ProfileItemLive
-          avatar_class="rounded-full w-8 h-8"
+          avatar_class="rounded-full w-8 h-8 bg-base-300"
           show_controls={[]}
           character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
             e(user, :activity, :subject, :character, nil)}
