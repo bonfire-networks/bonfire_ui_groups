@@ -1,9 +1,9 @@
-<li class="text-base-content font-medium rounded-md justify-end sidebar_menu_item">
-  <div class="m-0 p-0 rounded-md !block">
+<li class="">
+  <div data-showing-within="sidebar" data-type="widget" class="!m-0 !p-[0.5rem] rounded-md !block">
     <LiveRedirect to="/groups" class="flex items-center w-full gap-4 px-2 py-2 rounded-md">
-      <div class="flex-1 relative flex items-center gap-5 widget_content">
+      <div class="flex-1 justify-end relative flex items-center gap-5 widget_content">
         <span><#Icon iconify="ri:group-line" class="w-6 h-6 text-base-content/80" /></span>
-        <span class="font-normal text-base-content/90 flex-1 text-lg widget_text">{l("Groups")}</span>
+        <span data-type="widget_label">{l("Groups")}</span>
       </div>
     </LiveRedirect>
 
