@@ -26,4 +26,4 @@
   </li>
 </ul> --}
 
-<Dynamic.Component module={Bonfire.UI.Groups.DiscoverGroupsLive} categories={@categories} />
+<Bonfire.UI.Groups.DiscoverGroupsLive categories={@categories} />

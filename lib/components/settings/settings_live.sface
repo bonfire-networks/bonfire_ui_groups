@@ -4,5 +4,5 @@
   tabs={Config.get([:ui, :group, :settings, :navigation], settings: l("General"))}
 />
 
-<Dynamic.Component module={tab_component(@tab_id || @selected_tab)} {...assigns}>
-</Dynamic.Component>
+<StatelessComponent module={tab_component(@tab_id || @selected_tab)} {...assigns}>
+</StatelessComponent>

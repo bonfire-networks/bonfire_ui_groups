@@ -20,20 +20,20 @@
   </LiveRedirect>
 </div> --}
 
-<ul
-  :if={module_enabled?(Bonfire.UI.Topics.SidebarTopicLive)}
-  data-description="Topics and sub-groups"
-  class="menu p-0  m-0"
->
-  <Dynamic.Component
-    :for={{%{type: :topic} = subcategory, subchildren} <- @children}
-    module={Bonfire.UI.Topics.SidebarTopicLive}
-    category={subcategory}
-    children={subchildren}
-  />
-  <Bonfire.UI.Groups.SidebarGroupLive
-    :for={{%{type: :group} = subcategory, subchildren} <- @children}
-    category={subcategory}
-    children={subchildren}
-  />
-</ul>
+{#case maybe_module(Bonfire.UI.Topics.SidebarTopicLive, @__context__)}
+  {#match nil}
+  {#match component}
+    <ul data-description="Topics and sub-groups" class="menu p-0  m-0">
+      <StatelessComponent
+        :for={{%{type: :topic} = subcategory, subchildren} <- @children}
+        module={component}
+        category={subcategory}
+        children={subchildren}
+      />
+      <Bonfire.UI.Groups.SidebarGroupLive
+        :for={{%{type: :group} = subcategory, subchildren} <- @children}
+        category={subcategory}
+        children={subchildren}
+      />
+    </ul>
+{/case}

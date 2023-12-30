@@ -1,8 +1,7 @@
 {#if Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category) ||
     Bonfire.Boundaries.can?(@__context__, :mediate, @category)}
-  <Dynamic.LiveComponent
-    :if={module_enabled?(Bonfire.UI.Social.FlagsLive)}
-    module={Bonfire.UI.Social.FlagsLive}
+  <StatefulComponent
+    module={maybe_component(Bonfire.UI.Social.FlagsLive, @__context__)}
     selected_tab={@selected_tab}
     id="group_flags"
     scope={@category}

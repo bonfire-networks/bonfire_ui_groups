@@ -13,11 +13,11 @@
       </nav>
 
       <nav
-        :if={module_enabled?(Bonfire.UI.Topics.SidebarTopicLive)}
+        module={maybe_component(Bonfire.UI.Topics.SidebarTopicLive, @__context__)}
         :for={{%{type: :topic} = category, children} <- @categories}
         class=""
       >
-        <Dynamic.Component
+        <StatelessComponent
           module={Bonfire.UI.Topics.SidebarTopicLive}
           category={category}
           children={children}

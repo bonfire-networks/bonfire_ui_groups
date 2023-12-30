@@ -62,9 +62,8 @@
           <div class="mx-6 border rounded border-base-content/30 border-b-none">
             {#case Acls.get_or_create_object_custom_acl(@category, current_user(@__context__))}
               {#match {:ok, acl}}
-                <Dynamic.LiveComponent
-                  :if={module_enabled?(Bonfire.Boundaries.Web.AclLive)}
-                  module={Bonfire.Boundaries.Web.AclLive}
+                <StatefulComponent
+                  module={maybe_component(Bonfire.Boundaries.Web.AclLive, @__context__)}
                   setting_boundaries={false}
                   scope={@category}
                   usage={:ops}
@@ -94,9 +93,9 @@
         </div>
         <div>
           <div class="mx-6 mt-3">
-            <Dynamic.LiveComponent
-              :if={module_enabled?(Bonfire.Boundaries.Web.RolesLive) and current_user(@__context__)}
-              module={Bonfire.Boundaries.Web.RolesLive}
+            <StatefulComponent
+              :if={current_user(@__context__)}
+              module={maybe_component(Bonfire.Boundaries.Web.RolesLive, @__context__)}
               id="roles"
               scope={@category}
             />

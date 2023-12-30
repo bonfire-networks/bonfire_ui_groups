@@ -1,6 +1,6 @@
-<Dynamic.LiveComponent
-  :if={module_enabled?(Bonfire.Invite.Links.Web.InvitesLive) and current_user(@__context__)}
-  module={Bonfire.Invite.Links.Web.InvitesLive}
+<StatefulComponent
+  :if={current_user(@__context__)}
+  module={maybe_component(Bonfire.Invite.Links.Web.InvitesLive, @__context__)}
   selected_tab={@selected_tab}
   id="admin_invites"
 />

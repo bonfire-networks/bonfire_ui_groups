@@ -5,7 +5,7 @@
     "": !current_user_id(@__context__)
   }
 >
-  <Dynamic.Component
+  <StatelessComponent
     module={tab_component(@selected_tab) || tab_component(@tab_id |> debug("tttt")) ||
       Bonfire.UI.Social.ProfileTimelineLive}
     user={@category}
@@ -19,7 +19,7 @@
           tabs={Config.get([:ui, :group, :settings, :navigation], settings: l("General"))}
         />
       {#else}
-        <Dynamic.LiveComponent
+        <StatefulComponent
           module={Config.get(
             [:ui, :group, :hero_component],
             Bonfire.UI.Me.ProfileHeroFullLive
@@ -38,5 +38,5 @@
         />
       {/if}
     </:header>
-  </Dynamic.Component>
+  </StatelessComponent>
 </main>

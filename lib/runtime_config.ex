@@ -10,8 +10,8 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
   def config do
     import Config
 
-    config :bonfire_ui_groups,
-      disabled: false
+    # config :bonfire_ui_groups,
+    #   modularity: :disabled
 
     config :bonfire, :ui,
       group: [

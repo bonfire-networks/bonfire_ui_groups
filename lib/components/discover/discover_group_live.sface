@@ -15,7 +15,7 @@
     class="text-[10px] link link-hover px-2 font-semibold tracking-[0.175rem] uppercase text-base-content/70"
   >{e(@category, :profile, :name, nil)}</LiveRedirect>
  <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
-    <Dynamic.Component module={Bonfire.UI.Topics.NewTopicLive} parent={@category} />
+    <StatelessComponent module={maybe_component(Bonfire.UI.Topics.NewTopicLive)} parent={@category} />
     <LiveRedirect
       to={path(@category, :discover)}
       alt={l("More topics")}
@@ -29,21 +29,17 @@
 <div class="mb-4 ml-11 text-sm">
   {e(@category, :profile, :summary, nil)}
 
-  <ul
-    :if={module_enabled?(Bonfire.UI.Topics.TopicsLive)}
-    class="p-0 m-0 menu"
-    data-description="Topics and sub-groups"
-  >
-    <nav :for={{%{type: :topic} = subcategory, subchildren} <- @children} class="">
-      <Dynamic.Component
-        module={Bonfire.UI.Topics.TopicsLive}
-        category={subcategory}
-        children={subchildren}
-      />
-    </nav>
+  {#case maybe_module(Bonfire.UI.Topics.TopicsLive, @__context__)}
+    {#match nil}
+    {#match component}
+      <ul class="p-0 m-0 menu" data-description="Topics and sub-groups">
+        <nav :for={{%{type: :topic} = subcategory, subchildren} <- @children} class="">
+          <StatelessComponent module={component} category={subcategory} children={subchildren} />
+        </nav>
 
-    <nav :for={{%{type: :group} = subcategory, subchildren} <- @children} class="">
-      <Bonfire.UI.Groups.DiscoverGroupLive category={subcategory} children={subchildren} />
-    </nav>
-  </ul>
+        <nav :for={{%{type: :group} = subcategory, subchildren} <- @children} class="">
+          <Bonfire.UI.Groups.DiscoverGroupLive category={subcategory} children={subchildren} />
+        </nav>
+      </ul>
+  {/case}
 </div>

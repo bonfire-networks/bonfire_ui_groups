@@ -50,9 +50,8 @@
       >{l("Moderators")}</div>
       {#for user <- @moderators}
         <div class="mb-3">
-          <Dynamic.Component
-            :if={module_enabled?(Bonfire.UI.Me.ProfileItemLive)}
-            module={Bonfire.UI.Me.ProfileItemLive}
+          <StatelessComponent
+            module={maybe_component(Bonfire.UI.Me.ProfileItemLive, @__context__)}
             avatar_class="rounded-full w-10 h-10 bg-base-300"
             show_controls={[]}
             character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
@@ -67,9 +66,8 @@
       <div class="mt-6 mb-3 first-letter:capitalize flex-1 text-lg font-semibold text-base-content">{l("Members")}</div>
       {#for user <- @members}
         <div class="mb-3">
-          <Dynamic.Component
-            :if={module_enabled?(Bonfire.UI.Me.ProfileItemLive)}
-            module={Bonfire.UI.Me.ProfileItemLive}
+          <StatelessComponent
+            module={maybe_component(Bonfire.UI.Me.ProfileItemLive, @__context__)}
             avatar_class="rounded-full w-10 h-10 bg-base-300"
             show_controls={[]}
             character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
@@ -109,9 +107,8 @@
     </LiveRedirect>
   </div> --}
 {!-- <div class="flex flex-col gap-3 p-3">
-    <Dynamic.LiveComponent
-                    :if={module_enabled?(Bonfire.UI.Social.FollowButtonLive)}
-                    module={Bonfire.UI.Social.FollowButtonLive}
+    <StatefulComponent
+                    module={maybe_component(Bonfire.UI.Social.FollowButtonLive, @__context__)}
       :if={(not is_nil(e(@user, :character, nil)) and e(@boundary_preset, "open", nil)) ||
         e(@boundary_preset, "visible", nil) || Boundaries.can?(@__context__, :follow, @user)}
       id={ComponentID.new(Bonfire.UI.Social.FollowButtonLive, id(@user), __MODULE__)}
