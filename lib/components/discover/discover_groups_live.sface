@@ -1,7 +1,7 @@
 <#slot {@header} />
 
 <div class="">
-  {#case maybe_module(Bonfire.UI.Social.Activity.GroupLive, @__context__)}
+  {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
     {#match nil}
     {#match component}
       <div :for={category <- @categories} class="">
