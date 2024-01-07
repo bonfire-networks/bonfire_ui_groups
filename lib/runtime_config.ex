@@ -14,6 +14,10 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
     #   modularity: :disabled
 
     config :bonfire, :ui,
+      activity_preview: [],
+      object_preview: [
+        {:group, Bonfire.UI.Groups.Preview.GroupLive}
+      ],
       group: [
         preset_descriptions: %{
           "open" => l("anyone can join and participate"),
