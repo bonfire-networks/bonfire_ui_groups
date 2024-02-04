@@ -1,7 +1,7 @@
 defmodule Bonfire.UI.Groups.AboutLive do
   use Bonfire.UI.Common.Web, :stateless_component
 
-  prop selected_tab, :string, default: "about"
+  prop selected_tab, :any, default: "about"
   prop feed_title, :string
   prop user, :map
   prop feed, :list
