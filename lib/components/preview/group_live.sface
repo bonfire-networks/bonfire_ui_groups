@@ -1,5 +1,5 @@
 {#if @showing_within == :feed}
-  <LiveRedirect to={@permalink} class="rounded-box border border-base-content/10 my-2 bg-base-200">
+  <LinkLive to={@permalink} class="rounded-box border border-base-content/10 my-2 bg-base-200">
     <div
       class="h-[200px] w-full shrink-0 rounded-t-box bg-center bg-cover bg-no-repeat bg-base-200"
       style={"background-image: url('#{Media.banner_url(@object)}')"}
@@ -24,9 +24,9 @@
         />
       </div>
     </div>
-  </LiveRedirect>
+  </LinkLive>
 {#else}
-  <LiveRedirect to={@permalink} class="hover:bg-base-content/5 p-3 flex items-center gap-4">
+  <LinkLive to={@permalink} class="hover:bg-base-content/5 p-3 flex items-center gap-4">
     <div
       class="h-[96px] w-[96px] shrink-0 rounded-lg bg-center bg-cover bg-no-repeat bg-base-200"
       style={"background-image: url('#{Media.banner_url(@object)}')"}
@@ -51,5 +51,5 @@
         />
       </div>
     </div>
-  </LiveRedirect>
+  </LinkLive>
 {/if}
