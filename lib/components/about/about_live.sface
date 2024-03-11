@@ -38,7 +38,7 @@
       </div>
 
       <div class="flex items-center gap-4 mt-5">
-        <#Icon iconify="ri:group-line" class="w-6 h-6 text-base-content/70" />
+        <#Icon iconify="carbon:user-multiple" class="w-6 h-6 text-base-content/70" />
         <div class="text-sm text-base-content"><b class="font-bold">{@member_count}</b> {if e(@category, :type, nil) == :group, do: l("Members"), else: l("Followers")}</div>
       </div>
     </div>

@@ -2,7 +2,7 @@
   <div data-showing-within="sidebar" data-type="widget" class="!m-0 !p-[0.5rem] rounded-md !block">
     <LinkLive to="/groups" class="">
       <div class="flex-1 justify-end relative flex items-center gap-5 widget_content">
-        <span><#Icon iconify="ri:group-line" class="w-6 h-6 text-base-content/80" /></span>
+        <span><#Icon iconify="carbon:user-multiple" class="w-6 h-6 text-base-content/80" /></span>
         <span data-type="widget_label">{l("Groups")}</span>
       </div>
     </LinkLive>
