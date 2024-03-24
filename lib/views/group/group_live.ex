@@ -4,6 +4,8 @@ defmodule Bonfire.UI.Groups.GroupLive do
   declare_extension("Groups",
     icon: "emojione:circus-tent",
     emoji: "🎪",
+    description:
+      l("Organise in groups, whether public or private, open or close, or anything in between."),
     default_nav: [
       Bonfire.UI.Groups.SidebarGroupsLive
     ]
