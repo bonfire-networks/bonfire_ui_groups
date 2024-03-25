@@ -1,5 +1,3 @@
-<p align="center"> <img src="https://user-images.githubusercontent.com/1852065/220077189-33cd03af-2775-4298-9dcb-83a9932541e9.png" width="200" height="250" alt="bonfire logo" /></p>
-
 # Bonfire UI Groups
 
 Pages and UI components for groups in Bonfire.
