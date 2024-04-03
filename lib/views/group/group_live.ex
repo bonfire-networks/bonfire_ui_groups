@@ -2,7 +2,7 @@ defmodule Bonfire.UI.Groups.GroupLive do
   use Bonfire.UI.Common.Web, :surface_live_view
 
   declare_extension("Groups",
-    icon: "emojione:circus-tent",
+    icon: "icon-park-solid:circus",
     emoji: "🎪",
     description:
       l("Organise in groups, whether public or private, open or close, or anything in between."),
