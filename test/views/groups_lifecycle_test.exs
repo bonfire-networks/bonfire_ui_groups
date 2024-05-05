@@ -6,7 +6,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
   alias Bonfire.Me.Users
   alias Bonfire.Files.Test
   import Bonfire.Common.Enums
-  import Bonfire.UI.Me.Integration
+  import Bonfire.UI.Me
 
   describe "group creation" do
     test "Create a group works" do
