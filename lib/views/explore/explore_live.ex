@@ -5,6 +5,12 @@ defmodule Bonfire.UI.Groups.ExploreLive do
 
   on_mount {LivePlugs, [Bonfire.UI.Me.LivePlugs.LoadCurrentUser]}
 
+  declare_nav_link(l("Groups"),
+    page: "groups",
+    icon: "carbon:user-multiple",
+    icon_active: "carbon:users-multiple"
+  )
+
   def mount(params, session, socket) do
     with %{edges: list, page_info: page_info} <-
            Categories.list_tree([:default, type: :group, tree_max_depth: 1],

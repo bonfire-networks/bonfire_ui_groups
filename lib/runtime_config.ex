@@ -39,7 +39,7 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
           # posts: Bonfire.UI.Posts.ProfileBoostsLive,
           discover: Bonfire.UI.Groups.DiscoverGroupsLive,
           followers: Bonfire.UI.Social.Graph.ProfileFollowsLive,
-          members: Bonfire.UI.Social.Graph.ProfileFollowsLive,
+          members: Bonfire.UI.Groups.Settings.MembershipLive,
           settings: Bonfire.UI.Groups.SettingsLive,
           follow: Bonfire.UI.Me.RemoteInteractionFormLive,
           submitted: Bonfire.UI.Social.ProfileTimelineLive
@@ -54,18 +54,18 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
         settings: [
           sections: [
             nil: Bonfire.UI.Groups.Settings.GeneralLive,
-            # membership: Bonfire.UI.Groups.Settings.MembershipLive,
+            members: Bonfire.UI.Groups.Settings.MembershipLive,
             invites: Bonfire.UI.Groups.Settings.InvitesLive,
-            boundaries: Bonfire.UI.Groups.Settings.BoundariesLive,
+            # boundaries: Bonfire.UI.Groups.Settings.BoundariesLive,
             moderation: Bonfire.UI.Groups.Settings.FlagsLive
           ],
           navigation: [
-            nil: l("General"),
+            nil: l("Settings"),
             members: l("Members"),
             # invites: l("Invites"),
-            boundaries: l("Boundaries"),
-            moderation: l("Moderation"),
-            submitted: l("Mentions")
+            # boundaries: l("Boundaries"),
+            moderation: l("Moderation")
+            # submitted: l("Mentions")
           ]
         ]
       ]

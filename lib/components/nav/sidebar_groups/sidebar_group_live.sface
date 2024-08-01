@@ -1,13 +1,13 @@
 {!-- <div class=""> --}
 <LinkLive
   to={path(@category)}
-  class="hover:bg-base-content/10 flex items-center w-full gap-4 px-2 py-2 rounded-md group"
+  class="w-full flex items-center !gap-3 !p-1 !m-0 bg-base-100 hover:bg-base-content/10"
 >
   <div
     class="hero relative bg-no-repeat h-[20px] w-[20px] rounded-full bg-cover bg-center]"
     style={"background-image: url('#{Media.banner_url(@category)}');"}
   />
-  <span class="font-normal text-base-content/60 font-medium flex-1">{e(@category, :profile, :name, nil)}</span>
+  <span class="text-base-content max-w-[180px] truncate text-base-content/90 text-[15px] flex-1">{e(@category, :profile, :name, nil)}</span>
 </LinkLive>
 
 {!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">

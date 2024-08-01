@@ -3,6 +3,8 @@
     {l("Sorry, you cannot edit this group.")}
   {#else}
     <div class="mt-2">
+      <div class="text-xl mb-4 font-semibold">{l("Appareance")}</div>
+
       <StatefulComponent
         module={maybe_component(Bonfire.Files.Web.UploadBannerLive, @__context__)}
         id={:upload_banner}
@@ -30,13 +32,19 @@
           >{e(@category, :profile, :summary, nil)}</textarea>
         </div>
 
-        <button type="submit" class="w-full rounded-full mt-3 normal-case btn btn-primary">
+        <button type="submit" class="w-full mt-3 btn btn-neutral">
           {l("Edit appearance")}
         </button>
       </form>
     </div>
 
-    <div class="rounded-lg p-4 mt-6 text-center bg-error/5">
+    <div class="text-xl mb-4 font-semibold mt-6 border-t border-base-content/20 border-t-2 pt-4">{l("Permissions")}</div>
+
+    <Bonfire.UI.Groups.Settings.BoundariesLive category={@category} />
+
+    <div class="text-xl mb-4 font-semibold mt-6 border-t border-base-content/20 border-t-2 pt-4">{l("Danger zone")}</div>
+
+    <div class="rounded-lg p-4 bg-error/5 border-error/30 border">
       <div class="">
         <p class="mt-0 text-sm text-error">
           {l("Archive this group. It will be hidden from the public, but you can restore it later.")}

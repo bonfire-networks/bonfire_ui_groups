@@ -1,88 +1,69 @@
-<div class="flex flex-col gap-1 p-4 pt-0">
+<div class="">
   {#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
     {l("Sorry, you cannot edit this group.")}
   {#else}
-    <div class="mt-2">
-      <div class="py-6 rounded-lg bg-base-100 shadow-lg">
-        <div class="text-center mb-4">
-          <div class="flex flex-col text-center gap-3">
-            <div class="text-base font-medium text-base-content">{l("Edit the main boundary")}
-              <p class="text-sm text-base-content/70">{l("Editing the main boundary will affect all future activities")}</p>
-            </div>
-          </div>
-        </div>
-        <div>
-          <form phx-submit="Bonfire.Classify:reset_preset_boundary">
-            <div class="mt-2 mx-6 form-control">
-              <select name="to_boundaries[]" class="select select-bordered">
-                <optgroup label={l("Current option")}>
-                  {#case @boundary_preset}
-                    {#match {"open" = preset, _boundary_name}}
-                      <option value="open" selected>{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
-                    {#match {"visible" = preset, _boundary_name}}
-                      <option value="visible" selected>{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
-                    {#match {"private" = preset, _boundary_name}}
-                      <option value="private" selected>{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
-                    {#match {id, boundary_name}}
-                      <option value={id} selected>{boundary_name}</option>
-                    {#match _}
-                  {/case}
-                </optgroup>
-                <optgroup label={l("Other built-in options")}>
-                  <option value="open">{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "open"], "")}</option>
-                  <option value="visible" disabled>{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "visible"], "")}</option>
-                  <option value="private" disabled>{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "private"], "")}</option>
-                </optgroup>
-              </select>
-              <button type="submit" class="w-full rounded-full mt-4 normal-case btn btn-primary">
-                {l("Edit")}
-              </button>
-            </div>
-          </form>
-        </div>
+    <div>
+      <div class="text-base font-medium text-base-content/90">{l("Edit the main boundary")}
+        <p class="text-sm text-base-content/70">{l("Editing the main boundary will affect all future activities")}</p>
       </div>
-    </div>
 
-    <div class="mt-2">
-      <div class="py-6 rounded-lg bg-base-100 shadow-lg">
-        <div class="text-center mb-4">
-          <div class="flex flex-col text-center gap-3">
-            <div class="text-base font-medium text-base-content">{l("Assign roles")}
-              <p class="text-sm text-base-content/70">{l("Use roles to manage your group members and assign permissions")}</p>
-            </div>
-          </div>
-        </div>
-
-        {!-- <div class="flex items-center justify-between cursor-pointer" >
-          <div class="flex flex-col gap-1">
-            <div class="text-base font-bold text-base-content">{l("Edit the custom boundary of the group and all future group activities")}</div>
-          </div>
-        </div> --}
-        <div>
-          <div class="mx-6 border rounded border-base-content/30 border-b-none">
-            {#case Acls.get_or_create_object_custom_acl(@category, current_user(@__context__))}
-              {#match {:ok, acl}}
-                <StatefulComponent
-                  module={maybe_component(Bonfire.Boundaries.Web.AclLive, @__context__)}
-                  setting_boundaries={false}
-                  scope={@category}
-                  usage={:ops}
-                  id={:acl}
-                  acl_id={id(acl)}
-                  acl={acl}
-                />
-                {!-- TODO: pass the ACL so it doesn't have to be queried twice --}
-              {#match {:error, e}}
-                {e}
+      <form phx-submit="Bonfire.Classify:reset_preset_boundary">
+        <div class="form-control mt-3">
+          <select name="to_boundaries[]" class="select select-bordered">
+            <option value="open">{l("Open")}</option>
+            <option value="visible" disabled>{l("Visible")}</option>
+            <option value="private" disabled>{l("Private")}</option>
+            <!-- <optgroup label={l("Current option")}>
+            {#case @boundary_preset}
+              {#match {"open" = preset, _boundary_name}}
+                <option value="open" selected>{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
+              {#match {"visible" = preset, _boundary_name}}
+                <option value="visible" selected>{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
+              {#match {"private" = preset, _boundary_name}}
+                <option value="private" selected>{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
+              {#match {id, boundary_name}}
+                <option value={id} selected>{boundary_name}</option>
               {#match _}
-                Unknown error
             {/case}
-          </div>
+          </optgroup> -->
+            <!-- <optgroup label={l("Other built-in options")}>
+            <option value="open">{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "open"], "")}</option>
+            <option value="visible" disabled>{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "visible"], "")}</option>
+            <option value="private" disabled>{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "private"], "")}</option>
+          </optgroup> -->
+          </select>
+          <button type="submit" class="btn mt-3 btn-neutral">
+            {l("Edit")}
+          </button>
         </div>
-      </div>
+      </form>
     </div>
 
-    <div class="mt-2">
+    <div class="text-xl mb-2 font-semibold mt-6 border-t border-base-content/20 border-t-2 pt-4">{l("Roles")}</div>
+    <p class="text-sm text-base-content/70">{l("Use roles to manage your group members and assign permissions")}</p>
+
+    <div class="mt-4">
+      {#case Acls.get_or_create_object_custom_acl(@category, current_user(@__context__))}
+        {#match {:ok, acl}}
+          <StatefulComponent
+            type={:group}
+            module={maybe_component(Bonfire.Boundaries.Web.AclLive, @__context__)}
+            setting_boundaries={false}
+            scope={@category}
+            usage={:ops}
+            id={:acl}
+            acl_id={id(acl)}
+            acl={acl}
+          />
+          {!-- TODO: pass the ACL so it doesn't have to be queried twice --}
+        {#match {:error, e}}
+          {e}
+        {#match _}
+          Unknown error
+      {/case}
+    </div>
+
+    <!-- <div class="mt-2">
       <div class="py-6 rounded-lg bg-base-100 shadow-lg">
         <div class="text-center mb-4">
           <div class="flex flex-col text-center gap-3">
@@ -102,6 +83,6 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   {/if}
 </div>
