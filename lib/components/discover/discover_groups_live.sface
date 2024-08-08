@@ -1,6 +1,6 @@
 <#slot {@header} />
 
-<div class="flex flex-col px-3 border-t border-base-content/10">
+<div class="flex flex-col px-3 border-t border-base-content/20">
   {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
     {#match nil}
     {#match component}

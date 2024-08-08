@@ -1,5 +1,5 @@
 {#if @showing_within == :feed}
-  <LinkLive to={@permalink} class="rounded-box border border-base-content/10 my-2 bg-base-200">
+  <LinkLive to={@permalink} class="rounded-box border border-base-content/20 my-2 bg-base-200">
     <div
       class="h-[200px] w-full shrink-0 rounded-t-box bg-center bg-cover bg-no-repeat bg-base-200"
       style={"background-image: url('#{Media.banner_url(@object)}')"}
@@ -28,7 +28,7 @@
 {#else}
   <LinkLive
     to={@permalink}
-    class="hover:bg-base-content/5 p-1 pr-4 mt-3 flex rounded-lg border border-base-content/10 items-center gap-4"
+    class="hover:bg-base-content/5 p-1 pr-4 mt-3 flex rounded-lg border border-base-content/20 items-center gap-4"
   >
     <div
       class="h-[64px] w-[64px] shrink-0 rounded-lg bg-center bg-cover bg-no-repeat bg-base-200"

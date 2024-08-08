@@ -14,7 +14,7 @@
     <:header>
       {#if @selected_tab == "settings"}
         <Bonfire.UI.Common.TabsLive
-          class="flex gap-3 p-3 border-b border-base-content/10 scrollable"
+          class="flex gap-3 p-3 border-b border-base-content/20 scrollable"
           selected_tab={@tab_id || @selected_tab}
           path_prefix={"#{@permalink}/settings/"}
           tabs={Config.get([:ui, :group, :settings, :navigation], settings: l("General"))}

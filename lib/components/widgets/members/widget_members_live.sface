@@ -2,8 +2,8 @@
   :if={@moderators != [] or @members != []}
   widget_title={@widget_title}
 >
-  <div :if={@moderators != []} class="grid grid-cols-1 gap-4">
-    <span class="text-sm font-medium tracking-wider text-base-content/70">{l("Moderators")}</span>
+  <div :if={@moderators != []} class="grid grid-cols-1 gap-2">
+    <span class="text-xs uppercase tracking-wider text-base-content/70">{l("Moderators")}</span>
     {#for user <- @moderators}
       <div class="">
         <StatelessComponent
@@ -20,8 +20,8 @@
       </div>
     {/for}
   </div>
-  <div :if={@members != []} class="grid grid-cols-1 gap-4 p-3 pt-0 py-4">
-    <span class="text-sm font-medium tracking-wider text-base-content/70">{l("Members")}</span>
+  <div :if={@members != []} class="grid grid-cols-1 gap-2 mt-4">
+    <span class="text-xs uppercase tracking-wider text-base-content/70">{l("Members")}</span>
     {#for user <- @members}
       <div class="">
         <StatelessComponent

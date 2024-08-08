@@ -1,6 +1,8 @@
 <div class="flex flex-col gap-1 p-4 pt-0">
   {#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
-    {l("Sorry, you cannot edit this group.")}
+    <div class="p-4 mt-2 bg-warning/10 rounded flex flex-col items-center place-content-center h-80">
+    <div class="text-warning/70">{l("Sorry, you cannot edit this group.")}</div>
+  </div>
   {#else}
     <div class="mt-2">
       <div class="text-xl mb-4 font-semibold">{l("Appareance")}</div>
