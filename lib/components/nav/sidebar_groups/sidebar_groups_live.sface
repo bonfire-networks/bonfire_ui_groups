@@ -1,14 +1,20 @@
 <ul class="">
-  <li>
+  <li class="hidden">
+    <LinkLive
+      to="/groups"
+      class="w-full flex items-center !gap-3 !p-0 !m-0 bg-base-100 hover:bg-base-100"
+    >
+      <span><#Icon iconify="ph:users-three-bold" class="w-5 h-5 text-base-content/70" /></span>
+      <span><#Icon iconify="ph:users-three-fill" class="hidden w-5 h-5 text-base-content/70" /></span>
+      <span data-type="widget_label">{l("All groups")}</span>
+    </LinkLive>
+  </li>
+  <li :if={@categories && @categories != []}>
     <details open>
       <summary class="group !ml-0 !pl-2 !pr-4 !py-2">
-        <span class="text-sm text-base-content/70 font-bold ml-0">Groups</span>
+        <span class="text-sm text-base-content/70 font-bold ml-0">{l("My groups")}</span>
       </summary>
       <ul class="!ml-0 !p-0 flex flex-col gap-2 !mt-1">
-        <!-- <LinkLive to="/groups" class="w-full flex items-center !gap-3 !p-0 !m-0 bg-base-100 hover:bg-base-100">
-      <span><#Icon iconify="carbon:user-multiple" class="w-5 h-5 text-base-content/70" /></span>
-      <span data-type="widget_label">{l("All Groups")}</span>
-    </LinkLive> -->
         <li :for={{%{type: :group} = category, children} <- @categories} class="">
           <Bonfire.UI.Groups.SidebarGroupLive category={category} />
         </li>

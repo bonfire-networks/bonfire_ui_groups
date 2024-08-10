@@ -1,16 +1,6 @@
 defmodule Bonfire.UI.Groups.GroupLive do
   use Bonfire.UI.Common.Web, :surface_live_view
 
-  declare_extension("Groups",
-    icon: "icon-park-solid:circus",
-    emoji: "🎪",
-    description:
-      l("Organise in groups, whether public or private, open or close, or anything in between."),
-    default_nav: [
-      Bonfire.UI.Groups.SidebarGroupsLive
-    ]
-  )
-
   on_mount {LivePlugs, [Bonfire.UI.Me.LivePlugs.LoadCurrentUser]}
 
   def mount(%{"id" => id} = params, session, socket) when id != "" do

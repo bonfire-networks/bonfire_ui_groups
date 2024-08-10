@@ -3,12 +3,22 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   alias Bonfire.Classify.Categories
   alias Bonfire.Classify
 
+  declare_extension("Groups",
+    icon: "ph:users-three-bold",
+    emoji: "🎪",
+    description:
+      l("Organise in groups, whether public or private, open or close, or anything in between."),
+    default_nav: [
+      Bonfire.UI.Groups.SidebarGroupsLive
+    ]
+  )
+
   on_mount {LivePlugs, [Bonfire.UI.Me.LivePlugs.LoadCurrentUser]}
 
   declare_nav_link(l("Groups"),
     page: "groups",
-    icon: "carbon:user-multiple",
-    icon_active: "carbon:users-multiple"
+    icon: "ph:users-three-bold",
+    icon_active: "ph:users-three-fill"
   )
 
   def mount(params, session, socket) do
