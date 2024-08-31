@@ -1,4 +1,4 @@
-<ul class="">
+<ul class="border-t border-base-content/20 mt-2 pt-2">
   <li class="hidden">
     <LinkLive
       to="/groups"
@@ -12,7 +12,7 @@
   <li :if={@categories && @categories != []}>
     <details open>
       <summary class="group !ml-0 !pl-2 !pr-4 !py-2">
-        <span class="text-sm text-base-content/70 font-bold ml-0">{l("My groups")}</span>
+        <span class="text-sm text-base-content/70 font-medium ml-0">{l("My groups")}</span>
       </summary>
       <ul class="!ml-0 !p-0 flex flex-col gap-2 !mt-1">
         <li :for={{%{type: :group} = category, children} <- @categories} class="">
