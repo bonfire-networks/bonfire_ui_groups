@@ -12,7 +12,7 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
   def update(assigns, socket) do
     # TODO: pagination
     {followed_categories, page_info} =
-      Bonfire.Classify.my_followed_tree(current_user(assigns) || current_user(socket.assigns),
+      Bonfire.Classify.my_followed_tree(current_user(assigns) || current_user(assigns(socket)),
         pagination: %{limit: 500}
       )
 
