@@ -47,7 +47,7 @@
         {#match {:ok, acl}}
           <StatefulComponent
             type={:group}
-            module={maybe_component(Bonfire.Boundaries.Web.AclLive, @__context__)}
+            module={maybe_component(Bonfire.UI.Boundaries.Web.AclLive, @__context__)}
             setting_boundaries={false}
             scope={@category}
             usage={:ops}
@@ -76,7 +76,7 @@
           <div class="mx-6 mt-3">
             <StatefulComponent
               :if={current_user(@__context__)}
-              module={maybe_component(Bonfire.Boundaries.Web.RolesLive, @__context__)}
+              module={maybe_component(Bonfire.UI.Boundaries.Web.RolesLive, @__context__)}
               id="roles"
               scope={@category}
             />

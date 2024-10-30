@@ -17,7 +17,7 @@
       </div>
 
       <div class="mt-5">
-        <Bonfire.Boundaries.Web.BoundariesPresetNameLive
+        <Bonfire.UI.Boundaries.Web.BoundariesPresetNameLive
           icon_class="w-6 h-6 text-base-content/70"
           with_description
           boundary_preset={@boundary_preset}
@@ -76,7 +76,7 @@
   </div> --}
 
 {!-- <div class="mx-3 mt-3 cursor-default">
-    <Bonfire.Boundaries.Web.BoundariesPresetNameLive boundary_preset={@boundary_preset} />
+    <Bonfire.UI.Boundaries.Web.BoundariesPresetNameLive boundary_preset={@boundary_preset} />
   </div> --}
 
 {!-- <div class="flex items-center gap-4 py-3 mx-3 mt-3 border-t border-base-content/20">
