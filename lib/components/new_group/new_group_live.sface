@@ -95,8 +95,8 @@
     </Form>
   </div>
   <:open_btn>
-    <button class={@open_btn_class} type="button">
+    <div class={@open_btn_class}>
       {l("Create a group")}
-    </button>
+    </div>
   </:open_btn>
 </Bonfire.UI.Common.OpenModalLive>
