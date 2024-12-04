@@ -52,7 +52,7 @@
         class=""
       >
         <StatelessComponent
-          module={Bonfire.UI.Topics.SidebarTopicLive}
+          module={maybe_component Bonfire.UI.Topics.SidebarTopicLive}
           category={category}
           children={children}
         />
