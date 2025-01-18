@@ -18,7 +18,7 @@
 
       <div class="mt-5">
         <StatelessComponent
-          module={maybe_component(Bonfire.UI.Boundaries.Web.BoundariesPresetNameLive)}
+          module={maybe_component(Bonfire.UI.Boundaries.BoundariesPresetNameLive)}
           icon_class="w-6 h-6 text-base-content/70"
           with_description
           boundary_preset={@boundary_preset}
@@ -78,7 +78,7 @@
 
 {!-- <div class="mx-3 mt-3 cursor-default">
     <StatelessComponent
-      module={maybe_component Bonfire.UI.Boundaries.Web.BoundariesPresetNameLive} boundary_preset={@boundary_preset} />
+      module={maybe_component Bonfire.UI.Boundaries.BoundariesPresetNameLive} boundary_preset={@boundary_preset} />
   </div> --}
 
 {!-- <div class="flex items-center gap-4 py-3 mx-3 mt-3 border-t border-base-content/20">
