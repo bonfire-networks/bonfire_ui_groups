@@ -11,7 +11,7 @@ defmodule Bonfire.UI.Groups.AboutLive do
   prop showing_within, :atom, default: nil
   prop follows_me, :boolean, default: false
   prop loading, :boolean, default: false
-  prop hide_tabs, :boolean, default: false
+  prop hide_filters, :boolean, default: false
   slot header
   slot widget
 
