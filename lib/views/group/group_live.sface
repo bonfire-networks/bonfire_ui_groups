@@ -25,7 +25,7 @@
             [:ui, :group, :hero_component],
             Bonfire.UI.Me.ProfileHeroFullLive
           )}
-          id={random_dom_id()}
+          id={deterministic_dom_id("profile_hero", id(@category), @selected_tab, @character_type)}
           user={@category}
           path={@path}
           character_type={:group}
