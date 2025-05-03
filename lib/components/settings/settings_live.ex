@@ -18,7 +18,7 @@ defmodule Bonfire.UI.Groups.SettingsLive do
 
   def tab_component(selected_tab) do
     default = Bonfire.UI.Groups.Settings.GeneralLive
-    tab_section = Config.get([:ui, :group, :settings, :sections, tab(selected_tab)])
+    tab_section = Config.get([:ui, :group, :settings, :sections], [])[tab(@selected_tab)]
 
     if not is_nil(tab_section) and is_atom(tab_section) and module_enabled?(tab_section) do
       debug(tab_section, "ok")
