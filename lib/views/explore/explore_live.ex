@@ -24,7 +24,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   def mount(params, session, socket) do
     with %{edges: list, page_info: page_info} <-
            Categories.list_tree([:default, type: :group, tree_max_depth: 1],
-             current_user: current_user(assigns(socket))
+             current_user: current_user(socket)
            )
            |> debug("grrrr") do
       {:ok,
