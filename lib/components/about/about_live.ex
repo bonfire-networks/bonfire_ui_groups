@@ -5,7 +5,7 @@ defmodule Bonfire.UI.Groups.AboutLive do
   prop feed_title, :string
   prop user, :map
   prop feed, :list
-  prop feed_filters, :any, default: []
+  prop feed_filters, :any, default: nil
   prop page_info, :any
   prop permalink, :string, default: nil
   prop showing_within, :atom, default: nil
