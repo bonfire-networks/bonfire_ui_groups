@@ -2,7 +2,7 @@
   <LinkLive to={@permalink} class="rounded-box border border-base-content/20 my-2 bg-base-200">
     <div
       class="h-[200px] w-full shrink-0 rounded-t-box bg-center bg-cover bg-no-repeat bg-base-200"
-      style={"background-image: url('#{Media.banner_url(@object)}')"}
+      style={"background-image: url('#{URI.encode(Media.banner_url(@object))}')"}
     />
     <div class="flex flex-col p-3 gap-2 w-full">
       <div class="flex items-center flex-1 gap-4 font-medium text-base-content">
@@ -32,7 +32,7 @@
   >
     <div
       class="h-[64px] w-[64px] shrink-0 rounded-lg bg-center bg-cover bg-no-repeat bg-base-200"
-      style={"background-image: url('#{Media.banner_url(@object)}')"}
+      style={"background-image: url('#{URI.encode(Media.banner_url(@object))}')"}
     />
     <div class="flex items-center gap-6 justify-between w-full">
       <div class="flex items-center flex-1 gap-4 font-medium text-base-content">
