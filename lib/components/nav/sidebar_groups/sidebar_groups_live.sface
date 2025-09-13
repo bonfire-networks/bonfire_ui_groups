@@ -19,7 +19,7 @@
           <Bonfire.UI.Groups.SidebarGroupLive category={category} />
         </li>
 
-        <!-- <li :for={%{} = subnav <- List.wrap(extension_nav)}>
+        {!-- <li :for={%{} = subnav <- List.wrap(extension_nav)}>
       <Bonfire.UI.Common.WidgetLive
         :if={!e(subnav, :exclude_from_nav, nil) and e(subnav, :scope, nil) == @scope and
           (is_nil(e(subnav, :module, nil)) or
@@ -30,9 +30,9 @@
         wrapper_class="w-full !block !p-0 !m-0 bg-base-100 hover:bg-base-100"
         selected_tab={@selected_tab}
       />
-    </li> -->
-
-        <!-- <li class="bg-base-100 hover:bg-base-100">
+    </li> 
+    
+     <li class="bg-base-100 hover:bg-base-100">
   <div data-showing-within="sidebar" data-type="widget" class="!p-0 !block">
     <LinkLive to="/groups" class="">
       <div class="flex-1 h-auto justify-start relative flex items-center gap-3 widget_content p-2 py-1">
@@ -61,7 +61,7 @@
    
     </div>
   </div>
-</li> -->
+</li> --}
       </ul>
     </details>
   </li>

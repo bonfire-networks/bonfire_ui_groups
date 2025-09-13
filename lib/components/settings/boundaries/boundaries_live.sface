@@ -13,7 +13,7 @@
             <option value="open">{l("Open")}</option>
             <option value="visible" disabled>{l("Visible")}</option>
             <option value="private" disabled>{l("Private")}</option>
-            <!-- <optgroup label={l("Current option")}>
+            {!-- <optgroup label={l("Current option")}>
             {#case @boundary_preset}
               {#match {"open" = preset, _boundary_name}}
                 <option value="open" selected>{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
@@ -25,12 +25,12 @@
                 <option value={id} selected>{boundary_name}</option>
               {#match _}
             {/case}
-          </optgroup> -->
-            <!-- <optgroup label={l("Other built-in options")}>
+          </optgroup> 
+           <optgroup label={l("Other built-in options")}>
             <option value="open">{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "open"], "")}</option>
             <option value="visible" disabled>{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "visible"], "")}</option>
             <option value="private" disabled>{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "private"], "")}</option>
-          </optgroup> -->
+          </optgroup> --}
           </select>
           <button type="submit" class="btn mt-3 btn-neutral">
             {l("Edit")}
@@ -63,7 +63,7 @@
       {/case}
     </div>
 
-    <!-- <div class="mt-2">
+    {!-- <div class="mt-2">
       <div class="py-6 rounded-lg bg-base-100 shadow-lg">
         <div class="text-center mb-4">
           <div class="flex flex-col text-center gap-3">
@@ -83,6 +83,6 @@
           </div>
         </div>
       </div>
-    </div> -->
+    </div> --}
   {/if}
 </div>
