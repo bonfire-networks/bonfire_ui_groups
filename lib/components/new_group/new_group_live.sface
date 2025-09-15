@@ -1,5 +1,5 @@
 <Bonfire.UI.Common.OpenModalLive
-  id={"create_new_group_#{@parent_id}"}
+  id={deterministic_dom_id(__MODULE__, nil, "create_new_group", @parent_id)}
   reusable_modal_id={if @__context__[:sticky], do: "persistent_modal"}
   title_text={l("Create a new group")}
   open_btn_wrapper_class={@open_btn_wrapper_class}
