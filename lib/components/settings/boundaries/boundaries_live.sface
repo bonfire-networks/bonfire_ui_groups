@@ -48,7 +48,6 @@
           <StatefulComponent
             type={:group}
             module={maybe_component(Bonfire.UI.Boundaries.AclLive, @__context__)}
-            setting_boundaries={false}
             scope={@category}
             usage={:ops}
             id={:acl}

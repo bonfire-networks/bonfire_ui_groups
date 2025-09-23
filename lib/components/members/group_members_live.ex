@@ -4,5 +4,5 @@ defmodule Bonfire.UI.Groups.GroupMembersLive do
 
   # prop scope, :any, default: nil
   # prop myself, :map, default: nil
-  # prop setting_boundaries, :boolean, default: false
+  # prop setting_boundaries, :atom, default: nil
 end
