@@ -33,7 +33,6 @@ defmodule Bonfire.UI.Groups.ExploreLive do
          page_title: "Groups",
          categories: list,
          page_info: page_info,
-         nav_items: Bonfire.Common.ExtensionModule.default_nav(),
          page_header_aside: [
            {Bonfire.UI.Groups.NewGroupLive,
             [
