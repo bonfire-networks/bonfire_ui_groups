@@ -4,7 +4,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   alias Bonfire.Classify
 
   declare_extension("Groups",
-    icon: "ph:users-three-bold",
+    icon: "ph:users-three-duotone",
     emoji: "🎪",
     description:
       l("Organise in groups, whether public or private, open or close, or anything in between."),
@@ -17,7 +17,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
 
   declare_nav_link(l("Groups"),
     page: "groups",
-    icon: "ph:users-three-bold",
+    icon: "ph:users-three-duotone",
     icon_active: "ph:users-three-fill"
   )
 

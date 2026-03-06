@@ -3,10 +3,10 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
 
   declare_nav_component("Links to user's groups (and optionally topics)", exclude_from_nav: false)
 
-  def update(_assigns, %{assigns: %{categories: _}} = socket) do
+  def update(assigns, %{assigns: %{categories: _}} = socket) do
     debug("categories already loaded")
 
-    {:ok, socket}
+    {:ok, socket |> assign(assigns)}
   end
 
   def update(assigns, socket) do
@@ -17,8 +17,9 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
       )
 
     {:ok,
-     assign(
-       socket,
+     socket
+     |> assign(assigns)
+     |> assign(
        categories: followed_categories || [],
        page_info: page_info
      )}

@@ -95,8 +95,12 @@
     </Form>
   </div>
   <:open_btn>
-    <div class={@open_btn_class}>
-      {l("Create a group")}
-    </div>
+    {#if slot_assigned?(:open_btn)}
+      <#slot {@open_btn} />
+    {#else}
+      <div class={@open_btn_class}>
+        {l("Create a group")}
+      </div>
+    {/if}
   </:open_btn>
 </Bonfire.UI.Common.OpenModalLive>
