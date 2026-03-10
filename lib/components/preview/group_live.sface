@@ -1,21 +1,46 @@
 {#if @showing_within == :feed}
-  <LinkLive to={@permalink} class="rounded-box border border-base-content/20 my-2 bg-base-200">
-    <div
-      class="h-[200px] w-full shrink-0 rounded-t-box bg-center bg-cover bg-no-repeat bg-base-200"
-      style={"background-image: url('#{URI.encode(Media.banner_url(@object))}')"}
-    />
-    <div class="flex flex-col p-3 gap-2 w-full">
-      <div class="flex items-center flex-1 gap-4 font-medium text-base-content">
-        <div class="flex flex-col">
-          <div class="font-bold text-lg">
-            {rich(name(@object))}
-          </div>
-          {!-- <div><span class="font-medium">{e(@object, :character, :follow_count, :object_count, 0)}</span> <span class="text-base-content/70">{l("Members")}</span></div> --}
-          <div class="max-w-full prose-sm prose line-clamp-2 !text-base-content/70 text-sm mt-0.5">{e(@object, :profile, :summary, "")}</div>
-        </div>
-        {!-- <div class="text-sm font-normal text-base-content/70">{Bonfire.Me.Characters.display_username(e(@object, :character, :username, nil), true)}</div> --}
+  <LinkLive to={@permalink} class="group block rounded-xl overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all">
+    {!-- Banner --}
+    {#case Media.banner_url(@object)}
+      {#match nil}
+      {#match banner}
+        <div
+          class="h-[160px] w-full bg-center bg-cover bg-no-repeat bg-base-300 group-hover:scale-[1.02] transition-transform duration-300"
+          style={"background-image: url('#{URI.encode(banner)}')"}
+        />
+    {/case}
+
+    <div class="flex items-start gap-3 p-4">
+      {!-- Avatar --}
+      <div class="shrink-0 -mt-10 relative z-10">
+        {#case Media.avatar_url(@object)}
+          {#match "/images/avatar.png"}
+            <div class="w-14 h-14 rounded-xl bg-base-100 shadow-lg flex items-center justify-center">
+              <#Icon iconify="ph:users-three-duotone" class="w-7 h-7 text-base-content/40" />
+            </div>
+          {#match url}
+            <img src={url} class="w-14 h-14 rounded-xl ring-2 ring-base-100 object-cover" />
+        {/case}
       </div>
-      <div class="flex items-center flex-1 w-full">
+
+      <div class="flex flex-col flex-1 min-w-0 gap-1">
+        <div class="font-bold text-base text-base-content">
+          {rich(name(@object))}
+        </div>
+        <div
+          :if={e(@object, :profile, :summary, "") != ""}
+          class="text-sm text-base-content/60 line-clamp-2"
+        >{e(@object, :profile, :summary, "")}</div>
+        {!-- Meta --}
+        <div class="flex items-center gap-3 mt-1">
+          <span class="flex items-center gap-1 text-xs text-base-content/40">
+            <#Icon iconify="ph:users-duotone" class="w-3.5 h-3.5" />
+            {e(@object, :character, :follow_count, :object_count, 0)} {l("members")}
+          </span>
+        </div>
+      </div>
+
+      <div :if={current_user_id(@__context__)} class="shrink-0 self-start mt-1">
         <Bonfire.Classify.Web.CategoryActionsLive
           object={@object}
           activity_id={id(@activity)}
@@ -28,31 +53,45 @@
 {#else}
   <LinkLive
     to={@permalink}
-    class="hover:bg-base-content/5 p-1 pr-4 mt-3 flex rounded-lg border border-base-content/20 items-center gap-4"
+    class="group flex items-center gap-3 p-3 rounded-xl hover:bg-base-content/5 transition-colors"
   >
-    <div
-      class="h-[64px] w-[64px] shrink-0 rounded-lg bg-center bg-cover bg-no-repeat bg-base-200"
-      style={"background-image: url('#{URI.encode(Media.banner_url(@object))}')"}
-    />
-    <div class="flex items-center gap-6 justify-between w-full">
-      <div class="flex items-center flex-1 gap-4 font-medium text-base-content">
-        <div class="flex flex-col">
-          <div class="font-semibold">
-            {rich(name(@object))}
+    {!-- Avatar --}
+    <div class="shrink-0">
+      {#case Media.avatar_url(@object)}
+        {#match "/images/avatar.png"}
+          <div class="w-12 h-12 rounded-xl bg-base-content/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+            <#Icon iconify="ph:users-three-duotone" class="w-6 h-6 text-base-content/40 group-hover:text-primary/70 transition-colors" />
           </div>
-          {!-- <div><span class="font-medium">{e(@object, :character, :follow_count, :object_count, 0)}</span> <span class="text-base-content/70">{l("Members")}</span></div> --}
-          <div class="max-w-full prose-sm prose line-clamp-2 !text-base-content/70 text-sm mt-0.5">{e(@object, :profile, :summary, "")}</div>
-        </div>
-        {!-- <div class="text-sm font-normal text-base-content/70">{Bonfire.Me.Characters.display_username(e(@object, :character, :username, nil), true)}</div> --}
+        {#match url}
+          <img src={url} class="w-12 h-12 rounded-xl object-cover" />
+      {/case}
+    </div>
+
+    {!-- Content --}
+    <div class="flex flex-col flex-1 min-w-0 gap-0.5">
+      <span class="font-semibold text-base-content truncate">
+        {rich(name(@object))}
+      </span>
+      <p
+        :if={e(@object, :profile, :summary, "") != ""}
+        class="text-sm text-base-content/50 line-clamp-1"
+      >{e(@object, :profile, :summary, "")}</p>
+      <div class="flex items-center gap-3 mt-0.5">
+        <span class="flex items-center gap-1 text-xs text-base-content/40">
+          <#Icon iconify="ph:users-duotone" class="w-3.5 h-3.5" />
+          {e(@object, :character, :follow_count, :object_count, 0)}
+        </span>
       </div>
-      <div :if={current_user_id(@__context__)}  class="flex items-center gap-1 md:gap-2">
-        <Bonfire.Classify.Web.CategoryActionsLive
-          object={@object}
-          activity_id={id(@activity)}
-          object_boundary={@object_boundary}
-          object_type={:group}
-        />
-      </div>
+    </div>
+
+    {!-- Action --}
+    <div :if={current_user_id(@__context__)} class="shrink-0 ml-auto">
+      <Bonfire.Classify.Web.CategoryActionsLive
+        object={@object}
+        activity_id={id(@activity)}
+        object_boundary={@object_boundary}
+        object_type={:group}
+      />
     </div>
   </LinkLive>
 {/if}

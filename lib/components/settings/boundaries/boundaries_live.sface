@@ -32,14 +32,14 @@
             <option value="private" disabled>{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "private"], "")}</option>
           </optgroup> --}
           </select>
-          <button type="submit" class="btn mt-3 btn-neutral">
+          <button type="submit" class="btn btn-neutral">
             {l("Edit")}
           </button>
         </div>
       </form>
     </div>
 
-    <div class="text-xl mb-2 font-semibold mt-6 border-t border-base-content/20 border-t-2 pt-4">{l("Roles")}</div>
+    <!-- <div class="text-xl mb-2 font-semibold mt-6 border-t border-base-content/10 pt-4">{l("Roles")}</div>
     <p class="text-sm text-base-content/70">{l("Use roles to manage your group members and assign permissions")}</p>
 
     <div class="mt-4">
@@ -60,7 +60,7 @@
         {#match _}
           Unknown error
       {/case}
-    </div>
+    </div> -->
 
     {!-- <div class="mt-2">
       <div class="py-6 rounded-lg bg-base-100 shadow-lg">

@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-1 p-4 pt-0">
+<div class="flex flex-col gap-1 p-4 bg-base-100 outline shadow rounded-2xl mt-1 outline-base-content/10">
   {#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
     <div class="p-4 mt-2 bg-warning/10 rounded flex flex-col items-center place-content-center h-80">
       <div class="text-warning/70">{l("Sorry, you cannot edit this group.")}</div>
@@ -40,11 +40,11 @@
       </form>
     </div>
 
-    <div class="text-xl mb-4 font-semibold mt-6 border-t border-base-content/20 border-t-2 pt-4">{l("Permissions")}</div>
+    <div class="text-xl mb-4 font-semibold mt-6 border-t border-base-content/10 pt-4">{l("Permissions")}</div>
 
     <Bonfire.UI.Groups.Settings.BoundariesLive category={@category} />
 
-    <div class="text-xl mb-4 font-semibold mt-6 border-t border-base-content/20 border-t-2 pt-4">{l("Danger zone")}</div>
+    <div class="text-xl mb-4 font-semibold mt-6 border-t border-base-content/10 pt-4">{l("Danger zone")}</div>
 
     <div class="rounded-lg p-4 bg-error/5 border-error/30 border">
       <div class="">

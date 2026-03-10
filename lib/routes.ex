@@ -38,12 +38,11 @@ defmodule Bonfire.UI.Groups.Routes do
 
         live_aliases(aliases, "/:alias:id/members", GroupLive, :members, as: :group)
         live_aliases(aliases, "/:alias:id/submitted", GroupLive, :submitted, as: :group)
-        live_aliases(aliases, "/:alias:id/:tab", GroupLive, as: :group)
-        live_aliases(aliases, "/:alias:id/:tab/:tab_id", GroupLive, as: :group)
-
         live_aliases(aliases, "/:alias:id/settings", GroupLive, :settings, as: :group)
         live_aliases(aliases, "/:alias:id/settings/mentions", GroupLive, :submitted, as: :group)
         live_aliases(aliases, "/:alias:id/settings/membership", GroupLive, :members, as: :group)
+        live_aliases(aliases, "/:alias:id/:tab", GroupLive, as: :group)
+        live_aliases(aliases, "/:alias:id/:tab/:tab_id", GroupLive, as: :group)
       end
 
       # # pages only admins can view

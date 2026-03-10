@@ -13,12 +13,35 @@
   >
     <:header>
       {#if @selected_tab == "settings"}
-        <Bonfire.UI.Common.TabsLive
+        <!-- <Bonfire.UI.Common.TabsLive
           class="flex gap-3 p-3 border-b border-base-content/20 scrollable"
           selected_tab={@tab_id || @selected_tab}
           path_prefix={"#{@permalink}/settings/"}
           tabs={Config.get([:ui, :group, :settings, :navigation], settings: l("General"))}
-        />
+        /> -->
+        <div class="sticky top-0 pt-safe z-sticky bg-base-100 lg:bg-base-100/70 backdrop-blur-sm border-b border-base-content/10">
+          <div
+            role="banner"
+            class="flex items-center place-content-center flex-1 w-full px-4  min-h-[58px]"
+          >
+            <div class="flex items-center gap-2 w-full">
+              <LinkLive
+                to={e(@category, :permalink, nil) || @permalink}
+                id="go_back_button"
+                
+                aria-label={l("Go back to the previous page")}
+                class="btn z-50 btn-sm btn-ghost btn-circle"
+              >
+                <#Icon iconify="ph:arrow-left" class="w-5 h-5 text-primary" />
+              </LinkLive>
+              <div class="flex items-center flex-1 w-full flex-1">
+                <span class="max-w-[250px] lg:max-w-[600px] font-semibold text-base-content truncate text-ellipsis">
+                  {e(@category, :name, l("Group"))}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       {#else}
         <StatefulComponent
           module={Config.get(

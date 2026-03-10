@@ -35,6 +35,7 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
           nil: Bonfire.UI.Social.ProfileTimelineLive,
           guest: Bonfire.UI.Groups.GuestLive,
           about: Bonfire.UI.Groups.AboutLive,
+          topics: Bonfire.UI.Groups.DiscoverGroupsLive,
           # private: Bonfire.UI.Messages.MessageThreadsLive,
           # posts: Bonfire.UI.Posts.ProfileBoostsLive,
           discover: Bonfire.UI.Groups.DiscoverGroupsLive,

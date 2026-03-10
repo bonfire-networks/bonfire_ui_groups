@@ -1,13 +1,11 @@
 <#slot {@header} />
 
-<div class="flex flex-col px-3 border-t border-base-content/20">
+<div class="flex flex-col p-3 mt-2 rounded-2xl bg-base-100 shadow outline outline-base-content/10 divide-y divide-base-content/10">
   {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
     {#match nil}
     {#match component}
-      <div :for={category <- @categories} class="">
-        {!-- top-level group --}
+      <div :for={{%{type: :group} = category, _children} <- @categories} class="">
         <StatelessComponent module={component} object={category} permalink={path(category)} />
-        {!-- <Bonfire.UI.Groups.DiscoverGroupLive category={category} /> --}
       </div>
   {/case}
 
@@ -15,7 +13,6 @@
     {#match nil}
     {#match component}
       <nav :for={{%{type: :topic} = category, children} <- @categories} class="">
-        {!-- topic that's not in a group --}
         <StatelessComponent module={component} category={category} children={children} />
       </nav>
   {/case}

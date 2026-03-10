@@ -15,16 +15,7 @@ defmodule Bonfire.UI.Groups.Preview.GroupLive do
     ]
 
   def name(object) do
-    e(
-      object,
-      :name,
-      e(
-        object,
-        :profile,
-        :name,
-        e(object, :post_content, :name, e(object, :title, "Unidentified category"))
-      )
-    )
+    Bonfire.Classify.Web.Preview.CategoryLive.name(object, l("Unnamed group"))
   end
 
   # TODO: preload?

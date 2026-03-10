@@ -5,12 +5,19 @@
   open_btn_wrapper_class={@open_btn_wrapper_class}
   no_actions
 >
-  <div x-data="{ name: '' }" class="">
+  <div x-data="{ name: '', boundaries: 'open' }">
+    {!-- Decorative header --}
+    <div class="flex justify-center mt-2 mb-4">
+      <div class="bg-primary/10 w-12 h-12 rounded-full flex place-content-center items-center">
+        <#Icon iconify="ph:users-three-duotone" class="w-6 h-6 text-primary" />
+      </div>
+    </div>
+
     <Form
       for={%{}}
       as={:category}
       id="new_group_form"
-      class="flex flex-col w-full gap-3 mt-3"
+      class="flex flex-col w-full gap-4"
       submit="Bonfire.UI.Groups:new"
       action="Bonfire.UI.Groups:new"
       change="Bonfire.Classify:validate"
@@ -19,78 +26,96 @@
         "phx-target": "#modal"
       }
     >
+      {!-- Group name --}
       <div class="w-full form-control">
+        <label for="name" class="text-sm font-semibold text-base-content/80 mb-1">{l("Group name")}</label>
         <input
           x-model="name"
           id="name"
           name="name"
           type="text"
-          placeholder={l("Type the group name")}
-          class="w-full text-sm input input-bordered"
+          placeholder={l("e.g. Design team, Book club...")}
+          class="w-full text-sm input input-bordered input-sm focus:input-primary"
         />
       </div>
+
+      {!-- Description --}
       <div class="w-full form-control">
+        <label for="new_group_summary" class="text-sm font-semibold text-base-content/80 mb-1">{l("Description")}</label>
         <textarea
+          id="new_group_summary"
           name="summary"
-          class="w-full textarea textarea-bordered"
-          placeholder="Write a short description"
+          rows="2"
+          class="w-full textarea textarea-bordered textarea-sm focus:textarea-primary text-sm"
+          placeholder={l("What is this group about?")}
         />
       </div>
 
-      <div x-data="{boundaries: 'open'}" class="w-full form-control">
-        <select
-          x-model="boundaries"
-          id="new_group_boundaries"
-          name="to_boundaries[]"
-          class="select select-bordered"
-        >
-          <option value="open">{l("Open")}</option>
-          <option value="visible" disabled>{l("Visible")}</option>
-          <option value="private" disabled>{l("Private")}</option>
-        </select>
-
-        <div x-show="boundaries === 'open'">
-          <div class="alert alert-info !flex items-top mt-2 rounded">
-            <#Icon solid="Globe" class="w-6 h-6" />
-            <span class="text-sm">{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "open"], "")}</span>
-          </div>
-        </div>
-
-        <div x-show="boundaries === 'visible'">
-          <div class="alert alert-info !flex items-top mt-2 rounded">
-            <#Icon iconify="mdi:eye-outline" class="w-6 h-6" />
-            <span class="text-sm">{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "visible"], "")}</span>
-          </div>
-        </div>
-
-        <div x-show="boundaries === 'private'">
-          <div class="alert alert-info !flex items-top mt-2 rounded">
-            <#Icon iconify="heroicons-solid:lock-closed" class="w-6 h-6" />
-            <span class="text-sm">{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "private"], "")}</span>
-          </div>
-        </div>
-      </div>
-
-      {!-- <div class="w-full rounded form-control bg-base-content/5">
-        <div class="p-4">
-          <div class="flex items-center justify-between gap-6">
-            <div class="flex flex-col gap-1">
-              <div class="text-sm font-bold">{l("Visibility")}</div>
-              <div class="text-sm font-light text-base-content/70">{l("Make the group public so anyone can find the group, see the topics within it, and read public posts.")}</div>
+      {!-- Boundary selector cards --}
+      <div class="w-full form-control">
+        <label class="text-sm font-semibold text-base-content/80 mb-1">{l("Privacy")}</label>
+        <div class="flex flex-col gap-2 mt-2">
+          {!-- Open --}
+          <button
+            type="button"
+            x-on:click="boundaries = 'open'"
+            class="flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left"
+            x-bind:class="boundaries === 'open' ? 'ring-2 ring-primary bg-primary/5 border-primary/30' : 'border-base-content/10 hover:bg-base-content/5'"
+          >
+            <div class="bg-base-content/10 w-9 h-9 rounded-full flex place-content-center items-center shrink-0"
+              x-bind:class="boundaries === 'open' && 'bg-primary/15'"
+            >
+              <#Icon iconify="ph:globe-duotone" class="w-5 h-5" x-bind:class="boundaries === 'open' ? 'text-primary' : 'text-base-content/70'" />
             </div>
-            <input name="to_boundaries[]" value="visible" checked="checked" type="checkbox" class="toggle">
+            <div class="flex flex-col min-w-0">
+              <span class="text-sm font-semibold">{l("Open")}</span>
+              <span class="text-xs text-base-content/60">{Config.get([:ui, :group, :preset_descriptions, "open"], l("anyone can join and participate"))}</span>
+            </div>
+          </button>
+
+          {!-- Visible (disabled) --}
+          <div
+            class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed"
+          >
+            <div class="bg-base-content/10 w-9 h-9 rounded-full flex place-content-center items-center shrink-0">
+              <#Icon iconify="ph:eye-duotone" class="w-5 h-5 text-base-content/70" />
+            </div>
+            <div class="flex flex-col min-w-0 flex-1">
+              <span class="text-sm font-semibold">{l("Visible")}</span>
+              <span class="text-xs text-base-content/60">{Config.get([:ui, :group, :preset_descriptions, "visible"], l("everyone can browse the group but only members can post"))}</span>
+            </div>
+            <span class="badge badge-sm badge-ghost text-xs shrink-0">{l("Coming soon")}</span>
+          </div>
+
+          {!-- Private (disabled) --}
+          <div
+            class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed"
+          >
+            <div class="bg-base-content/10 w-9 h-9 rounded-full flex place-content-center items-center shrink-0">
+              <#Icon iconify="heroicons-solid:lock-closed" class="w-5 h-5 text-base-content/70" />
+            </div>
+            <div class="flex flex-col min-w-0 flex-1">
+              <span class="text-sm font-semibold">{l("Private")}</span>
+              <span class="text-xs text-base-content/60">{Config.get([:ui, :group, :preset_descriptions, "private"], l("only invited people can join and see contents"))}</span>
+            </div>
+            <span class="badge badge-sm badge-ghost text-xs shrink-0">{l("Coming soon")}</span>
           </div>
         </div>
-      </div> --}
+
+        {!-- Hidden input for form submission --}
+        <input type="hidden" name="to_boundaries[]" x-bind:value="boundaries" />
+      </div>
 
       <input type="hidden" name="context_id" value={id(@parent)}>
 
+      {!-- Create button --}
       <button
-        x-bind:disabled="name.length == 0"
+        x-bind:disabled="name.length === 0"
         type="submit"
-        class="w-full mt-3 normal-case btn btn-primary"
+        class="w-full mt-1 normal-case btn btn-primary btn-sm transition-all duration-200"
+        x-bind:class="name.length === 0 && 'btn-disabled opacity-40'"
       >
-        {l("Create")}
+        {l("Create group")}
       </button>
     </Form>
   </div>

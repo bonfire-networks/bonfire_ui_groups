@@ -1,11 +1,11 @@
 <div>
   {!-- <#slot {@header} /> --}
   <div class={
-    "grid items-start grid-cols-1 mt-2 md:mt-0",
+    "grid items-start grid-cols-1 mt-2 bg-base-100 rounded-2xl shadow outline outline-base-content/10",
     "max-w-[680px] mx-auto": !current_user_id(@__context__)
   }>
     <main class="flex flex-col">
-      <Bonfire.UI.Common.TabsLive
+      <!-- <Bonfire.UI.Common.TabsLive
         :if={!@hide_tabs}
         selected_tab={@selected_tab}
         class="flex justify-between w-full border-b bg-base-100 tabs border-base-content border-opacity-20"
@@ -15,7 +15,7 @@
         tabs={if current_user_id(@__context__) == id(@user),
           do: Config.get([:ui, @showing_within, :network], followers: l("Followers")),
           else: Config.get([:ui, @showing_within, :network], followers: l("Followers"))}
-      />
+      /> -->
       <div :if={@selected_tab in ["requested", "followed"]}>
         <div class="flow-root">
           <ul class="divide-y divide-base-content/20">
