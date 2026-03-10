@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-1 p-4 bg-base-100 outline shadow lg:rounded-2xl mt-1 outline-base-content/10">
+<div class="flex flex-col gap-1 p-4 bg-base-200 lg:bg-base-100 outline shadow lg:rounded-2xl mt-1 outline-base-content/10">
   {#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
     <div class="p-4 mt-2 bg-warning/10 rounded flex flex-col items-center place-content-center h-80">
       <div class="text-warning/70">{l("Sorry, you cannot edit this group.")}</div>
