@@ -20,10 +20,7 @@
           tabs={Config.get([:ui, :group, :settings, :navigation], settings: l("General"))}
         /> -->
         <div class="sticky top-0 pt-safe z-sticky bg-base-100 lg:bg-base-100/70 backdrop-blur-sm border-b border-base-content/10">
-          <div
-            role="banner"
-            class="flex items-center place-content-center flex-1 w-full min-h-[60px]"
-          >
+          <div role="banner" class="flex items-center place-content-center flex-1 w-full min-h-[60px]">
             <div class="flex items-center gap-2 w-full">
               <LinkLive
                 to={e(@category, :permalink, nil) || @permalink}
