@@ -28,7 +28,6 @@
               <LinkLive
                 to={e(@category, :permalink, nil) || @permalink}
                 id="go_back_button"
-                
                 aria-label={l("Go back to the previous page")}
                 class="btn z-50 btn-sm btn-ghost btn-circle"
               >

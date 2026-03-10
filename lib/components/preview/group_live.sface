@@ -1,5 +1,8 @@
 {#if @showing_within == :feed}
-  <LinkLive to={@permalink} class="group block rounded-xl overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all">
+  <LinkLive
+    to={@permalink}
+    class="group block rounded-xl overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all"
+  >
     {!-- Banner --}
     {#case Media.banner_url(@object)}
       {#match nil}
@@ -19,7 +22,7 @@
               <#Icon iconify="ph:users-three-duotone" class="w-7 h-7 text-base-content/40" />
             </div>
           {#match url}
-            <img src={url} class="w-14 h-14 rounded-xl ring-2 ring-base-100 object-cover" />
+            <img src={url} class="w-14 h-14 rounded-xl ring-2 ring-base-100 object-cover">
         {/case}
       </div>
 
@@ -60,10 +63,13 @@
       {#case Media.avatar_url(@object)}
         {#match "/images/avatar.png"}
           <div class="w-12 h-12 rounded-xl bg-base-content/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-            <#Icon iconify="ph:users-three-duotone" class="w-6 h-6 text-base-content/40 group-hover:text-primary/70 transition-colors" />
+            <#Icon
+              iconify="ph:users-three-duotone"
+              class="w-6 h-6 text-base-content/40 group-hover:text-primary/70 transition-colors"
+            />
           </div>
         {#match url}
-          <img src={url} class="w-12 h-12 rounded-xl object-cover" />
+          <img src={url} class="w-12 h-12 rounded-xl object-cover">
       {/case}
     </div>
 

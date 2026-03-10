@@ -1,7 +1,7 @@
 <div>
   {!-- <#slot {@header} /> --}
   <div class={
-    "grid items-start grid-cols-1 mt-2 bg-base-100 rounded-2xl shadow outline outline-base-content/10",
+    "grid items-start grid-cols-1 mt-2 bg-base-100 lg:rounded-2xl shadow outline outline-base-content/10",
     "max-w-[680px] mx-auto": !current_user_id(@__context__)
   }>
     <main class="flex flex-col">

@@ -15,7 +15,10 @@
         </summary>
         {#for {%{type: :group} = category, _children} <- e(@categories, [])}
           <li>
-            <LinkLive to={path(category)} class={["gap-3", "bg-primary/10": id(category) == e(assigns, :page, nil)]}>
+            <LinkLive
+              to={path(category)}
+              class={["gap-3", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
+            >
               <div
                 class="h-8 w-8 rounded bg-cover bg-center bg-no-repeat bg-base-300"
                 style={"background-image: url('#{URI.encode(Media.banner_url(category))}');"}

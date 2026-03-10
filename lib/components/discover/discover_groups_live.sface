@@ -1,6 +1,6 @@
 <#slot {@header} />
 
-<div class="flex flex-col p-3 mt-2 rounded-2xl bg-base-100 shadow outline outline-base-content/10 divide-y divide-base-content/10">
+<div class="flex flex-col p-3 mt-2 lg:rounded-2xl bg-base-100 shadow outline outline-base-content/10 divide-y divide-base-content/10">
   {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
     {#match nil}
     {#match component}

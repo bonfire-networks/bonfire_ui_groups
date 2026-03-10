@@ -62,10 +62,15 @@
             class="flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left"
             x-bind:class="boundaries === 'open' ? 'ring-2 ring-primary bg-primary/5 border-primary/30' : 'border-base-content/10 hover:bg-base-content/5'"
           >
-            <div class="bg-base-content/10 w-9 h-9 rounded-full flex place-content-center items-center shrink-0"
+            <div
+              class="bg-base-content/10 w-9 h-9 rounded-full flex place-content-center items-center shrink-0"
               x-bind:class="boundaries === 'open' && 'bg-primary/15'"
             >
-              <#Icon iconify="ph:globe-duotone" class="w-5 h-5" x-bind:class="boundaries === 'open' ? 'text-primary' : 'text-base-content/70'" />
+              <#Icon
+                iconify="ph:globe-duotone"
+                class="w-5 h-5"
+                x-bind:class="boundaries === 'open' ? 'text-primary' : 'text-base-content/70'"
+              />
             </div>
             <div class="flex flex-col min-w-0">
               <span class="text-sm font-semibold">{l("Open")}</span>
@@ -74,36 +79,38 @@
           </button>
 
           {!-- Visible (disabled) --}
-          <div
-            class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed"
-          >
+          <div class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
             <div class="bg-base-content/10 w-9 h-9 rounded-full flex place-content-center items-center shrink-0">
               <#Icon iconify="ph:eye-duotone" class="w-5 h-5 text-base-content/70" />
             </div>
             <div class="flex flex-col min-w-0 flex-1">
               <span class="text-sm font-semibold">{l("Visible")}</span>
-              <span class="text-xs text-base-content/60">{Config.get([:ui, :group, :preset_descriptions, "visible"], l("everyone can browse the group but only members can post"))}</span>
+              <span class="text-xs text-base-content/60">{Config.get(
+                  [:ui, :group, :preset_descriptions, "visible"],
+                  l("everyone can browse the group but only members can post")
+                )}</span>
             </div>
             <span class="badge badge-sm badge-ghost text-xs shrink-0">{l("Coming soon")}</span>
           </div>
 
           {!-- Private (disabled) --}
-          <div
-            class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed"
-          >
+          <div class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
             <div class="bg-base-content/10 w-9 h-9 rounded-full flex place-content-center items-center shrink-0">
               <#Icon iconify="heroicons-solid:lock-closed" class="w-5 h-5 text-base-content/70" />
             </div>
             <div class="flex flex-col min-w-0 flex-1">
               <span class="text-sm font-semibold">{l("Private")}</span>
-              <span class="text-xs text-base-content/60">{Config.get([:ui, :group, :preset_descriptions, "private"], l("only invited people can join and see contents"))}</span>
+              <span class="text-xs text-base-content/60">{Config.get(
+                  [:ui, :group, :preset_descriptions, "private"],
+                  l("only invited people can join and see contents")
+                )}</span>
             </div>
             <span class="badge badge-sm badge-ghost text-xs shrink-0">{l("Coming soon")}</span>
           </div>
         </div>
 
         {!-- Hidden input for form submission --}
-        <input type="hidden" name="to_boundaries[]" x-bind:value="boundaries" />
+        <input type="hidden" name="to_boundaries[]" x-bind:value="boundaries">
       </div>
 
       <input type="hidden" name="context_id" value={id(@parent)}>
