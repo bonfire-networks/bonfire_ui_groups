@@ -1,7 +1,7 @@
 <div>
   <ul class="menu relative p-0 w-full mt-2">
-    <li>
-      <details open>
+    <li class="w-full">
+      <details open class="w-full overflow-hidden">
         <summary class="relative font-bold uppercase text-xs text-base-content/50">
           <span>{l("Groups")}</span>
 
