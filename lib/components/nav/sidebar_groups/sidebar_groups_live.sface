@@ -2,7 +2,7 @@
   <ul class="menu relative p-0 w-full mt-2">
     <li class="w-full">
       <details open class="w-full overflow-hidden">
-        <summary class="relative font-bold uppercase text-xs text-base-content/50">
+        <summary class="relative font-medium uppercase text-xs pl-5 text-base-content/50">
           <span>{l("Groups")}</span>
 
           <div class="normal-case font-normal absolute right-6">
@@ -17,13 +17,13 @@
           <li>
             <LinkLive
               to={path(category)}
-              class={["gap-3", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
+              class={["gap-2", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
             >
               <div
                 class="h-8 w-8 rounded bg-cover bg-center bg-no-repeat bg-base-300"
                 style={"background-image: url('#{URI.encode(Media.banner_url(category))}');"}
               />
-              <span class="font-semibold text-base opacity-80">{e(category, :profile, :name, nil) || e(category, :named, :name, nil)}</span>
+              <span class="font-normal text-base">{e(category, :profile, :name, nil) || e(category, :named, :name, nil)}</span>
             </LinkLive>
           </li>
         {/for}
