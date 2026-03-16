@@ -21,7 +21,7 @@
             >
               <div
                 class="h-8 w-8 rounded bg-cover bg-center bg-no-repeat bg-base-300"
-                style={"background-image: url('#{URI.encode(Media.banner_url(category))}');"}
+                style={"background-image: url('#{URI.encode(Media.avatar_url(category))}');"}
               />
               <span class="font-normal text-base">{e(category, :profile, :name, nil) || e(category, :named, :name, nil)}</span>
             </LinkLive>
