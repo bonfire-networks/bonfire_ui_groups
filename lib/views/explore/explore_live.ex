@@ -31,6 +31,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
        assign(socket,
          page: "groups",
          page_title: "Groups",
+         back: true,
          categories: Enum.map(list, &{&1, []}),
          page_info: page_info,
          page_header_aside: [
