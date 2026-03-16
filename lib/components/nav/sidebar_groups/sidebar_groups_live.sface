@@ -17,7 +17,7 @@
           <li>
             <LinkLive
               to={path(category)}
-              class={["gap-2", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
+              class={["gap-3 ml-1", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
             >
               <div
                 class="h-8 w-8 rounded bg-cover bg-center bg-no-repeat bg-base-300"
