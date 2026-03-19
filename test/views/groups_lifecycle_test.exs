@@ -263,7 +263,9 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         to_circles: [group.id]
       }
 
-      assert {:ok, post} = Posts.publish(current_user: me, post_attrs: attrs, boundary: "mentions")
+      assert {:ok, post} =
+               Posts.publish(current_user: me, post_attrs: attrs, boundary: "mentions")
+
       assert post
     end
 
