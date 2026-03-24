@@ -55,6 +55,7 @@
           selected_tab={@selected_tab}
           members={@members}
           moderators={@moderators}
+          subcategories={e(assigns, :subcategories, [])}
         />
       {/if}
     </:header>
