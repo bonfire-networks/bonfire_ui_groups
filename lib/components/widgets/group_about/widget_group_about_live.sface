@@ -1,7 +1,4 @@
-<Bonfire.UI.Common.WidgetBlockLive
-  widget_title={l("About")}
-  title_class="pb-2 text-base font-semibold text-base-content/70"
->
+<Bonfire.UI.Common.WidgetBlockLive widget_title={l("About")}>
   {!-- Parent group --}
   <div :if={@parent} class="flex items-center gap-2 pb-3 mb-1 border-b border-base-content/10">
     <#Icon iconify="ph:users-three-duotone" class="w-5 h-5 text-primary/70" />
@@ -14,84 +11,80 @@
   </div>
 
   {!-- Summary --}
-  <div :if={e(@category, :profile, :summary, nil)} class="text-sm text-base-content/80">
+  <div :if={e(@category, :profile, :summary, nil)} class="text-[15px] leading-relaxed text-base-content/90 mb-3">
     {e(@category, :profile, :summary, nil)}
   </div>
 
   {!-- Metadata: date + boundary --}
-  <div class="flex flex-col gap-2.5 mt-4">
-    <div :if={@date} class="flex items-center gap-3">
-      <#Icon iconify="material-symbols:calendar-month" class="w-5 h-5 text-base-content/40" />
-      <span class="text-sm text-base-content/60">{l("Created")} {@date}</span>
-    </div>
+  <div class="flex flex-col gap-2 mt-1">
+    <Bonfire.UI.Common.WidgetMetaItemLive :if={@date}>
+      <:icon><#Icon iconify="ph:calendar-duotone" class="w-4 h-4 text-base-content/30" /></:icon>
+      {l("Created")} {@date}
+    </Bonfire.UI.Common.WidgetMetaItemLive>
 
     <div class="flex items-center cursor-default">
       <StatelessComponent
         module={maybe_component(Bonfire.UI.Boundaries.BoundariesPresetNameLive)}
         boundary_preset={@parent_boundary_preset || @boundary_preset}
-        icon_class="w-5 h-5 text-base-content/40"
-        class="text-sm text-base-content/60"
+        icon_class="w-4 h-4 text-base-content/30"
+        class="text-xs text-base-content/50"
       />
     </div>
   </div>
 
-  {!-- Stats: Members + Topics --}
-  <!-- <div class="flex items-start justify-between gap-10 px-4 py-4">
-    <LinkLive
-      to={"/&#{e(@category, :character, :username, nil)}/members"}
-      class="flex w-full flex-col"
-    >
-      <span class="text-lg font-bold text-base-content">{@member_count}</span>
-      <span class="text-sm text-base-content/50">{l("Members")}</span>
-    </LinkLive>
-
-    <div class="flex w-full flex-col">
-      <span class="text-lg font-bold text-base-content">{@topic_count}</span>
-      <span class="text-sm text-base-content/50">{l("Topics")}</span>
-    </div>
-  </div> -->
+  {!-- Join CTA --}
+  <div class="mt-4">
+    <StatefulComponent
+      id="widget_group_join"
+      module={maybe_component(Bonfire.UI.Social.Graph.FollowButtonLive, @__context__)}
+      :if={e(@category, :character, nil)}
+      object_id={id(@category)}
+      verb={if e(@boundary_preset, "open", nil), do: l("Join group"), else: l("Request to join")}
+      verb_undo={l("Leave group")}
+      verb_already={l("Joined")}
+      class="btn w-full btn-sm btn-soft btn-primary"
+    />
+  </div>
 
   {!-- Navigation links --}
-  <div class="flex flex-col mt-4 py-4 border-t border-base-content/10">
+  <div class="flex flex-col gap-0.5 mt-4 pt-4 border-t border-base-content/10">
     <LinkLive
       to={"/&#{e(@category, :character, :username, nil)}/members"}
-      class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-base-content/5 transition-colors"
+      class={
+        "flex items-center justify-between px-2 py-2 rounded-lg hover:bg-base-content/5 transition-colors",
+        "bg-base-content/5": @selected_tab == :members
+      }
     >
-      <#Icon iconify="ph:users-duotone" class="w-5 h-5 text-base-content" />
-      <span class="text-sm font-medium text-base-content">{l("Members")}</span>
+      <span class="flex items-center gap-2.5">
+        <#Icon iconify="ph:users-duotone" class="w-[18px] h-[18px] text-base-content/60" />
+        <span class="text-[13px] font-medium text-base-content/80">{l("Members")}</span>
+      </span>
+      <span :if={@member_count > 0} class="text-[11px] text-base-content/40 tabular-nums">{@member_count}</span>
     </LinkLive>
     <LinkLive
       :if={!@parent}
       to={"/&#{e(@category, :character, :username, nil)}/topics"}
-      class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-base-content/5 transition-colors"
+      class={
+        "flex items-center justify-between px-2 py-2 rounded-lg hover:bg-base-content/5 transition-colors",
+        "bg-base-content/5": @selected_tab == :topics
+      }
     >
-      <#Icon iconify="ph:chats-circle-duotone" class="w-5 h-5 text-base-content" />
-      <span class="text-sm font-medium text-base-content">{l("Topics")}</span>
-    </LinkLive>
-    <LinkLive
-      to={"/&#{e(@category, :character, :username, nil)}"}
-      class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-base-content/5 transition-colors"
-    >
-      <#Icon iconify="ph:push-pin-duotone" class="w-5 h-5 text-base-content" />
-      <span class="text-sm font-medium text-base-content">{l("Pinned")}</span>
-    </LinkLive>
-    <LinkLive
-      to={"/&#{e(@category, :character, :username, nil)}"}
-      class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-base-content/5 transition-colors"
-    >
-      <#Icon iconify="ph:file-duotone" class="w-5 h-5 text-base-content" />
-      <span class="text-sm font-medium text-base-content">{l("Files")}</span>
+      <span class="flex items-center gap-2.5">
+        <#Icon iconify="ph:chats-circle-duotone" class="w-[18px] h-[18px] text-base-content/60" />
+        <span class="text-[13px] font-medium text-base-content/80">{l("Topics")}</span>
+      </span>
+      <span :if={@topic_count > 0} class="text-[11px] text-base-content/40 tabular-nums">{@topic_count}</span>
     </LinkLive>
   </div>
 
   {!-- Moderators --}
-  <div :if={@moderators != []} class="pb-4 border-t border-base-content/10">
-    <span class="block pt-4 pb-2 text-xs font-bold uppercase tracking-widest text-base-content/40">{l("Moderators")}</span>
-    <div class="flex flex-col gap-1">
+  <div :if={@moderators != []} class="pt-4 mt-1 border-t border-base-content/10">
+    <Bonfire.UI.Common.WidgetSectionLabelLive>{l("Moderators")}</Bonfire.UI.Common.WidgetSectionLabelLive>
+    <div class="flex flex-col gap-0.5">
       {#for user <- @moderators}
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}
-          avatar_class="rounded-full w-10 h-10 bg-base-300"
+          avatar_class="rounded-full w-8 h-8 bg-base-300"
           show_controls={[]}
           character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
             e(user, :activity, :subject, :character, nil)}

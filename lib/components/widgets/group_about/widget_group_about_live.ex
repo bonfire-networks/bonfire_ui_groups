@@ -12,4 +12,5 @@ defmodule Bonfire.UI.Groups.WidgetGroupAboutLive do
   prop topic_count, :integer, default: 0
   prop moderators, :any, default: []
   prop members, :any, default: []
+  prop selected_tab, :any, default: nil
 end

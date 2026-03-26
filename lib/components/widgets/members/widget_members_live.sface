@@ -3,7 +3,7 @@
   widget_title={@widget_title}
 >
   <div :if={@moderators != []} class="grid grid-cols-1 gap-2">
-    <span class="text-xs uppercase tracking-wider text-base-content/70">{l("Moderators")}</span>
+    <Bonfire.UI.Common.WidgetSectionLabelLive>{l("Moderators")}</Bonfire.UI.Common.WidgetSectionLabelLive>
     {#for user <- @moderators}
       <div class="">
         <StatelessComponent
@@ -21,7 +21,7 @@
     {/for}
   </div>
   <div :if={@members != []} class="grid grid-cols-1 gap-2 mt-4">
-    <span class="text-xs uppercase tracking-wider text-base-content/70">{l("Members")}</span>
+    <Bonfire.UI.Common.WidgetSectionLabelLive>{l("Members")}</Bonfire.UI.Common.WidgetSectionLabelLive>
     {#for user <- @members}
       <div class="">
         <StatelessComponent
