@@ -11,7 +11,10 @@
   </div>
 
   {!-- Summary --}
-  <div :if={e(@category, :profile, :summary, nil)} class="text-[15px] leading-relaxed text-base-content/90 mb-3">
+  <div
+    :if={e(@category, :profile, :summary, nil)}
+    class="text-[15px] leading-relaxed text-base-content/90 mb-3"
+  >
     {e(@category, :profile, :summary, nil)}
   </div>
 
