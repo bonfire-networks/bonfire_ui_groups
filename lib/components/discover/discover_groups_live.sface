@@ -1,19 +1,55 @@
-<#slot {@header} />
+<div class="flex flex-col bonfire-wrapper">
+  <form phx-change="search_groups" class="px-3 pt-3 pb-1">
+    <label class="input w-full flex items-center gap-2 bg-base-content/5 border-0 rounded-lg focus-within:outline-primary">
+      <#Icon iconify="ph:magnifying-glass-duotone" class="w-4 h-4 text-base-content/40" />
+      <input
+        type="text"
+        name="search_term"
+        value={@search_term}
+        placeholder={l("Search groups...")}
+        phx-debounce="300"
+        class="grow bg-transparent border-0 focus:ring-0 text-sm placeholder:text-base-content/40"
+      />
+    </label>
+  </form>
 
-<div class="flex flex-col p-3 bonfire-wrapper divide-y divide-base-content/10">
   {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
     {#match nil}
     {#match component}
-      <div :for={{%{type: :group} = category, _children} <- @categories} class="">
-        <StatelessComponent module={component} object={category} permalink={path(category)} />
-      </div>
+      {#if @categories == []}
+        <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
+          <#Icon iconify="ph:users-three-duotone" class="w-12 h-12 text-base-content/20 mb-3" />
+          <p class="text-base-content/50 text-sm">
+            {#if @search_term != ""}
+              {l("No groups match your search")}
+            {#else}
+              {l("No groups yet")}
+            {/if}
+          </p>
+        </div>
+      {#else}
+        <div class="flex flex-col divide-y divide-base-content/10 px-1">
+          {#for {%{type: :group} = category, _children} <- @categories}
+            <StatelessComponent module={component} object={category} permalink={path(category)} />
+          {/for}
+        </div>
+      {/if}
   {/case}
 
   {#case maybe_module(Bonfire.UI.Topics.TopicsLive, @__context__)}
     {#match nil}
     {#match component}
-      <nav :for={{%{type: :topic} = category, children} <- @categories} class="">
+      <nav :for={{%{type: :topic} = category, children} <- @categories} class="px-3">
         <StatelessComponent module={component} category={category} children={children} />
       </nav>
   {/case}
+
+  {#if @search_term == ""}
+    <Bonfire.UI.Common.LoadMoreLive
+      :if={@page_info}
+      live_handler="Bonfire.UI.Groups.ExploreLive"
+      page_info={@page_info}
+      hide_if_no_more
+    />
+  {/if}
 </div>

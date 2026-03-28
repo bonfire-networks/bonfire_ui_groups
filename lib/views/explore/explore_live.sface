@@ -1,1 +1,5 @@
-<Bonfire.UI.Groups.DiscoverGroupsLive categories={@categories} />
+<Bonfire.UI.Groups.DiscoverGroupsLive
+  categories={@categories}
+  page_info={@page_info}
+  search_term={@search_term}
+/>
