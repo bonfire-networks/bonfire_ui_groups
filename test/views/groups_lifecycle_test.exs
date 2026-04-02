@@ -348,7 +348,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       me = fake_user!(account)
       group = create_group(me, name: "Label Test Group")
 
-      {:ok, _post} =
+      {:ok, post} =
         Posts.publish(
           current_user: me,
           post_attrs: %{
@@ -359,6 +359,8 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
           to_circles: [group.id],
           boundary: "public"
         )
+
+      IO.inspect(Bonfire.Common.Repo.get(Bonfire.Classify.Tree, post.id), label: "tree row")
 
       conn = conn(user: me, account: account)
 
