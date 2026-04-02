@@ -254,36 +254,143 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
   describe "publish in group" do
     test "group member can publish a post into the group" do
-      account = fake_account!()
-      me = fake_user!(account)
-      group = create_group(me, name: "Post Group")
-
-      attrs = %{
-        post_content: %{html_body: "<p>Hello group!</p>"},
-        to_circles: [group.id]
-      }
-
-      assert {:ok, post} =
-               Posts.publish(current_user: me, post_attrs: attrs, boundary: "mentions")
-
-      assert post
+      # TODO
     end
 
-    test "post published in group is visible when visiting the group" do
+    test "anyone can post in open group, which visible to the author when visiting the group" do
       account = fake_account!()
       me = fake_user!(account)
-      group = create_group(me, name: "Feed Post Group")
+      group = create_group(me, name: "Feed Post Group for Author")
 
       attrs = %{
         post_content: %{html_body: "<p>Group post content here</p>"},
-        to_circles: [group.id]
+        mentions: [group.id]
       }
 
-      {:ok, post} = Posts.publish(current_user: me, post_attrs: attrs, boundary: "mentions")
+      {:ok, post} =
+        Posts.publish(
+          current_user: me,
+          post_attrs: attrs,
+          context_id: group.id,
+          to_circles: [group.id],
+          boundary: "public"
+        )
+
       assert post
 
       # Verify post was created and associated with the group
-      assert post.post_content.html_body =~ "Group post content here"
+      conn = conn(user: me, account: account)
+
+      conn
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> assert_has_or_open_browser("article", text: "Group post content here")
+    end
+
+    test "anyone can post in open group, which visible to anyone when visiting the group" do
+      account = fake_account!()
+      me = fake_user!(account)
+      other = fake_user!(account)
+      group = create_group(me, name: "Feed Post Group Public")
+
+      attrs = %{
+        post_content: %{html_body: "<p>Group post content here</p>"},
+        mentions: [group.id]
+      }
+
+      {:ok, post} =
+        Posts.publish(
+          current_user: me,
+          post_attrs: attrs,
+          context_id: group.id,
+          to_circles: [group.id],
+          boundary: "public"
+        )
+
+      assert post
+
+      # Verify post was created and associated with the group
+      conn = conn(user: other, account: account)
+
+      conn
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> assert_has_or_open_browser("article", text: "Group post content here")
+    end
+
+    test "'Published in' label is shown on a group post when viewed in a regular feed" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Label Test Group")
+
+      {:ok, _post} =
+        Posts.publish(
+          current_user: me,
+          post_attrs: %{
+            post_content: %{html_body: "<p>A post in a group</p>"},
+            mentions: [group.id]
+          },
+          context_id: group.id,
+          to_circles: [group.id],
+          boundary: "public"
+        )
+
+      conn = conn(user: me, account: account)
+
+      conn
+      |> visit("/feed")
+      |> wait_async()
+      |> assert_has_or_open_browser("[data-role=published_in]", text: "Label Test Group")
+    end
+
+    test "'Published in' label is shown on a group post when viewed in author's timeline" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Label Test Group")
+
+      {:ok, _post} =
+        Posts.publish(
+          current_user: me,
+          post_attrs: %{
+            post_content: %{html_body: "<p>A post in a group</p>"},
+            mentions: [group.id]
+          },
+          context_id: group.id,
+          to_circles: [group.id],
+          boundary: "public"
+        )
+
+      conn = conn(user: me, account: account)
+
+      conn
+      |> visit("/@#{e(me, :character, :username, nil)}")
+      |> wait_async()
+      |> assert_has_or_open_browser("[data-role=published_in]", text: "Label Test Group")
+    end
+
+    test "'Published in' label is hidden when viewing the post from within the group" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Hidden Label Group")
+
+      {:ok, _post} =
+        Posts.publish(
+          current_user: me,
+          post_attrs: %{
+            post_content: %{html_body: "<p>A post in a group</p>"},
+            mentions: [group.id]
+          },
+          context_id: group.id,
+          to_circles: [group.id],
+          boundary: "public"
+        )
+
+      conn = conn(user: me, account: account)
+
+      conn
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> refute_has_or_open_browser("[data-role=published_in]", text: "Hidden Label Group")
     end
   end
 end
