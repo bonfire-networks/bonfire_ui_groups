@@ -8,6 +8,7 @@ defmodule Bonfire.UI.Groups.WidgetGroupAboutLive do
   prop parent_link, :string, default: nil
   prop boundary_preset, :any, default: nil
   prop parent_boundary_preset, :any, default: nil
+  prop join_mode, :string, default: "free"
   prop member_count, :integer, default: 0
   prop topic_count, :integer, default: 0
   prop moderators, :any, default: []

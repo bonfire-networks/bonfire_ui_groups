@@ -205,6 +205,71 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     end
   end
 
+  describe "join button UI" do
+    test "non-member sees 'Join group' button on open group about page" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+      group = create_group(me, name: "Open Join Group")
+
+      conn = conn(user: alice, account: account)
+
+      conn
+      |> visit("/&#{group.character.username}/about")
+      |> wait_async()
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Join group")
+    end
+
+    test "after joining, user sees 'Joined' button" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+      group = create_group(me, name: "Join Flow Group")
+
+      conn = conn(user: alice, account: account)
+
+      conn
+      |> visit("/&#{group.character.username}/about")
+      |> wait_async()
+      |> click_link("[phx-value-id='#{group.id}']", "Join group")
+      |> wait_async()
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Joined")
+    end
+
+    test "after leaving, user sees 'Join group' button again" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+      group = create_group(me, name: "Leave Flow Group")
+
+      {:ok, _} = Categories.join_group(alice, group)
+
+      conn = conn(user: alice, account: account)
+
+      conn
+      |> visit("/&#{group.character.username}/about")
+      |> wait_async()
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Joined")
+      |> click_link("[phx-value-id='#{group.id}']", "Joined")
+      |> wait_async()
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Join group")
+    end
+
+    test "group creator sees disabled button (is already admin/member)" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Creator Button Group")
+
+      conn = conn(user: me, account: account)
+
+      conn
+      |> visit("/&#{group.character.username}/about")
+      |> wait_async()
+      |> assert_has(".btn-disabled")
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Joined")
+    end
+  end
+
   describe "group membership" do
     test "group creator is automatically a follower" do
       account = fake_account!()

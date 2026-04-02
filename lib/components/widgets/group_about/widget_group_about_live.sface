@@ -28,7 +28,7 @@
     <div class="flex items-center cursor-default">
       <StatelessComponent
         module={maybe_component(Bonfire.UI.Boundaries.BoundariesPresetNameLive)}
-        boundary_preset={@parent_boundary_preset || @boundary_preset}
+        boundary_preset={@boundary_preset || @parent_boundary_preset}
         icon_class="w-4 h-4 text-base-content/30"
         class="text-xs text-base-content/50"
       />
@@ -38,13 +38,15 @@
   {!-- Join CTA --}
   <div class="mt-4">
     <StatefulComponent
-      id="widget_group_join"
-      module={maybe_component(Bonfire.UI.Social.Graph.FollowButtonLive, @__context__)}
       :if={e(@category, :character, nil)}
+      id={"join_btn_#{id(@category)}"}
+      module={maybe_component(Bonfire.UI.Groups.JoinButtonLive, @__context__)}
       object_id={id(@category)}
-      verb={if e(@boundary_preset, "open", nil), do: l("Join group"), else: l("Request to join")}
-      verb_undo={l("Leave group")}
-      verb_already={l("Joined")}
+      object_name={ed(@category, :profile, :name, nil) || ed(@category, :character, :username, l("Group"))}
+      moderators={@moderators}
+      join_mode={@join_mode}
+      path={path(@category)}
+      disabled={Enums.ids(current_user(@__context__)) == Enums.ids(@moderators)}
       class="btn w-full btn-sm btn-soft btn-primary"
     />
   </div>

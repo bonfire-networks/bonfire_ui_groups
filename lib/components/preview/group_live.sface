@@ -38,7 +38,8 @@
         <div class="flex items-center gap-3 mt-1">
           <span class="flex items-center gap-1 text-xs text-base-content/40">
             <#Icon iconify="ph:users-duotone" class="w-3.5 h-3.5" />
-            {e(@object, :character, :follow_count, :object_count, 0)} {l("members")}
+            <!-- FIXME: n+1 -->
+            {Categories.members_count(@object)} {l("members")}
           </span>
         </div>
       </div>
@@ -85,7 +86,8 @@
       <div class="flex items-center gap-3 mt-0.5">
         <span class="flex items-center gap-1 text-xs text-base-content/40">
           <#Icon iconify="ph:users-duotone" class="w-3.5 h-3.5" />
-          {e(@object, :character, :follow_count, :object_count, 0)} {l("members")}
+          <!-- FIXME: n+1 -->
+          {Categories.members_count(@object)} {l("members")}
         </span>
       </div>
     </div>

@@ -1,5 +1,6 @@
 defmodule Bonfire.UI.Groups.Preview.GroupLive do
   use Bonfire.UI.Common.Web, :stateless_component
+  alias Bonfire.Classify.Categories
 
   prop object, :any
   prop activity, :any, default: nil
