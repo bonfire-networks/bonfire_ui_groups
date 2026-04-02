@@ -1,33 +1,84 @@
 <div>
+  {#case to_string(Bonfire.Common.Settings.get([:ui, :sidebar, :section_divider], "none", :instance))}
+    {#match "line"}
+      <div
+        class="my-1 mx-4"
+        style="border-top: 1px solid color-mix(in oklch, var(--color-base-content) 10%, transparent)"
+        aria-hidden="true"
+      />
+    {#match "custom"}
+      {#case to_string(Bonfire.Common.Settings.get([:ui, :sidebar, :section_divider_image], "", :instance))}
+        {#match src when src != ""}
+          <div class="my-1 flex justify-center" aria-hidden="true">
+            <img src={src} class="h-5 w-full object-contain mt-4" alt="">
+          </div>
+        {#match _}
+      {/case}
+    {#match _}
+  {/case}
   <ul class="menu relative p-0 w-full mt-2">
     <li class="w-full">
-      <details open class="w-full overflow-hidden">
-        <summary class="relative font-medium uppercase text-xs pl-5 text-base-content/50">
-          <span>{l("Groups")}</span>
-
-          <div class="normal-case font-normal absolute right-6">
-            <Bonfire.UI.Groups.NewGroupLive parent_id="sidebar" open_btn_wrapper_class="">
-              <:open_btn>
-                <span class="btn btn-circle btn-ghost btn-xs"><#Icon iconify="ph:plus-duotone" class="w-5 h-5" /></span>
-              </:open_btn>
-            </Bonfire.UI.Groups.NewGroupLive>
+      {#if Bonfire.Common.Settings.get(
+          [:ui, :sidebar, :disable_collapsible],
+          false,
+          @__context__[:instance_settings] || :instance
+        )}
+        <details open class="details-static w-full overflow-hidden">
+          <summary class="relative font-medium uppercase text-xs pl-5 text-base-content/50">
+            <span>{l("Groups")}</span>
+            <div class="normal-case font-normal absolute right-6 pointer-events-auto">
+              <Bonfire.UI.Groups.NewGroupLive parent_id="sidebar" open_btn_wrapper_class="">
+                <:open_btn>
+                  <span class="btn btn-circle btn-ghost btn-xs"><#Icon iconify="ph:plus-duotone" class="w-5 h-5" /></span>
+                </:open_btn>
+              </Bonfire.UI.Groups.NewGroupLive>
+            </div>
+          </summary>
+          <div class="pointer-events-auto">
+            {#for {%{type: :group} = category, _children} <- e(@categories, [])}
+              <li>
+                <LinkLive
+                  to={path(category)}
+                  class={["gap-3 ml-1", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
+                >
+                  <div
+                    class="h-8 w-8 rounded bg-cover bg-center bg-no-repeat bg-base-300"
+                    style={"background-image: url('#{URI.encode(Media.avatar_url(category))}');"}
+                  />
+                  <span class="font-normal text-base">{e(category, :profile, :name, nil) || e(category, :named, :name, nil)}</span>
+                </LinkLive>
+              </li>
+            {/for}
           </div>
-        </summary>
-        {#for {%{type: :group} = category, _children} <- e(@categories, [])}
-          <li>
-            <LinkLive
-              to={path(category)}
-              class={["gap-3 ml-1", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
-            >
-              <div
-                class="h-8 w-8 rounded bg-cover bg-center bg-no-repeat bg-base-300"
-                style={"background-image: url('#{URI.encode(Media.avatar_url(category))}');"}
-              />
-              <span class="font-normal text-base">{e(category, :profile, :name, nil) || e(category, :named, :name, nil)}</span>
-            </LinkLive>
-          </li>
-        {/for}
-      </details>
+        </details>
+      {#else}
+        <details open class="w-full overflow-hidden">
+          <summary class="relative font-medium uppercase text-xs pl-5 text-base-content/50">
+            <span>{l("Groups")}</span>
+            <div class="normal-case font-normal absolute right-6">
+              <Bonfire.UI.Groups.NewGroupLive parent_id="sidebar" open_btn_wrapper_class="">
+                <:open_btn>
+                  <span class="btn btn-circle btn-ghost btn-xs"><#Icon iconify="ph:plus-duotone" class="w-5 h-5" /></span>
+                </:open_btn>
+              </Bonfire.UI.Groups.NewGroupLive>
+            </div>
+          </summary>
+          {#for {%{type: :group} = category, _children} <- e(@categories, [])}
+            <li>
+              <LinkLive
+                to={path(category)}
+                class={["gap-3 ml-1", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
+              >
+                <div
+                  class="h-8 w-8 rounded bg-cover bg-center bg-no-repeat bg-base-300"
+                  style={"background-image: url('#{URI.encode(Media.avatar_url(category))}');"}
+                />
+                <span class="font-normal text-base">{e(category, :profile, :name, nil) || e(category, :named, :name, nil)}</span>
+              </LinkLive>
+            </li>
+          {/for}
+        </details>
+      {/if}
     </li>
   </ul>
 </div>

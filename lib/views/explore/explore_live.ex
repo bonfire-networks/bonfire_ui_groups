@@ -51,10 +51,10 @@ defmodule Bonfire.UI.Groups.ExploreLive do
              secondary: [
                {Bonfire.Tag.Web.WidgetTagsLive, []}
              ]
-           ],
-          #  guests: [
-          #    secondary: [{Bonfire.Tag.Web.WidgetTagsLive, []}]
-          #  ]
+           ]
+           #  guests: [
+           #    secondary: [{Bonfire.Tag.Web.WidgetTagsLive, []}]
+           #  ]
          ]
        )}
     end

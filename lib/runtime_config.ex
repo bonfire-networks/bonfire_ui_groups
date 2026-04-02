@@ -1,8 +1,20 @@
 defmodule Bonfire.UI.Groups.RuntimeConfig do
   use Bonfire.Common.Localise
+  import Bonfire.UI.Common.Modularity.DeclareHelpers
 
   @behaviour Bonfire.Common.ConfigModule
   def config_module, do: true
+
+  declare_settings(:select, l("Who can create groups"),
+    keys: [Bonfire.UI.Groups, :create_groups],
+    options: [
+      everyone: l("Everyone"),
+      admins: l("Admins only")
+    ],
+    default_value: :everyone,
+    description: l("Control who is allowed to create new groups on this instance"),
+    scope: :instance
+  )
 
   @doc """
   NOTE: you can override this default config in your app's `runtime.exs`, by placing similarly-named config keys below the `Bonfire.Common.Config.LoadExtensionsConfig.load_configs()` line
