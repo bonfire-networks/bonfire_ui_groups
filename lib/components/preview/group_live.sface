@@ -1,8 +1,5 @@
 {#if @showing_within == :feed}
-  <LinkLive
-    to={@permalink}
-    class="group block rounded-xl overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all"
-  >
+  <div class="group block rounded-xl overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all">
     {!-- Banner --}
     {#case Media.banner_url(@object)}
       {#match nil}
@@ -14,35 +11,37 @@
     {/case}
 
     <div class="flex items-start gap-3 p-4">
-      {!-- Avatar --}
-      <div class="shrink-0 -mt-10 relative z-10">
-        {#case Media.avatar_url(@object)}
-          {#match "/images/avatar.png"}
-            <div class="w-14 h-14 rounded-xl bg-base-100 shadow-lg flex items-center justify-center">
-              <#Icon iconify="ph:users-three-duotone" class="w-7 h-7 text-base-content/40" />
-            </div>
-          {#match url}
-            <img src={url} class="w-14 h-14 rounded-xl ring-2 ring-base-100 object-cover">
-        {/case}
-      </div>
+      <LinkLive to={@permalink} class="group flex items-center gap-3">
+        {!-- Avatar --}
+        <div class="shrink-0 -mt-10 relative z-10">
+          {#case Media.avatar_url(@object)}
+            {#match "/images/avatar.png"}
+              <div class="w-14 h-14 rounded-xl bg-base-100 shadow-lg flex items-center justify-center">
+                <#Icon iconify="ph:users-three-duotone" class="w-7 h-7 text-base-content/40" />
+              </div>
+            {#match url}
+              <img src={url} class="w-14 h-14 rounded-xl ring-2 ring-base-100 object-cover">
+          {/case}
+        </div>
 
-      <div class="flex flex-col flex-1 min-w-0 gap-1">
-        <div class="font-bold text-base text-base-content">
-          {rich(name(@object))}
+        <div class="flex flex-col flex-1 min-w-0 gap-1">
+          <div class="font-bold text-base text-base-content">
+            {rich(name(@object))}
+          </div>
+          <div
+            :if={e(@object, :profile, :summary, "") != ""}
+            class="text-sm text-base-content/60 line-clamp-2"
+          >{e(@object, :profile, :summary, "")}</div>
+          {!-- Meta --}
+          <div class="flex items-center gap-3 mt-1">
+            <span class="flex items-center gap-1 text-xs text-base-content/40">
+              <#Icon iconify="ph:users-duotone" class="w-3.5 h-3.5" />
+              <!-- FIXME: n+1 -->
+              {Categories.members_count(@object)} {l("members")}
+            </span>
+          </div>
         </div>
-        <div
-          :if={e(@object, :profile, :summary, "") != ""}
-          class="text-sm text-base-content/60 line-clamp-2"
-        >{e(@object, :profile, :summary, "")}</div>
-        {!-- Meta --}
-        <div class="flex items-center gap-3 mt-1">
-          <span class="flex items-center gap-1 text-xs text-base-content/40">
-            <#Icon iconify="ph:users-duotone" class="w-3.5 h-3.5" />
-            <!-- FIXME: n+1 -->
-            {Categories.members_count(@object)} {l("members")}
-          </span>
-        </div>
-      </div>
+      </LinkLive>
 
       <div :if={current_user_id(@__context__)} class="shrink-0 self-start mt-1">
         <Bonfire.Classify.Web.CategoryActionsLive
@@ -53,44 +52,43 @@
         />
       </div>
     </div>
-  </LinkLive>
+  </div>
 {#else}
-  <LinkLive
-    to={@permalink}
-    class="group flex items-center gap-3 p-3 hover:bg-base-content/5 transition-colors"
-  >
-    {!-- Avatar --}
-    <div class="shrink-0">
-      {#case Media.avatar_url(@object)}
-        {#match "/images/avatar.png"}
-          <div class="w-12 h-12 rounded-xl bg-base-content/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-            <#Icon
-              iconify="ph:users-three-duotone"
-              class="w-6 h-6 text-base-content/40 group-hover:text-primary/70 transition-colors"
-            />
-          </div>
-        {#match url}
-          <img src={url} class="w-12 h-12 rounded-xl object-cover">
-      {/case}
-    </div>
-
-    {!-- Content --}
-    <div class="flex flex-col flex-1 min-w-0 gap-0.5">
-      <span class="font-semibold text-base-content truncate">
-        {rich(name(@object))}
-      </span>
-      <p
-        :if={e(@object, :profile, :summary, "") != ""}
-        class="text-sm text-base-content/50 line-clamp-2"
-      >{e(@object, :profile, :summary, "")}</p>
-      <div class="flex items-center gap-3 mt-0.5">
-        <span class="flex items-center gap-1 text-xs text-base-content/40">
-          <#Icon iconify="ph:users-duotone" class="w-3.5 h-3.5" />
-          <!-- FIXME: n+1 -->
-          {Categories.members_count(@object)} {l("members")}
-        </span>
+  <div class="group flex items-center gap-3 p-3 hover:bg-base-content/5 transition-colors">
+    <LinkLive to={@permalink} class="group flex items-center gap-3">
+      {!-- Avatar --}
+      <div class="shrink-0">
+        {#case Media.avatar_url(@object)}
+          {#match "/images/avatar.png"}
+            <div class="w-12 h-12 rounded-xl bg-base-content/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+              <#Icon
+                iconify="ph:users-three-duotone"
+                class="w-6 h-6 text-base-content/40 group-hover:text-primary/70 transition-colors"
+              />
+            </div>
+          {#match url}
+            <img src={url} class="w-12 h-12 rounded-xl object-cover">
+        {/case}
       </div>
-    </div>
+
+      {!-- Content --}
+      <div class="flex flex-col flex-1 min-w-0 gap-0.5">
+        <span class="font-semibold text-base-content truncate">
+          {rich(name(@object))}
+        </span>
+        <p
+          :if={e(@object, :profile, :summary, "") != ""}
+          class="text-sm text-base-content/50 line-clamp-2"
+        >{e(@object, :profile, :summary, "")}</p>
+        <div class="flex items-center gap-3 mt-0.5">
+          <span class="flex items-center gap-1 text-xs text-base-content/40">
+            <#Icon iconify="ph:users-duotone" class="w-3.5 h-3.5" />
+            <!-- FIXME: n+1 -->
+            {Categories.members_count(@object)} {l("members")}
+          </span>
+        </div>
+      </div>
+    </LinkLive>
 
     {!-- Action --}
     <div :if={current_user_id(@__context__)} class="shrink-0 ml-auto">
@@ -101,5 +99,5 @@
         object_type={:group}
       />
     </div>
-  </LinkLive>
+  </div>
 {/if}

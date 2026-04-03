@@ -40,7 +40,7 @@
     <StatefulComponent
       :if={e(@category, :character, nil)}
       id={"join_btn_#{id(@category)}"}
-      module={maybe_component(Bonfire.UI.Groups.JoinButtonLive, @__context__)}
+      module={maybe_component(Bonfire.Classify.Web.JoinButtonLive, @__context__)}
       object_id={id(@category)}
       object_name={ed(@category, :profile, :name, nil) || ed(@category, :character, :username, l("Group"))}
       moderators={@moderators}
