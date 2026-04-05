@@ -3,8 +3,18 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
   @moduletag :ui
 
   alias Bonfire.Classify.Categories
-  alias Bonfire.Social.Graph.Follows
-  alias Bonfire.Posts
+
+  defp post_in_group(session, content) do
+    session
+    |> click_button("[data-role=composer_button]", "Write in group")
+    |> PhoenixTest.unwrap(fn view ->
+      view
+      |> Phoenix.LiveViewTest.element("#smart_input_form")
+      |> Phoenix.LiveViewTest.render_submit(%{
+        "post" => %{"post_content" => %{"html_body" => content}}
+      })
+    end)
+  end
 
   defp create_group(creator, attrs \\ %{}) do
     name = attrs[:name] || "Test Group #{System.unique_integer([:positive])}"
@@ -61,29 +71,6 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
       assert html =~ "Accessible Group"
     end
-
-    @tag :todo
-    test "if I create an open group, anyone can join" do
-      # TODO: blocked by boundary preset detection bug -
-      # get_preset_on_object returns wrong ACL so group shows as "private"
-      # and the FollowButton is not rendered for non-members
-    end
-
-    @tag :todo
-    test "if I create a visible group, anyone can request to join" do
-      # TODO: blocked by same boundary preset detection bug
-    end
-
-    test "I cannot see a private group without an invite" do
-      account = fake_account!()
-      me = fake_user!(account)
-      alice = fake_user!(account)
-
-      group = create_group(me, to_boundaries: ["private"])
-
-      conn = conn(user: alice, account: account)
-      {:error, _} = live(conn, "/&#{group.character.username}")
-    end
   end
 
   describe "group page" do
@@ -96,6 +83,17 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       {:ok, _view, html} = live(conn, "/&#{group.character.username}")
 
       assert html =~ "Cozy Club"
+    end
+
+    test "I cannot see a private group without an invite" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+
+      group = create_group(me, to_boundaries: ["private"])
+
+      conn = conn(user: alice, account: account)
+      {:error, _} = live(conn, "/&#{group.character.username}")
     end
 
     test "group creator is listed as a member on about page" do
@@ -183,8 +181,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       alice = fake_user!(account)
       group = create_group(me, name: "Protected Group")
 
-      # Alice joins the group first
-      Follows.follow(alice, group, skip_boundary_check: true)
+      {:ok, _} = Categories.join_group(alice, group)
 
       conn = conn(user: alice, account: account)
       {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings")
@@ -205,22 +202,25 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     end
   end
 
-  describe "join button UI" do
-    test "non-member sees 'Join group' button on open group about page" do
+  describe "group membership" do
+    test "if I create a visible group, anyone can request to join" do
       account = fake_account!()
       me = fake_user!(account)
       alice = fake_user!(account)
-      group = create_group(me, name: "Open Join Group")
+      group = create_group(me, name: "Visible Group", to_boundaries: ["visible"])
 
-      conn = conn(user: alice, account: account)
-
-      conn
+      conn(user: alice, account: account)
       |> visit("/&#{group.character.username}/about")
       |> wait_async()
-      |> assert_has("[phx-value-id='#{group.id}']", text: "Join group")
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Request to join")
+      |> click_link("[phx-value-id='#{group.id}']", "Request to join")
+      |> wait_async()
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Requested")
+
+      refute Categories.member?(alice, group)
     end
 
-    test "after joining, user sees 'Joined' button" do
+    test "non-member sees 'Join group' button on open group about page, and after joining, user sees 'Joined' button, and after leaving, user sees 'Join group' button again" do
       account = fake_account!()
       me = fake_user!(account)
       alice = fake_user!(account)
@@ -231,23 +231,8 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn
       |> visit("/&#{group.character.username}/about")
       |> wait_async()
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Join group")
       |> click_link("[phx-value-id='#{group.id}']", "Join group")
-      |> wait_async()
-      |> assert_has("[phx-value-id='#{group.id}']", text: "Joined")
-    end
-
-    test "after leaving, user sees 'Join group' button again" do
-      account = fake_account!()
-      me = fake_user!(account)
-      alice = fake_user!(account)
-      group = create_group(me, name: "Leave Flow Group")
-
-      {:ok, _} = Categories.join_group(alice, group)
-
-      conn = conn(user: alice, account: account)
-
-      conn
-      |> visit("/&#{group.character.username}/about")
       |> wait_async()
       |> assert_has("[phx-value-id='#{group.id}']", text: "Joined")
       |> click_link("[phx-value-id='#{group.id}']", "Joined")
@@ -255,7 +240,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> assert_has("[phx-value-id='#{group.id}']", text: "Join group")
     end
 
-    test "group creator sees disabled button (is already admin/member)" do
+    test "group creator is automatically a follower and member, and sees disabled 'Joined' button" do
       account = fake_account!()
       me = fake_user!(account)
       group = create_group(me, name: "Creator Button Group")
@@ -268,26 +253,6 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> assert_has(".btn-disabled")
       |> assert_has("[phx-value-id='#{group.id}']", text: "Joined")
     end
-  end
-
-  describe "group membership" do
-    test "group creator is automatically a follower" do
-      account = fake_account!()
-      me = fake_user!(account)
-      group = create_group(me)
-
-      assert Follows.following?(me, group)
-    end
-
-    test "a user can follow/join a group programmatically" do
-      account = fake_account!()
-      me = fake_user!(account)
-      alice = fake_user!(account)
-      group = create_group(me)
-
-      assert {:ok, _} = Follows.follow(alice, group, skip_boundary_check: true)
-      assert Follows.following?(alice, group)
-    end
 
     test "a joined member appears on the group about page" do
       account = fake_account!()
@@ -295,61 +260,59 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       alice = fake_user!(account)
       group = create_group(me, name: "Member Check Group")
 
-      Follows.follow(alice, group, skip_boundary_check: true)
+      conn(user: alice, account: account)
+      |> visit("/&#{group.character.username}/about")
+      |> wait_async()
+      |> click_link("[phx-value-id='#{group.id}']", "Join group")
+      |> wait_async()
 
-      conn = conn(user: me, account: account)
-      {:ok, _view, html} = live(conn, "/&#{group.character.username}/about")
-
-      assert html =~ e(alice, :profile, :name, "")
-    end
-
-    test "a user can leave a group" do
-      account = fake_account!()
-      me = fake_user!(account)
-      alice = fake_user!(account)
-      group = create_group(me)
-
-      Follows.follow(alice, group, skip_boundary_check: true)
-      assert Follows.following?(alice, group)
-
-      Follows.unfollow(alice, group)
-      refute Follows.following?(alice, group)
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}/about")
+      |> wait_async()
+      |> assert_has("*", text: e(alice, :profile, :name, ""))
     end
   end
 
   describe "publish in group" do
-    test "group member can publish a post into the group" do
-      # TODO
-    end
-
     test "anyone can post in open group, which visible to the author when visiting the group" do
       account = fake_account!()
       me = fake_user!(account)
       group = create_group(me, name: "Feed Post Group for Author")
 
-      attrs = %{
-        post_content: %{html_body: "<p>Group post content here</p>"},
-        mentions: [group.id]
-      }
-
-      {:ok, post} =
-        Posts.publish(
-          current_user: me,
-          post_attrs: attrs,
-          context_id: group.id,
-          to_circles: [group.id],
-          boundary: "public"
-        )
-
-      assert post
-
-      # Verify post was created and associated with the group
-      conn = conn(user: me, account: account)
-
-      conn
+      conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
+      |> post_in_group("<p>Group post content here</p>")
+      |> wait_async()
       |> assert_has_or_open_browser("article", text: "Group post content here")
+    end
+
+    @tag :fixme
+    test "group member can publish a post into closed group, visible only to other members" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+      bob = fake_user!(account)
+      group = create_group(me, name: "Closed Group", to_boundaries: ["private"])
+
+      {:ok, _} = Categories.join_group(alice, group, skip_boundary_check: true)
+
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> post_in_group("<p>Secret group post</p>")
+
+      # member can see the post
+      conn(user: alice, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> assert_has_or_open_browser("article", text: "Secret group post")
+
+      # non-member cannot see the post
+      conn(user: bob, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> refute_has_or_open_browser("article", text: "Secret group post")
     end
 
     test "anyone can post in open group, which visible to anyone when visiting the group" do
@@ -358,26 +321,12 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       other = fake_user!(account)
       group = create_group(me, name: "Feed Post Group Public")
 
-      attrs = %{
-        post_content: %{html_body: "<p>Group post content here</p>"},
-        mentions: [group.id]
-      }
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> post_in_group("<p>Group post content here</p>")
 
-      {:ok, post} =
-        Posts.publish(
-          current_user: me,
-          post_attrs: attrs,
-          context_id: group.id,
-          to_circles: [group.id],
-          boundary: "public"
-        )
-
-      assert post
-
-      # Verify post was created and associated with the group
-      conn = conn(user: other, account: account)
-
-      conn
+      conn(user: other, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
       |> assert_has_or_open_browser("article", text: "Group post content here")
@@ -388,21 +337,12 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       me = fake_user!(account)
       group = create_group(me, name: "Label Test Group")
 
-      {:ok, _post} =
-        Posts.publish(
-          current_user: me,
-          post_attrs: %{
-            post_content: %{html_body: "<p>A post in a group</p>"},
-            mentions: [group.id]
-          },
-          context_id: group.id,
-          to_circles: [group.id],
-          boundary: "public"
-        )
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> post_in_group("<p>A post in a group</p>")
 
-      conn = conn(user: me, account: account)
-
-      conn
+      conn(user: me, account: account)
       |> visit("/feed")
       |> wait_async()
       |> assert_has_or_open_browser("[data-role=published_in]", text: "Label Test Group")
@@ -413,23 +353,12 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       me = fake_user!(account)
       group = create_group(me, name: "Label Test Group")
 
-      {:ok, post} =
-        Posts.publish(
-          current_user: me,
-          post_attrs: %{
-            post_content: %{html_body: "<p>A post in a group</p>"},
-            mentions: [group.id]
-          },
-          context_id: group.id,
-          to_circles: [group.id],
-          boundary: "public"
-        )
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> post_in_group("<p>A post in a group</p>")
 
-      IO.inspect(Bonfire.Common.Repo.get(Bonfire.Classify.Tree, post.id), label: "tree row")
-
-      conn = conn(user: me, account: account)
-
-      conn
+      conn(user: me, account: account)
       |> visit("/@#{e(me, :character, :username, nil)}")
       |> wait_async()
       |> assert_has_or_open_browser("[data-role=published_in]", text: "Label Test Group")
@@ -440,23 +369,10 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       me = fake_user!(account)
       group = create_group(me, name: "Hidden Label Group")
 
-      {:ok, _post} =
-        Posts.publish(
-          current_user: me,
-          post_attrs: %{
-            post_content: %{html_body: "<p>A post in a group</p>"},
-            mentions: [group.id]
-          },
-          context_id: group.id,
-          to_circles: [group.id],
-          boundary: "public"
-        )
-
-      conn = conn(user: me, account: account)
-
-      conn
+      conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
+      |> post_in_group("<p>A post in a group</p>")
       |> refute_has_or_open_browser("[data-role=published_in]", text: "Hidden Label Group")
     end
   end
