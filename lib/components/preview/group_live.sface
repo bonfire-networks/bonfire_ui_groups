@@ -94,6 +94,7 @@
     <div :if={current_user_id(@__context__)} class="shrink-0 ml-auto">
       <Bonfire.Classify.Web.CategoryActionsLive
         object={@object}
+        showing_within={:list}
         activity_id={id(@activity)}
         object_boundary={@object_boundary}
         object_type={:group}
