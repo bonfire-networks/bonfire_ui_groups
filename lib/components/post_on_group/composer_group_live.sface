@@ -2,7 +2,8 @@
   :if={current_user(@__context__)}
   smart_input_opts={%{
     text_suggestion: "+#{e(@category, :character, :username, nil)}",
-    to_circles: [id(@category)]
+    to_circles: [id(@category)],
+    to_boundaries: [Bonfire.Classify.Boundaries.read_default_content_visibility(@category)]
   }}
   prompt={l("Publish in group")}
   class="normal-case rounded btn mr-2 btn-primary btn-sm btn-outline"

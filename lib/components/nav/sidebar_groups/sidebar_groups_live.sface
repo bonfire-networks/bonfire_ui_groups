@@ -27,7 +27,11 @@
           <summary class="relative font-medium uppercase text-xs pl-5 text-base-content/50">
             <span>{l("Groups")}</span>
             <div class="normal-case font-normal absolute right-6 pointer-events-auto">
-              <Bonfire.UI.Groups.NewGroupLive parent_id="sidebar" open_btn_wrapper_class="">
+              <Bonfire.UI.Groups.NewGroupLive
+                id="sidebar_new_group"
+                parent_id="sidebar"
+                open_btn_wrapper_class=""
+              >
                 <:open_btn>
                   <span class="btn btn-circle btn-ghost btn-xs"><#Icon iconify="ph:plus-duotone" class="w-5 h-5" /></span>
                 </:open_btn>
@@ -56,7 +60,11 @@
           <summary class="relative font-medium uppercase text-xs pl-5 text-base-content/50">
             <span>{l("Groups")}</span>
             <div class="normal-case font-normal absolute right-6">
-              <Bonfire.UI.Groups.NewGroupLive parent_id="sidebar" open_btn_wrapper_class="">
+              <Bonfire.UI.Groups.NewGroupLive
+                id="sidebar_new_group"
+                parent_id="sidebar"
+                open_btn_wrapper_class=""
+              >
                 <:open_btn>
                   <span class="btn btn-circle btn-ghost btn-xs"><#Icon iconify="ph:plus-duotone" class="w-5 h-5" /></span>
                 </:open_btn>

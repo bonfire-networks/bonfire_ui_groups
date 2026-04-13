@@ -31,12 +31,6 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
         {:group, Bonfire.UI.Groups.Preview.GroupLive}
       ],
       group: [
-        preset_descriptions: %{
-          "open" => l("anyone can join and participate"),
-          "visible" => l("everyone can browse the group/topics/posts, but only members can post"),
-          # "visible"=> l("everyone can browse the group/topics/posts, and request to join")
-          "private" => l("only people who are invited can join the group and see its contents")
-        },
         profile: [
           navigation: [
             nil: l("Timeline"),
@@ -69,14 +63,14 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
             nil: Bonfire.UI.Groups.Settings.GeneralLive,
             members: Bonfire.UI.Groups.Settings.MembershipLive,
             invites: Bonfire.UI.Groups.Settings.InvitesLive,
-            # boundaries: Bonfire.UI.Groups.Settings.BoundariesLive,
+            boundaries: Bonfire.UI.Groups.Settings.BoundariesLive,
             moderation: Bonfire.UI.Groups.Settings.FlagsLive
           ],
           navigation: [
             nil: l("Settings"),
             members: l("Members"),
             # invites: l("Invites"),
-            # boundaries: l("Boundaries"),
+            boundaries: l("Boundaries"),
             moderation: l("Moderation")
             # submitted: l("Mentions")
           ]

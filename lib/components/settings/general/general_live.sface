@@ -55,7 +55,10 @@
 
     <div class="text-xl mb-4 font-semibold mt-6 border-t border-base-content/10 pt-4">{l("Permissions")}</div>
 
-    <Bonfire.UI.Groups.Settings.BoundariesLive category={@category} />
+    <Bonfire.UI.Groups.Settings.BoundariesLive
+      id="settings_general_boundaries"
+      category={@category}
+    />
 
     <div class="text-xl mb-4 font-semibold mt-6 border-t border-base-content/10 pt-4">{l("Danger zone")}</div>
 

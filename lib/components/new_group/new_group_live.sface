@@ -1,20 +1,13 @@
-{#if to_string(Bonfire.Common.Settings.get([Bonfire.UI.Groups, :create_groups], :everyone, :instance)) !=
-    "admins" or Bonfire.Boundaries.can?(@__context__, :configure, :instance)}
-  <Bonfire.UI.Common.OpenModalLive
-    id={deterministic_dom_id(__MODULE__, nil, "create_new_group", @parent_id)}
-    reusable_modal_id={if @__context__[:sticky], do: "persistent_modal"}
-    title_text={l("Create a new group")}
-    open_btn_wrapper_class={@open_btn_wrapper_class}
-    no_actions
-  >
-    <div x-data="{ name: '', boundaries: 'open' }">
-      {!-- Decorative header --}
-      <div class="flex justify-center mt-2 mb-4">
-        <div class="bg-primary/10 w-12 h-12 rounded-full flex place-content-center items-center">
-          <#Icon iconify="ph:users-three-duotone" class="w-6 h-6 text-primary" />
-        </div>
-      </div>
-
+<div>
+  {#if to_string(Bonfire.Common.Settings.get([Bonfire.UI.Groups, :create_groups], :everyone, :instance)) !=
+      "admins" or Bonfire.Boundaries.can?(@__context__, :configure, :instance)}
+    <Bonfire.UI.Common.OpenModalLive
+      id={deterministic_dom_id(__MODULE__, nil, "create_new_group", @parent_id)}
+      reusable_modal_id={if @__context__[:sticky], do: "persistent_modal"}
+      title_text={l("Create a new group")}
+      open_btn_wrapper_class={@open_btn_wrapper_class}
+      no_actions
+    >
       <Form
         for={%{}}
         as={:category}
@@ -23,120 +16,240 @@
         submit="Bonfire.UI.Groups:new"
         action="Bonfire.UI.Groups:new"
         change="Bonfire.Classify:validate"
-        opts={
-          autocomplete: "off",
-          "phx-target": "#modal"
-        }
+        opts={autocomplete: "off"}
       >
-        {!-- Group name --}
-        <div class="w-full form-control">
-          <label for="name" class="text-sm font-semibold text-base-content/80 mb-1">{l("Group name")}</label>
-          <input
-            x-model="name"
-            id="name"
-            name="name"
-            type="text"
-            placeholder={l("e.g. Design team, Book club...")}
-            class="w-full text-sm input input-bordered input-sm focus:input-primary"
-          />
+        {!-- Decorative header --}
+        <div class="flex justify-center mt-2 mb-4">
+          <div class="bg-primary/10 w-12 h-12 rounded-full flex place-content-center items-center">
+            <#Icon iconify="ph:users-three-duotone" class="w-6 h-6 text-primary" />
+          </div>
         </div>
 
-        {!-- Description --}
-        <div class="w-full form-control">
-          <label for="new_group_summary" class="text-sm font-semibold text-base-content/80 mb-1">{l("Description")}</label>
-          <textarea
-            id="new_group_summary"
-            name="summary"
-            rows="2"
-            class="w-full textarea textarea-bordered textarea-sm focus:textarea-primary text-sm"
-            placeholder={l("What is this group about?")}
-          />
+        {!-- Step 1: Name + Description --}
+        <div id="new_group_step_1">
+          <div class="w-full form-control">
+            <label for="new_group_name" class="text-sm font-semibold text-base-content/80 mb-1">{l("Group name")}</label>
+            <input
+              id="new_group_name"
+              name="name"
+              type="text"
+              placeholder={l("e.g. Design team, Book club...")}
+              class="w-full text-sm input input-bordered input-sm focus:input-primary"
+            />
+          </div>
+          <div class="w-full form-control mt-3">
+            <label for="new_group_summary" class="text-sm font-semibold text-base-content/80 mb-1">{l("Description")}</label>
+            <textarea
+              id="new_group_summary"
+              name="summary"
+              rows="2"
+              class="w-full textarea textarea-bordered textarea-sm focus:textarea-primary text-sm"
+              placeholder={l("What is this group about?")}
+            />
+          </div>
+          <button
+            type="button"
+            phx-click={JS.hide(to: "#new_group_step_1")
+            |> JS.show(to: "#new_group_step_2")}
+            class="w-full mt-4 normal-case btn btn-primary btn-sm"
+          >
+            {l("Next: Who can join?")} <#Icon iconify="ph:arrow-right" class="w-4 h-4 ml-1" />
+          </button>
         </div>
 
-        {!-- Boundary selector cards --}
-        <div class="w-full form-control">
-          <label class="text-sm font-semibold text-base-content/80 mb-1">{l("Privacy")}</label>
-          <div class="flex flex-col gap-2 mt-2">
-            {!-- Open --}
+        {!-- Step 2: Membership --}
+        <div id="new_group_step_2" class="hidden">
+          <Bonfire.UI.Groups.BoundaryDimensionLive
+            dimension={:membership}
+            label={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :membership,
+              :label,
+              l("Who can join?")
+            )}
+            name="membership"
+            selected={@membership}
+            target={@myself}
+            slug_order={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :membership,
+              :slug_order,
+              []
+            )}
+            options={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :membership,
+              :options,
+              %{}
+            )}
+          />
+          <div class="flex gap-2 mt-4">
             <button
               type="button"
-              x-on:click="boundaries = 'open'"
-              class="flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left"
-              x-bind:class="boundaries === 'open' ? 'ring-2 ring-primary bg-primary/5 border-primary/30' : 'border-base-content/10 hover:bg-base-content/5'"
+              phx-click={JS.hide(to: "#new_group_step_2") |> JS.show(to: "#new_group_step_1")}
+              class="btn btn-ghost btn-sm"
             >
-              <div
-                class="bg-base-content/10 w-9 h-9 rounded-full flex place-content-center items-center shrink-0"
-                x-bind:class="boundaries === 'open' && 'bg-primary/15'"
-              >
-                <#Icon
-                  iconify="ph:globe-duotone"
-                  class="w-5 h-5"
-                  x-bind:class="boundaries === 'open' ? 'text-primary' : 'text-base-content/70'"
-                />
-              </div>
-              <div class="flex flex-col min-w-0">
-                <span class="text-sm font-semibold">{l("Open")}</span>
-                <span class="text-xs text-base-content/60">{Config.get([:ui, :group, :preset_descriptions, "open"], l("anyone can join and participate"))}</span>
-              </div>
+              <#Icon iconify="ph:arrow-left" class="w-4 h-4 mr-1" />{l("Back")}
             </button>
-
-            {!-- Visible (disabled) --}
-            <div class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
-              <div class="bg-base-content/10 w-9 h-9 rounded-full flex place-content-center items-center shrink-0">
-                <#Icon iconify="ph:eye-duotone" class="w-5 h-5 text-base-content/70" />
-              </div>
-              <div class="flex flex-col min-w-0 flex-1">
-                <span class="text-sm font-semibold">{l("Visible")}</span>
-                <span class="text-xs text-base-content/60">{Config.get(
-                    [:ui, :group, :preset_descriptions, "visible"],
-                    l("everyone can browse the group but only members can post")
-                  )}</span>
-              </div>
-              <span class="badge badge-sm badge-ghost text-xs shrink-0">{l("Coming soon")}</span>
-            </div>
-
-            {!-- Private (disabled) --}
-            <div class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
-              <div class="bg-base-content/10 w-9 h-9 rounded-full flex place-content-center items-center shrink-0">
-                <#Icon iconify="heroicons-solid:lock-closed" class="w-5 h-5 text-base-content/70" />
-              </div>
-              <div class="flex flex-col min-w-0 flex-1">
-                <span class="text-sm font-semibold">{l("Private")}</span>
-                <span class="text-xs text-base-content/60">{Config.get(
-                    [:ui, :group, :preset_descriptions, "private"],
-                    l("only invited people can join and see contents")
-                  )}</span>
-              </div>
-              <span class="badge badge-sm badge-ghost text-xs shrink-0">{l("Coming soon")}</span>
-            </div>
+            <button
+              type="button"
+              phx-click={JS.hide(to: "#new_group_step_2") |> JS.show(to: "#new_group_step_3")}
+              class="btn btn-primary btn-sm flex-1 normal-case"
+            >
+              {l("Next: Who can see it?")} <#Icon iconify="ph:arrow-right" class="w-4 h-4 ml-1" />
+            </button>
           </div>
+        </div>
 
-          {!-- Hidden input for form submission --}
-          <input type="hidden" name="to_boundaries[]" x-bind:value="boundaries">
+        {!-- Step 3: Visibility --}
+        <div id="new_group_step_3" class="hidden">
+          <Bonfire.UI.Groups.BoundaryDimensionLive
+            dimension={:visibility}
+            label={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :visibility,
+              :label,
+              l("Who can see the group?")
+            )}
+            name="visibility"
+            selected={@visibility}
+            target={@myself}
+            slug_order={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :visibility,
+              :slug_order,
+              []
+            )}
+            options={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :visibility,
+              :options,
+              %{}
+            )}
+          />
+          <div class="flex gap-2 mt-4">
+            <button
+              type="button"
+              phx-click={JS.hide(to: "#new_group_step_3") |> JS.show(to: "#new_group_step_2")}
+              class="btn btn-ghost btn-sm"
+            >
+              <#Icon iconify="ph:arrow-left" class="w-4 h-4 mr-1" />{l("Back")}
+            </button>
+            <button
+              type="button"
+              phx-click={JS.hide(to: "#new_group_step_3") |> JS.show(to: "#new_group_step_4")}
+              class="btn btn-primary btn-sm flex-1 normal-case"
+            >
+              {l("Next: Who can participate?")} <#Icon iconify="ph:arrow-right" class="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        </div>
+
+        {!-- Step 4: Participation --}
+        <div id="new_group_step_4" class="hidden">
+          <Bonfire.UI.Groups.BoundaryDimensionLive
+            dimension={:participation}
+            label={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :participation,
+              :label,
+              l("Who can post and interact?")
+            )}
+            name="participation"
+            selected={@participation}
+            target={@myself}
+            slug_order={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :participation,
+              :slug_order,
+              []
+            )}
+            options={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :participation,
+              :options,
+              %{}
+            )}
+          />
+
+          <div class="flex gap-2 mt-4">
+            <button
+              type="button"
+              phx-click={JS.hide(to: "#new_group_step_4") |> JS.show(to: "#new_group_step_3")}
+              class="btn btn-ghost btn-sm"
+            >
+              <#Icon iconify="ph:arrow-left" class="w-4 h-4 mr-1" />{l("Back")}
+            </button>
+            <button
+              type="button"
+              phx-click={JS.hide(to: "#new_group_step_4") |> JS.show(to: "#new_group_step_5")}
+              class="btn btn-primary btn-sm flex-1 normal-case"
+            >
+              {l("Next: Default content boundaries")} <#Icon iconify="ph:arrow-right" class="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        </div>
+
+        {!-- Step 5: Default content visibility --}
+        <div id="new_group_step_5" class="hidden">
+          <Bonfire.UI.Groups.BoundaryDimensionLive
+            dimension={:default_content_visibility}
+            label={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :default_content_visibility,
+              :label,
+              l("Default post visibility")
+            )}
+            description={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :default_content_visibility,
+              :description,
+              nil
+            )}
+            name="default_content_visibility"
+            selected={@default_content_visibility}
+            target={@myself}
+            slug_order={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :default_content_visibility,
+              :slug_order,
+              []
+            )}
+            options={e(
+              Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+              :default_content_visibility,
+              :options,
+              %{}
+            )}
+          />
+
+          <div class="flex gap-2 mt-4">
+            <button
+              type="button"
+              phx-click={JS.hide(to: "#new_group_step_4") |> JS.show(to: "#new_group_step_3")}
+              class="btn btn-ghost btn-sm"
+            >
+              <#Icon iconify="ph:arrow-left" class="w-4 h-4 mr-1" />{l("Back")}
+            </button>
+            <button type="submit" class="btn btn-primary btn-sm flex-1 normal-case">
+              {l("Create group")}
+            </button>
+          </div>
         </div>
 
         <input type="hidden" name="context_id" value={id(@parent)}>
-
-        {!-- Create button --}
-        <button
-          x-bind:disabled="name.length === 0"
-          type="submit"
-          class="w-full mt-1 normal-case btn btn-primary btn-sm transition-all duration-200"
-          x-bind:class="name.length === 0 && 'btn-disabled opacity-40'"
-        >
-          {l("Create group")}
-        </button>
       </Form>
-    </div>
-    <:open_btn>
-      {#if slot_assigned?(:open_btn)}
-        <#slot {@open_btn} />
-      {#else}
-        <div class={@open_btn_class}>
-          <#Icon iconify="ph:plus-duotone" class="w-4 h-4 lg:hidden" />
-          <span class="hidden lg:block">{l("Create a group")}</span>
-        </div>
-      {/if}
-    </:open_btn>
-  </Bonfire.UI.Common.OpenModalLive>
-{/if}
+
+      <:open_btn>
+        {#if slot_assigned?(:open_btn)}
+          <#slot {@open_btn} />
+        {#else}
+          <div class={@open_btn_class}>
+            <#Icon iconify="ph:plus-duotone" class="w-4 h-4 lg:hidden" />
+            <span class="hidden lg:block">{l("Create a group")}</span>
+          </div>
+        {/if}
+      </:open_btn>
+    </Bonfire.UI.Common.OpenModalLive>
+  {/if}
+</div>

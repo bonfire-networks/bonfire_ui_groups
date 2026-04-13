@@ -1,87 +1,132 @@
-<div class="">
+<div>
   {#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
-    {l("Sorry, you cannot edit this group.")}
+    <p class="text-sm text-base-content/60">{l("Sorry, you cannot edit this group.")}</p>
   {#else}
-    <div>
-      <div class="text-base font-medium text-base-content/90">{l("Edit the main boundary")}
-        <p class="text-sm text-base-content/70">{l("Editing the main boundary will affect all future activities")}</p>
+    <div class="flex flex-col gap-6">
+      <div>
+        <h3 class="text-base font-semibold text-base-content/90">{l("Group boundaries")}</h3>
+        <p class="text-sm text-base-content/60 mt-0.5">{l("Changes apply to future posts only.")}</p>
       </div>
 
-      <form phx-submit="Bonfire.Classify:reset_preset_boundary">
-        <div class="form-control mt-3">
-          <select name="to_boundaries[]" class="select select-bordered">
-            <option value="open">{l("Open")}</option>
-            <option value="visible" disabled>{l("Visible")}</option>
-            <option value="private" disabled>{l("Private")}</option>
-            {!-- <optgroup label={l("Current option")}>
-            {#case @boundary_preset}
-              {#match {"open" = preset, _boundary_name}}
-                <option value="open" selected>{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
-              {#match {"visible" = preset, _boundary_name}}
-                <option value="visible" selected>{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
-              {#match {"private" = preset, _boundary_name}}
-                <option value="private" selected>{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, preset], "")}</option>
-              {#match {id, boundary_name}}
-                <option value={id} selected>{boundary_name}</option>
-              {#match _}
-            {/case}
-          </optgroup> 
-           <optgroup label={l("Other built-in options")}>
-            <option value="open">{l("Open") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "open"], "")}</option>
-            <option value="visible" disabled>{l("Visible") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "visible"], "")}</option>
-            <option value="private" disabled>{l("Private") <> ": " <> Config.get([:ui, :group, :preset_descriptions, "private"], "")}</option>
-          </optgroup> --}
-          </select>
-          <button type="submit" class="btn btn-neutral">
-            {l("Edit")}
+      <form phx-submit="Bonfire.UI.Groups:set_group_boundaries" phx-target={@myself}>
+        <Bonfire.UI.Groups.BoundaryDimensionLive
+          dimension={:membership}
+          label={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :membership,
+            :label,
+            l("Who can join?")
+          )}
+          name="membership"
+          selected={@membership}
+          target={@myself}
+          slug_order={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :membership,
+            :slug_order,
+            []
+          )}
+          options={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :membership,
+            :options,
+            %{}
+          )}
+        />
+
+        <div class="divider my-2" />
+
+        <Bonfire.UI.Groups.BoundaryDimensionLive
+          dimension={:visibility}
+          label={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :visibility,
+            :label,
+            l("Who can see the group?")
+          )}
+          name="visibility"
+          selected={@visibility}
+          target={@myself}
+          slug_order={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :visibility,
+            :slug_order,
+            []
+          )}
+          options={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :visibility,
+            :options,
+            %{}
+          )}
+        />
+
+        <div class="divider my-2" />
+
+        <Bonfire.UI.Groups.BoundaryDimensionLive
+          dimension={:participation}
+          label={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :participation,
+            :label,
+            l("Who can post and interact?")
+          )}
+          name="participation"
+          selected={@participation}
+          target={@myself}
+          slug_order={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :participation,
+            :slug_order,
+            []
+          )}
+          options={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :participation,
+            :options,
+            %{}
+          )}
+        />
+
+        <div class="divider my-2" />
+
+        <Bonfire.UI.Groups.BoundaryDimensionLive
+          dimension={:default_content_visibility}
+          label={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :default_content_visibility,
+            :label,
+            l("Default post visibility")
+          )}
+          description={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :default_content_visibility,
+            :description,
+            nil
+          )}
+          name="default_content_visibility"
+          selected={@default_content_visibility}
+          target={@myself}
+          slug_order={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :default_content_visibility,
+            :slug_order,
+            []
+          )}
+          options={e(
+            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
+            :default_content_visibility,
+            :options,
+            %{}
+          )}
+        />
+
+        <div class="mt-6">
+          <button type="submit" class="btn btn-primary btn-sm normal-case">
+            {l("Save boundary settings")}
           </button>
         </div>
       </form>
     </div>
-
-    <!-- <div class="text-xl mb-2 font-semibold mt-6 border-t border-base-content/10 pt-4">{l("Roles")}</div>
-    <p class="text-sm text-base-content/70">{l("Use roles to manage your group members and assign permissions")}</p>
-
-    <div class="mt-4">
-      {#case Acls.get_or_create_object_custom_acl(@category, current_user(@__context__))}
-        {#match {:ok, acl}}
-          <StatefulComponent
-            type={:group}
-            module={maybe_component(Bonfire.UI.Boundaries.AclLive, @__context__)}
-            scope={@category}
-            usage={:ops}
-            id={:acl}
-            acl_id={id(acl)}
-            acl={acl}
-          />
-          {!-- TODO: pass the ACL so it doesn't have to be queried twice --}
-        {#match {:error, e}}
-          {e}
-        {#match _}
-          Unknown error
-      {/case}
-    </div> -->
-
-    {!-- <div class="mt-2">
-      <div class="py-6 rounded-lg bg-base-100 shadow-lg">
-        <div class="text-center mb-4">
-          <div class="flex flex-col text-center gap-3">
-            <div class="text-base font-medium text-base-content">{l("Roles")}
-              <p class="text-sm text-base-content/70">{l("Create custom roles")}</p>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="mx-6 mt-3">
-            <StatefulComponent
-              :if={current_user(@__context__)}
-              module={maybe_component(Bonfire.UI.Boundaries.RolesLive, @__context__)}
-              id="roles"
-              scope={@category}
-            />
-          </div>
-        </div>
-      </div>
-    </div> --}
   {/if}
 </div>
