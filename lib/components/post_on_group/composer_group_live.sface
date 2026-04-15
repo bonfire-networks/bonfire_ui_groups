@@ -1,6 +1,7 @@
 <Bonfire.UI.Common.SmartInputButtonLive
   :if={current_user(@__context__)}
   smart_input_opts={%{
+    context_id: id(@category),
     text_suggestion: "+#{e(@category, :character, :username, nil)}",
     to_circles: [id(@category)],
     to_boundaries: [Bonfire.Classify.Boundaries.read_default_content_visibility(@category)]

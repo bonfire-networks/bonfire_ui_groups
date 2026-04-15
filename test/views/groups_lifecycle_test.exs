@@ -4,15 +4,19 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
   alias Bonfire.Classify.Categories
 
-  defp post_in_group(session, content) do
+  defp post_in_group(session, content, group_id) do
+    params = %{
+      "post" => %{"post_content" => %{"html_body" => content}},
+      "context_id" => group_id,
+      "to_circles" => [group_id]
+    }
+
     session
     |> click_button("[data-role=composer_button]", "Write in group")
     |> PhoenixTest.unwrap(fn view ->
       view
       |> Phoenix.LiveViewTest.element("#smart_input_form")
-      |> Phoenix.LiveViewTest.render_submit(%{
-        "post" => %{"post_content" => %{"html_body" => content}}
-      })
+      |> Phoenix.LiveViewTest.render_submit(params)
     end)
   end
 
@@ -282,7 +286,10 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
-      |> post_in_group("<p>Group post content here</p>")
+      |> post_in_group("<p>Group post content here</p>", group.id)
+
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}")
       |> wait_async()
       |> assert_has_or_open_browser("article", text: "Group post content here")
     end
@@ -300,7 +307,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
-      |> post_in_group("<p>Secret group post</p>")
+      |> post_in_group("<p>Secret group post</p>", group.id)
 
       # member can see the post
       conn(user: alice, account: account)
@@ -324,7 +331,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
-      |> post_in_group("<p>Group post content here</p>")
+      |> post_in_group("<p>Group post content here</p>", group.id)
 
       conn(user: other, account: account)
       |> visit("/&#{group.character.username}")
@@ -340,7 +347,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
-      |> post_in_group("<p>A post in a group</p>")
+      |> post_in_group("<p>A post in a group</p>", group.id)
 
       conn(user: me, account: account)
       |> visit("/feed")
@@ -356,7 +363,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
-      |> post_in_group("<p>A post in a group</p>")
+      |> post_in_group("<p>A post in a group</p>", group.id)
 
       conn(user: me, account: account)
       |> visit("/@#{e(me, :character, :username, nil)}")
@@ -372,7 +379,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
-      |> post_in_group("<p>A post in a group</p>")
+      |> post_in_group("<p>A post in a group</p>", group.id)
       |> refute_has_or_open_browser("[data-role=published_in]", text: "Hidden Label Group")
     end
   end

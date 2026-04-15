@@ -41,6 +41,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
          page_header_aside: [
            {Bonfire.UI.Groups.NewGroupLive,
             [
+              id: "explore_new_group",
               parent_id: "explore",
               open_btn_class:
                 "btn btn-outline btn-sm btn-circle lg:btn-wide btn-primary rounded-full !border-primary/30 normal-case"
