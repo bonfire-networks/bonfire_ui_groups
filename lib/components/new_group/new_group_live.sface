@@ -245,8 +245,8 @@
           <#slot {@open_btn} />
         {#else}
           <div class={@open_btn_class}>
-            <#Icon iconify="ph:plus-duotone" class="w-4 h-4 lg:hidden" />
-            <span class="hidden lg:block">{l("Create a group")}</span>
+            <#Icon iconify="ph:plus-duotone" class="w-4 h-4" />
+            <span class="sr-only">{l("Create a group")}</span>
           </div>
         {/if}
       </:open_btn>

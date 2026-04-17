@@ -1,0 +1,46 @@
+{#if @topics != []}
+  <nav
+    role="tablist"
+    aria-label={l("Topics in %{name}",
+      name: e(@group, :profile, :name, l("this group"))
+    )}
+    data-id="group_topics_nav"
+    class="relative bg-base-100"
+  >
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute top-0 right-0 bottom-0 w-12 z-[2]"
+      style="background: linear-gradient(to left, var(--color-base-100), transparent);"
+    />
+    <div class="flex items-stretch gap-1 px-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <LinkLive
+        to={path(@group)}
+        role="tab"
+        aria-selected={to_string(@selected_id == id(@group))}
+        class={Surface.css_class([
+          "sticky left-0 bg-base-100 z-[1] shrink-0 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors duration-150 border-b-2 -mb-px",
+          "text-base-content border-primary": @selected_id == id(@group),
+          "text-base-content/55 border-transparent hover:text-base-content/80":
+            @selected_id != id(@group)
+        ])}
+      >
+        {l("All")}
+      </LinkLive>
+      {#for topic <- @topics}
+        <LinkLive
+          to={path(topic)}
+          role="tab"
+          aria-selected={to_string(@selected_id == id(topic))}
+          class={Surface.css_class([
+            "shrink-0 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors duration-150 border-b-2 -mb-px max-w-[16rem] truncate",
+            "text-base-content border-primary": @selected_id == id(topic),
+            "text-base-content/55 border-transparent hover:text-base-content/80":
+              @selected_id != id(topic)
+          ])}
+        >
+          <span class="text-base-content/40 mr-1 font-medium">#</span>{e(topic, :profile, :name, l("Untitled topic"))}
+        </LinkLive>
+      {/for}
+    </div>
+  </nav>
+{/if}

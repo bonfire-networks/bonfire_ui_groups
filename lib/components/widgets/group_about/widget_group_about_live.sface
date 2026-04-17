@@ -66,20 +66,6 @@
       </span>
       <span :if={@member_count > 0} class="text-[11px] text-base-content/40 tabular-nums">{@member_count}</span>
     </LinkLive>
-    <LinkLive
-      :if={!@parent}
-      to={"/&#{e(@category, :character, :username, nil)}/topics"}
-      class={
-        "flex items-center justify-between px-2 py-2 rounded-lg hover:bg-base-content/5 transition-colors",
-        "bg-base-content/5": @selected_tab == :topics
-      }
-    >
-      <span class="flex items-center gap-2.5">
-        <#Icon iconify="ph:chats-circle-duotone" class="w-[18px] h-[18px] text-base-content/60" />
-        <span class="text-[13px] font-medium text-base-content/80">{l("Topics")}</span>
-      </span>
-      <span :if={@topic_count > 0} class="text-[11px] text-base-content/40 tabular-nums">{@topic_count}</span>
-    </LinkLive>
   </div>
 
   {!-- Moderators --}
