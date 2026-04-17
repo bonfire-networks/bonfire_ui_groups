@@ -36,20 +36,22 @@
   </div>
 
   {!-- Join CTA --}
-  <div class="mt-4">
-    <StatefulComponent
-      :if={e(@category, :character, nil)}
-      id={"join_btn_#{id(@category)}"}
-      module={maybe_component(Bonfire.Classify.Web.JoinButtonLive, @__context__)}
-      object_id={id(@category)}
-      object_name={ed(@category, :profile, :name, nil) || ed(@category, :character, :username, l("Group"))}
-      moderators={@moderators}
-      join_mode={@join_mode}
-      path={path(@category)}
-      disabled={Enums.ids(current_user(@__context__)) == Enums.ids(@moderators)}
-      class="btn w-full btn-sm btn-soft btn-primary"
-    />
-  </div>
+  {#if @character_type != :topic}
+    <div class="mt-4">
+      <StatefulComponent
+        :if={e(@category, :character, nil)}
+        id={"join_btn_#{id(@category)}"}
+        module={maybe_component(Bonfire.Classify.Web.JoinButtonLive, @__context__)}
+        object_id={id(@category)}
+        object_name={ed(@category, :profile, :name, nil) || ed(@category, :character, :username, l("Group"))}
+        moderators={@moderators}
+        join_mode={@join_mode}
+        path={path(@category)}
+        disabled={Enums.ids(current_user(@__context__)) == Enums.ids(@moderators)}
+        class="btn w-full btn-sm btn-soft btn-primary"
+      />
+    </div>
+  {/if}
 
   {!-- Navigation links --}
   <div class="flex flex-col gap-0.5 mt-4 pt-4 border-t border-base-content/10">
