@@ -45,10 +45,17 @@
                   to={path(category)}
                   class={["gap-3 ml-1", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
                 >
-                  <div
-                    class="h-8 w-8 rounded bg-cover bg-center bg-no-repeat bg-base-300"
-                    style={"background-image: url('#{URI.encode(Media.avatar_url(category))}');"}
-                  />
+                  {#case Media.avatar_url(category)}
+                    {#match "/images/avatar.png"}
+                      <div class="h-8 w-8 rounded bg-primary/20 flex items-center justify-center">
+                        <#Icon iconify="ph:users-three-duotone" class="w-5 h-5 text-primary" />
+                      </div>
+                    {#match url}
+                      <div
+                        class="h-8 w-8 rounded bg-cover bg-center bg-no-repeat bg-base-300"
+                        style={"background-image: url('#{URI.encode(url)}');"}
+                      />
+                  {/case}
                   <span class="font-normal text-base">{e(category, :profile, :name, nil) || e(category, :named, :name, nil)}</span>
                 </LinkLive>
               </li>
@@ -77,10 +84,17 @@
                 to={path(category)}
                 class={["gap-3 ml-1", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
               >
-                <div
-                  class="h-8 w-8 rounded bg-cover bg-center bg-no-repeat bg-base-300"
-                  style={"background-image: url('#{URI.encode(Media.avatar_url(category))}');"}
-                />
+                {#case Media.avatar_url(category)}
+                  {#match "/images/avatar.png"}
+                    <div class="h-8 w-8 rounded bg-primary/20 flex items-center justify-center">
+                      <#Icon iconify="ph:users-three-duotone" class="w-5 h-5 text-primary" />
+                    </div>
+                  {#match url}
+                    <div
+                      class="h-8 w-8 rounded bg-cover bg-center bg-no-repeat bg-base-300"
+                      style={"background-image: url('#{URI.encode(url)}');"}
+                    />
+                {/case}
                 <span class="font-normal text-base">{e(category, :profile, :name, nil) || e(category, :named, :name, nil)}</span>
               </LinkLive>
             </li>
