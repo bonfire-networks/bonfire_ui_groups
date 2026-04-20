@@ -23,20 +23,22 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
   defp create_group(creator, attrs \\ %{}) do
     name = attrs[:name] || "Test Group #{System.unique_integer([:positive])}"
 
-    {:ok, group} =
-      Categories.create(
-        creator,
-        %{
-          category: %{
-            name: name,
-            description: attrs[:description] || "A test group",
-            to_boundaries: attrs[:to_boundaries] || ["open"],
-            type: :group
-          }
-        },
-        true
-      )
+    dims =
+      Keyword.take(attrs, [:membership, :visibility, :participation, :default_content_visibility])
 
+    base = %{
+      name: name,
+      description: attrs[:description] || "A test group",
+      type: :group
+    }
+
+    # Support legacy to_boundaries for old tests; dimensional attrs take precedence
+    base =
+      if attrs[:to_boundaries] && length(dims) == 0,
+        do: Map.put(base, :to_boundaries, attrs[:to_boundaries]),
+        else: Enum.into(dims, base)
+
+    {:ok, group} = Categories.create(creator, base, true)
     group
   end
 
@@ -294,32 +296,43 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> assert_has_or_open_browser("article", text: "Group post content here")
     end
 
-    @tag :fixme
-    test "group member can publish a post into closed group, visible only to other members" do
+    test "members_only group is not accessible to non-members" do
       account = fake_account!()
       me = fake_user!(account)
-      alice = fake_user!(account)
       bob = fake_user!(account)
-      group = create_group(me, name: "Closed Group", to_boundaries: ["private"])
-
-      {:ok, _} = Categories.join_group(alice, group, skip_boundary_check: true)
+      group = create_group(me, name: "Closed Group", visibility: "members_only")
 
       conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
       |> post_in_group("<p>Secret group post</p>", group.id)
 
-      # member can see the post
-      conn(user: alice, account: account)
-      |> visit("/&#{group.character.username}")
-      |> wait_async()
-      |> assert_has_or_open_browser("article", text: "Secret group post")
+      # non-member cannot access the group page at all
+      assert {:error, _} =
+               live(conn(user: bob, account: account), "/&#{group.character.username}")
+    end
 
-      # non-member cannot see the post
-      conn(user: bob, account: account)
+    test "post in global group with private_members DCV is not visible to non-members" do
+      account = fake_account!()
+      me = fake_user!(account)
+      outsider = fake_user!(account)
+
+      group =
+        create_group(me,
+          name: "Private Posts Group",
+          visibility: "global",
+          default_content_visibility: "private_members"
+        )
+
+      conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
-      |> refute_has_or_open_browser("article", text: "Secret group post")
+      |> post_in_group("<p>Members only content</p>", group.id)
+
+      conn(user: outsider, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> refute_has_or_open_browser("article", text: "Members only content")
     end
 
     test "anyone can post in open group, which visible to anyone when visiting the group" do
