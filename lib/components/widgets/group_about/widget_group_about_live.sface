@@ -45,7 +45,7 @@
         object_id={id(@category)}
         object_name={ed(@category, :profile, :name, nil) || ed(@category, :character, :username, l("Group"))}
         moderators={@moderators}
-        join_mode={@join_mode}
+        membership={@membership}
         path={path(@category)}
         disabled={Enums.ids(current_user(@__context__)) == Enums.ids(@moderators)}
         class="btn w-full btn-sm btn-soft btn-primary"

@@ -1,6 +1,5 @@
 <div>
-  {#if to_string(Bonfire.Common.Settings.get([Bonfire.UI.Groups, :create_groups], :everyone, :instance)) !=
-      "admins" or Bonfire.Boundaries.can?(@__context__, :configure, :instance)}
+  {#if Bonfire.Classify.Categories.can_create_group?(current_user(@__context__))}
     <Bonfire.UI.Common.OpenModalLive
       id={deterministic_dom_id(__MODULE__, nil, "create_new_group", @parent_id)}
       reusable_modal_id={if @__context__[:sticky], do: "persistent_modal"}
