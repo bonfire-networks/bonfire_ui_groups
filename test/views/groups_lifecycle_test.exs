@@ -12,7 +12,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     }
 
     session
-    |> click_button("[data-role=composer_button]", "Write in group")
+    |> click_button("[data-role=composer_button]", "Share something in")
     |> PhoenixTest.unwrap(fn view ->
       view
       |> Phoenix.LiveViewTest.element("#smart_input_form")

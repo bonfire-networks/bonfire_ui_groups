@@ -57,6 +57,11 @@
           moderators={@moderators}
           subcategories={e(assigns, :subcategories, [])}
         />
+        <StatelessComponent
+          module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
+          category={@category}
+          selected_tab={@selected_tab}
+        />
       {/if}
     </:header>
   </StatelessComponent>
