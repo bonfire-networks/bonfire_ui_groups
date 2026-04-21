@@ -32,11 +32,12 @@
             :options,
             %{}
           )}
+          circles={@circles}
         />
 
         <div class="divider my-2" />
 
-        <Bonfire.UI.Groups.BoundaryDimensionLive
+        <Bonfire.UI.Groups.BoundaryScopeSelectorLive
           dimension={:visibility}
           label={e(
             Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
@@ -86,11 +87,12 @@
             :options,
             %{}
           )}
+          circles={@circles}
         />
 
         <div class="divider my-2" />
 
-        <Bonfire.UI.Groups.BoundaryDimensionLive
+        <Bonfire.UI.Groups.BoundaryScopeSelectorLive
           dimension={:default_content_visibility}
           label={e(
             Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
@@ -119,6 +121,7 @@
             :options,
             %{}
           )}
+          disabled_scopes={Bonfire.Classify.Boundaries.disabled_dcv_scopes(@visibility)}
         />
 
         <div class="mt-6">

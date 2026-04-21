@@ -81,6 +81,7 @@
               :options,
               %{}
             )}
+            circles={@circles}
           />
           <div class="flex gap-2 mt-4">
             <button
@@ -102,7 +103,7 @@
 
         {!-- Step 3: Visibility --}
         <div id="new_group_step_3" class="hidden">
-          <Bonfire.UI.Groups.BoundaryDimensionLive
+          <Bonfire.UI.Groups.BoundaryScopeSelectorLive
             dimension={:visibility}
             label={e(
               Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
@@ -169,6 +170,7 @@
               :options,
               %{}
             )}
+            circles={@circles}
           />
 
           <div class="flex gap-2 mt-4">
@@ -191,7 +193,7 @@
 
         {!-- Step 5: Default content visibility --}
         <div id="new_group_step_5" class="hidden">
-          <Bonfire.UI.Groups.BoundaryDimensionLive
+          <Bonfire.UI.Groups.BoundaryScopeSelectorLive
             dimension={:default_content_visibility}
             label={e(
               Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
@@ -220,6 +222,7 @@
               :options,
               %{}
             )}
+            disabled_scopes={Bonfire.Classify.Boundaries.disabled_dcv_scopes(@visibility)}
           />
 
           <div class="flex gap-2 mt-4">

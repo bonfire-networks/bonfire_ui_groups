@@ -8,46 +8,71 @@
     {#for slug <- if @slug_order != [], do: @slug_order, else: Map.keys(@options)}
       {#case Map.get(@options, slug)}
         {#match nil}
-        {#match %{disabled: true} = opt}
-          <div class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
-            <div class="flex flex-col min-w-0 flex-1">
-              <span class="text-sm font-semibold">{opt[:label]}</span>
-              {#if opt[:description]}
-                <span class="text-xs text-base-content/60">{opt[:description]}</span>
-              {/if}
-            </div>
-            <span class="badge badge-sm badge-ghost text-xs shrink-0">
-              {opt[:disabled_reason] || l("Coming soon")}
-            </span>
-          </div>
         {#match opt}
-          <button
-            type="button"
-            phx-click="Bonfire.Classify:set_boundary_dimensions"
-            phx-value-dim={@dimension}
-            phx-value-slug={slug}
-            phx-target={@target}
-            class={
-              "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
-              "ring-2 ring-primary bg-primary/5 border-primary/30": @selected == slug,
-              "border-base-content/10 hover:bg-base-content/5": @selected != slug
-            }
-          >
-            <div class="flex flex-col min-w-0 flex-1">
-              <span class="text-sm font-semibold">{opt[:label]}</span>
-              {#if opt[:description]}
-                <span class="text-xs text-base-content/60">{opt[:description]}</span>
-              {/if}
+          {#if e(opt, :disabled, nil)}
+            <div class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
+              <div class="flex flex-col min-w-0 flex-1">
+                <span class="text-sm font-semibold">{opt[:label]}</span>
+                {#if opt[:description]}
+                  <span class="text-xs text-base-content/60">{opt[:description]}</span>
+                {/if}
+              </div>
+              <span class="badge badge-sm badge-ghost text-xs shrink-0">
+                {opt[:disabled] || l("Coming soon")}
+              </span>
             </div>
-            <div class={
-              "w-4 h-4 rounded-full border-2 shrink-0 transition-all",
-              "border-primary bg-primary": @selected == slug,
-              "border-base-content/30": @selected != slug
-            } />
-          </button>
+          {#else}
+            <button
+              type="button"
+              phx-click="Bonfire.Classify:set_boundary_dimensions"
+              phx-value-dim={@dimension}
+              phx-value-slug={slug}
+              phx-target={@target}
+              class={
+                "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
+                "ring-2 ring-primary bg-primary/5 border-primary/30": @selected == slug,
+                "border-base-content/10 hover:bg-base-content/5": @selected != slug
+              }
+            >
+              <div class="flex flex-col min-w-0 flex-1">
+                <span class="text-sm font-semibold">{opt[:label]}</span>
+                {#if opt[:description]}
+                  <span class="text-xs text-base-content/60">{opt[:description]}</span>
+                {/if}
+              </div>
+              <div class={
+                "w-4 h-4 rounded-full border-2 shrink-0 transition-all",
+                "border-primary bg-primary": @selected == slug,
+                "border-base-content/30": @selected != slug
+              } />
+            </button>
+          {/if}
       {/case}
     {/for}
   </div>
+
+  {#for circle <- @circles}
+    <button
+      type="button"
+      phx-click="Bonfire.Classify:set_boundary_dimensions"
+      phx-value-dim={@dimension}
+      phx-value-slug={id(circle)}
+      phx-target={@target}
+      class={
+        "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
+        "ring-2 ring-primary bg-primary/5 border-primary/30": @selected == id(circle),
+        "border-base-content/10 hover:bg-base-content/5": @selected != id(circle)
+      }
+    >
+      <#Icon iconify="ph:circle-duotone" class="w-4 h-4 shrink-0 text-base-content/50" />
+      <span class="text-sm font-semibold flex-1">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>
+      <div class={
+        "w-4 h-4 rounded-full border-2 shrink-0 transition-all",
+        "border-primary bg-primary": @selected == id(circle),
+        "border-base-content/30": @selected != id(circle)
+      } />
+    </button>
+  {/for}
 
   <input type="hidden" name={@name} value={@selected}>
 </div>

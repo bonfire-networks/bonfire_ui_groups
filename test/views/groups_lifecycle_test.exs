@@ -296,11 +296,11 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> assert_has_or_open_browser("article", text: "Group post content here")
     end
 
-    test "members_only group is not accessible to non-members" do
+    test "members:private group is not accessible to non-members" do
       account = fake_account!()
       me = fake_user!(account)
       bob = fake_user!(account)
-      group = create_group(me, name: "Closed Group", visibility: "members_only")
+      group = create_group(me, name: "Closed Group", visibility: "members:private")
 
       conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
@@ -312,7 +312,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
                live(conn(user: bob, account: account), "/&#{group.character.username}")
     end
 
-    test "post in global group with private_members DCV is not visible to non-members" do
+    test "post in global group with members:private DCV is not visible to non-members" do
       account = fake_account!()
       me = fake_user!(account)
       outsider = fake_user!(account)
@@ -321,7 +321,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Private Posts Group",
           visibility: "global",
-          default_content_visibility: "private_members"
+          default_content_visibility: "members:private"
         )
 
       conn(user: me, account: account)

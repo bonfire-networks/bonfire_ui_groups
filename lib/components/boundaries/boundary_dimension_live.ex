@@ -24,4 +24,7 @@ defmodule Bonfire.UI.Groups.BoundaryDimensionLive do
 
   @doc "phx-target for click events (component id or selector)"
   prop target, :any, default: nil
+
+  @doc "Optional list of user's circles to show as selectable options"
+  prop circles, :list, default: []
 end
