@@ -43,12 +43,35 @@
         </button>
       {/if}
     {/for}
+
+  {#for circle <- @circles}
+    <button
+      type="button"
+      phx-click="Bonfire.Classify:set_boundary_dimensions"
+      phx-value-dim={@dimension}
+      phx-value-slug={id(circle)}
+      phx-target={@target}
+      class={
+        "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-150 cursor-pointer mt-1",
+        "ring-2 ring-primary bg-primary/5 border-primary/30": @selected == id(circle),
+        "border-base-content/10 hover:bg-base-content/5": @selected != id(circle)
+      }
+    >
+      <#Icon iconify="ph:circle-duotone" class="w-4 h-4 shrink-0 text-base-content/50" />
+      <span class="text-sm font-medium flex-1">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>
+      <div class={
+        "w-3 h-3 rounded-full border-2 shrink-0 transition-all",
+        "border-primary bg-primary": @selected == id(circle),
+        "border-base-content/30": @selected != id(circle)
+      } />
+    </button>
+  {/for}
   </div>
 
   {!-- Row 2: Access level cards — shown when a scope is selected --}
   {#if @selected_scope}
     {#if length(@scope_slugs) > 1}
-      <div class="flex flex-wrap gap-2 mt-3 ml-2 pl-2 border-l-2 border-primary/20">
+      <div class="flex flex-wrap gap-2 mt-3 pt-2 border-t-2 border-primary/20">
         {#for {slug, opt, role_meta, access_role, is_selected_access} <- @scope_slugs}
           {#if e(opt, :disabled, nil)}
             <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed text-sm">
@@ -92,28 +115,6 @@
     {/if}
   {/if}
 
-  {#for circle <- @circles}
-    <button
-      type="button"
-      phx-click="Bonfire.Classify:set_boundary_dimensions"
-      phx-value-dim={@dimension}
-      phx-value-slug={id(circle)}
-      phx-target={@target}
-      class={
-        "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-150 cursor-pointer mt-1",
-        "ring-2 ring-primary bg-primary/5 border-primary/30": @selected == id(circle),
-        "border-base-content/10 hover:bg-base-content/5": @selected != id(circle)
-      }
-    >
-      <#Icon iconify="ph:circle-duotone" class="w-4 h-4 shrink-0 text-base-content/50" />
-      <span class="text-sm font-medium flex-1">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>
-      <div class={
-        "w-3 h-3 rounded-full border-2 shrink-0 transition-all",
-        "border-primary bg-primary": @selected == id(circle),
-        "border-base-content/30": @selected != id(circle)
-      } />
-    </button>
-  {/for}
 
   <input type="hidden" name={@name} value={@selected}>
 </div>

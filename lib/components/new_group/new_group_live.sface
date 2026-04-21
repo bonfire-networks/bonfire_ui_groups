@@ -126,6 +126,7 @@
               :options,
               %{}
             )}
+          circles={@circles}
           />
           <div class="flex gap-2 mt-4">
             <button
@@ -223,6 +224,7 @@
               %{}
             )}
             disabled_scopes={Bonfire.Classify.Boundaries.disabled_dcv_scopes(@visibility)}
+          circles={@circles}
           />
 
           <div class="flex gap-2 mt-4">
