@@ -96,7 +96,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       me = fake_user!(account)
       alice = fake_user!(account)
 
-      group = create_group(me, to_boundaries: ["private"])
+      group = create_group(me, membership: "invite_only", visibility: "members:private")
 
       conn = conn(user: alice, account: account)
       {:error, _} = live(conn, "/&#{group.character.username}")
@@ -209,11 +209,17 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
   end
 
   describe "group membership" do
-    test "if I create a visible group, anyone can request to join" do
+    test "if I create a on_request group, anyone can request to join" do
       account = fake_account!()
       me = fake_user!(account)
       alice = fake_user!(account)
-      group = create_group(me, name: "Visible Group", to_boundaries: ["visible"])
+
+      group =
+        create_group(me,
+          name: "on_request Group",
+          membership: "on_request",
+          visibility: "local:discoverable"
+        )
 
       conn(user: alice, account: account)
       |> visit("/&#{group.character.username}/about")
@@ -230,7 +236,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       account = fake_account!()
       me = fake_user!(account)
       alice = fake_user!(account)
-      group = create_group(me, name: "Join Flow Group")
+      group = create_group(me, name: "Join Flow Group", membership: "local:members")
 
       conn = conn(user: alice, account: account)
 
@@ -264,7 +270,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       account = fake_account!()
       me = fake_user!(account)
       alice = fake_user!(account)
-      group = create_group(me, name: "Member Check Group")
+      group = create_group(me, name: "Member Check Group", membership: "local:members")
 
       conn(user: alice, account: account)
       |> visit("/&#{group.character.username}/about")
@@ -283,7 +289,15 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     test "anyone can post in open group, which visible to the author when visiting the group" do
       account = fake_account!()
       me = fake_user!(account)
-      group = create_group(me, name: "Feed Post Group for Author")
+
+      group =
+        create_group(me,
+          name: "Feed Post Group for Author",
+          membership: "local:members",
+          participation: "anyone",
+          visibility: "nonfederated",
+          default_content_visibility: "nonfederated"
+        )
 
       conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
@@ -339,7 +353,15 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       account = fake_account!()
       me = fake_user!(account)
       other = fake_user!(account)
-      group = create_group(me, name: "Feed Post Group Public")
+
+      group =
+        create_group(me,
+          name: "Feed Post Group Public",
+          membership: "local:members",
+          participation: "anyone",
+          visibility: "nonfederated",
+          default_content_visibility: "nonfederated"
+        )
 
       conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
@@ -387,7 +409,15 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     test "post published in a sub-topic appears in the parent group feed" do
       account = fake_account!()
       me = fake_user!(account)
-      group = create_group(me, name: "Group With Topics")
+
+      group =
+        create_group(me,
+          name: "Group With Topics",
+          membership: "local:members",
+          participation: "anyone",
+          visibility: "nonfederated",
+          default_content_visibility: "nonfederated"
+        )
 
       {:ok, topic} =
         Categories.create(me, %{name: "My Topic", type: :topic, parent_category: group})

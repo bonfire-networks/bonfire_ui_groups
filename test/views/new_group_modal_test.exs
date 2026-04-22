@@ -232,16 +232,16 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       refute NewGroupFormLive.layer2_locked?("public_local_community", :anyone_posts)
     end
 
-    test "'announcement_channel' locks federate + approval + anyone_posts but leaves discoverable open" do
+    test "'announcement_channel' locks federate + anyone_posts but leaves discoverable + approval open" do
       assert NewGroupFormLive.layer2_locked?("announcement_channel", :federate)
       refute NewGroupFormLive.layer2_locked?("announcement_channel", :discoverable)
-      assert NewGroupFormLive.layer2_locked?("announcement_channel", :approval_required)
+      refute NewGroupFormLive.layer2_locked?("announcement_channel", :approval_required)
       assert NewGroupFormLive.layer2_locked?("announcement_channel", :anyone_posts)
     end
 
-    test "'private_club' locks federate + discoverable + anyone_posts but leaves approval open" do
+    test "'private_club' locks federate + anyone_posts but leaves discoverable + approval open" do
       assert NewGroupFormLive.layer2_locked?("private_club", :federate)
-      assert NewGroupFormLive.layer2_locked?("private_club", :discoverable)
+      refute NewGroupFormLive.layer2_locked?("private_club", :discoverable)
       refute NewGroupFormLive.layer2_locked?("private_club", :approval_required)
       assert NewGroupFormLive.layer2_locked?("private_club", :anyone_posts)
     end

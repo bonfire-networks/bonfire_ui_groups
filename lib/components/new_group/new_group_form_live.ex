@@ -29,11 +29,6 @@ defmodule Bonfire.UI.Groups.NewGroupFormLive do
   data preset_metas, :map
 
   def update(assigns, socket) do
-    default_preset =
-      Bonfire.Common.Config.get(:group_default_preset, nil, :bonfire_classify) ||
-        Enum.find(preset_slugs(), &(preset_meta(&1) != %{})) ||
-        "private_club"
-
     {:ok,
      socket
      |> assign(assigns)
@@ -42,10 +37,7 @@ defmodule Bonfire.UI.Groups.NewGroupFormLive do
        Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries)
      )
      |> assign(:preset_metas, Map.new(preset_slugs(), &{&1, preset_meta(&1)}))
-     |> Bonfire.Classify.LiveHandler.init_group_boundary_assigns()
-     |> then(fn s ->
-       if is_nil(s.assigns[:preset]), do: apply_preset(s, default_preset), else: s
-     end)}
+     |> Bonfire.Classify.LiveHandler.init_group_boundary_assigns()}
   end
 
   def handle_event("pick_preset", %{"preset" => slug}, %{assigns: a} = socket) do
