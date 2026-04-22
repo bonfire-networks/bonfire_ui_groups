@@ -131,6 +131,5 @@
     </div>
   {/if}
 
-
   <input type="hidden" name={@name} value={@selected}>
 </div>
