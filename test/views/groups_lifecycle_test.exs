@@ -384,6 +384,25 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> assert_has_or_open_browser("[data-role=published_in]", text: "Label Test Group")
     end
 
+    test "post published in a sub-topic appears in the parent group feed" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Group With Topics")
+
+      {:ok, topic} =
+        Categories.create(me, %{name: "My Topic", type: :topic, parent_category: group})
+
+      conn(user: me, account: account)
+      |> visit("/&#{topic.character.username}")
+      |> wait_async()
+      |> post_in_group("<p>Post in sub-topic</p>", topic.id)
+
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> assert_has_or_open_browser("article", text: "Post in sub-topic")
+    end
+
     test "'Published in' label is hidden when viewing the post from within the group" do
       account = fake_account!()
       me = fake_user!(account)
