@@ -10,17 +10,19 @@
         {#match nil}
         {#match opt}
           {#if e(opt, :disabled, nil)}
-            <div class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
-              <div class="flex flex-col min-w-0 flex-1">
-                <span class="text-sm font-semibold">{opt[:label]}</span>
-                {#if opt[:description]}
-                  <span class="text-xs text-base-content/60">{opt[:description]}</span>
-                {/if}
+            {#if @show_unavailable}
+              <div class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
+                <div class="flex flex-col min-w-0 flex-1">
+                  <span class="text-sm font-semibold">{opt[:label]}</span>
+                  {#if opt[:description]}
+                    <span class="text-xs text-base-content/60">{opt[:description]}</span>
+                  {/if}
+                </div>
+                <span class="badge badge-sm badge-ghost text-xs shrink-0">
+                  {opt[:disabled] || l("Coming soon")}
+                </span>
               </div>
-              <span class="badge badge-sm badge-ghost text-xs shrink-0">
-                {opt[:disabled] || l("Coming soon")}
-              </span>
-            </div>
+            {/if}
           {#else}
             <button
               type="button"
@@ -69,11 +71,14 @@
           }
         >
           <span class="flex items-center justify-center w-8 h-8 rounded-md bg-base-content/5 shrink-0">
-            <#Icon iconify="ph:users-three-duotone" class={
-              "w-4 h-4",
-              "text-primary": @selected == id(circle),
-              "text-base-content/60": @selected != id(circle)
-            } />
+            <#Icon
+              iconify="ph:users-three-duotone"
+              class={
+                "w-4 h-4",
+                "text-primary": @selected == id(circle),
+                "text-base-content/60": @selected != id(circle)
+              }
+            />
           </span>
           <span class="flex flex-col min-w-0 flex-1">
             <span class="text-sm font-semibold truncate">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>

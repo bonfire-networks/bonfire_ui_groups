@@ -27,4 +27,7 @@ defmodule Bonfire.UI.Groups.BoundaryDimensionLive do
 
   @doc "Optional list of user's circles to show as selectable options"
   prop circles, :list, default: []
+
+  @doc "When true, disabled/coming-soon options are shown grayed out. When false (default), they are hidden."
+  prop show_unavailable, :boolean, default: false
 end

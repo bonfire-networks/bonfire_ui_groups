@@ -11,15 +11,17 @@
   <div class="flex flex-wrap gap-2 mt-1">
     {#for {scope, scope_meta, is_selected} <- @scope_ordered}
       {#if e(scope_meta, :disabled, nil) || scope in @disabled_scopes}
-        <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
-          <Iconify.iconify
-            :if={e(scope_meta, :icon, nil)}
-            icon={scope_meta[:icon]}
-            class="w-4 h-4 shrink-0"
-          />
-          <span class="text-sm font-medium">{e(scope_meta, :label, scope)}</span>
-          <span class="badge badge-xs badge-ghost ml-1">{l("Soon")}</span>
-        </div>
+        {#if @show_unavailable}
+          <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
+            <Iconify.iconify
+              :if={e(scope_meta, :icon, nil)}
+              icon={scope_meta[:icon]}
+              class="w-4 h-4 shrink-0"
+            />
+            <span class="text-sm font-medium">{e(scope_meta, :label, scope)}</span>
+            <span class="badge badge-xs badge-ghost ml-1">{e(scope_meta, :disabled, nil) || l("Coming soon")}</span>
+          </div>
+        {/if}
       {#else}
         <button
           type="button"
@@ -64,11 +66,14 @@
             "border-base-content/10 hover:bg-base-content/5": @selected != id(circle)
           }
         >
-          <#Icon iconify="ph:users-three-duotone" class={
-            "w-4 h-4 shrink-0",
-            "text-primary": @selected == id(circle),
-            "text-base-content/60": @selected != id(circle)
-          } />
+          <#Icon
+            iconify="ph:users-three-duotone"
+            class={
+              "w-4 h-4 shrink-0",
+              "text-primary": @selected == id(circle),
+              "text-base-content/60": @selected != id(circle)
+            }
+          />
           <span class="text-sm font-medium truncate max-w-[10rem]">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>
         </button>
       {/for}
@@ -78,27 +83,31 @@
   {!-- Row 2: Access level cards — shown when a scope is selected with >1 access variant --}
   {#if @selected_scope && length(@scope_slugs) > 1}
     <div class="mt-3 pt-3 border-t border-primary/20">
-        <div class="text-xs font-medium text-base-content/60 mb-2">
-          {l("How visible, within %{scope}:",
-            scope: e(
+      <div class="text-xs font-medium text-base-content/60 mb-2">
+        {l("How visible, within %{scope}:",
+          scope:
+            e(
               Bonfire.Common.Config.get(:scopes, %{}, :bonfire_boundaries),
               @selected_scope,
               :label,
               @selected_scope
-            ))}
-        </div>
-        <div class="flex flex-wrap gap-2">
+            )
+        )}
+      </div>
+      <div class="flex flex-wrap gap-2">
         {#for {slug, opt, role_meta, access_role, is_selected_access} <- @scope_slugs}
           {#if e(opt, :disabled, nil)}
-            <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed text-sm">
-              <Iconify.iconify
-                :if={e(role_meta, :icon, nil)}
-                icon={role_meta[:icon]}
-                class="w-4 h-4 shrink-0"
-              />
-              <span class="font-medium">{e(role_meta, :label, nil) || e(opt, :label, slug)}</span>
-              <span class="badge badge-xs badge-ghost ml-1">{l("Soon")}</span>
-            </div>
+            {#if @show_unavailable}
+              <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed text-sm">
+                <Iconify.iconify
+                  :if={e(role_meta, :icon, nil)}
+                  icon={role_meta[:icon]}
+                  class="w-4 h-4 shrink-0"
+                />
+                <span class="font-medium">{e(role_meta, :label, nil) || e(opt, :label, slug)}</span>
+                <span class="badge badge-xs badge-ghost ml-1">{e(opt, :disabled, nil) || l("Coming soon")}</span>
+              </div>
+            {/if}
           {#else}
             <button
               type="button"
@@ -126,7 +135,7 @@
               } />
             </button>
           {/if}
-      {/for}
+        {/for}
       </div>
     </div>
   {/if}

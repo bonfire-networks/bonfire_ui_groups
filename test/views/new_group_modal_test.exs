@@ -56,10 +56,9 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       conn
       |> visit("/groups")
       |> click_button("[data-role=open_modal]", "Create a group")
-      |> assert_has("[data-preset=local_community]", text: "Local group")
-      |> assert_has("[data-preset=public_community]", text: "Public group")
-      |> assert_has("[data-preset=invite_only_team]", text: "Invite-only group")
-      |> assert_has("[data-preset=private_club]", text: "Private group")
+      |> assert_has("[data-preset=public_local_community]", text: "Public local community")
+      |> assert_has("[data-preset=announcement_channel]", text: "Announcement channel")
+      |> assert_has("[data-preset=private_club]", text: "Private club")
       |> assert_has("[data-preset=custom]", text: "Custom")
     end
 
@@ -85,9 +84,9 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       conn
       |> visit("/groups")
       |> click_button("[data-role=open_modal]", "Create a group")
-      |> click_button("[data-preset=local_community]", "Local group")
-      |> assert_has("[data-preset=local_community][aria-checked=true]")
-      |> refute_has("[data-preset=public_community][aria-checked=true]")
+      |> click_button("[data-preset=public_local_community]", "Public local community")
+      |> assert_has("[data-preset=public_local_community][aria-checked=true]")
+      |> refute_has("[data-preset=announcement_channel][aria-checked=true]")
       |> refute_has("[data-preset=custom][aria-checked=true]")
     end
 
@@ -95,7 +94,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       conn
       |> visit("/groups")
       |> click_button("[data-role=open_modal]", "Create a group")
-      |> click_button("[data-preset=local_community]", "Local group")
+      |> click_button("[data-preset=public_local_community]", "Public local community")
       |> assert_has("h3", text: "Fine-tune")
       |> assert_has("*", text: "Discoverable in group listings")
       |> assert_has("*", text: "Require approval to join")
@@ -114,11 +113,11 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       conn
       |> visit("/groups")
       |> click_button("[data-role=open_modal]", "Create a group")
-      |> click_button("[data-preset=local_community]", "Local group")
-      |> assert_has("[data-preset=local_community][aria-checked=true]")
-      |> click_button("[data-preset=public_community]", "Public group")
-      |> assert_has("[data-preset=public_community][aria-checked=true]")
-      |> refute_has("[data-preset=local_community][aria-checked=true]")
+      |> click_button("[data-preset=public_local_community]", "Public local community")
+      |> assert_has("[data-preset=public_local_community][aria-checked=true]")
+      |> click_button("[data-preset=announcement_channel]", "Announcement channel")
+      |> assert_has("[data-preset=announcement_channel][aria-checked=true]")
+      |> refute_has("[data-preset=public_local_community][aria-checked=true]")
     end
   end
 
@@ -147,7 +146,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       conn
       |> visit("/groups")
       |> click_button("[data-role=open_modal]", "Create a group")
-      |> click_button("[data-preset=local_community]", "Local group")
+      |> click_button("[data-preset=public_local_community]", "Public local community")
       |> submit_new_group_form(%{"name" => name, "summary" => "Created from the modal UI."})
 
       # LiveHandler returns {:redirect, ...} after create, which render_submit surfaces
@@ -173,7 +172,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       conn
       |> visit("/groups")
       |> click_button("[data-role=open_modal]", "Create a group")
-      |> click_button("[data-preset=local_community]", "Local group")
+      |> click_button("[data-preset=public_local_community]", "Public local community")
       |> submit_new_group_form(%{"name" => name, "summary" => summary})
 
       assert group_with_name_exists?(name),
@@ -219,27 +218,32 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       end
     end
 
-    test "'private_club' locks the three permissive Layer 2 toggles" do
-      # Private club must stay tight — none of these should be flippable via Layer 2.
+    # test "'secret_group' locks all four Layer 2 toggles" do
+    #   assert NewGroupFormLive.layer2_locked?("secret_group", :federate)
+    #   assert NewGroupFormLive.layer2_locked?("secret_group", :discoverable)
+    #   assert NewGroupFormLive.layer2_locked?("secret_group", :approval_required)
+    #   assert NewGroupFormLive.layer2_locked?("secret_group", :anyone_posts)
+    # end
+
+    test "'public_local_community' only locks federate" do
+      assert NewGroupFormLive.layer2_locked?("public_local_community", :federate)
+      refute NewGroupFormLive.layer2_locked?("public_local_community", :discoverable)
+      refute NewGroupFormLive.layer2_locked?("public_local_community", :approval_required)
+      refute NewGroupFormLive.layer2_locked?("public_local_community", :anyone_posts)
+    end
+
+    test "'announcement_channel' locks federate + approval + anyone_posts but leaves discoverable open" do
+      assert NewGroupFormLive.layer2_locked?("announcement_channel", :federate)
+      refute NewGroupFormLive.layer2_locked?("announcement_channel", :discoverable)
+      assert NewGroupFormLive.layer2_locked?("announcement_channel", :approval_required)
+      assert NewGroupFormLive.layer2_locked?("announcement_channel", :anyone_posts)
+    end
+
+    test "'private_club' locks federate + discoverable + anyone_posts but leaves approval open" do
+      assert NewGroupFormLive.layer2_locked?("private_club", :federate)
       assert NewGroupFormLive.layer2_locked?("private_club", :discoverable)
-      assert NewGroupFormLive.layer2_locked?("private_club", :approval_required)
+      refute NewGroupFormLive.layer2_locked?("private_club", :approval_required)
       assert NewGroupFormLive.layer2_locked?("private_club", :anyone_posts)
-    end
-
-    test "'local_community' leaves Layer 2 toggles editable (except federate)" do
-      refute NewGroupFormLive.layer2_locked?("local_community", :discoverable)
-      refute NewGroupFormLive.layer2_locked?("local_community", :approval_required)
-      refute NewGroupFormLive.layer2_locked?("local_community", :anyone_posts)
-      # Federate is locked globally until groups-federation ships.
-      assert NewGroupFormLive.layer2_locked?("local_community", :federate)
-    end
-
-    test "'invite_only_team' locks approval + anyone-posts but leaves discoverable open" do
-      # Discoverable can be toggled on an invite-only team (unusual but intentional).
-      refute NewGroupFormLive.layer2_locked?("invite_only_team", :discoverable)
-      # Approval & posting must stay locked.
-      assert NewGroupFormLive.layer2_locked?("invite_only_team", :approval_required)
-      assert NewGroupFormLive.layer2_locked?("invite_only_team", :anyone_posts)
     end
   end
 end

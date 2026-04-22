@@ -15,6 +15,9 @@ defmodule Bonfire.UI.Groups.NewGroupFormLive do
   prop parent, :any, default: nil
   prop parent_id, :any, default: nil
 
+  @doc "When true, locked/unavailable Layer 2 toggles are shown as disabled. When false (default), they are hidden."
+  prop show_unavailable_toggles, :boolean, default: false
+
   data preset, :string, default: nil
   data layer2, :map, default: %{}
   data layer2_touched, :boolean, default: false
@@ -26,14 +29,23 @@ defmodule Bonfire.UI.Groups.NewGroupFormLive do
   data preset_metas, :map
 
   def update(assigns, socket) do
+    default_preset =
+      Bonfire.Common.Config.get(:group_default_preset, nil, :bonfire_classify) ||
+        Enum.find(preset_slugs(), &(preset_meta(&1) != %{})) ||
+        "private_club"
+
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:preset_dimensions,
+     |> assign(
+       :preset_dimensions,
        Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries)
      )
      |> assign(:preset_metas, Map.new(preset_slugs(), &{&1, preset_meta(&1)}))
-     |> Bonfire.Classify.LiveHandler.init_group_boundary_assigns()}
+     |> Bonfire.Classify.LiveHandler.init_group_boundary_assigns()
+     |> then(fn s ->
+       if is_nil(s.assigns[:preset]), do: apply_preset(s, default_preset), else: s
+     end)}
   end
 
   def handle_event("pick_preset", %{"preset" => slug}, %{assigns: a} = socket) do
@@ -109,71 +121,75 @@ defmodule Bonfire.UI.Groups.NewGroupFormLive do
   # --- Layer 2 → primitive mapping ---
 
   defp apply_layer2_to_primitives(socket, :discoverable, true),
-    do: swap_visibility_access(socket, :discoverable)
+    do: swap_visibility_access(socket, :discover)
 
   defp apply_layer2_to_primitives(socket, :discoverable, false),
-    do: swap_visibility_access(socket, :unlisted)
+    do: swap_visibility_access(socket, :unlisted_read)
 
   defp apply_layer2_to_primitives(socket, :approval_required, true),
     do: assign(socket, membership: "on_request")
 
   defp apply_layer2_to_primitives(socket, :approval_required, false) do
-    # Revert to the preset's default membership; falls back safely when preset is nil or "custom".
+    preset_meta = socket.assigns.preset_metas[socket.assigns.preset] || %{}
+
     assign(socket,
-      membership:
-        e(socket.assigns.preset_metas[socket.assigns.preset], :membership, "local:members")
+      membership: e(preset_meta, :membership_open, e(preset_meta, :membership, "local:members"))
     )
   end
 
-  defp apply_layer2_to_primitives(socket, :anyone_posts, true),
-    do: assign(socket, participation: "local:contributors")
+  defp apply_layer2_to_primitives(socket, :anyone_posts, true) do
+    preset_meta = socket.assigns.preset_metas[socket.assigns.preset] || %{}
+    assign(socket, participation: e(preset_meta, :participation_open, "local:contributors"))
+  end
 
-  defp apply_layer2_to_primitives(socket, :anyone_posts, false),
-    do: assign(socket, participation: "group_members")
+  defp apply_layer2_to_primitives(socket, :anyone_posts, false) do
+    preset_meta = socket.assigns.preset_metas[socket.assigns.preset] || %{}
+    assign(socket, participation: e(preset_meta, :participation, "group_members"))
+  end
 
   # Federate is informational-only until groups federation ships.
   defp apply_layer2_to_primitives(socket, :federate, _), do: socket
   defp apply_layer2_to_primitives(socket, _, _), do: socket
 
-  defp swap_visibility_access(socket, :discoverable) do
-    vis =
-      case socket.assigns.visibility do
-        "local:unlisted" -> "local:discoverable"
-        "local" -> "local:discoverable"
-        v -> v
-      end
+  # Keeps the current visibility scope, but swaps the access role to match the target.
+  # Looks up slugs from preset_dimensions config: finds one with the same scope and the given role.
+  defp swap_visibility_access(socket, target_role) do
+    current_vis = socket.assigns.visibility
+    current_scope = Bonfire.UI.Groups.BoundaryScopeSelectorLive.slug_to_scope(current_vis)
+    vis_opts = e(socket.assigns.preset_dimensions, :visibility, :options, %{})
+    vis_order = e(socket.assigns.preset_dimensions, :visibility, :slug_order, [])
 
-    assign(socket, visibility: vis)
+    new_vis =
+      Enum.find(vis_order, current_vis, fn slug ->
+        Bonfire.UI.Groups.BoundaryScopeSelectorLive.slug_to_scope(slug) == current_scope and
+          e(vis_opts, slug, :role, :interact) == target_role
+      end)
+
+    assign(socket, visibility: new_vis)
   end
 
-  defp swap_visibility_access(socket, :unlisted) do
-    vis =
-      case socket.assigns.visibility do
-        "local" -> "local:unlisted"
-        "local:discoverable" -> "local:unlisted"
-        "nonfederated" -> "local:unlisted"
-        v -> v
-      end
+  # --- Layer 2 lock rules (config-driven per preset) ---
 
-    assign(socket, visibility: vis)
+  @doc "Whether a Layer 2 toggle is locked for the given preset. Reads from `layer2_locked` in each preset's config."
+  def layer2_locked?(preset_slug, key) do
+    locked =
+      Bonfire.Common.Config.get(
+        [:group_presets, preset_slug, :layer2_locked],
+        [],
+        :bonfire_classify
+      )
+
+    key in locked
   end
-
-  # --- Layer 2 lock rules (per-preset + global) ---
-
-  @doc "Whether a Layer 2 toggle is locked for the current preset."
-  def layer2_locked?(_preset, :federate), do: true
-
-  def layer2_locked?("invite_only_team", key) when key in [:approval_required, :anyone_posts],
-    do: true
-
-  def layer2_locked?("private_club", key)
-      when key in [:discoverable, :approval_required, :anyone_posts],
-      do: true
-
-  def layer2_locked?(_, _), do: false
 
   def layer2_lock_reason(:federate), do: l("Coming soon: requires groups federation")
   def layer2_lock_reason(_), do: l("Not available for this preset")
+
+  @doc "Returns toggle definitions from config, with `locked` computed for the given preset."
+  def layer2_toggle_rows(preset) do
+    Bonfire.Common.Config.get(:layer2_toggles, [], :bonfire_classify)
+    |> Enum.map(fn %{key: key} = t -> Map.put(t, :locked, layer2_locked?(preset, key)) end)
+  end
 
   # --- Preset list for rendering ---
 
