@@ -49,30 +49,45 @@
           {/if}
       {/case}
     {/for}
-  </div>
 
-  {#for circle <- @circles}
-    <button
-      type="button"
-      phx-click="Bonfire.Classify:set_boundary_dimensions"
-      phx-value-dim={@dimension}
-      phx-value-slug={id(circle)}
-      phx-target={@target}
-      class={
-        "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
-        "ring-2 ring-primary bg-primary/5 border-primary/30": @selected == id(circle),
-        "border-base-content/10 hover:bg-base-content/5": @selected != id(circle)
-      }
-    >
-      <#Icon iconify="ph:circle-duotone" class="w-4 h-4 shrink-0 text-base-content/50" />
-      <span class="text-sm font-semibold flex-1">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>
-      <div class={
-        "w-4 h-4 rounded-full border-2 shrink-0 transition-all",
-        "border-primary bg-primary": @selected == id(circle),
-        "border-base-content/30": @selected != id(circle)
-      } />
-    </button>
-  {/for}
+    {#if @circles != []}
+      <div class="divider text-xs font-medium text-base-content/50 uppercase tracking-wide mt-2 mb-0.5">
+        {l("Or one of your circles")}
+      </div>
+
+      {#for circle <- @circles}
+        <button
+          type="button"
+          phx-click="Bonfire.Classify:set_boundary_dimensions"
+          phx-value-dim={@dimension}
+          phx-value-slug={id(circle)}
+          phx-target={@target}
+          class={
+            "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
+            "ring-2 ring-primary bg-primary/5 border-primary/30": @selected == id(circle),
+            "border-base-content/10 hover:bg-base-content/5": @selected != id(circle)
+          }
+        >
+          <span class="flex items-center justify-center w-8 h-8 rounded-md bg-base-content/5 shrink-0">
+            <#Icon iconify="ph:users-three-duotone" class={
+              "w-4 h-4",
+              "text-primary": @selected == id(circle),
+              "text-base-content/60": @selected != id(circle)
+            } />
+          </span>
+          <span class="flex flex-col min-w-0 flex-1">
+            <span class="text-sm font-semibold truncate">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>
+            <span class="text-xs text-base-content/60">{l("Members of this circle")}</span>
+          </span>
+          <div class={
+            "w-4 h-4 rounded-full border-2 shrink-0 transition-all",
+            "border-primary bg-primary": @selected == id(circle),
+            "border-base-content/30": @selected != id(circle)
+          } />
+        </button>
+      {/for}
+    {/if}
+  </div>
 
   <input type="hidden" name={@name} value={@selected}>
 </div>
