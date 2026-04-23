@@ -54,7 +54,7 @@
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
           selected_tab={@selected_tab}
-          prompt={l("Share something in %{name}",
+          prompt={l("Write in %{name}",
             name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
           )}
           smart_input_opts={%{
@@ -106,7 +106,7 @@
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
           selected_tab={@selected_tab}
-          prompt={l("Share something in %{name}",
+          prompt={l("Write in %{name}",
             name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
           )}
           smart_input_opts={%{

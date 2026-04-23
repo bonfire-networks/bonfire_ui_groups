@@ -105,16 +105,16 @@
           phx-value-preset="custom"
           phx-target={@myself}
           class={
-            "flex items-center gap-3 p-3 rounded-lg border border-dashed text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.99] sm:col-span-2",
+            "flex items-start gap-3 p-3 rounded-lg border border-dashed text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.99]",
             "ring-2 ring-primary bg-primary/5 border-primary/40": @preset == "custom",
             "border-base-content/20 hover:bg-base-content/5 hover:border-base-content/30":
               @preset != "custom"
           }
         >
-          <span class="flex items-center justify-center w-8 h-8 rounded-md bg-base-content/5 shrink-0">
+          <span class="flex items-center justify-center w-8 h-8 rounded-md bg-base-content/5 shrink-0 mt-0.5">
             <#Icon iconify="ri:settings-4-line" class="w-4 h-4 text-base-content/70" />
           </span>
-          <span class="flex-1">
+          <span class="flex-1 min-w-0">
             <span class="block text-sm font-semibold leading-tight">{l("Custom")}</span>
             <span class="block mt-0.5 text-xs text-base-content/60">{l("Start from scratch and configure every dimension.")}</span>
           </span>
