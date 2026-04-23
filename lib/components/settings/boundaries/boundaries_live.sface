@@ -8,7 +8,7 @@
         <p class="text-sm text-base-content/60 mt-0.5">{l("Changes apply to future posts only.")}</p>
       </div>
 
-      <form phx-submit="Bonfire.UI.Groups:set_group_boundaries" phx-target={@myself}>
+      <form phx-submit="Bonfire.Classify:set_group_boundaries" phx-target={@myself}>
         <Bonfire.UI.Groups.BoundaryDimensionLive
           dimension={:membership}
           label={e(
