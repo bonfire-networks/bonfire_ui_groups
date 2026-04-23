@@ -1,24 +1,70 @@
 <main
-  data-id="group"
+  data-id={if @type == :topic, do: "topic", else: "group"}
   data-group-id={e(@category, :id, "")}
   class={
     "": !current_user_id(@__context__)
   }
 >
   <StatelessComponent
-    module={tab_component(@selected_tab) || tab_component(@tab_id |> debug("tttt")) ||
-      Bonfire.UI.Social.ProfileTimelineLive}
+    module={if @type == :topic,
+      do:
+        Config.get([:ui, :topic, :sections], [])[tab(@selected_tab)] ||
+          Bonfire.UI.Social.ProfileTimelineLive,
+      else:
+        tab_component(@selected_tab) || tab_component(@tab_id) ||
+          Bonfire.UI.Social.ProfileTimelineLive}
     user={@category}
     {...assigns}
   >
     <:header>
-      {#if @selected_tab == "settings"}
-        <!-- <Bonfire.UI.Common.TabsLive
-          class="flex gap-3 p-3 border-b border-base-content/20 scrollable"
-          selected_tab={@tab_id || @selected_tab}
-          path_prefix={"#{@permalink}/settings/"}
-          tabs={Config.get([:ui, :group, :settings, :navigation], settings: l("General"))}
-        /> -->
+      {#if @type == :topic}
+        {!-- handle the case where this page is loading a topic instead of a group, mirroring Bonfire.UI.Topics.CategoryLive --}
+        {#if e(@category, :parent_category, nil)}
+          <StatefulComponent
+            module={Config.get(
+              [:ui, :group, :hero_component],
+              Bonfire.UI.Me.ProfileHeroFullLive
+            )}
+            id={deterministic_dom_id(
+              "profile_hero_group",
+              id(e(@category, :parent_category, nil)),
+              @selected_tab
+            )}
+            user={e(@category, :parent_category, nil)}
+            path={path(e(@category, :parent_category, nil))}
+            character_type={:group}
+            boundary_preset={@boundary_preset}
+            object_boundary={@object_boundary}
+            permalink={path(e(@category, :parent_category, nil))}
+            follows_me={false}
+            selected_tab={@selected_tab}
+            members={e(assigns, :members, [])}
+            moderators={e(assigns, :moderators, [])}
+            subcategories={e(assigns, :subcategories, [])}
+            selected_category_id={id(@category)}
+          />
+        {/if}
+        <StatelessComponent
+          module={maybe_component(Bonfire.UI.Topics.TopicHeroLive, @__context__)}
+          category={@category}
+          permalink={@permalink}
+          object_boundary={@object_boundary}
+          boundary_preset={@boundary_preset}
+        />
+        <StatelessComponent
+          module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
+          selected_tab={@selected_tab}
+          prompt={l("Share something in %{name}",
+            name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
+          )}
+          smart_input_opts={%{
+            context_id: id(@category),
+            mentions: [id(@category)],
+            to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
+            to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
+          }}
+        />
+      {#elseif @selected_tab == "settings"}
         <div class="sticky top-0 pt-safe z-sticky bg-base-100 lg:bg-base-100/70 backdrop-blur-sm border-b border-base-content/10">
           <div role="banner" class="flex items-center place-content-center flex-1 w-full min-h-[60px]">
             <div class="flex items-center gap-2 w-full">

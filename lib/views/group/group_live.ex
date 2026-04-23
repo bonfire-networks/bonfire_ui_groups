@@ -10,13 +10,11 @@ defmodule Bonfire.UI.Groups.GroupLive do
            undead_mount(socket, fn ->
              Bonfire.Classify.LiveHandler.mounted(params, session, socket)
            end) do
-      {:ok,
-       assign(
-         socket,
-         page: "group",
-         showing_within: :group
-         #  smart_input_opts: [hide_buttons: true]
-       )}
+      if e(assigns(socket), :type, nil) == :topic do
+        {:ok, assign(socket, page: "topic", showing_within: :topic)}
+      else
+        {:ok, assign(socket, page: "group", showing_within: :group)}
+      end
     end
   end
 
