@@ -18,10 +18,7 @@
   </:action>
 
   {!-- Parent group breadcrumb (nested groups only) --}
-  <div
-    :if={@parent}
-    class="flex items-center gap-2 pb-3 mb-3 border-b border-base-content/10"
-  >
+  <div :if={@parent} class="flex items-center gap-2 pb-3 mb-3 border-b border-base-content/10">
     <#Icon iconify="ph:arrow-bend-up-left-duotone" class="w-4 h-4 text-base-content/40" />
     <div class="flex flex-col min-w-0">
       <span class="text-[11px] uppercase tracking-wider text-base-content/45">{l("Part of")}</span>
