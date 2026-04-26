@@ -42,6 +42,11 @@
             moderators={e(assigns, :moderators, [])}
             subcategories={e(assigns, :subcategories, [])}
             selected_category_id={id(@category)}
+            preset_slug={e(assigns, :group_preset_slug, nil)}
+            membership_slug={e(assigns, :group_membership_slug, "on_request")}
+            member_count={e(assigns, :group_member_count, nil)}
+            topic_count={e(assigns, :group_topic_count, nil)}
+            date={e(assigns, :group_date, nil)}
           />
         {/if}
         <StatelessComponent
@@ -102,6 +107,10 @@
           members={@members}
           moderators={@moderators}
           subcategories={e(assigns, :subcategories, [])}
+          preset_slug={e(assigns, :group_preset_slug, nil)}
+          member_count={e(assigns, :group_member_count, nil)}
+          topic_count={e(assigns, :group_topic_count, nil)}
+          date={e(assigns, :group_date, nil)}
         />
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}

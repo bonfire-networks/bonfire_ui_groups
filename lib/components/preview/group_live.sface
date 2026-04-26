@@ -35,7 +35,7 @@
           {!-- Meta --}
           <div class="flex items-center gap-3 mt-1">
             <span class="flex items-center gap-1 text-xs text-base-content/40">
-              <#Icon iconify="ph:users-duotone" class="w-3.5 h-3.5" />
+              <#Icon iconify="ph:users-duotone" class="size-4" />
               <!-- FIXME: n+1 -->
               {Categories.members_count(@object)} {l("members")}
             </span>
@@ -54,51 +54,69 @@
     </div>
   </div>
 {#else}
-  <div class="group flex items-center gap-3 p-3 hover:bg-base-content/5 transition-colors">
-    <LinkLive to={@permalink} class="group flex items-center gap-3">
+  <article class="group">
+    <div class="flex items-start gap-4 px-4 py-4 group-hover:bg-base-content/[0.03] transition-colors duration-150">
       {!-- Avatar --}
-      <div class="shrink-0">
+      <LinkLive to={@permalink} class="shrink-0 block" tabindex="-1" aria-hidden="true">
         {#case Media.avatar_url(@object)}
           {#match "/images/avatar.png"}
-            <div class="w-12 h-12 rounded-xl bg-base-content/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+            <div class="w-12 h-12 rounded-xl bg-base-content/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors duration-150">
               <#Icon
                 iconify="ph:users-three-duotone"
-                class="w-6 h-6 text-base-content/40 group-hover:text-primary/70 transition-colors"
+                class="w-6 h-6 text-base-content/40 group-hover:text-primary/70 transition-colors duration-150"
               />
             </div>
           {#match url}
             <img src={url} class="w-12 h-12 rounded-xl object-cover">
         {/case}
-      </div>
+      </LinkLive>
 
-      {!-- Content --}
-      <div class="flex flex-col flex-1 min-w-0 gap-0.5">
-        <span class="font-semibold text-base-content truncate">
-          {rich(name(@object))}
-        </span>
+      {!-- Identity + summary + meta --}
+      <div class="flex flex-col flex-1 min-w-0 gap-1.5">
+        <LinkLive
+          to={@permalink}
+          class="font-semibold leading-tight text-base-content truncate"
+        >{rich(name(@object))}</LinkLive>
+
         <p
           :if={e(@object, :profile, :summary, "") != ""}
-          class="text-sm text-base-content/50 line-clamp-2"
+          class="text-sm text-base-content/65 leading-relaxed line-clamp-2"
         >{e(@object, :profile, :summary, "")}</p>
-        <div class="flex items-center gap-3 mt-0.5">
-          <span class="flex items-center gap-1 text-xs text-base-content/40">
-            <#Icon iconify="ph:users-duotone" class="w-3.5 h-3.5" />
+
+        {!-- Meta line: governance chip + members count --}
+        <div class="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-base-content/50 mt-0.5">
+          {#case row_chip(@object)}
+            {#match %{} = meta}
+              <span
+                title={e(meta, :description, e(meta, :label, ""))}
+                class="inline-flex items-center gap-1.5 text-base-content/60"
+              >
+                <Iconify.iconify
+                  icon={e(meta, :icon, "ph:users-three-duotone")}
+                  class="size-4 text-primary/70"
+                />
+                <span class="font-medium">{e(meta, :label, "")}</span>
+              </span>
+              <span class="text-base-content/25" aria-hidden="true">·</span>
+            {#match _}
+          {/case}
+          <span class="inline-flex items-center gap-1">
+            <#Icon iconify="ph:users-duotone" class="size-4" />
             <!-- FIXME: n+1 -->
             {Categories.members_count(@object)} {l("members")}
           </span>
         </div>
       </div>
-    </LinkLive>
 
-    {!-- Action --}
-    <div :if={current_user_id(@__context__)} class="shrink-0 ml-auto">
-      <Bonfire.Classify.Web.CategoryActionsLive
-        object={@object}
-        showing_within={:list}
-        activity_id={id(@activity)}
-        object_boundary={@object_boundary}
-        object_type={:group}
-      />
+      <div :if={current_user_id(@__context__)} class="shrink-0 self-start">
+        <Bonfire.Classify.Web.CategoryActionsLive
+          object={@object}
+          showing_within={:list}
+          activity_id={id(@activity)}
+          object_boundary={@object_boundary}
+          object_type={:group}
+        />
+      </div>
     </div>
-  </div>
+  </article>
 {/if}

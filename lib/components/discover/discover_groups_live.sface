@@ -1,14 +1,14 @@
 <div class="flex flex-col bonfire-wrapper">
-  <form :if={current_user_id(@__context__)} phx-change="search_groups" class="px-3 pt-3 pb-1">
-    <label class="input w-full flex items-center gap-2 bg-base-content/5 border-0 rounded-lg focus-within:outline-primary">
-      <#Icon iconify="ph:magnifying-glass-duotone" class="w-4 h-4 text-base-content/40" />
+  <form :if={current_user_id(@__context__)} phx-change="search_groups" class="px-3 pt-3 pb-2">
+    <label class="input w-full">
+      <#Icon iconify="ph:magnifying-glass-duotone" class="h-[1em] w-[1em] opacity-50" />
       <input
-        type="text"
+        type="search"
         name="search_term"
         value={@search_term}
-        placeholder={l("Search groups...")}
+        placeholder={l("Search groups…")}
         phx-debounce="300"
-        class="grow bg-transparent border-0 focus:ring-0 text-sm placeholder:text-base-content/40"
+        class="grow"
       />
     </label>
   </form>
@@ -17,20 +17,41 @@
     {#match nil}
     {#match component}
       {#if @categories == []}
-        <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
-          <#Icon iconify="ph:users-three-duotone" class="w-12 h-12 text-base-content/20 mb-3" />
-          <p class="text-base-content/50 text-sm">
-            {#if @search_term != ""}
-              {l("No groups match your search")}
-            {#else}
-              {l("No groups yet")}
-            {/if}
-          </p>
+        <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
+          <div class="w-14 h-14 rounded-2xl bg-base-content/[0.04] flex items-center justify-center mb-4">
+            <#Icon
+              iconify={if @search_term != "",
+                do: "ph:magnifying-glass-duotone",
+                else: "ph:campfire-duotone"}
+              class="w-7 h-7 text-base-content/30"
+            />
+          </div>
+
+          {#if @search_term != ""}
+            <p class="text-base font-semibold text-base-content">
+              {l("No groups match \"%{term}\"", term: @search_term)}
+            </p>
+            <p class="text-sm text-base-content/55 mt-1 max-w-sm">
+              {l("Try a different word, or clear the search to browse every group on this instance.")}
+            </p>
+          {#else}
+            <p class="text-base font-semibold text-base-content">
+              {l("No groups here yet")}
+            </p>
+            <p class="text-sm text-base-content/55 mt-1 max-w-sm">
+              {l("Groups are spaces for people to gather around something: a topic, a practice, a place.")}
+            </p>
+          {/if}
         </div>
       {#else}
-        <div class="flex flex-col divide-y divide-base-content/10 px-1">
+        <div class="flex flex-col divide-y divide-base-content/10">
           {#for {%{type: :group} = category, _children} <- @categories}
-            <StatelessComponent module={component} object={category} permalink={path(category)} />
+            <StatelessComponent
+              module={component}
+              object={category}
+              permalink={path(category)}
+              showing_within={:list}
+            />
           {/for}
         </div>
       {/if}

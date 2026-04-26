@@ -1,18 +1,24 @@
 defmodule Bonfire.UI.Groups.WidgetGroupAboutLive do
-  @moduledoc "Unified sidebar widget for group pages combining about info, stats, and members."
+  @moduledoc """
+  Sidebar widget for group pages. Shows the group's governance: audience preset, the three
+  permission dimensions (who can join, see, post), parent group, and moderators. Identity +
+  primary actions (name, summary, join/follow, stats) live in the hero.
+  """
   use Bonfire.UI.Common.Web, :stateless_component
 
+  alias Bonfire.Boundaries.Presets
+
   prop category, :map, default: nil
-  prop date, :string, default: nil
   prop parent, :string, default: nil
   prop parent_link, :string, default: nil
-  prop boundary_preset, :any, default: nil
-  prop parent_boundary_preset, :any, default: nil
-  prop membership, :string, default: "on_request"
-  prop member_count, :integer, default: 0
-  prop topic_count, :integer, default: 0
+
+  prop preset_slug, :string, default: nil
+  prop membership_slug, :string, default: nil
+  prop visibility_slug, :string, default: nil
+  prop participation_slug, :string, default: nil
+
   prop moderators, :any, default: []
-  prop members, :any, default: []
-  prop selected_tab, :any, default: nil
-  prop character_type, :any, default: nil
+
+  defdelegate preset_meta(slug), to: Presets, as: :group_preset_meta
+  defdelegate dimension_meta(dim, slug), to: Presets
 end

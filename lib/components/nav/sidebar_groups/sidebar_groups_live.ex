@@ -3,10 +3,26 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
 
   declare_nav_component("Links to user's groups (and optionally topics)", exclude_from_nav: false)
 
+  # Matches when `current_path` equals `target` exactly, or starts with `target <> "/"` so
+  # nested routes (e.g. `/&games/settings`) still highlight the parent group.
+  def active_link?(current_path, target)
+      when is_binary(current_path) and is_binary(target) do
+    current_path == target or String.starts_with?(current_path, target <> "/")
+  end
+
+  def active_link?(_, _), do: false
+
+  # Pulls the path once (avoids a per-link URI.parse on every render).
+  defp assign_current_path(socket) do
+    url = current_url(socket)
+    path = is_binary(url) && (URI.parse(url).path || url)
+    assign(socket, :current_path, path || "")
+  end
+
   def update(assigns, %{assigns: %{categories: _}} = socket) do
     debug("categories already loaded")
 
-    {:ok, socket |> assign(assigns)}
+    {:ok, socket |> assign(assigns) |> assign_current_path()}
   end
 
   def update(assigns, socket) do
@@ -22,6 +38,7 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
      |> assign(
        categories: followed_categories || [],
        page_info: page_info
-     )}
+     )
+     |> assign_current_path()}
   end
 end

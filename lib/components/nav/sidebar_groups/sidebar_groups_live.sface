@@ -39,11 +39,22 @@
             </div>
           </summary>
           <div class="pointer-events-auto">
+            <li>
+              <LinkLive
+                to="/groups"
+                class={["gap-3 ml-1", "bg-primary/10": active_link?(@current_path, "/groups")]}
+              >
+                <div class="h-8 w-8 rounded bg-secondary/20 flex items-center justify-center">
+                  <#Icon iconify="ph:compass-duotone" class="w-5 h-5 text-secondary" />
+                </div>
+                <span class="font-normal text-base">{l("Browse groups")}</span>
+              </LinkLive>
+            </li>
             {#for {%{type: :group} = category, _children} <- e(@categories, [])}
               <li>
                 <LinkLive
                   to={path(category)}
-                  class={["gap-3 ml-1", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
+                  class={["gap-3 ml-1", "bg-primary/10": active_link?(@current_path, path(category))]}
                 >
                   {#case Media.avatar_url(category)}
                     {#match "/images/avatar.png"}
@@ -78,11 +89,22 @@
               </Bonfire.UI.Groups.NewGroupLive>
             </div>
           </summary>
+          <li>
+            <LinkLive
+              to="/groups"
+              class={["gap-3 ml-1", "bg-primary/10": active_link?(@current_path, "/groups")]}
+            >
+              <div class="h-8 w-8 rounded bg-primary/20 flex items-center justify-center">
+                <#Icon iconify="ph:compass-duotone" class="w-5 h-5 text-primary" />
+              </div>
+              <span class="font-normal text-base">{l("Browse groups")}</span>
+            </LinkLive>
+          </li>
           {#for {%{type: :group} = category, _children} <- e(@categories, [])}
             <li>
               <LinkLive
                 to={path(category)}
-                class={["gap-3 ml-1", "bg-primary/10": id(category) == e(assigns, :page, nil)]}
+                class={["gap-3 ml-1", "bg-primary/10": active_link?(@current_path, path(category))]}
               >
                 {#case Media.avatar_url(category)}
                   {#match "/images/avatar.png"}

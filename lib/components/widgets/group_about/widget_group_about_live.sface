@@ -1,78 +1,114 @@
 <Bonfire.UI.Common.WidgetBlockLive widget_title={l("About")}>
-  {!-- Parent group --}
-  <div :if={@parent} class="flex items-center gap-2 pb-3 mb-1 border-b border-base-content/10">
-    <#Icon iconify="ph:users-three-duotone" class="w-5 h-5 text-primary/70" />
-    <div class="flex flex-col min-w-0">
-      <span class="text-xs text-base-content/50">{l("Part of group")}</span>
-      <LinkLive to={@parent_link} class="text-sm font-semibold text-primary hover:underline truncate">
-        {@parent}
-      </LinkLive>
-    </div>
-  </div>
+  <:action>
+    {#case preset_meta(@preset_slug)}
+      {#match %{} = meta}
+        <span
+          data-role="group_preset_chip"
+          title={e(meta, :description, e(meta, :label, @preset_slug))}
+          class="inline-flex items-center gap-1.5 normal-case font-medium text-xs text-base-content/70 cursor-help"
+        >
+          <Iconify.iconify
+            icon={e(meta, :icon, "ph:users-three-duotone")}
+            class="w-3.5 h-3.5 text-primary/80"
+          />
+          <span class="truncate max-w-[10rem]">{e(meta, :label, @preset_slug)}</span>
+        </span>
+      {#match _}
+    {/case}
+  </:action>
 
-  {!-- Summary --}
+  {!-- Parent group breadcrumb (nested groups only) --}
   <div
-    :if={e(@category, :profile, :summary, nil)}
-    class="text-[15px] leading-relaxed text-base-content/90 mb-3"
+    :if={@parent}
+    class="flex items-center gap-2 pb-3 mb-3 border-b border-base-content/10"
   >
-    {e(@category, :profile, :summary, nil)}
-  </div>
-
-  {!-- Metadata: date + boundary --}
-  <div class="flex flex-col gap-2 mt-1">
-    <Bonfire.UI.Common.WidgetMetaItemLive :if={@date}>
-      <:icon><#Icon iconify="ph:calendar-duotone" class="w-4 h-4 text-base-content/30" /></:icon>
-      {l("Created")} {@date}
-    </Bonfire.UI.Common.WidgetMetaItemLive>
-
-    <div class="flex items-center cursor-default">
-      <StatelessComponent
-        module={maybe_component(Bonfire.UI.Boundaries.BoundariesPresetNameLive)}
-        boundary_preset={@boundary_preset || @parent_boundary_preset}
-        icon_class="w-4 h-4 text-base-content/30"
-        class="text-xs text-base-content/50"
-      />
+    <#Icon iconify="ph:arrow-bend-up-left-duotone" class="w-4 h-4 text-base-content/40" />
+    <div class="flex flex-col min-w-0">
+      <span class="text-[11px] uppercase tracking-wider text-base-content/45">{l("Part of")}</span>
+      <LinkLive
+        to={@parent_link}
+        class="text-sm font-semibold text-base-content hover:text-primary hover:underline truncate"
+      >{@parent}</LinkLive>
     </div>
   </div>
 
-  {!-- Join CTA --}
-  {#if @character_type != :topic}
-    <div class="mt-4">
-      <StatefulComponent
-        :if={e(@category, :character, nil)}
-        id={"join_btn_#{id(@category)}"}
-        module={maybe_component(Bonfire.Classify.Web.JoinButtonLive, @__context__)}
-        object_id={id(@category)}
-        object_name={ed(@category, :profile, :name, nil) || ed(@category, :character, :username, l("Group"))}
-        moderators={@moderators}
-        membership={@membership}
-        path={path(@category)}
-        disabled={Enums.ids(current_user(@__context__)) == Enums.ids(@moderators)}
-        class="btn w-full btn-sm btn-soft btn-primary"
-      />
-    </div>
-  {/if}
+  {!-- Three permission rules: who can join / see / post --}
+  <div class="flex flex-col gap-6 mt-1">
+    {#case dimension_meta(:membership, @membership_slug)}
+      {#match %{} = meta}
+        <div>
+          <div class="text-[11px] font-medium uppercase tracking-wider text-base-content/40">
+            {l("Who can join")}
+          </div>
+          <div class="flex items-center gap-2 mt-1">
+            <Iconify.iconify
+              icon={e(meta, :icon, "ph:sign-in-duotone")}
+              class="w-4 h-4 text-primary/60 shrink-0"
+            />
+            <span class="text-base font-semibold text-base-content leading-tight">
+              {e(meta, :label, @membership_slug)}
+            </span>
+          </div>
+          <p
+            :if={e(meta, :description, nil)}
+            class="text-[13px] text-base-content/60 leading-snug mt-1 pl-6"
+          >{e(meta, :description, nil)}</p>
+        </div>
+      {#match _}
+    {/case}
 
-  {!-- Navigation links --}
-  <div class="flex flex-col gap-0.5 mt-2">
-    <LinkLive
-      to={"/&#{e(@category, :character, :username, nil)}/members"}
-      class={
-        "flex items-center justify-between px-2 py-2 rounded-lg hover:bg-base-content/5 transition-colors",
-        "bg-base-content/5": @selected_tab == :members
-      }
-    >
-      <span class="flex items-center gap-2.5">
-        <#Icon iconify="ph:users-duotone" class="w-[18px] h-[18px] text-base-content/60" />
-        <span class="text-[13px] font-medium text-base-content/80">{l("Members")}</span>
-      </span>
-      <span :if={@member_count > 0} class="text-[11px] text-base-content/40 tabular-nums">{@member_count}</span>
-    </LinkLive>
+    {#case dimension_meta(:visibility, @visibility_slug)}
+      {#match %{} = meta}
+        <div>
+          <div class="text-[11px] font-medium uppercase tracking-wider text-base-content/40">
+            {l("Who can see")}
+          </div>
+          <div class="flex items-center gap-2 mt-1">
+            <Iconify.iconify
+              icon={e(meta, :icon, "ph:eye-duotone")}
+              class="w-4 h-4 text-primary/60 shrink-0"
+            />
+            <span class="text-base font-semibold text-base-content leading-tight">
+              {e(meta, :label, @visibility_slug)}
+            </span>
+          </div>
+          <p
+            :if={e(meta, :description, nil)}
+            class="text-[13px] text-base-content/60 leading-snug mt-1 pl-6"
+          >{e(meta, :description, nil)}</p>
+        </div>
+      {#match _}
+    {/case}
+
+    {#case dimension_meta(:participation, @participation_slug)}
+      {#match %{} = meta}
+        <div>
+          <div class="text-[11px] font-medium uppercase tracking-wider text-base-content/40">
+            {l("Who can post")}
+          </div>
+          <div class="flex items-center gap-2 mt-1">
+            <Iconify.iconify
+              icon={e(meta, :icon, "ph:chat-circle-duotone")}
+              class="w-4 h-4 text-primary/60 shrink-0"
+            />
+            <span class="text-base font-semibold text-base-content leading-tight">
+              {e(meta, :label, @participation_slug)}
+            </span>
+          </div>
+          <p
+            :if={e(meta, :description, nil)}
+            class="text-[13px] text-base-content/60 leading-snug mt-1 pl-6"
+          >{e(meta, :description, nil)}</p>
+        </div>
+      {#match _}
+    {/case}
   </div>
 
   {!-- Moderators --}
-  <div :if={@moderators != []} class="pt-4 mt-1 border-t border-base-content/10">
-    <Bonfire.UI.Common.WidgetSectionLabelLive>{l("Moderators")}</Bonfire.UI.Common.WidgetSectionLabelLive>
+  <div :if={@moderators != []} class="mt-6 pt-5 border-t border-base-content/10">
+    <div class="text-[11px] font-semibold uppercase tracking-wider text-base-content/45 my-2">
+      {l("Moderators")}
+    </div>
     <div class="flex flex-col gap-0.5">
       {#for user <- @moderators}
         <StatelessComponent
