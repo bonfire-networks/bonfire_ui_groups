@@ -12,6 +12,8 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
 
   def active_link?(_, _), do: false
 
+  defdelegate group_icon(group), to: Bonfire.Boundaries.Presets
+
   # Pulls the path once (avoids a per-link URI.parse on every render).
   defp assign_current_path(socket) do
     url = current_url(socket)

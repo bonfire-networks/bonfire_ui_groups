@@ -303,5 +303,16 @@
     </button>
 
     <input type="hidden" name="context_id" value={id(@parent)}>
+    {!-- Recorded so the sidebar (and other UIs) can show the preset-specific icon
+         later. Only the slug for non-"custom" presets is meaningful for matching. --}
+    <input :if={@preset && @preset != "custom"} type="hidden" name="preset_slug" value={@preset}>
+
+    {!-- Only when Advanced is collapsed; otherwise BoundaryDimension/ScopeSelector render their own and Plug parses duplicates as a list --}
+    {#if !@advanced_open}
+      <input type="hidden" name="membership" value={@membership}>
+      <input type="hidden" name="visibility" value={@visibility}>
+      <input type="hidden" name="participation" value={@participation}>
+      <input type="hidden" name="default_content_visibility" value={@default_content_visibility}>
+    {/if}
   </Form>
 </div>

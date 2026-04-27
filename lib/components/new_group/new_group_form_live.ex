@@ -105,12 +105,46 @@ defmodule Bonfire.UI.Groups.NewGroupFormLive do
       visibility: e(preset, :visibility, "local"),
       participation: e(preset, :participation, "local:contributors"),
       default_content_visibility: e(preset, :default_content_visibility, "local"),
-      layer2: e(preset, :layer2_defaults, %{}),
+      layer2: derive_layer2_state(preset, socket.assigns.preset_dimensions),
       layer2_touched: false
     )
   end
 
-  # --- Layer 2 → primitive mapping ---
+  # Toggle initial state is derived from the preset's final dimension slugs by
+  # consulting the same `preset_dimensions` config that owns the slug → role/scope
+  # mapping. Avoids a parallel set of string-shape rules that would drift when
+  # slugs are added or renamed.
+  defp derive_layer2_state(preset, preset_dimensions) do
+    visibility = e(preset, :visibility, nil)
+    vis_options = e(preset_dimensions, :visibility, :options, %{})
+
+    %{
+      discoverable: e(vis_options, visibility, :role, nil) == :discover,
+      federate: federated_scope?(visibility),
+      approval_required: e(preset, :membership, nil) == "on_request",
+      anyone_posts: anyone_can_post?(e(preset, :participation, nil))
+    }
+  end
+
+  # Federated when the visibility's scope isn't one of the on-instance scopes.
+  # Uses `slug_to_scope/1` so this stays in sync with the canonical scope list.
+  defp federated_scope?(slug) when is_binary(slug),
+    do:
+      Bonfire.UI.Groups.BoundaryScopeSelectorLive.slug_to_scope(slug) not in [
+        "nonfederated",
+        "local"
+      ]
+
+  defp federated_scope?(_), do: false
+
+  # Open participation: the unscoped "anyone" slug, or any `<scope>:contributors`
+  # variant — the contributor suffix is the convention for non-member posting.
+  defp anyone_can_post?(slug) when is_binary(slug),
+    do: slug == "anyone" or String.ends_with?(slug, ":contributors")
+
+  defp anyone_can_post?(_), do: false
+
+  # --- Layer 2 → primitive mapping (toggle change handlers) ---
 
   defp apply_layer2_to_primitives(socket, :discoverable, true),
     do: swap_visibility_access(socket, :discover)
@@ -121,23 +155,14 @@ defmodule Bonfire.UI.Groups.NewGroupFormLive do
   defp apply_layer2_to_primitives(socket, :approval_required, true),
     do: assign(socket, membership: "on_request")
 
-  defp apply_layer2_to_primitives(socket, :approval_required, false) do
-    preset_meta = socket.assigns.preset_metas[socket.assigns.preset] || %{}
+  defp apply_layer2_to_primitives(socket, :approval_required, false),
+    do: assign(socket, membership: "local:members")
 
-    assign(socket,
-      membership: e(preset_meta, :membership_open, e(preset_meta, :membership, "local:members"))
-    )
-  end
+  defp apply_layer2_to_primitives(socket, :anyone_posts, true),
+    do: assign(socket, participation: "local:contributors")
 
-  defp apply_layer2_to_primitives(socket, :anyone_posts, true) do
-    preset_meta = socket.assigns.preset_metas[socket.assigns.preset] || %{}
-    assign(socket, participation: e(preset_meta, :participation_open, "local:contributors"))
-  end
-
-  defp apply_layer2_to_primitives(socket, :anyone_posts, false) do
-    preset_meta = socket.assigns.preset_metas[socket.assigns.preset] || %{}
-    assign(socket, participation: e(preset_meta, :participation, "group_members"))
-  end
+  defp apply_layer2_to_primitives(socket, :anyone_posts, false),
+    do: assign(socket, participation: "group_members")
 
   # Federate is informational-only until groups federation ships.
   defp apply_layer2_to_primitives(socket, :federate, _), do: socket

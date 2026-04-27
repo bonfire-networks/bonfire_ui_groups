@@ -155,6 +155,28 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       assert group_with_name_exists?(name),
              "expected a group named #{inspect(name)} to exist after submit"
     end
+
+    # When Advanced is collapsed, the dimensions must still reach the form payload —
+    # otherwise `resolve_dims/1` silently falls back to defaults regardless of preset.
+    # Values are post-layer2 (preset's `layer2_defaults` are folded into primitives by
+    # `apply_preset/2`), so for `public_local_community` (`discoverable: true,
+    # anyone_posts: true`) the visibility becomes `nonfederated:discoverable` and
+    # participation becomes `local:contributors`.
+    test "after picking a preset (Advanced collapsed), the form carries the preset's dimensions as hidden inputs",
+         %{conn: conn} do
+      conn
+      |> visit("/groups")
+      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-preset=public_local_community]", "Public local community")
+      |> assert_has(~s|input[type="hidden"][name="membership"][value="local:members"]|)
+      |> assert_has(
+        ~s|input[type="hidden"][name="visibility"][value="nonfederated:discoverable"]|
+      )
+      |> assert_has(~s|input[type="hidden"][name="participation"][value="local:contributors"]|)
+      |> assert_has(
+        ~s|input[type="hidden"][name="default_content_visibility"][value="nonfederated"]|
+      )
+    end
   end
 
   describe "input preservation (regression)" do
@@ -212,9 +234,6 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
                  "preset #{slug} missing primitive :#{dim} — " <>
                    "violates DESIGN.md's 'complete, working outcome' rule"
         end
-
-        assert is_map(meta[:layer2_defaults]),
-               "preset #{slug} missing :layer2_defaults"
       end
     end
 

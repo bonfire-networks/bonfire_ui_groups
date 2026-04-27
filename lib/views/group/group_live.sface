@@ -57,6 +57,7 @@
           boundary_preset={@boundary_preset}
         />
         <StatelessComponent
+          :if={@can_create_in_category}
           module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
           selected_tab={@selected_tab}
           prompt={l("Write in %{name}",
@@ -108,11 +109,13 @@
           moderators={@moderators}
           subcategories={e(assigns, :subcategories, [])}
           preset_slug={e(assigns, :group_preset_slug, nil)}
+          membership_slug={e(assigns, :group_membership_slug, nil)}
           member_count={e(assigns, :group_member_count, nil)}
           topic_count={e(assigns, :group_topic_count, nil)}
           date={e(assigns, :group_date, nil)}
         />
         <StatelessComponent
+          :if={@can_create_in_category}
           module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
           selected_tab={@selected_tab}
           prompt={l("Write in %{name}",

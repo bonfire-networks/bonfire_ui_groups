@@ -6,12 +6,15 @@ defmodule Bonfire.UI.Groups.LiveHandler do
   def handle_event("join_group", %{"id" => id} = params, socket) do
     with {:ok, current_user} <- current_user_or_remote_interaction(socket, l("join"), id),
          {:ok, result} <- Categories.join_group(current_user, id) do
-      ComponentID.send_assigns(
-        e(params, "component", "join_btn_#{id}"),
-        id,
-        [my_membership: if(result.requested, do: :requested, else: result.member)],
-        socket
-      )
+      {:noreply, socket} =
+        ComponentID.send_assigns(
+          e(params, "component", "join_btn_#{id}"),
+          id,
+          [my_membership: if(result.requested, do: :requested, else: result.member)],
+          socket
+        )
+
+      {:noreply, maybe_refresh_can_create(socket, current_user)}
     else
       e ->
         error(e)
@@ -22,18 +25,36 @@ defmodule Bonfire.UI.Groups.LiveHandler do
   def handle_event("leave_group", %{"id" => id} = params, socket) do
     with current_user <- current_user_required!(socket),
          {:ok, _} <- Categories.leave_group(current_user, id) do
-      ComponentID.send_assigns(
-        e(params, "component", "join_btn_#{id}"),
-        id,
-        [my_membership: false, my_follow: false],
-        socket
-      )
+      {:noreply, socket} =
+        ComponentID.send_assigns(
+          e(params, "component", "join_btn_#{id}"),
+          id,
+          [my_membership: false, my_follow: false],
+          socket
+        )
+
+      {:noreply, maybe_refresh_can_create(socket, current_user)}
     else
       e ->
         error(e)
         {:noreply, assign_flash(socket, :error, l("Could not leave group"))}
     end
   end
+
+  # Recompute permission-derived assigns on the parent socket so sibling components
+  # (e.g. `:if={@can_create_in_category}` on the composer placeholder) reactively
+  # update without a manual page reload. No-op on pages without a category.
+  defp maybe_refresh_can_create(
+         %{assigns: %{category: %{} = category}} = socket,
+         current_user
+       ) do
+    assign(socket,
+      can_create_in_category:
+        Bonfire.Boundaries.can?(current_user, :create, category) || false
+    )
+  end
+
+  defp maybe_refresh_can_create(socket, _current_user), do: socket
 
   def handle_event("accept_join_request", %{"id" => request_id}, socket) do
     with {:ok, _} <-

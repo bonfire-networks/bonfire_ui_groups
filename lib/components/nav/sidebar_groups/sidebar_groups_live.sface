@@ -44,7 +44,7 @@
                 to="/groups"
                 class={["gap-3 ml-1", "bg-primary/10": active_link?(@current_path, "/groups")]}
               >
-                <div class="h-8 w-8 rounded bg-secondary/20 flex items-center justify-center">
+                <div class="h-8 w-8 rounded flex items-center justify-center">
                   <#Icon iconify="ph:compass-duotone" class="w-5 h-5 text-secondary" />
                 </div>
                 <span class="font-normal text-base">{l("Browse groups")}</span>
@@ -58,8 +58,17 @@
                 >
                   {#case Media.avatar_url(category)}
                     {#match "/images/avatar.png"}
-                      <div class="h-8 w-8 rounded bg-primary/20 flex items-center justify-center">
-                        <#Icon iconify="ph:users-three-duotone" class="w-5 h-5 text-primary" />
+                      <div data-role="group_preset_icon" class="h-8 w-8 rounded flex items-center justify-center">
+                        {#case group_icon(category)}
+                          {#match "ph:campfire-duotone"}
+                            <#Icon iconify="ph:campfire-duotone" class="w-5 h-5 text-primary" />
+                          {#match "ph:megaphone-duotone"}
+                            <#Icon iconify="ph:megaphone-duotone" class="w-5 h-5 text-primary" />
+                          {#match "ph:lock-duotone"}
+                            <#Icon iconify="ph:lock-duotone" class="w-5 h-5 text-primary" />
+                          {#match _}
+                            <#Icon iconify="ph:users-three-duotone" class="w-5 h-5 text-primary" />
+                        {/case}
                       </div>
                     {#match url}
                       <div
@@ -108,8 +117,20 @@
               >
                 {#case Media.avatar_url(category)}
                   {#match "/images/avatar.png"}
-                    <div class="h-8 w-8 rounded bg-primary/20 flex items-center justify-center">
-                      <#Icon iconify="ph:users-three-duotone" class="w-5 h-5 text-primary" />
+                    <div
+                      data-role="group_preset_icon"
+                      class="h-8 w-8 rounded bg-primary/20 flex items-center justify-center"
+                    >
+                      {#case group_icon(category)}
+                        {#match "ph:campfire-duotone"}
+                          <#Icon iconify="ph:campfire-duotone" class="w-5 h-5 text-primary" />
+                        {#match "ph:megaphone-duotone"}
+                          <#Icon iconify="ph:megaphone-duotone" class="w-5 h-5 text-primary" />
+                        {#match "ph:lock-duotone"}
+                          <#Icon iconify="ph:lock-duotone" class="w-5 h-5 text-primary" />
+                        {#match _}
+                          <#Icon iconify="ph:users-three-duotone" class="w-5 h-5 text-primary" />
+                      {/case}
                     </div>
                   {#match url}
                     <div
