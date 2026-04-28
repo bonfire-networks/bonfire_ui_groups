@@ -56,7 +56,10 @@
     <details class="mt-6 border-t border-base-content/10 pt-4">
       <summary class="text-xl mb-4 font-semibold cursor-pointer list-none flex items-center justify-between">
         <span>{l("Permissions")}</span>
-        <#Icon iconify="ph:caret-down-bold" class="w-4 h-4 transition-transform [details[open]_&]:rotate-180" />
+        <#Icon
+          iconify="ph:caret-down-bold"
+          class="w-4 h-4 transition-transform [details[open]_&]:rotate-180"
+        />
       </summary>
       <Bonfire.UI.Groups.Settings.BoundariesLive
         id="settings_general_boundaries"

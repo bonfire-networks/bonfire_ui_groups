@@ -49,8 +49,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
          current_user
        ) do
     assign(socket,
-      can_create_in_category:
-        Bonfire.Boundaries.can?(current_user, :create, category) || false
+      can_create_in_category: Bonfire.Boundaries.can?(current_user, :create, category) || false
     )
   end
 
