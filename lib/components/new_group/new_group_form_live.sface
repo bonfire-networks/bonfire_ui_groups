@@ -297,7 +297,7 @@
     <button
       type="submit"
       disabled={is_nil(@preset)}
-      class="btn btn-primary btn-sm w-full normal-case disabled:opacity-50 disabled:cursor-not-allowed"
+      class="btn btn-primary w-full normal-case disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <#Icon iconify="ph:check" class="w-4 h-4 mr-1" />{l("Create group")}
     </button>

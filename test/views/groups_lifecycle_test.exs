@@ -309,6 +309,28 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> refute_has("[phx-value-id='#{group.id}']", text: "Join group")
       |> refute_has("[phx-value-id='#{group.id}']", text: "Request to join")
     end
+
+    # Regression: cond fall-through in join_button_live.sface used to land non-member
+    # invite-only viewers on the "Joined" else-branch, falsely implying membership.
+    test "non-member of an invite_only group does not see a 'Joined' label" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+
+      group =
+        create_group(me,
+          name: "Joined Label Regression Group",
+          membership: "invite_only",
+          visibility: "nonfederated:discoverable",
+          participation: "moderators"
+        )
+
+      conn(user: alice, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> refute_has("[phx-value-id='#{group.id}']", text: "Joined")
+      |> refute_has("[phx-value-id='#{group.id}']", text: "Leave group")
+    end
   end
 
   describe "composer gating" do
@@ -438,6 +460,44 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> visit("/&#{group.character.username}")
       |> wait_async()
       |> assert_has_or_open_browser("article", text: "Group post content here")
+    end
+
+    # Submit through the form's hidden inputs (rather than injecting `to_boundaries`
+    # directly into the params) so the test exercises the same render path as the
+    # live UI — `BoundariesSelectionLive` previously dropped string-shaped slugs
+    # silently on that path.
+    test "post by moderator in announcement_channel is visible to non-members" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+
+      group =
+        create_group(me,
+          name: "Announce Visibility Group",
+          membership: "invite_only",
+          visibility: "nonfederated:discoverable",
+          participation: "moderators",
+          default_content_visibility: "nonfederated"
+        )
+
+      params = %{
+        "post" => %{"post_content" => %{"html_body" => "<p>Announcement to all</p>"}},
+        "context_id" => group.id
+      }
+
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> PhoenixTest.unwrap(fn view ->
+        view
+        |> Phoenix.LiveViewTest.element("#smart_input_form")
+        |> Phoenix.LiveViewTest.render_submit(params)
+      end)
+
+      conn(user: alice, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> assert_has_or_open_browser("article", text: "Announcement to all")
     end
 
     test "members:private group is not accessible to non-members" do
