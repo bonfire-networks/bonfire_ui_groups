@@ -67,6 +67,22 @@
       />
     </details>
 
+    <details class="mt-6 border-t border-base-content/10 pt-4">
+      <summary class="text-xl mb-4 font-semibold cursor-pointer list-none flex items-center justify-between">
+        <span>{l("Rules")}</span>
+        <#Icon
+          iconify="ph:caret-down-bold"
+          class="w-4 h-4 transition-transform [details[open]_&]:rotate-180"
+        />
+      </summary>
+      <StatefulComponent
+        id={"group-rules-#{e(@category, :id, "unknown")}"}
+        module={maybe_component(Bonfire.CommunityRules.Web.RulesBuilderLive, @__context__)}
+        entity={@category}
+        show_header={false}
+      />
+    </details>
+
     <div class="text-xl mb-4 font-semibold mt-6 border-t border-base-content/10 pt-4">{l("Danger zone")}</div>
 
     <div class="rounded-lg p-4 bg-error/5 border-error/30 border">

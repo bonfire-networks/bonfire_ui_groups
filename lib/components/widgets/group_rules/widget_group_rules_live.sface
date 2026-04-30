@@ -1,0 +1,10 @@
+{#if @category && Bonfire.CommunityRules.get_rules(@category)}
+  <Bonfire.UI.Common.WidgetBlockLive widget_title={l("Rules")}>
+    <StatefulComponent
+      id={"group-rules-widget-#{e(@category, :id, "unknown")}"}
+      module={maybe_component(Bonfire.CommunityRules.Web.RulesDisplayLive, @__context__)}
+      entity_id={e(@category, :id, nil)}
+      show_header={false}
+    />
+  </Bonfire.UI.Common.WidgetBlockLive>
+{/if}
