@@ -18,7 +18,7 @@
       /> -->
       <div :if={@selected_tab in ["requested", "followed"]}>
         <div class="flow-root">
-          <ul class="divide-y divide-base-content/20">
+          <ul class="divide-y divide-base-content/10">
             {#for follow <- @feed}
               <li class="p-4">
                 <StatelessComponent
@@ -40,9 +40,9 @@
         </div>
       </div>
 
-      <div :if={@selected_tab in ["requests", "followers", "members"]}>
+      <div :if={@selected_tab in ["requests", "followers"]}>
         <div class="flow-root">
-          <ul class="divide-y divide-base-content/20">
+          <ul class="divide-y divide-base-content/10">
             {#for follow <- @feed}
               <li class="p-4">
                 <StatelessComponent
@@ -66,6 +66,71 @@
             {/for}
           </ul>
         </div>
+      </div>
+
+      <div :if={@selected_tab == "members"}>
+        {#case Bonfire.UI.Groups.Settings.MembershipLive.members_excluding_moderators(@feed, @moderators)}
+          {#match other_members}
+            <section :if={@moderators != []} id="group-moderators" class="mb-6">
+              <header class="flex items-center justify-between px-4 py-3">
+                <h2 class="text-base font-semibold text-base-content">{l("Moderators")}</h2>
+                <span class="text-xs text-base-content/60">{length(@moderators)}</span>
+              </header>
+              <div class="flow-root">
+                <ul class="divide-y divide-base-content/10">
+                  {#for mod <- @moderators}
+                    <li class="p-4">
+                      <StatelessComponent
+                        module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}
+                        lg
+                        avatar_class="w-12 h-12 rounded-full bg-base-300"
+                        wrapper_class="flex items-center justify-between"
+                        profile={e(mod, :profile, nil) || e(mod, :subject, :profile, nil)}
+                        character={e(mod, :character, nil) || e(mod, :subject, :character, nil)}
+                        show_controls={[]}
+                        activity_id={id(mod)}
+                        parent_id="group_moderators"
+                      />
+                    </li>
+                  {/for}
+                </ul>
+              </div>
+            </section>
+
+            <section id="group-members">
+              <header class="flex items-center justify-between px-4 py-3">
+                <h2 class="text-base font-semibold text-base-content">{l("Members")}</h2>
+                <span :if={other_members != []} class="text-xs text-base-content/60">{length(other_members)}</span>
+              </header>
+              <div class="flow-root">
+                <ul class="divide-y divide-base-content/10">
+                  {#for follow <- other_members}
+                    <li class="p-4">
+                      <StatelessComponent
+                        module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}
+                        lg
+                        avatar_class="w-12 h-12 rounded-full bg-base-300"
+                        wrapper_class="flex items-center justify-between"
+                        profile={e(follow, :profile, nil) || e(follow, :subject, :profile, nil) ||
+                          e(follow, :edge, :subject, :profile, nil)}
+                        character={e(follow, :character, nil) || e(follow, :subject, :character, nil) ||
+                          e(follow, :edge, :subject, :character, nil)}
+                        show_controls={if Types.object_type(follow) == Bonfire.Data.Social.Request,
+                          do: [:follow, :accept],
+                          else: []}
+                        activity_id={id(follow)}
+                        parent_id="group_members"
+                      />
+                    </li>
+                  {#else}
+                    <div id="members-empty-feed" class="flex items-center my-12 place-content-center">
+                      <Bonfire.UI.Common.EmptyFeed feedback_title={l("No other members yet")} />
+                    </div>
+                  {/for}
+                </ul>
+              </div>
+            </section>
+        {/case}
       </div>
     </main>
   </div>

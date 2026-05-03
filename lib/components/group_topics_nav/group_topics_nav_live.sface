@@ -13,7 +13,7 @@
       style="background: linear-gradient(to left, var(--color-base-100), transparent);"
     />
     <div class="flex items-stretch gap-1 px-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <LinkPatchLive
+      <LinkLive
         to={path(@group)}
         role="tab"
         aria-selected={to_string(@selected_id == id(@group))}
@@ -24,9 +24,9 @@
         ])}
       >
         {l("All")}
-      </LinkPatchLive>
+      </LinkLive>
       {#for topic <- @topics}
-        <LinkPatchLive
+        <LinkLive
           to={path(topic)}
           role="tab"
           aria-selected={to_string(@selected_id == id(topic))}
@@ -37,7 +37,7 @@
           ])}
         >
           <span class="text-base-content/40 mr-1 font-medium">#</span>{e(topic, :profile, :name, l("Untitled topic"))}
-        </LinkPatchLive>
+        </LinkLive>
       {/for}
     </div>
   </nav>
