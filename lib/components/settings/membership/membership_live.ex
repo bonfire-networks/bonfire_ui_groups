@@ -11,21 +11,31 @@ defmodule Bonfire.UI.Groups.Settings.MembershipLive do
   prop showing_within, :atom, default: :profile
   prop hide_tabs, :boolean, default: false
 
-  @doc "Returns members not already shown as moderators (compared by id, unwrapping :subject if needed)."
+  @doc "Avoids listing the same user twice when they are both a moderator and in the members circle."
   def members_excluding_moderators(feed, moderators) do
     mod_ids =
       moderators
-      |> Enum.map(&entry_id/1)
+      |> Enum.map(&subject_id/1)
       |> Enum.reject(&is_nil/1)
       |> MapSet.new()
 
     Enum.reject(feed, fn entry ->
-      case entry_id(entry) do
+      case subject_id(entry) do
         nil -> false
         id -> MapSet.member?(mod_ids, id)
       end
     end)
   end
 
-  defp entry_id(entry), do: id(e(entry, :subject, nil)) || id(entry)
+  def subject_profile(entry),
+    do:
+      e(entry, :profile, nil) || e(entry, :subject, :profile, nil) ||
+        e(entry, :edge, :subject, :profile, nil)
+
+  def subject_character(entry),
+    do:
+      e(entry, :character, nil) || e(entry, :subject, :character, nil) ||
+        e(entry, :edge, :subject, :character, nil)
+
+  defp subject_id(entry), do: id(e(entry, :subject, nil)) || id(entry)
 end

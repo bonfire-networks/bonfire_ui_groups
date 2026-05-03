@@ -85,8 +85,8 @@
                         lg
                         avatar_class="w-12 h-12 rounded-full bg-base-300"
                         wrapper_class="flex items-center justify-between"
-                        profile={e(mod, :profile, nil) || e(mod, :subject, :profile, nil)}
-                        character={e(mod, :character, nil) || e(mod, :subject, :character, nil)}
+                        profile={Bonfire.UI.Groups.Settings.MembershipLive.subject_profile(mod)}
+                        character={Bonfire.UI.Groups.Settings.MembershipLive.subject_character(mod)}
                         show_controls={[]}
                         activity_id={id(mod)}
                         parent_id="group_moderators"
@@ -102,33 +102,33 @@
                 <h2 class="text-base font-semibold text-base-content">{l("Members")}</h2>
                 <span :if={other_members != []} class="text-xs text-base-content/60">{length(other_members)}</span>
               </header>
-              <div class="flow-root">
-                <ul class="divide-y divide-base-content/10">
-                  {#for follow <- other_members}
-                    <li class="p-4">
-                      <StatelessComponent
-                        module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}
-                        lg
-                        avatar_class="w-12 h-12 rounded-full bg-base-300"
-                        wrapper_class="flex items-center justify-between"
-                        profile={e(follow, :profile, nil) || e(follow, :subject, :profile, nil) ||
-                          e(follow, :edge, :subject, :profile, nil)}
-                        character={e(follow, :character, nil) || e(follow, :subject, :character, nil) ||
-                          e(follow, :edge, :subject, :character, nil)}
-                        show_controls={if Types.object_type(follow) == Bonfire.Data.Social.Request,
-                          do: [:follow, :accept],
-                          else: []}
-                        activity_id={id(follow)}
-                        parent_id="group_members"
-                      />
-                    </li>
-                  {#else}
-                    <div id="members-empty-feed" class="flex items-center my-12 place-content-center">
-                      <Bonfire.UI.Common.EmptyFeed feedback_title={l("No other members yet")} />
-                    </div>
-                  {/for}
-                </ul>
-              </div>
+              {#if other_members == []}
+                <div id="members-empty-feed" class="flex items-center my-12 place-content-center">
+                  <Bonfire.UI.Common.EmptyFeed feedback_title={l("No other members yet")} />
+                </div>
+              {#else}
+                <div class="flow-root">
+                  <ul class="divide-y divide-base-content/10">
+                    {#for follow <- other_members}
+                      <li class="p-4">
+                        <StatelessComponent
+                          module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}
+                          lg
+                          avatar_class="w-12 h-12 rounded-full bg-base-300"
+                          wrapper_class="flex items-center justify-between"
+                          profile={Bonfire.UI.Groups.Settings.MembershipLive.subject_profile(follow)}
+                          character={Bonfire.UI.Groups.Settings.MembershipLive.subject_character(follow)}
+                          show_controls={if Types.object_type(follow) == Bonfire.Data.Social.Request,
+                            do: [:follow, :accept],
+                            else: []}
+                          activity_id={id(follow)}
+                          parent_id="group_members"
+                        />
+                      </li>
+                    {/for}
+                  </ul>
+                </div>
+              {/if}
             </section>
         {/case}
       </div>
