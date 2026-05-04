@@ -117,10 +117,7 @@
               >
                 {#case Media.avatar_url(category)}
                   {#match "/images/avatar.png"}
-                    <div
-                      data-role="group_preset_icon"
-                      class="h-8 w-8 rounded flex items-center justify-center"
-                    >
+                    <div data-role="group_preset_icon" class="h-8 w-8 rounded flex items-center justify-center">
                       {#case group_icon(category)}
                         {#match "ph:campfire-duotone"}
                           <#Icon iconify="ph:campfire-duotone" class="w-5 h-5 text-primary" />
