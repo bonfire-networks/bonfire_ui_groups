@@ -44,6 +44,21 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     group
   end
 
+  # Create a group whose ACLs match a known preset, so the boundaries
+  # editor should preselect that preset on load.
+  defp create_group_with_preset(creator, preset_slug, name) do
+    meta = Bonfire.Common.Config.get([:group_presets, preset_slug], %{}, :bonfire_classify)
+
+    attrs =
+      %{name: name, type: :group, preset_slug: preset_slug}
+      |> Map.merge(
+        Map.take(meta, [:membership, :visibility, :participation, :default_content_visibility])
+      )
+
+    {:ok, group} = Categories.create(creator, attrs, true)
+    group
+  end
+
   describe "group creation" do
     test "create a group via the LiveHandler" do
       account = fake_account!()
@@ -160,8 +175,9 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn = conn(user: me, account: account)
       {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings")
 
-      assert html =~ "Appareance"
+      assert html =~ "Identity"
       assert html =~ "Permissions"
+      assert html =~ "Rules"
     end
 
     test "group admin can edit group name and description" do
@@ -179,7 +195,6 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         })
         |> render_submit()
 
-      # The edit handler shows a success flash
       assert html =~ "updated" or html =~ "New Name"
     end
 
@@ -194,10 +209,11 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn = conn(user: alice, account: account)
       {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings")
 
-      assert html =~ "Sorry, you cannot edit this group"
+      # apostrophe is HTML-escaped in rendered output, so match a quote-free substring
+      assert html =~ "permission to edit this group"
     end
 
-    test "settings page shows danger zone" do
+    test "settings page shows danger zone with archive action" do
       account = fake_account!()
       me = fake_user!(account)
       group = create_group(me, name: "Danger Group")
@@ -206,7 +222,112 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings")
 
       assert html =~ "Danger zone"
-      assert html =~ "Delete group"
+      assert html =~ "Archive group"
+    end
+  end
+
+  describe "group boundaries settings (preselection)" do
+    test "boundaries tab preselects the preset matching the group's current dims" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group_with_preset(me, "public_local_community", "Public Settings Group")
+
+      conn = conn(user: me, account: account)
+      {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings/boundaries")
+
+      # The selected card carries aria-checked="true". Use the preset slug as
+      # data attribute to identify it unambiguously.
+      assert html =~ ~s(data-preset="public_local_community")
+
+      assert html =~
+               ~r/data-preset="public_local_community"[^>]*aria-checked="true"|aria-checked="true"[^>]*data-preset="public_local_community"/
+    end
+
+    # Detection can't match circle-controlled participation slugs (`group_members`,
+    # `moderators`) since they have no global ACL signature — so the preset
+    # resolver must accept a m+v match when the detected participation is nil.
+    test "boundaries tab preselects a preset whose participation is circle-controlled" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group_with_preset(me, "private_club", "Private Club Group")
+
+      conn = conn(user: me, account: account)
+      {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings/boundaries")
+
+      assert html =~
+               ~r/data-preset="private_club"[^>]*aria-checked="true"|aria-checked="true"[^>]*data-preset="private_club"/
+    end
+
+    test "boundaries tab falls back to Custom when group dims don't match any preset" do
+      account = fake_account!()
+      me = fake_user!(account)
+
+      # Hand-rolled dim combo that no preset declares — forces "custom" fallback.
+      group =
+        create_group(me,
+          name: "Custom Dims Group",
+          membership: "invite_only",
+          visibility: "local:discoverable",
+          participation: "local:contributors"
+        )
+
+      conn = conn(user: me, account: account)
+      {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings/boundaries")
+
+      assert html =~
+               ~r/data-preset="custom"[^>]*aria-checked="true"|aria-checked="true"[^>]*data-preset="custom"/
+    end
+
+    test "picking a preset updates the editor's selected card" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group_with_preset(me, "public_local_community", "Switching Group")
+
+      conn = conn(user: me, account: account)
+      {:ok, view, _html} = live(conn, "/&#{group.character.username}/settings/boundaries")
+
+      # Click the private_club preset card; the editor handles pick_preset
+      # and re-renders its hidden inputs with private_club's dim slugs.
+      after_click =
+        view
+        |> element(~s(button[data-preset="private_club"]))
+        |> render_click()
+
+      # The editor's selected card switched to private_club.
+      assert after_click =~
+               ~r/data-preset="private_club"[^>]*aria-checked="true"|aria-checked="true"[^>]*data-preset="private_club"/
+
+      # And the previously-selected one is no longer marked as checked.
+      refute after_click =~
+               ~r/data-preset="public_local_community"[^>]*aria-checked="true"|aria-checked="true"[^>]*data-preset="public_local_community"/
+    end
+
+    # Regression: switching presets used to leave the old dim ACLs alongside the
+    # new ones, so detection resolved to the previous preset.
+    test "submitting the boundaries form persists the new preset's dims" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group_with_preset(me, "public_local_community", "Persisting Group")
+
+      conn = conn(user: me, account: account)
+      {:ok, view, _html} = live(conn, "/&#{group.character.username}/settings/boundaries")
+
+      view
+      |> element(~s(button[data-preset="private_club"]))
+      |> render_click()
+
+      view
+      |> element("#group_settings_boundaries_form")
+      |> render_submit()
+
+      target = Bonfire.Common.Config.get([:group_presets, "private_club"], %{}, :bonfire_classify)
+      detected = Bonfire.Boundaries.Presets.group_dimension_slugs(%{id: group.id})
+
+      assert detected.membership == target.membership,
+             "settings submit: membership detected #{inspect(detected.membership)}, expected #{inspect(target.membership)}"
+
+      assert detected.visibility == target.visibility,
+             "settings submit: visibility detected #{inspect(detected.visibility)}, expected #{inspect(target.visibility)}"
     end
   end
 

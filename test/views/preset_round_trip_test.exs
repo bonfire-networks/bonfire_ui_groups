@@ -44,7 +44,7 @@ defmodule Bonfire.UI.Groups.PresetRoundTripTest do
       account = fake_account!()
       me = fake_user!(account)
 
-      for preset_slug <- Bonfire.UI.Groups.NewGroupFormLive.preset_slugs() do
+      for preset_slug <- Bonfire.UI.Groups.GroupBoundaryEditorLive.preset_slugs() do
         group = create_group_from_preset(me, preset_slug)
         detected = Presets.group_dimension_slugs(group)
 
@@ -67,7 +67,7 @@ defmodule Bonfire.UI.Groups.PresetRoundTripTest do
     end
 
     test "preset_slug_from_dims reverses every preset's declared dims" do
-      for preset_slug <- Bonfire.UI.Groups.NewGroupFormLive.preset_slugs() do
+      for preset_slug <- Bonfire.UI.Groups.GroupBoundaryEditorLive.preset_slugs() do
         meta =
           Bonfire.Common.Config.get([:group_presets, preset_slug], %{}, :bonfire_classify)
 
@@ -91,7 +91,7 @@ defmodule Bonfire.UI.Groups.PresetRoundTripTest do
       me = fake_user!(account)
       conn = conn(user: me, account: account)
 
-      for preset_slug <- Bonfire.UI.Groups.NewGroupFormLive.preset_slugs() do
+      for preset_slug <- Bonfire.UI.Groups.GroupBoundaryEditorLive.preset_slugs() do
         name = "Form RT #{preset_slug} #{System.unique_integer([:positive])}"
 
         meta =

@@ -1,103 +1,165 @@
-<div class="flex flex-col gap-1 p-4 bonfire-wrapper mt-1">
+<div class="bonfire-wrapper flex flex-col gap-1 p-4">
   {#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
-    <div class="p-4 mt-2 bg-warning/10 rounded flex flex-col items-center place-content-center h-80">
-      <div class="text-warning/70">{l("Sorry, you cannot edit this group.")}</div>
+    <div class="rounded-lg border border-warning/30 bg-warning/5 p-4 text-sm text-base-content/80">
+      {l("You don't have permission to edit this group's settings.")}
     </div>
   {#else}
-    <div class="mt-2">
-      <div class="text-xl mb-4 font-semibold">{l("Appareance")}</div>
+    {!-- Identity --}
+    <section aria-labelledby="settings-identity-heading" class="flex flex-col gap-3">
+      <header class="flex flex-col gap-0.5">
+        <h2 id="settings-identity-heading" class="text-xl font-semibold leading-tight">{l("Identity")}</h2>
+        <p class="text-sm text-base-content/60">{l("How this group looks and reads to others.")}</p>
+      </header>
 
-      <StatefulComponent
-        module={maybe_component(Bonfire.Files.Web.UploadBannerLive, @__context__)}
-        id={:upload_banner}
-        object={@category}
-        set_field={:category}
-        set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
-      />
-
-      <div class="flex mx-4 items-center">
+      <div class="relative">
         <StatefulComponent
-          module={maybe_component(Bonfire.Files.Web.UploadIconLive, @__context__)}
-          id={:upload_icon}
-          src={Bonfire.Common.Media.avatar_url(@category)}
-          container_class="relative bg-base-100 flex-shrink-0 block w-32 h-32 -mt-16 overflow-hidden rounded-full ring-4 ring-base-300"
-          class="inline-block w-32 h-32"
+          module={maybe_component(Bonfire.Files.Web.UploadBannerLive, @__context__)}
+          id={:upload_banner}
           object={@category}
           set_field={:category}
           set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
+          container_class="relative rounded-xl flex justify-center px-6 py-10 bg-center bg-cover h-[140px] overflow-hidden"
+          label_class="absolute inset-0 flex flex-col items-center justify-center w-full h-full text-sm font-medium text-white transition-opacity duration-200 ease-out rounded-xl cursor-pointer bg-black/40 opacity-0 hover:opacity-100 focus-within:opacity-100"
         />
+
+        <div class="flex items-end gap-3 px-3 -mt-[40px]">
+          <StatefulComponent
+            module={maybe_component(Bonfire.Files.Web.UploadIconLive, @__context__)}
+            id={:upload_icon}
+            src={Bonfire.Common.Media.avatar_url(@category)}
+            container_class="relative bg-base-100 flex-shrink-0 block w-24 h-24 overflow-hidden rounded-full ring-4 ring-base-100"
+            class="inline-block w-24 h-24"
+            object={@category}
+            set_field={:category}
+            set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
+          />
+          <p class="pb-2 text-xs text-base-content/55 leading-snug">
+            {l("Click the banner or avatar to upload a new image.")}
+          </p>
+        </div>
       </div>
 
-      <form phx-submit="Bonfire.Classify:edit">
-        <div class="w-full mt-3 form-control">
+      <form
+        id="group_settings_identity_form"
+        phx-submit="Bonfire.Classify:edit"
+        class="flex flex-col gap-3 mt-2"
+      >
+        <div class="form-control">
+          <label for="group_settings_name" class="text-sm font-medium text-base-content/80 mb-1">
+            {l("Group name")}
+          </label>
           <input
-            id="name"
+            id="group_settings_name"
             name="profile[name]"
             value={e(@category, :profile, :name, nil) || e(@category, :character, :username, nil)}
             type="text"
-            placeholder={l("Type the group name")}
-            class="w-full text-sm input input-bordered"
+            minlength="3"
+            maxlength="120"
+            required
+            placeholder={l("e.g. Design team, Book club…")}
+            class="w-full input input-bordered input-sm focus:input-primary invalid:input-error"
           />
         </div>
-        <div class="w-full mt-3 form-control">
+
+        <div class="form-control">
+          <label for="group_settings_summary" class="text-sm font-medium text-base-content/80 mb-1">
+            {l("Description")}
+          </label>
           <textarea
+            id="group_settings_summary"
             name="profile[summary]"
-            class="w-full textarea textarea-bordered"
-            placeholder="Write a short description"
+            rows="3"
+            maxlength="500"
+            placeholder={l("What is this group about?")}
+            class="w-full textarea textarea-bordered textarea-sm focus:textarea-primary"
           >{e(@category, :profile, :summary, nil)}</textarea>
         </div>
 
-        <button type="submit" class="w-full mt-3 btn btn-neutral">
-          {l("Edit appearance")}
-        </button>
+        <div class="flex justify-end pt-1">
+          <button type="submit" phx-disable-with={l("Saving…")} class="btn btn-primary btn-sm normal-case">
+            {l("Save changes")}
+          </button>
+        </div>
       </form>
-    </div>
+    </section>
 
-    <details class="mt-6 border-t border-base-content/10 pt-4">
-      <summary class="text-xl mb-4 font-semibold cursor-pointer list-none flex items-center justify-between">
-        <span>{l("Permissions")}</span>
+    {!-- Permissions — embeds the same 3-layer editor as the dedicated Boundaries tab. --}
+    <details class="group mt-10 pt-6 border-t border-base-content/10">
+      <summary class="flex items-center gap-3 cursor-pointer list-none">
+        <div class="flex-1">
+          <h2 class="text-xl font-semibold leading-tight">{l("Permissions")}</h2>
+          <p class="text-sm text-base-content/60 mt-0.5">
+            {l("Who can see, join, and post in this group.")}
+          </p>
+        </div>
         <#Icon
           iconify="ph:caret-down-bold"
-          class="w-4 h-4 transition-transform [details[open]_&]:rotate-180"
+          class="w-4 h-4 text-base-content/60 shrink-0 transition-transform duration-150 group-open:rotate-180"
         />
       </summary>
-      <Bonfire.UI.Groups.Settings.BoundariesLive
-        id="settings_general_boundaries"
-        category={@category}
-      />
-    </details>
-
-    <details class="mt-6 border-t border-base-content/10 pt-4">
-      <summary class="text-xl mb-4 font-semibold cursor-pointer list-none flex items-center justify-between">
-        <span>{l("Rules")}</span>
-        <#Icon
-          iconify="ph:caret-down-bold"
-          class="w-4 h-4 transition-transform [details[open]_&]:rotate-180"
+      <div class="mt-4">
+        <Bonfire.UI.Groups.Settings.BoundariesLive
+          id="settings_general_boundaries"
+          category={@category}
         />
-      </summary>
-      <StatefulComponent
-        id={"group-rules-#{e(@category, :id, "unknown")}"}
-        module={maybe_component(Bonfire.CommunityRules.Web.RulesBuilderLive, @__context__)}
-        entity={@category}
-        show_header={false}
-      />
-    </details>
-
-    <div class="text-xl mb-4 font-semibold mt-6 border-t border-base-content/10 pt-4">{l("Danger zone")}</div>
-
-    <div class="rounded-lg p-4 bg-error/5 border-error/30 border">
-      <div class="">
-        <p class="mt-0 text-sm text-error">
-          {l("Archive this group. It will be hidden from the public, but you can restore it later.")}
-        </p>
       </div>
+    </details>
 
-      <button
-        type="button"
-        :on-click="Bonfire.Classify:archive"
-        data-confirm={l("Are you sure you want to delete this group? You can restore it later.")}
-        class="btn mt-4 w-full rounded-full btn-error normal-case"
-      >{l("Delete group")}</button>
-    </div>
+    {!-- Rules — collapsed by default; the builder is heavy, most admins read more than they edit. --}
+    <details class="group mt-8 pt-6 border-t border-base-content/10">
+      <summary class="flex items-center gap-3 cursor-pointer list-none">
+        <div class="flex-1">
+          <h2 class="text-xl font-semibold leading-tight">{l("Rules")}</h2>
+          <p class="text-sm text-base-content/60 mt-0.5">
+            {l("Community guidelines members agree to when joining.")}
+          </p>
+        </div>
+        <#Icon
+          iconify="ph:caret-down-bold"
+          class="w-4 h-4 text-base-content/60 shrink-0 transition-transform duration-150 group-open:rotate-180"
+        />
+      </summary>
+      <div class="mt-4">
+        <StatefulComponent
+          id={"group-rules-#{e(@category, :id, "unknown")}"}
+          module={maybe_component(Bonfire.CommunityRules.Web.RulesBuilderLive, @__context__)}
+          entity={@category}
+          show_header={false}
+        />
+      </div>
+    </details>
+
+    {!-- Danger zone — one reversible action (soft-delete = archive). --}
+    <section
+      aria-labelledby="settings-danger-heading"
+      class="flex flex-col gap-3 mt-12 pt-6 border-t border-base-content/10"
+    >
+      <header class="flex flex-col gap-0.5">
+        <h2 id="settings-danger-heading" class="text-xl font-semibold leading-tight">
+          {l("Danger zone")}
+        </h2>
+        <p class="text-sm text-base-content/60">
+          {l("Take the group offline. You can restore it later.")}
+        </p>
+      </header>
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg border border-base-content/15 bg-base-200/40 p-4">
+        <div class="flex-1">
+          <div class="text-sm font-medium text-base-content">{l("Archive this group")}</div>
+          <p class="text-xs text-base-content/60 mt-0.5 leading-snug">
+            {l("Hides it from the public. Members keep their content; you can restore the group later.")}
+          </p>
+        </div>
+        <button
+          type="button"
+          id="group_settings_archive_button"
+          :on-click="Bonfire.Classify:archive"
+          data-confirm={l("Archive this group? You can restore it later.")}
+          class="btn btn-sm btn-outline normal-case shrink-0"
+        >
+          {l("Archive group")}
+        </button>
+      </div>
+    </section>
   {/if}
 </div>

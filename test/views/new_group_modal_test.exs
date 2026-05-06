@@ -21,6 +21,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
 
   import Ecto.Query
   alias Bonfire.UI.Groups.NewGroupFormLive
+  alias Bonfire.UI.Groups.GroupBoundaryEditorLive
   alias Bonfire.Classify.Category
   alias Bonfire.Common.Repo
 
@@ -223,8 +224,8 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     # sensible. These tests break if someone drops a primitive from the config.
 
     test "every configured preset fills all four boundary dimensions" do
-      for slug <- NewGroupFormLive.preset_slugs() do
-        meta = NewGroupFormLive.preset_meta(slug)
+      for slug <- GroupBoundaryEditorLive.preset_slugs() do
+        meta = GroupBoundaryEditorLive.preset_meta(slug)
 
         assert is_binary(meta[:label]), "preset #{slug} missing :label"
         assert is_binary(meta[:description]), "preset #{slug} missing :description"
@@ -238,31 +239,31 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     end
 
     # test "'secret_group' locks all four Layer 2 toggles" do
-    #   assert NewGroupFormLive.layer2_locked?("secret_group", :federate)
-    #   assert NewGroupFormLive.layer2_locked?("secret_group", :discoverable)
-    #   assert NewGroupFormLive.layer2_locked?("secret_group", :approval_required)
-    #   assert NewGroupFormLive.layer2_locked?("secret_group", :anyone_posts)
+    #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :federate)
+    #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :discoverable)
+    #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :approval_required)
+    #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :anyone_posts)
     # end
 
     test "'public_local_community' only locks federate" do
-      assert NewGroupFormLive.layer2_locked?("public_local_community", :federate)
-      refute NewGroupFormLive.layer2_locked?("public_local_community", :discoverable)
-      refute NewGroupFormLive.layer2_locked?("public_local_community", :approval_required)
-      refute NewGroupFormLive.layer2_locked?("public_local_community", :anyone_posts)
+      assert GroupBoundaryEditorLive.layer2_locked?("public_local_community", :federate)
+      refute GroupBoundaryEditorLive.layer2_locked?("public_local_community", :discoverable)
+      refute GroupBoundaryEditorLive.layer2_locked?("public_local_community", :approval_required)
+      refute GroupBoundaryEditorLive.layer2_locked?("public_local_community", :anyone_posts)
     end
 
     test "'announcement_channel' locks federate + anyone_posts but leaves discoverable + approval open" do
-      assert NewGroupFormLive.layer2_locked?("announcement_channel", :federate)
-      refute NewGroupFormLive.layer2_locked?("announcement_channel", :discoverable)
-      refute NewGroupFormLive.layer2_locked?("announcement_channel", :approval_required)
-      assert NewGroupFormLive.layer2_locked?("announcement_channel", :anyone_posts)
+      assert GroupBoundaryEditorLive.layer2_locked?("announcement_channel", :federate)
+      refute GroupBoundaryEditorLive.layer2_locked?("announcement_channel", :discoverable)
+      refute GroupBoundaryEditorLive.layer2_locked?("announcement_channel", :approval_required)
+      assert GroupBoundaryEditorLive.layer2_locked?("announcement_channel", :anyone_posts)
     end
 
     test "'private_club' locks federate + anyone_posts but leaves discoverable + approval open" do
-      assert NewGroupFormLive.layer2_locked?("private_club", :federate)
-      refute NewGroupFormLive.layer2_locked?("private_club", :discoverable)
-      refute NewGroupFormLive.layer2_locked?("private_club", :approval_required)
-      assert NewGroupFormLive.layer2_locked?("private_club", :anyone_posts)
+      assert GroupBoundaryEditorLive.layer2_locked?("private_club", :federate)
+      refute GroupBoundaryEditorLive.layer2_locked?("private_club", :discoverable)
+      refute GroupBoundaryEditorLive.layer2_locked?("private_club", :approval_required)
+      assert GroupBoundaryEditorLive.layer2_locked?("private_club", :anyone_posts)
     end
   end
 end

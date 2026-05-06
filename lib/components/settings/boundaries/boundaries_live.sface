@@ -5,128 +5,37 @@
     <div class="flex flex-col gap-6">
       <div>
         <h3 class="text-base font-semibold text-base-content/90">{l("Group boundaries")}</h3>
-        <p class="text-sm text-base-content/60 mt-0.5">{l("Changes apply to future posts only.")}</p>
+        <p class="text-sm text-base-content/60 mt-0.5">
+          {l(
+            "Pick a preset, fine-tune, or open advanced controls. The current settings are pre-selected. Changes apply to future posts only."
+          )}
+        </p>
       </div>
 
-      <form phx-submit="Bonfire.Classify:set_group_boundaries" phx-target={@myself}>
-        <Bonfire.UI.Groups.BoundaryDimensionLive
-          dimension={:membership}
-          label={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :membership,
-            :label,
-            l("Who can join?")
-          )}
-          name="membership"
-          selected={@membership}
-          target={@myself}
-          slug_order={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :membership,
-            :slug_order,
-            []
-          )}
-          options={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :membership,
-            :options,
-            %{}
-          )}
-          circles={@circles}
+      <form
+        id="group_settings_boundaries_form"
+        phx-submit="Bonfire.Classify:set_group_boundaries"
+        phx-target={@myself}
+        class="flex flex-col gap-4"
+      >
+        <Bonfire.UI.Groups.GroupBoundaryEditorLive
+          id={"group_boundary_editor-#{e(@category, :id, "unknown")}"}
+          initial_preset={@initial_preset}
+          initial_membership={@initial_membership}
+          initial_visibility={@initial_visibility}
+          initial_participation={@initial_participation}
+          initial_default_content_visibility={@initial_default_content_visibility}
         />
 
-        <div class="divider my-2" />
-
-        <Bonfire.UI.Groups.BoundaryScopeSelectorLive
-          dimension={:visibility}
-          label={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :visibility,
-            :label,
-            l("Who can see the group?")
-          )}
-          name="visibility"
-          selected={@visibility}
-          target={@myself}
-          slug_order={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :visibility,
-            :slug_order,
-            []
-          )}
-          options={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :visibility,
-            :options,
-            %{}
-          )}
-          circles={@circles}
+        {!-- Carry the previous preset slug so `set_group_boundaries` can compute the diff. --}
+        <input
+          :if={@initial_preset && @initial_preset != "custom"}
+          type="hidden"
+          name="boundary_preset"
+          value={@initial_preset}
         />
 
-        <div class="divider my-2" />
-
-        <Bonfire.UI.Groups.BoundaryDimensionLive
-          dimension={:participation}
-          label={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :participation,
-            :label,
-            l("Who can post and interact?")
-          )}
-          name="participation"
-          selected={@participation}
-          target={@myself}
-          slug_order={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :participation,
-            :slug_order,
-            []
-          )}
-          options={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :participation,
-            :options,
-            %{}
-          )}
-          circles={@circles}
-        />
-
-        <div class="divider my-2" />
-
-        <Bonfire.UI.Groups.BoundaryScopeSelectorLive
-          dimension={:default_content_visibility}
-          label={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :default_content_visibility,
-            :label,
-            l("Default post visibility")
-          )}
-          description={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :default_content_visibility,
-            :description,
-            nil
-          )}
-          name="default_content_visibility"
-          selected={@default_content_visibility}
-          target={@myself}
-          slug_order={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :default_content_visibility,
-            :slug_order,
-            []
-          )}
-          options={e(
-            Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries),
-            :default_content_visibility,
-            :options,
-            %{}
-          )}
-          disabled_scopes={Bonfire.Classify.Boundaries.disabled_dcv_scopes(@visibility)}
-          circles={@circles}
-        />
-
-        <div class="mt-6">
+        <div class="mt-2">
           <button type="submit" class="btn btn-primary btn-sm normal-case">
             {l("Save boundary settings")}
           </button>
