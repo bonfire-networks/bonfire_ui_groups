@@ -94,7 +94,7 @@ defmodule Bonfire.UI.Groups.PresetVisualsTest do
   # so refactors of `:group_presets` config don't silently break the badge.
   describe "preset_slug_from_dims/1 (badge source)" do
     test "round-trips every configured preset's own dims back to its slug" do
-      for slug <- Bonfire.UI.Groups.NewGroupFormLive.preset_slugs() do
+      for slug <- Bonfire.UI.Groups.GroupBoundaryEditorLive.preset_slugs() do
         meta = Bonfire.Boundaries.Presets.group_preset_meta(slug)
 
         dims = %{
