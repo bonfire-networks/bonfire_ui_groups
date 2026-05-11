@@ -5,11 +5,11 @@
       name: e(@group, :profile, :name, l("this group"))
     )}
     data-id="group_topics_nav"
-    class="relative bg-base-100"
+    class="relative rounded-b-xl bg-base-100"
   >
     <div
       aria-hidden="true"
-      class="pointer-events-none absolute top-0 right-0 bottom-0 w-12 z-[2]"
+      class="pointer-events-none absolute top-0 rounded-br-xl right-0 bottom-0 w-12 z-[2]"
       style="background: linear-gradient(to left, var(--color-base-100), transparent);"
     />
     <div class="flex items-stretch gap-1 px-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
