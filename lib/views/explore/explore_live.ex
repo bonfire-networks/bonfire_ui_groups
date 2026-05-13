@@ -44,7 +44,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
               id: "explore_new_group",
               parent_id: "explore",
               open_btn_class:
-                "btn btn-outline btn-sm btn-circle lg:btn-wide btn-primary rounded-full !border-primary/30 normal-case"
+                "btn btn-outline btn-sm btn-circle btn-primary !border-primary/30 normal-case"
             ]}
          ],
          sidebar_widgets: [
