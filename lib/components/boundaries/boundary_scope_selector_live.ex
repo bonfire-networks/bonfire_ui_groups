@@ -38,8 +38,8 @@ defmodule Bonfire.UI.Groups.BoundaryScopeSelectorLive do
     selected = assigns[:selected]
     selected_scope = if selected, do: slug_to_scope(selected)
 
-    # scope/role `label`/`description`/`disabled` are `l_noop`-marked in config (frozen at boot) —
-    # re-localise for display via the shared `localise_tree/3` (bonfire_boundaries domain).
+    # scope/role `label`/`description`/`disabled` use `l/1` in config, so they're frozen to the boot
+    # locale — re-localise for display via the shared `localise_tree/3` (bonfire_boundaries domain).
     scopes_cfg =
       Bonfire.Common.Config.get(:scopes, %{}, :bonfire_boundaries)
       |> localise_tree(Bonfire.Boundaries)

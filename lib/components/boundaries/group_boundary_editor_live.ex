@@ -50,7 +50,7 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
         :preset_dimensions,
         fn ->
           Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries)
-          # config strings are `l_noop`-marked (frozen at boot) — re-localise for display
+          # config `l/1` strings are frozen to the boot locale — re-localise for display
           |> localise_tree(Bonfire.Boundaries)
         end
       )
@@ -282,10 +282,10 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
     Bonfire.Common.Config.get(:group_preset_order, [], :bonfire_classify)
   end
 
-  # Preset/toggle `label`/`description`/`help` are `l_noop`-marked in `Bonfire.Classify.RuntimeConfig`
-  # (frozen at boot) — re-localise per-request for display via the shared `localise_tree/3`.
+  # Preset/toggle `label`/`description`/`help` use `l/1` in `Bonfire.Classify.RuntimeConfig`, so they
+  # are frozen to the boot locale — re-localise per-request for display via the shared `localise_tree/3`.
   def preset_meta(slug) do
     Bonfire.Common.Config.get([:group_presets, slug], %{}, :bonfire_classify)
-    |> localise_tree(Bonfire.Classify.RuntimeConfig)
+    |> localise_tree(Bonfire.Classify)
   end
 end
