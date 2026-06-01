@@ -48,7 +48,11 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
       |> assign(assigns)
       |> assign_new(
         :preset_dimensions,
-        fn -> Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries) end
+        fn ->
+          Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries)
+          # config strings are `l_noop`-marked (frozen at boot) — re-localise for display
+          |> localise_tree(Bonfire.Boundaries)
+        end
       )
       |> assign_new(:preset_slug_list, fn -> preset_slugs() end)
       |> assign_new(:preset_metas, fn -> Map.new(preset_slugs(), &{&1, preset_meta(&1)}) end)
@@ -265,7 +269,11 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
   @doc "Returns toggle definitions from config, with `locked` computed for the given preset."
   def layer2_toggle_rows(preset) do
     Bonfire.Common.Config.get(:layer2_toggles, [], :bonfire_classify)
-    |> Enum.map(fn %{key: key} = t -> Map.put(t, :locked, layer2_locked?(preset, key)) end)
+    |> Enum.map(fn %{key: key} = t ->
+      t
+      |> Map.put(:locked, layer2_locked?(preset, key))
+      |> localise_tree(Bonfire.Classify)
+    end)
   end
 
   # --- Preset list for rendering ---
@@ -274,7 +282,10 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
     Bonfire.Common.Config.get(:group_preset_order, [], :bonfire_classify)
   end
 
+  # Preset/toggle `label`/`description`/`help` are `l_noop`-marked in `Bonfire.Classify.RuntimeConfig`
+  # (frozen at boot) — re-localise per-request for display via the shared `localise_tree/3`.
   def preset_meta(slug) do
     Bonfire.Common.Config.get([:group_presets, slug], %{}, :bonfire_classify)
+    |> localise_tree(Bonfire.Classify.RuntimeConfig)
   end
 end
