@@ -174,41 +174,19 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
   defp assign_layer2_rows(socket, preset),
     do: assign(socket, layer2_rows: layer2_toggle_rows(preset))
 
-  # Toggle initial state is derived from the preset's final dimension slugs by
-  # consulting the same `preset_dimensions` config that owns the slug → role/scope
-  # mapping. Avoids a parallel set of string-shape rules that would drift when
-  # slugs are added or renamed.
-  defp derive_layer2_state(preset, preset_dimensions) do
-    visibility = e(preset, :visibility, nil)
-    vis_options = e(preset_dimensions, :visibility, :options, %{})
-
-    %{
-      discoverable: e(vis_options, visibility, :role, nil) == :discover,
-      federate: federated_scope?(visibility),
-      approval_required: e(preset, :membership, nil) == "on_request",
-      anyone_posts: anyone_can_post?(e(preset, :participation, nil))
+  defp derive_layer2_state(preset, _preset_dimensions) do
+    dims = %{
+      visibility: e(preset, :visibility, nil),
+      membership: e(preset, :membership, nil),
+      participation: e(preset, :participation, nil)
     }
+
+    Bonfire.Classify.Boundaries.layer2_from_dims(dims)
   end
 
-  # Federated when the visibility's scope isn't one of the on-instance scopes.
-  # Uses `slug_to_scope/1` so this stays in sync with the canonical scope list.
-  defp federated_scope?(slug) when is_binary(slug),
-    do:
-      Bonfire.UI.Groups.BoundaryScopeSelectorLive.slug_to_scope(slug) not in [
-        "nonfederated",
-        "local"
-      ]
-
-  defp federated_scope?(_), do: false
-
-  # Open participation: the unscoped "anyone" slug, or any `<scope>:contributors`
-  # variant — the contributor suffix is the convention for non-member posting.
-  defp anyone_can_post?(slug) when is_binary(slug),
-    do: slug == "anyone" or String.ends_with?(slug, ":contributors")
-
-  defp anyone_can_post?(_), do: false
-
   # --- Layer 2 → primitive mapping (toggle change handlers) ---
+  # TODO: these should be config-driven rather than hardcoded — each `layer2_toggles`
+  # entry should declare which dim key/value it maps to. See `Bonfire.Classify.Boundaries.dims_from_layer2_overrides/2`.
 
   defp apply_layer2_to_primitives(socket, :discoverable, true),
     do: swap_visibility_access(socket, :discover)
@@ -232,17 +210,15 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
   defp apply_layer2_to_primitives(socket, :federate, _), do: socket
   defp apply_layer2_to_primitives(socket, _, _), do: socket
 
-  # Keeps the current visibility scope, but swaps the access role to match the target.
-  # Looks up slugs from preset_dimensions config: finds one with the same scope and the given role.
   defp swap_visibility_access(socket, target_role) do
     current_vis = socket.assigns.visibility
-    current_scope = Bonfire.UI.Groups.BoundaryScopeSelectorLive.slug_to_scope(current_vis)
+    current_scope = Bonfire.Boundaries.Presets.slug_scope(current_vis)
     vis_opts = e(socket.assigns.preset_dimensions, :visibility, :options, %{})
     vis_order = e(socket.assigns.preset_dimensions, :visibility, :slug_order, [])
 
     new_vis =
       Enum.find(vis_order, current_vis, fn slug ->
-        Bonfire.UI.Groups.BoundaryScopeSelectorLive.slug_to_scope(slug) == current_scope and
+        Bonfire.Boundaries.Presets.slug_scope(slug) == current_scope and
           e(vis_opts, slug, :role, :interact) == target_role
       end)
 

@@ -81,20 +81,5 @@ defmodule Bonfire.UI.Groups.BoundaryScopeSelectorLive do
     |> render_sface()
   end
 
-  @doc "Extracts the scope portion from a combined slug (e.g. 'local:discoverable' → 'local', 'members:private' → 'members'). Bare slugs that aren't known scopes default to 'global'."
-  def slug_to_scope(slug) when is_binary(slug) do
-    known_scopes =
-      Map.keys(Bonfire.Common.Config.get(:scopes, %{}, :bonfire_boundaries))
-      |> Enum.map(&to_string/1)
-
-    scope =
-      case String.split(slug, ":", parts: 2) do
-        [scope, _] -> scope
-        [scope] -> scope
-      end
-
-    if scope in known_scopes, do: scope, else: "global"
-  end
-
-  def slug_to_scope(_), do: nil
+  defdelegate slug_to_scope(slug), to: Bonfire.Boundaries.Presets, as: :slug_scope
 end
