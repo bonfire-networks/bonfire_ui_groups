@@ -1,0 +1,61 @@
+<section id="group-moderators" class="mb-6">
+  <header class="flex items-center justify-between px-4 py-3">
+    <h2 class="text-base font-semibold text-base-content">{l("Moderators")}</h2>
+    <span class="text-xs text-base-content/60">{length(@moderators)}</span>
+  </header>
+
+  <div :if={@can_manage} class="px-4 pb-3">
+    <form id="add_moderator_form" phx-change="change" phx-target={@myself} class="w-full">
+      <label for={"multi_select_#{__MODULE__}_text_input"} class="sr-only">{l("Search for a user to add as moderator")}</label>
+      <div class="relative">
+        <Bonfire.UI.Common.MultiselectLive
+          implementation={:live_select}
+          mode={:single}
+          form_input_name="moderator_select"
+          field={:add_moderator}
+          show_search
+          debounce={300}
+          event_target={@myself}
+          label={l("Search for a user to add as moderator")}
+        />
+      </div>
+    </form>
+  </div>
+
+  {#if @moderators == []}
+    <div id="moderators-empty" class="flex items-center my-8 place-content-center">
+      <Bonfire.UI.Common.EmptyFeed feedback_title={l("No moderators yet")} />
+    </div>
+  {#else}
+    <div class="flow-root">
+      <ul class="divide-y divide-base-content/10">
+        {#for mod <- @moderators}
+          <li id={"moderator-#{id(mod)}"} class="p-4">
+            <StatelessComponent
+              module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}
+              lg
+              avatar_class="w-12 h-12 rounded-full bg-base-300"
+              wrapper_class="flex items-center justify-between"
+              profile={Bonfire.UI.Groups.Settings.MembershipLive.subject_profile(mod)}
+              character={Bonfire.UI.Groups.Settings.MembershipLive.subject_character(mod)}
+              show_controls={[]}
+              activity_id={id(mod)}
+              parent_id="group_moderators"
+            >
+              <button
+                :if={@can_manage && id(mod) != @custodian_id}
+                data-role="remove_moderator"
+                phx-value-id={id(mod)}
+                :on-click="remove_moderator"
+                phx-target={@myself}
+                class="btn btn-error btn-soft btn-sm"
+              >
+                {l("Remove")}
+              </button>
+            </StatelessComponent>
+          </li>
+        {/for}
+      </ul>
+    </div>
+  {/if}
+</section>

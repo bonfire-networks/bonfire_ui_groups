@@ -105,6 +105,29 @@
       </div>
     </details>
 
+    {!-- Moderators — promote/demote group moderators. --}
+    <details class="group mt-8 pt-6 border-t border-base-content/10">
+      <summary class="flex items-center gap-3 cursor-pointer list-none">
+        <div class="flex-1">
+          <h2 class="text-xl font-semibold leading-tight">{l("Moderators")}</h2>
+          <p class="text-sm text-base-content/60 mt-0.5">
+            {l("People who can moderate this group.")}
+          </p>
+        </div>
+        <#Icon
+          iconify="ph:caret-down-bold"
+          class="w-4 h-4 text-base-content/60 shrink-0 transition-transform duration-150 group-open:rotate-180"
+        />
+      </summary>
+      <div class="mt-4">
+        <StatefulComponent
+          id={"group-moderators-#{e(@category, :id, "unknown")}"}
+          module={maybe_component(Bonfire.UI.Groups.Settings.ModeratorsLive, @__context__)}
+          category={@category}
+        />
+      </div>
+    </details>
+
     {!-- Auto-join — instance admins only --}
     {#if Bonfire.Boundaries.can?(current_user(@__context__), :configure, :instance)}
       <section class="flex flex-col gap-3 mt-8 pt-6 border-t border-base-content/10">
