@@ -147,4 +147,18 @@ defmodule Bonfire.UI.Groups.ModeratorsManagementTest do
              _ -> false
            end)
   end
+
+  test "the moderator live_select search sends options to the dropdown", %{
+    conn: conn,
+    group: group,
+    account: account
+  } do
+    findable = fake_user!(account, %{name: "findmemoderator"})
+
+    {:ok, view, _html} = live(conn, settings_path(group))
+
+    ls_id = live_select_simulate_search(view, "#group-moderators", "findmemoderator")
+
+    assert has_element?(view, "##{ls_id} li", findable.profile.name)
+  end
 end
