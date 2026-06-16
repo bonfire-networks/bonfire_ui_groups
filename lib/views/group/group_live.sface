@@ -5,6 +5,62 @@
     "": !current_user_id(@__context__)
   }
 >
+  {#if e(@category, :deleted_at, nil) && @type != :topic}
+    {!-- Archived group: restore notice up top, hero below as an inert preview --}
+    <div
+      class="mb-4 flex flex-col gap-3 rounded-xl border border-base-content/15 bg-base-200 p-4 sm:flex-row sm:items-center"
+      role="status"
+    >
+      <div class="flex flex-1 items-start gap-3">
+        <div class="grid size-10 shrink-0 place-items-center rounded-lg bg-base-content/5">
+          <#Icon iconify="ph:archive-duotone" class="size-5 text-base-content/70" />
+        </div>
+        <div class="flex-1">
+          <div class="font-semibold text-base-content">{l("This group is archived")}</div>
+          <p class="mt-0.5 text-sm text-base-content/70">
+            {l("It's hidden from members and listings. Restore it to bring it back online.")}
+          </p>
+        </div>
+      </div>
+      {#if Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
+        <button
+          type="button"
+          id="group_unarchive_button"
+          :on-click="Bonfire.Classify:unarchive"
+          data-confirm={l("Restore this group and bring it back online?")}
+          class="btn btn-primary btn-sm shrink-0 gap-2 normal-case sm:self-center"
+        >
+          <#Icon iconify="ph:arrow-counter-clockwise" class="size-4" />
+          {l("Unarchive")}
+        </button>
+      {/if}
+    </div>
+    <div class="pointer-events-none opacity-70 grayscale-[40%]" aria-label={l("Preview of the archived group")}>
+    <StatefulComponent
+      module={Config.get(
+        [:ui, :group, :hero_component],
+        Bonfire.UI.Me.ProfileHeroFullLive
+      )}
+      id={deterministic_dom_id("profile_hero", id(@category), "archived", @character_type)}
+      user={@category}
+      path={@path}
+      character_type={:group}
+      boundary_preset={@boundary_preset}
+      object_boundary={@object_boundary}
+      permalink={@permalink}
+      follows_me={false}
+      selected_tab={@selected_tab}
+      members={@members}
+      moderators={@moderators}
+      subcategories={e(assigns, :subcategories, [])}
+      preset_slug={e(assigns, :group_preset_slug, nil)}
+      membership_slug={e(assigns, :group_membership_slug, nil)}
+      member_count={e(assigns, :group_member_count, nil)}
+      topic_count={e(assigns, :group_topic_count, nil)}
+      date={e(assigns, :group_date, nil)}
+    />
+    </div>
+  {#else}
   <StatelessComponent
     module={if @type == :topic,
       do:
@@ -131,4 +187,5 @@
       {/if}
     </:header>
   </StatelessComponent>
+  {/if}
 </main>

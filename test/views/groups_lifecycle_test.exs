@@ -558,6 +558,151 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     end
   end
 
+  describe "archived groups" do
+    test "my_archived_groups returns the creator's archived groups, not live ones" do
+      account = fake_account!()
+      me = fake_user!(account)
+      live_group = create_group(me, name: "Still Live Group")
+      archived_group = create_group(me, name: "Gone Group")
+
+      # before archiving, nothing is listed
+      assert {[], _} = Bonfire.Classify.my_archived_groups(me)
+
+      {:ok, _} = Categories.soft_delete(archived_group, me)
+
+      {archived, _page_info} = Bonfire.Classify.my_archived_groups(me)
+      ids = Enum.map(archived, & &1.id)
+
+      assert archived_group.id in ids
+      refute live_group.id in ids
+    end
+
+    test "an unrelated user does not see someone else's archived groups" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+      group = create_group(me, name: "Not Yours Group")
+
+      {:ok, _} = Categories.soft_delete(group, me)
+
+      assert {[], _} = Bonfire.Classify.my_archived_groups(alice)
+    end
+
+    test "unarchive restores a group (clears deleted_at)" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Restorable Group")
+
+      {:ok, _} = Categories.soft_delete(group, me)
+      {:ok, restored} = Categories.unarchive(group.id, me)
+
+      assert is_nil(e(restored, :deleted_at, nil))
+      assert {[], _} = Bonfire.Classify.my_archived_groups(me)
+    end
+
+    test "a non-permitted user cannot unarchive a group" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+      group = create_group(me, name: "Guarded Group")
+
+      {:ok, _} = Categories.soft_delete(group, me)
+
+      assert {:error, _} = Categories.unarchive(group.id, alice)
+    end
+
+    test "the Archived tab on the groups directory lists the creator's archived groups" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Archived Directory Group")
+
+      {:ok, _} = Categories.soft_delete(group, me)
+
+      conn = conn(user: me, account: account)
+      {:ok, _view, html} = live(conn, "/groups?tab=archived")
+
+      assert html =~ "Archived Directory Group"
+    end
+
+    test "opening an archived group shows the hero, an archived notice and an Unarchive button (no composer)" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Hero Only Group")
+
+      {:ok, _} = Categories.soft_delete(group, me)
+
+      conn = conn(user: me, account: account)
+      {:ok, _view, html} = live(conn, "/&#{group.character.username}")
+
+      assert html =~ "Hero Only Group"
+      assert html =~ "This group is archived"
+      assert html =~ "Unarchive"
+      # the normal tabbed body (inline composer) is suppressed for archived groups
+      refute html =~ "inline_composer_placeholder"
+    end
+
+    test "a group moderator (not the creator) can see and restore an archived group" do
+      account = fake_account!()
+      me = fake_user!(account)
+      mod = fake_user!(account)
+      group = create_group(me, name: "Mod Restore Group", membership: "local:members")
+
+      # mod joins (so they follow the group) and is promoted to moderator
+      {:ok, _} = Categories.join_group(mod, group)
+      {:ok, _} = Categories.add_moderator(me, group, id(mod))
+
+      {:ok, _} = Categories.soft_delete(group, me)
+
+      # the moderator sees the archived group in their own list...
+      {archived, _} = Bonfire.Classify.my_archived_groups(mod)
+      assert group.id in Enum.map(archived, & &1.id)
+
+      # ...and can restore it
+      {:ok, restored} = Categories.unarchive(group.id, mod)
+      assert is_nil(e(restored, :deleted_at, nil))
+    end
+
+    test "an archived topic stays not-visible (only groups get the archived view)" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Parent For Topic")
+
+      {:ok, topic} =
+        Categories.create(me, %{name: "Archived Topic", type: :topic, parent_category: group})
+
+      {:ok, _} = Categories.soft_delete(topic, me)
+
+      # even the creator gets the not-visible path for a soft-deleted topic (no restore flow)
+      assert {:error, _} =
+               live(conn(user: me, account: account), "/&#{topic.character.username}")
+    end
+
+    test "a non-moderator cannot open an archived (but otherwise discoverable) group page" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+
+      group =
+        create_group(me,
+          name: "Archived Discoverable Group",
+          membership: "on_request",
+          visibility: "local:discoverable"
+        )
+
+      # alice can see it while it's live
+      conn(user: alice, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> assert_has("*", text: "Archived Discoverable Group")
+
+      {:ok, _} = Categories.soft_delete(group, me)
+
+      # once archived, only those allowed to restore it may reach the page
+      assert {:error, _} =
+               live(conn(user: alice, account: account), "/&#{group.character.username}")
+    end
+  end
+
   describe "publish in group" do
     test "anyone can post in open group, which visible to the author when visiting the group" do
       account = fake_account!()

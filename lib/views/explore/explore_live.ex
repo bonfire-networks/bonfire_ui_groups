@@ -34,8 +34,10 @@ defmodule Bonfire.UI.Groups.ExploreLive do
          page: "groups",
          page_title: "Groups",
          back: true,
+         selected_tab: "discover",
          all_categories: categories,
          categories: categories,
+         archived_categories: [],
          search_term: "",
          page_info: page_info,
          page_header_aside: [
@@ -58,6 +60,36 @@ defmodule Bonfire.UI.Groups.ExploreLive do
            #  ]
          ]
        )}
+    end
+  end
+
+  def handle_params(%{"tab" => "archived"}, _uri, socket) do
+    {archived, _page_info} = Classify.my_archived_groups(current_user(socket))
+
+    {:noreply,
+     assign(socket,
+       selected_tab: "archived",
+       archived_categories: Enum.map(archived, &{&1, []})
+     )}
+  end
+
+  def handle_params(_params, _uri, socket) do
+    {:noreply, assign(socket, selected_tab: "discover")}
+  end
+
+  def handle_event("unarchive", %{"id" => id}, socket) do
+    user = current_user_required!(socket)
+
+    with {:ok, _category} <- Categories.unarchive(id, user) do
+      {archived, _page_info} = Classify.my_archived_groups(user)
+
+      {:noreply,
+       socket
+       |> assign_flash(:info, l("Group restored"))
+       |> assign(archived_categories: Enum.map(archived, &{&1, []}))}
+    else
+      _ ->
+        {:noreply, assign_flash(socket, :error, l("Sorry, you cannot restore this group."))}
     end
   end
 
