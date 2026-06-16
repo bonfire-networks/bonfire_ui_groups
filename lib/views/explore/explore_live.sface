@@ -12,7 +12,8 @@
       class={
         "flex-1 rounded-lg px-4 py-2 text-center text-sm font-medium transition-colors duration-150",
         "bg-base-100 text-base-content shadow-sm": @selected_tab != "archived",
-        "text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80": @selected_tab == "archived"
+        "text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80":
+          @selected_tab == "archived"
       }
     >{l("Discover")}</Bonfire.UI.Common.LinkLive>
     <Bonfire.UI.Common.LinkLive
@@ -21,7 +22,8 @@
       class={
         "flex-1 rounded-lg px-4 py-2 text-center text-sm font-medium transition-colors duration-150",
         "bg-base-100 text-base-content shadow-sm": @selected_tab == "archived",
-        "text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80": @selected_tab != "archived"
+        "text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80":
+          @selected_tab != "archived"
       }
     >{l("Archived")}</Bonfire.UI.Common.LinkLive>
   </div>

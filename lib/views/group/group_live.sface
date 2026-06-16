@@ -35,157 +35,160 @@
         </button>
       {/if}
     </div>
-    <div class="pointer-events-none opacity-70 grayscale-[40%]" aria-label={l("Preview of the archived group")}>
-    <StatefulComponent
-      module={Config.get(
-        [:ui, :group, :hero_component],
-        Bonfire.UI.Me.ProfileHeroFullLive
-      )}
-      id={deterministic_dom_id("profile_hero", id(@category), "archived", @character_type)}
-      user={@category}
-      path={@path}
-      character_type={:group}
-      boundary_preset={@boundary_preset}
-      object_boundary={@object_boundary}
-      permalink={@permalink}
-      follows_me={false}
-      selected_tab={@selected_tab}
-      members={@members}
-      moderators={@moderators}
-      subcategories={e(assigns, :subcategories, [])}
-      preset_slug={e(assigns, :group_preset_slug, nil)}
-      membership_slug={e(assigns, :group_membership_slug, nil)}
-      member_count={e(assigns, :group_member_count, nil)}
-      topic_count={e(assigns, :group_topic_count, nil)}
-      date={e(assigns, :group_date, nil)}
-    />
+    <div
+      class="pointer-events-none opacity-70 grayscale-[40%]"
+      aria-label={l("Preview of the archived group")}
+    >
+      <StatefulComponent
+        module={Config.get(
+          [:ui, :group, :hero_component],
+          Bonfire.UI.Me.ProfileHeroFullLive
+        )}
+        id={deterministic_dom_id("profile_hero", id(@category), "archived", @character_type)}
+        user={@category}
+        path={@path}
+        character_type={:group}
+        boundary_preset={@boundary_preset}
+        object_boundary={@object_boundary}
+        permalink={@permalink}
+        follows_me={false}
+        selected_tab={@selected_tab}
+        members={@members}
+        moderators={@moderators}
+        subcategories={e(assigns, :subcategories, [])}
+        preset_slug={e(assigns, :group_preset_slug, nil)}
+        membership_slug={e(assigns, :group_membership_slug, nil)}
+        member_count={e(assigns, :group_member_count, nil)}
+        topic_count={e(assigns, :group_topic_count, nil)}
+        date={e(assigns, :group_date, nil)}
+      />
     </div>
   {#else}
-  <StatelessComponent
-    module={if @type == :topic,
-      do:
-        Config.get([:ui, :topic, :sections], [])[tab(@selected_tab)] ||
-          Bonfire.UI.Social.ProfileTimelineLive,
-      else:
-        tab_component(@selected_tab) || tab_component(@tab_id) ||
-          Bonfire.UI.Social.ProfileTimelineLive}
-    user={@category}
-    {...assigns}
-  >
-    <:header>
-      {#if @type == :topic}
-        {!-- handle the case where this page is loading a topic instead of a group, mirroring Bonfire.UI.Topics.CategoryLive --}
-        {#if e(@category, :parent_category, nil)}
+    <StatelessComponent
+      module={if @type == :topic,
+        do:
+          Config.get([:ui, :topic, :sections], [])[tab(@selected_tab)] ||
+            Bonfire.UI.Social.ProfileTimelineLive,
+        else:
+          tab_component(@selected_tab) || tab_component(@tab_id) ||
+            Bonfire.UI.Social.ProfileTimelineLive}
+      user={@category}
+      {...assigns}
+    >
+      <:header>
+        {#if @type == :topic}
+          {!-- handle the case where this page is loading a topic instead of a group, mirroring Bonfire.UI.Topics.CategoryLive --}
+          {#if e(@category, :parent_category, nil)}
+            <StatefulComponent
+              module={Config.get(
+                [:ui, :group, :hero_component],
+                Bonfire.UI.Me.ProfileHeroFullLive
+              )}
+              id={deterministic_dom_id(
+                "profile_hero_group",
+                id(e(@category, :parent_category, nil)),
+                @selected_tab
+              )}
+              user={e(@category, :parent_category, nil)}
+              path={path(e(@category, :parent_category, nil))}
+              character_type={:group}
+              boundary_preset={@boundary_preset}
+              object_boundary={@object_boundary}
+              permalink={path(e(@category, :parent_category, nil))}
+              follows_me={false}
+              selected_tab={@selected_tab}
+              members={e(assigns, :members, [])}
+              moderators={e(assigns, :moderators, [])}
+              subcategories={e(assigns, :subcategories, [])}
+              selected_category_id={id(@category)}
+              preset_slug={e(assigns, :group_preset_slug, nil)}
+              membership_slug={e(assigns, :group_membership_slug, "on_request")}
+              member_count={e(assigns, :group_member_count, nil)}
+              topic_count={e(assigns, :group_topic_count, nil)}
+              date={e(assigns, :group_date, nil)}
+            />
+          {/if}
+          <StatelessComponent
+            module={maybe_component(Bonfire.UI.Topics.TopicHeroLive, @__context__)}
+            category={@category}
+            permalink={@permalink}
+            object_boundary={@object_boundary}
+            boundary_preset={@boundary_preset}
+          />
+          <StatelessComponent
+            :if={@can_create_in_category}
+            module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
+            selected_tab={@selected_tab}
+            prompt={l("Write in %{name}",
+              name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
+            )}
+            smart_input_opts={%{
+              context_id: id(@category),
+              mentions: [id(@category)],
+              to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
+              to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
+            }}
+          />
+        {#elseif @selected_tab == "settings"}
+          <div class="sticky top-0 pt-safe z-sticky bg-base-100 lg:bg-base-100/70 backdrop-blur-sm border-b border-base-content/10">
+            <div role="banner" class="flex items-center place-content-center flex-1 w-full min-h-[60px]">
+              <div class="flex items-center gap-2 w-full">
+                <LinkLive
+                  to={e(@category, :permalink, nil) || @permalink}
+                  id="go_back_button"
+                  aria-label={l("Go back to the previous page")}
+                  class="btn z-50 btn-sm btn-circle"
+                >
+                  <#Icon iconify="ph:arrow-left" class="w-5 h-5" />
+                </LinkLive>
+                <div class="flex items-center flex-1 w-full flex-1">
+                  <span class="max-w-[250px] lg:max-w-[600px] font-semibold text-base-content truncate text-ellipsis">
+                    {e(@category, :name, l("Group"))}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        {#else}
           <StatefulComponent
             module={Config.get(
               [:ui, :group, :hero_component],
               Bonfire.UI.Me.ProfileHeroFullLive
             )}
-            id={deterministic_dom_id(
-              "profile_hero_group",
-              id(e(@category, :parent_category, nil)),
-              @selected_tab
-            )}
-            user={e(@category, :parent_category, nil)}
-            path={path(e(@category, :parent_category, nil))}
+            id={deterministic_dom_id("profile_hero", id(@category), @selected_tab, @character_type)}
+            user={@category}
+            path={@path}
             character_type={:group}
             boundary_preset={@boundary_preset}
             object_boundary={@object_boundary}
-            permalink={path(e(@category, :parent_category, nil))}
+            permalink={@permalink}
             follows_me={false}
             selected_tab={@selected_tab}
-            members={e(assigns, :members, [])}
-            moderators={e(assigns, :moderators, [])}
+            members={@members}
+            moderators={@moderators}
             subcategories={e(assigns, :subcategories, [])}
-            selected_category_id={id(@category)}
             preset_slug={e(assigns, :group_preset_slug, nil)}
-            membership_slug={e(assigns, :group_membership_slug, "on_request")}
+            membership_slug={e(assigns, :group_membership_slug, nil)}
             member_count={e(assigns, :group_member_count, nil)}
             topic_count={e(assigns, :group_topic_count, nil)}
             date={e(assigns, :group_date, nil)}
           />
+          <StatelessComponent
+            :if={@can_create_in_category}
+            module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
+            selected_tab={@selected_tab}
+            prompt={l("Write in %{name}",
+              name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
+            )}
+            smart_input_opts={%{
+              context_id: id(@category),
+              mentions: [id(@category)],
+              to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
+              to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
+            }}
+          />
         {/if}
-        <StatelessComponent
-          module={maybe_component(Bonfire.UI.Topics.TopicHeroLive, @__context__)}
-          category={@category}
-          permalink={@permalink}
-          object_boundary={@object_boundary}
-          boundary_preset={@boundary_preset}
-        />
-        <StatelessComponent
-          :if={@can_create_in_category}
-          module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
-          selected_tab={@selected_tab}
-          prompt={l("Write in %{name}",
-            name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
-          )}
-          smart_input_opts={%{
-            context_id: id(@category),
-            mentions: [id(@category)],
-            to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
-            to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
-          }}
-        />
-      {#elseif @selected_tab == "settings"}
-        <div class="sticky top-0 pt-safe z-sticky bg-base-100 lg:bg-base-100/70 backdrop-blur-sm border-b border-base-content/10">
-          <div role="banner" class="flex items-center place-content-center flex-1 w-full min-h-[60px]">
-            <div class="flex items-center gap-2 w-full">
-              <LinkLive
-                to={e(@category, :permalink, nil) || @permalink}
-                id="go_back_button"
-                aria-label={l("Go back to the previous page")}
-                class="btn z-50 btn-sm btn-circle"
-              >
-                <#Icon iconify="ph:arrow-left" class="w-5 h-5" />
-              </LinkLive>
-              <div class="flex items-center flex-1 w-full flex-1">
-                <span class="max-w-[250px] lg:max-w-[600px] font-semibold text-base-content truncate text-ellipsis">
-                  {e(@category, :name, l("Group"))}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      {#else}
-        <StatefulComponent
-          module={Config.get(
-            [:ui, :group, :hero_component],
-            Bonfire.UI.Me.ProfileHeroFullLive
-          )}
-          id={deterministic_dom_id("profile_hero", id(@category), @selected_tab, @character_type)}
-          user={@category}
-          path={@path}
-          character_type={:group}
-          boundary_preset={@boundary_preset}
-          object_boundary={@object_boundary}
-          permalink={@permalink}
-          follows_me={false}
-          selected_tab={@selected_tab}
-          members={@members}
-          moderators={@moderators}
-          subcategories={e(assigns, :subcategories, [])}
-          preset_slug={e(assigns, :group_preset_slug, nil)}
-          membership_slug={e(assigns, :group_membership_slug, nil)}
-          member_count={e(assigns, :group_member_count, nil)}
-          topic_count={e(assigns, :group_topic_count, nil)}
-          date={e(assigns, :group_date, nil)}
-        />
-        <StatelessComponent
-          :if={@can_create_in_category}
-          module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
-          selected_tab={@selected_tab}
-          prompt={l("Write in %{name}",
-            name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
-          )}
-          smart_input_opts={%{
-            context_id: id(@category),
-            mentions: [id(@category)],
-            to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
-            to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
-          }}
-        />
-      {/if}
-    </:header>
-  </StatelessComponent>
+      </:header>
+    </StatelessComponent>
   {/if}
 </main>
