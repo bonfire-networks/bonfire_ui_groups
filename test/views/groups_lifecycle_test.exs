@@ -108,6 +108,21 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       assert html =~ "Cozy Club"
     end
 
+    test "instance admin can open a group page and sees the pin-to-sidebar action" do
+      account = fake_account!()
+      me = fake_user!(account)
+      # admins render the group hero with extra menu entries — guard against the pin-action DOM-id
+      # collision that previously crashed connected mount ("found duplicate ID ... OpenModalLive")
+      {:ok, me} = Bonfire.Me.Users.make_admin(me)
+      group = create_group(me, name: "Admin Cozy Club")
+
+      conn = conn(user: me, account: account)
+      {:ok, _view, html} = live(conn, "/&#{group.character.username}")
+
+      assert html =~ "Admin Cozy Club"
+      assert html =~ "sidebar"
+    end
+
     test "I cannot see a private group without an invite" do
       account = fake_account!()
       me = fake_user!(account)
@@ -152,6 +167,59 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       {:ok, _view, html} = live(conn, "/groups")
 
       assert html =~ "Listed Group"
+    end
+
+    test "an instance admin can pin a group to everyone's sidebar from the Instance settings section" do
+      account = fake_account!()
+      me = fake_user!(account)
+      {:ok, me} = Bonfire.Me.Users.make_admin(me)
+      group = create_group(me, name: "Featured Group")
+
+      conn = conn(user: me, account: account)
+      {:ok, view, html} = live(conn, "/&#{group.character.username}/settings")
+
+      # the admin-only pin toggle is present in group settings and not pinned yet
+      assert html =~ "instance_pin_toggle"
+      refute Bonfire.Social.Pins.pinned?(:instance, group)
+
+      view
+      |> element("[data-role=instance_pin_toggle]")
+      |> render_click()
+
+      # now pinned instance-wide → shows in every user's sidebar
+      assert Bonfire.Social.Pins.pinned?(:instance, group)
+
+      other_account = fake_account!()
+      other = fake_user!(other_account)
+      sidebar = Bonfire.Classify.my_pinned_tree(other)
+      assert Enum.any?(sidebar, fn {c, _} -> id(c) == id(group) end)
+    end
+
+    test "a group admin who is not an instance admin does not see the instance pin toggle" do
+      account = fake_account!()
+      # group creator/admin, but NOT an instance admin
+      me = fake_user!(account)
+      group = create_group(me, name: "Regular Group")
+
+      conn = conn(user: me, account: account)
+      {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings")
+
+      refute html =~ "instance_pin_toggle"
+    end
+
+    test "the instance pin toggle does not appear on the group page or discover list" do
+      account = fake_account!()
+      me = fake_user!(account)
+      {:ok, me} = Bonfire.Me.Users.make_admin(me)
+      group = create_group(me, name: "Discover Group")
+
+      conn = conn(user: me, account: account)
+
+      {:ok, _view, page_html} = live(conn, "/&#{group.character.username}")
+      refute page_html =~ "instance_pin_toggle"
+
+      {:ok, _view, list_html} = live(conn, "/groups")
+      refute list_html =~ "instance_pin_toggle"
     end
 
     test "group sidebar shows joined groups" do
@@ -700,6 +768,106 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       # once archived, only those allowed to restore it may reach the page
       assert {:error, _} =
                live(conn(user: alice, account: account), "/&#{group.character.username}")
+    end
+  end
+
+  describe "joined groups" do
+    test "the Joined tab lists groups the user has joined" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+      group = create_group(me, name: "Joined Directory Group", membership: "local:members")
+
+      {:ok, _} = Categories.join_group(alice, group)
+
+      conn = conn(user: alice, account: account)
+      {:ok, _view, html} = live(conn, "/groups?tab=joined")
+
+      assert html =~ "Joined Directory Group"
+    end
+
+    test "the Joined tab does not list groups the user has not joined" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+
+      # a discoverable group alice can see but hasn't joined
+      _group =
+        create_group(me,
+          name: "Unjoined Discoverable Group",
+          membership: "local:members",
+          visibility: "local:discoverable"
+        )
+
+      conn = conn(user: alice, account: account)
+      {:ok, _view, html} = live(conn, "/groups?tab=joined")
+
+      refute html =~ "Unjoined Discoverable Group"
+      # empty-state copy for the Joined tab (apostrophe is HTML-escaped, so match a quote-free substring)
+      assert html =~ "joined any groups yet"
+    end
+
+    test "the group creator sees their own group in the Joined tab" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Creator Joined Group")
+
+      conn = conn(user: me, account: account)
+      {:ok, _view, html} = live(conn, "/groups?tab=joined")
+
+      assert html =~ "Creator Joined Group"
+    end
+
+    # Regression: `my_followed_tree` returns all followed categories (topics/labels too), so a user
+    # who follows a topic but no groups must still get the empty state — not a blank tab.
+    test "following a topic (but no group) still shows the Joined empty state" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+      group = create_group(me, name: "Topic Parent Group")
+
+      {:ok, topic} =
+        Categories.create(me, %{name: "Followed Topic", type: :topic, parent_category: group})
+
+      # alice follows only the topic, not its parent group
+      {:ok, _} = Bonfire.Social.Graph.Follows.follow(alice, topic)
+
+      conn = conn(user: alice, account: account)
+      {:ok, _view, html} = live(conn, "/groups?tab=joined")
+
+      refute html =~ "Followed Topic"
+      assert html =~ "joined any groups yet"
+    end
+
+    # test config sets `default_pagination_limit: 2`, so joining 3 groups splits across two pages
+    # and the Joined tab must surface a working "Load more" that appends the next page.
+    test "the Joined tab paginates joined groups with Load more" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+
+      groups =
+        for n <- ["One", "Two", "Three"] do
+          create_group(me, name: "Joined Page Group #{n}", membership: "local:members")
+        end
+
+      for group <- groups, do: {:ok, _} = Categories.join_group(alice, group)
+
+      conn = conn(user: alice, account: account)
+      {:ok, view, html} = live(conn, "/groups?tab=joined")
+
+      # first page shows 2 of 3, with a Load more button (id `load_more_joined`)
+      assert html =~ "load_more_joined"
+
+      loaded =
+        view
+        |> element("[data-id=load_more]")
+        |> render_click()
+
+      # after loading the next page, all three joined groups are present
+      assert loaded =~ "Joined Page Group One"
+      assert loaded =~ "Joined Page Group Two"
+      assert loaded =~ "Joined Page Group Three"
     end
   end
 

@@ -37,6 +37,8 @@ defmodule Bonfire.UI.Groups.ExploreLive do
          selected_tab: "discover",
          all_categories: categories,
          categories: categories,
+         joined_categories: [],
+         joined_page_info: nil,
          archived_categories: [],
          search_term: "",
          page_info: page_info,
@@ -61,6 +63,17 @@ defmodule Bonfire.UI.Groups.ExploreLive do
          ]
        )}
     end
+  end
+
+  def handle_params(%{"tab" => "joined"}, _uri, socket) do
+    {joined_groups, page_info} = joined_groups_page(current_user(socket), [])
+
+    {:noreply,
+     assign(socket,
+       selected_tab: "joined",
+       joined_categories: joined_groups,
+       joined_page_info: page_info
+     )}
   end
 
   def handle_params(%{"tab" => "archived"}, _uri, socket) do
@@ -113,6 +126,19 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     {:noreply, assign(socket, categories: filtered, search_term: search_term)}
   end
 
+  # Joined tab has its own load-more, keyed by the `context="joined"` the LoadMoreLive button sends —
+  # it appends to `joined_categories` (not the discover list) and tracks its own cursor.
+  def handle_event("load_more", %{"context" => "joined"} = attrs, socket) do
+    {new_groups, page_info} =
+      joined_groups_page(current_user(socket), after: e(attrs, "after", nil))
+
+    {:noreply,
+     assign(socket,
+       joined_categories: socket.assigns.joined_categories ++ new_groups,
+       joined_page_info: page_info
+     )}
+  end
+
   def handle_event("load_more", attrs, socket) do
     with %{edges: list, page_info: page_info} <-
            Categories.list_tree(
@@ -131,5 +157,14 @@ defmodule Bonfire.UI.Groups.ExploreLive do
          page_info: page_info
        )}
     end
+  end
+
+  defp joined_groups_page(user, opts) do
+    {joined, page_info} = Classify.my_followed_tree(user, opts)
+
+    groups =
+      Enum.filter(joined, fn {category, _children} -> e(category, :type, nil) == :group end)
+
+    {groups, page_info}
   end
 end

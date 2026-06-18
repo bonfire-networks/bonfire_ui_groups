@@ -1,34 +1,62 @@
 <div class="flex flex-col bonfire-wrapper">
-  {!-- Discover/Archived tabs (logged-in only) --}
+  {!-- Joined/Discover/Archived tabs (logged-in only) --}
   <div
     :if={current_user_id(@__context__)}
     role="tablist"
     aria-label={l("Group views")}
     class="m-3 flex gap-1 rounded-xl bg-base-content/5 p-1"
   >
-    <Bonfire.UI.Common.LinkLive
-      to="/groups?tab=discover"
-      opts={[role: "tab", "aria-selected": "#{@selected_tab != "archived"}"]}
-      class={
-        "flex-1 rounded-lg px-4 py-2 text-center text-sm font-medium transition-colors duration-150",
-        "bg-base-100 text-base-content shadow-sm": @selected_tab != "archived",
-        "text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80":
-          @selected_tab == "archived"
-      }
-    >{l("Discover")}</Bonfire.UI.Common.LinkLive>
-    <Bonfire.UI.Common.LinkLive
-      to="/groups?tab=archived"
-      opts={[role: "tab", "aria-selected": "#{@selected_tab == "archived"}"]}
-      class={
-        "flex-1 rounded-lg px-4 py-2 text-center text-sm font-medium transition-colors duration-150",
-        "bg-base-100 text-base-content shadow-sm": @selected_tab == "archived",
-        "text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80":
-          @selected_tab != "archived"
-      }
-    >{l("Archived")}</Bonfire.UI.Common.LinkLive>
+    {#for {tab, label} <- [{"joined", l("Joined")}, {"discover", l("Discover")}, {"archived", l("Archived")}]}
+      <Bonfire.UI.Common.LinkLive
+        to={"/groups?tab=#{tab}"}
+        opts={[role: "tab", "aria-selected": "#{@selected_tab == tab}"]}
+        class={
+          "flex-1 rounded-lg px-4 py-2 text-center text-sm font-medium transition-colors duration-150",
+          "bg-base-100 text-base-content shadow-sm": @selected_tab == tab,
+          "text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80":
+            @selected_tab != tab
+        }
+      >{label}</Bonfire.UI.Common.LinkLive>
+    {/for}
   </div>
 
-  {#if @selected_tab == "archived"}
+  {#if @selected_tab == "joined"}
+    {#if @joined_categories == []}
+      <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
+        <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
+          <#Icon iconify="ph:users-three-duotone" class="size-7 text-base-content/30" />
+        </div>
+        <p class="text-base font-semibold text-base-content">
+          {l("You haven't joined any groups yet")}
+        </p>
+        <p class="mt-1 max-w-sm text-sm text-base-content/55">
+          {l("Groups you join will appear here. Head to Discover to find one.")}
+        </p>
+      </div>
+    {#else}
+      {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
+        {#match nil}
+        {#match component}
+          <div class="flex flex-col divide-y divide-base-content/10">
+            {#for {%{type: :group} = category, _children} <- @joined_categories}
+              <StatelessComponent
+                module={component}
+                object={category}
+                permalink={path(category)}
+                showing_within={:list}
+              />
+            {/for}
+          </div>
+          <Bonfire.UI.Common.LoadMoreLive
+            :if={@joined_page_info}
+            live_handler="Bonfire.UI.Groups.ExploreLive"
+            page_info={@joined_page_info}
+            context="joined"
+            hide_if_no_more
+          />
+      {/case}
+    {/if}
+  {#elseif @selected_tab == "archived"}
     {#if @archived_categories == []}
       <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
         <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
