@@ -71,17 +71,23 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
 
   defp apply_initial_state(socket) do
     a = socket.assigns
+    socket = Bonfire.Classify.LiveHandler.init_group_boundary_assigns(socket)
 
-    socket
-    |> assign(preset: a.initial_preset)
-    |> maybe_assign(:membership, a.initial_membership)
-    |> maybe_assign(:visibility, a.initial_visibility)
-    |> maybe_assign(:participation, a.initial_participation)
-    |> maybe_assign(:default_content_visibility, a.initial_default_content_visibility)
-    |> Bonfire.Classify.LiveHandler.init_group_boundary_assigns()
-    |> maybe_open_advanced(a.initial_preset)
-    |> maybe_derive_initial_layer2(a.initial_preset)
-    |> assign_layer2_rows(a.initial_preset)
+    # The new-group form passes no preset, so fall back to the configured default
+    # (applying its dims too); the settings/edit tab always passes an explicit preset.
+    if is_nil(a.initial_preset) do
+      apply_preset(socket, default_preset())
+    else
+      socket
+      |> assign(preset: a.initial_preset)
+      |> maybe_assign(:membership, a.initial_membership)
+      |> maybe_assign(:visibility, a.initial_visibility)
+      |> maybe_assign(:participation, a.initial_participation)
+      |> maybe_assign(:default_content_visibility, a.initial_default_content_visibility)
+      |> maybe_open_advanced(a.initial_preset)
+      |> maybe_derive_initial_layer2(a.initial_preset)
+      |> assign_layer2_rows(a.initial_preset)
+    end
   end
 
   defp maybe_open_advanced(socket, "custom"), do: assign(socket, advanced_open: true)
@@ -256,6 +262,10 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
 
   def preset_slugs do
     Bonfire.Common.Config.get(:group_preset_order, [], :bonfire_classify)
+  end
+
+  defp default_preset do
+    Bonfire.Common.Config.get(:group_default_preset, nil, :bonfire_classify)
   end
 
   # Preset/toggle `label`/`description`/`help` use `l/1` in `Bonfire.Classify.RuntimeConfig`, so they

@@ -82,11 +82,21 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       |> assert_has("#new_group_name")
     end
 
-    test "Layer 2 hidden initially; Advanced region present but collapsed", %{conn: conn} do
+    test "the default preset is preselected on open", %{conn: conn} do
       conn
       |> visit("/groups")
       |> click_button("[data-role=open_modal]", "Create a group")
-      |> refute_has("h3", text: "Fine-tune")
+      |> assert_has("[data-preset=public_local_community][aria-checked=true]")
+      |> refute_has("[data-preset=private_club][aria-checked=true]")
+    end
+
+    test "Layer 2 shown for the preselected preset; Advanced region present but collapsed",
+         %{conn: conn} do
+      conn
+      |> visit("/groups")
+      |> click_button("[data-role=open_modal]", "Create a group")
+      # Layer 2 toggles header (preset is preselected) vs Layer 3 advanced (still collapsed)
+      |> assert_has("h3", text: "Fine-tune")
       |> assert_has("button[aria-expanded=false]", text: "Fine-tune each dimension")
     end
   end
