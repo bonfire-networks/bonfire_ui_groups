@@ -1,0 +1,45 @@
+<div class="flex flex-col gap-3">
+  {#if Bonfire.Boundaries.can?(@__context__, :mediate, :instance)}
+    {#if @groups == []}
+      <p class="text-sm text-base-content/60">
+        {l("No groups are pinned to everyone's sidebar yet.")}
+      </p>
+    {#else}
+      <div
+        id={@parent_id}
+        phx-hook="Draggable"
+        data-event="reorder_sidebar_groups"
+        data-parent={@parent_id}
+        phx-target={@myself}
+        class="flex flex-col gap-1"
+      >
+        {#for group <- @groups}
+          <div
+            data-sortable-item
+            data-item={id(group)}
+            class="flex items-center gap-2 rounded-lg border border-base-content/10 bg-base-100 px-3 py-2"
+          >
+            <span data-sortable-handler class="cursor-grab text-base-content/40">
+              <#Icon iconify="ph:dots-six-vertical-bold" class="w-5 h-5" />
+            </span>
+            <span class="flex-1 truncate text-sm font-medium">
+              {Bonfire.Classify.Web.Preview.CategoryLive.name(group, l("Group"))}
+            </span>
+            <button
+              type="button"
+              data-role="unpin_instance"
+              phx-click="unpin_instance"
+              phx-value-id={id(group)}
+              phx-target={@myself}
+              title={l("Unpin from everyone's sidebar")}
+              aria-label={l("Unpin from everyone's sidebar")}
+              class="btn btn-ghost btn-xs btn-circle text-base-content/50 hover:text-error"
+            >
+              <#Icon iconify="ph:push-pin-slash-duotone" class="w-4 h-4" />
+            </button>
+          </div>
+        {/for}
+      </div>
+    {/if}
+  {/if}
+</div>

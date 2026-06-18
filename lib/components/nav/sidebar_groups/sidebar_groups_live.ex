@@ -21,26 +21,34 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
     assign(socket, :current_path, path || "")
   end
 
-  def update(assigns, %{assigns: %{categories: _}} = socket) do
-    debug("categories already loaded")
+  # a pin changed elsewhere → recompute reactively (routed via PersistentLive, see after_pin)
+  def update(%{reload_pins: true}, socket) do
+    {:ok, assign(socket, categories: pinned_tree(current_user(socket)))}
+  end
 
-    {:ok, socket |> assign(assigns) |> assign_current_path()}
+  def update(assigns, %{assigns: %{categories: _}} = socket) do
+    {:ok, socket |> assign(assigns) |> register_for_pin_updates() |> assign_current_path()}
   end
 
   def update(assigns, socket) do
-    # TODO: pagination
-    {followed_categories, page_info} =
-      Bonfire.Classify.my_followed_tree(current_user(assigns) || current_user(socket),
-        pagination: %{limit: 20}
-      )
-
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(
-       categories: followed_categories || [],
-       page_info: page_info
-     )
+     |> assign(categories: pinned_tree(current_user(assigns) || current_user(socket)))
+     |> register_for_pin_updates()
      |> assign_current_path()}
   end
+
+  # register this component's nav-generated id under the user id so after_pin can reach it via
+  # send_updates from within this same (PersistentLive) process (idempotent)
+  defp register_for_pin_updates(socket) do
+    with user_id when is_binary(user_id) <- current_user_id(socket),
+         id when not is_nil(id) <- e(socket.assigns, :id, nil) do
+      Bonfire.UI.Common.ComponentID.register_alias(__MODULE__, user_id, id)
+    end
+
+    socket
+  end
+
+  defp pinned_tree(user), do: Bonfire.Classify.my_pinned_tree(user) || []
 end

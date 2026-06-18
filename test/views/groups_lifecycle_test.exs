@@ -111,6 +111,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     test "instance admin can open a group page and sees the pin-to-sidebar action" do
       account = fake_account!()
       me = fake_user!(account)
+
       # admins render the group hero with extra menu entries — guard against the pin-action DOM-id
       # collision that previously crashed connected mount ("found duplicate ID ... OpenModalLive")
       {:ok, me} = Bonfire.Me.Users.make_admin(me)
@@ -169,16 +170,16 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       assert html =~ "Listed Group"
     end
 
-    test "an instance admin can pin a group to everyone's sidebar from the Instance settings section" do
+    test "an instance admin can pin a group to everyone's sidebar from its hero ⋯ menu" do
       account = fake_account!()
       me = fake_user!(account)
       {:ok, me} = Bonfire.Me.Users.make_admin(me)
       group = create_group(me, name: "Featured Group")
 
       conn = conn(user: me, account: account)
-      {:ok, view, html} = live(conn, "/&#{group.character.username}/settings")
+      {:ok, view, html} = live(conn, "/&#{group.character.username}")
 
-      # the admin-only pin toggle is present in group settings and not pinned yet
+      # the admin-only pin toggle is present in the group hero and not pinned yet
       assert html =~ "instance_pin_toggle"
       refute Bonfire.Social.Pins.pinned?(:instance, group)
 
@@ -195,6 +196,49 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       assert Enum.any?(sidebar, fn {c, _} -> id(c) == id(group) end)
     end
 
+    test "an instance admin can reorder + unpin instance-pinned groups from instance settings" do
+      account = fake_account!()
+      me = fake_user!(account)
+      {:ok, me} = Bonfire.Me.Users.make_admin(me)
+      group_a = create_group(me, name: "Order Group A")
+      group_b = create_group(me, name: "Order Group B")
+
+      for g <- [group_a, group_b] do
+        {:ok, _} =
+          Bonfire.Social.Pins.pin(Bonfire.Social.Pins.instance_scope_id(), g, nil,
+            skip_boundary_check: true,
+            to_feeds: []
+          )
+      end
+
+      conn = conn(user: me, account: account)
+      {:ok, view, html} = live(conn, "/settings/instance/bonfire_ui_groups")
+
+      # the admin-only reorder list is present with both groups
+      assert html =~ "Sidebar order"
+      assert html =~ "Order Group A"
+      assert html =~ "Order Group B"
+
+      # drag B into position 0
+      view
+      |> element("#sidebar_groups_order")
+      |> render_hook("reorder_sidebar_groups", %{
+        "source_item" => id(group_b),
+        "new_index" => 0,
+        "target_order" => [id(group_b), id(group_a)]
+      })
+
+      ids = Enum.map(Bonfire.Classify.my_pinned_tree(me), fn {c, _} -> id(c) end)
+      assert [id(group_b), id(group_a)] == Enum.take(ids, 2)
+
+      # unpin A from everyone's sidebar via its per-row button
+      view
+      |> element(~s([data-role=unpin_instance][phx-value-id="#{id(group_a)}"]))
+      |> render_click()
+
+      refute Bonfire.Social.Pins.pinned?(:instance, group_a)
+    end
+
     test "a group admin who is not an instance admin does not see the instance pin toggle" do
       account = fake_account!()
       # group creator/admin, but NOT an instance admin
@@ -207,7 +251,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       refute html =~ "instance_pin_toggle"
     end
 
-    test "the instance pin toggle does not appear on the group page or discover list" do
+    test "an instance admin can pin a group from its hero ⋯ menu, but not from the discover list" do
       account = fake_account!()
       me = fake_user!(account)
       {:ok, me} = Bonfire.Me.Users.make_admin(me)
@@ -215,11 +259,24 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
       conn = conn(user: me, account: account)
 
+      # the group's profile-hero ⋯ menu offers instance pin/unpin to instance admins (no need to be a group mod)
       {:ok, _view, page_html} = live(conn, "/&#{group.character.username}")
-      refute page_html =~ "instance_pin_toggle"
+      assert page_html =~ "instance_pin_toggle"
 
+      # but the discover list rows do not carry it
       {:ok, _view, list_html} = live(conn, "/groups")
       refute list_html =~ "instance_pin_toggle"
+    end
+
+    test "a non-instance-admin does not see the instance pin toggle in the group hero" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Plain Hero Group")
+
+      conn = conn(user: me, account: account)
+      {:ok, _view, page_html} = live(conn, "/&#{group.character.username}")
+
+      refute page_html =~ "instance_pin_toggle"
     end
 
     test "group sidebar shows joined groups" do
@@ -803,6 +860,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       {:ok, _view, html} = live(conn, "/groups?tab=joined")
 
       refute html =~ "Unjoined Discoverable Group"
+
       # empty-state copy for the Joined tab (apostrophe is HTML-escaped, so match a quote-free substring)
       assert html =~ "joined any groups yet"
     end

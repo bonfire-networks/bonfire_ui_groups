@@ -76,7 +76,7 @@
                         style={"background-image: url('#{URI.encode(url)}');"}
                       />
                   {/case}
-                  <span class="font-normal text-base">{e(category, :profile, :name, nil) || e(category, :named, :name, nil)}</span>
+                  <span class="font-normal text-base">{Bonfire.Classify.Web.Preview.CategoryLive.name(category, l("Group"))}</span>
                 </LinkLive>
               </li>
             {/for}
@@ -135,7 +135,7 @@
                       style={"background-image: url('#{URI.encode(url)}');"}
                     />
                 {/case}
-                <span class="font-normal text-base">{e(category, :profile, :name, nil) || e(category, :named, :name, nil)}</span>
+                <span class="font-normal text-base">{Bonfire.Classify.Web.Preview.CategoryLive.name(category, l("Group"))}</span>
               </LinkLive>
             </li>
           {/for}

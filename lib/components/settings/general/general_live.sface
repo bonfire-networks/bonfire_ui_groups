@@ -128,25 +128,34 @@
       </div>
     </details>
 
-    {!-- Auto-join — instance admins only --}
+    {!-- Instance settings — admins only --}
     {#if Bonfire.Boundaries.can?(current_user(@__context__), :configure, :instance)}
-      <section class="flex flex-col gap-3 mt-8 pt-6 border-t border-base-content/10">
+      <section class="flex flex-col gap-4 mt-8 pt-6 border-t border-base-content/10">
         <header class="flex flex-col gap-0.5">
-          <h2 class="text-xl font-semibold leading-tight">{l("Auto-join")}</h2>
+          <h2 class="text-xl font-semibold leading-tight">{l("Instance settings")}</h2>
           <p class="text-sm text-base-content/60">
-            {l("New users will automatically become members of this group when they sign up.")}
+            {l("Admin controls for how this group appears and behaves across the whole instance.")}
           </p>
         </header>
+
+        {!-- pin to everyone's sidebar now lives only in the group's profile-hero ⋯ menu (InstanceSidebarPinLive) --}
+
+        {!-- Auto-join new users --}
         <form phx-change="Bonfire.Classify:toggle_auto_join" id="group_settings_auto_join_form">
           <input type="hidden" name="group_id" value={e(@category, :id, nil)}>
-          <label class="flex items-center gap-3 cursor-pointer">
+          <label class="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
               name="enabled"
-              class="toggle toggle-primary"
+              class="toggle toggle-primary mt-0.5"
               checked={Bonfire.Classify.Categories.auto_join_new_users?(@category)}
             />
-            <span class="text-sm font-medium">{l("Auto-join new users")}</span>
+            <span class="flex flex-col">
+              <span class="text-sm font-medium">{l("Auto-join new users")}</span>
+              <span class="text-sm text-base-content/60">
+                {l("New users automatically become members of this group when they sign up.")}
+              </span>
+            </span>
           </label>
         </form>
       </section>

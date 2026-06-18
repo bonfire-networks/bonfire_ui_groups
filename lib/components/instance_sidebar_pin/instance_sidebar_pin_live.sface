@@ -1,0 +1,29 @@
+{#if Bonfire.Boundaries.can?(@__context__, :mediate, :instance)}
+  {#if Bonfire.Social.Pins.pinned?(:instance, @group)}
+    <button
+      type="button"
+      data-role="instance_pin_toggle"
+      phx-click="Bonfire.Social.Pins:pin"
+      phx-value-direction="down"
+      phx-value-scope="instance"
+      phx-value-id={id(@group)}
+      class={@class}
+    >
+      <span class="text-sm font-medium">{l("Unpin from everyone's sidebar")}</span>
+      <#Icon iconify="ph:push-pin-fill" class="w-5 h-5 shrink-0" />
+    </button>
+  {#else}
+    <button
+      type="button"
+      data-role="instance_pin_toggle"
+      phx-click="Bonfire.Social.Pins:pin"
+      phx-value-direction="up"
+      phx-value-scope="instance"
+      phx-value-id={id(@group)}
+      class={@class}
+    >
+      <span class="text-sm font-medium">{l("Pin to everyone's sidebar")}</span>
+      <#Icon iconify="ph:push-pin" class="w-5 h-5 shrink-0" />
+    </button>
+  {/if}
+{/if}

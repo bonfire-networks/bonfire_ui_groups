@@ -1,4 +1,4 @@
-<div class="flex flex-col bonfire-wrapper">
+<div class="flex flex-col">
   <form :if={current_user_id(@__context__)} phx-change="search_groups" class="px-3 pt-3 pb-2">
     <label class="input w-full">
       <#Icon iconify="ph:magnifying-glass-duotone" class="h-[1em] w-[1em] opacity-50" />

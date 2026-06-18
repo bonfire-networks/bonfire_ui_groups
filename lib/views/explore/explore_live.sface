@@ -6,15 +6,18 @@
     aria-label={l("Group views")}
     class="m-3 flex gap-1 rounded-xl bg-base-content/5 p-1"
   >
-    {#for {tab, label} <- [{"joined", l("Joined")}, {"discover", l("Discover")}, {"archived", l("Archived")}]}
+    {#for {tab, label} <- [
+        {"joined", l("Joined")},
+        {"discover", l("Discover")},
+        {"archived", l("Archived")}
+      ]}
       <Bonfire.UI.Common.LinkLive
         to={"/groups?tab=#{tab}"}
         opts={[role: "tab", "aria-selected": "#{@selected_tab == tab}"]}
         class={
           "flex-1 rounded-lg px-4 py-2 text-center text-sm font-medium transition-colors duration-150",
           "bg-base-100 text-base-content shadow-sm": @selected_tab == tab,
-          "text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80":
-            @selected_tab != tab
+          "text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80": @selected_tab != tab
         }
       >{label}</Bonfire.UI.Common.LinkLive>
     {/for}
