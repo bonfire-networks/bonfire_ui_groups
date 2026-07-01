@@ -1,4 +1,4 @@
-{#if @topics != []}
+{#if is_list(@topics) and @topics != []}
   <nav
     role="tablist"
     aria-label={l("Topics in %{name}",
