@@ -3,7 +3,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   alias Bonfire.Classify.Categories
   alias Bonfire.Classify
 
-  declare_extension("Groups",
+  declare_extension(l("Groups"),
     icon: "ph:users-three-duotone",
     emoji: "🎪",
     description:
