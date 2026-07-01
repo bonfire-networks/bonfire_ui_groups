@@ -48,11 +48,7 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
       |> assign(assigns)
       |> assign_new(
         :preset_dimensions,
-        fn ->
-          Bonfire.Common.Config.get(:preset_dimensions, %{}, :bonfire_boundaries)
-          # config `l/1` strings are frozen to the boot locale — re-localise for display
-          |> localise_tree(Bonfire.Boundaries)
-        end
+        fn -> Bonfire.Boundaries.Presets.preset_dimensions() end
       )
       |> assign_new(:preset_slug_list, fn -> preset_slugs() end)
       |> assign_new(:preset_metas, fn -> Map.new(preset_slugs(), &{&1, preset_meta(&1)}) end)
@@ -233,45 +229,23 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
 
   # --- Layer 2 lock rules (config-driven per preset) ---
 
-  @doc "Whether a Layer 2 toggle is locked for the given preset. Reads from `layer2_locked` in each preset's config."
-  def layer2_locked?(preset_slug, key) do
-    locked =
-      Bonfire.Common.Config.get(
-        [:group_presets, preset_slug, :layer2_locked],
-        [],
-        :bonfire_classify
-      )
-
-    key in locked
-  end
+  defdelegate layer2_locked?(preset_slug, key), to: Bonfire.Classify.Boundaries
 
   def layer2_lock_reason(:federate), do: l("Coming soon: requires groups federation")
   def layer2_lock_reason(_), do: l("Not available for this preset")
 
   @doc "Returns toggle definitions from config, with `locked` computed for the given preset."
   def layer2_toggle_rows(preset) do
-    Bonfire.Common.Config.get(:layer2_toggles, [], :bonfire_classify)
-    |> Enum.map(fn %{key: key} = t ->
-      t
-      |> Map.put(:locked, layer2_locked?(preset, key))
-      |> localise_tree(Bonfire.Classify)
-    end)
+    Bonfire.Classify.Boundaries.layer2_toggles()
+    |> Enum.map(fn %{key: key} = t -> Map.put(t, :locked, layer2_locked?(preset, key)) end)
   end
 
   # --- Preset list for rendering ---
 
-  def preset_slugs do
-    Bonfire.Common.Config.get(:group_preset_order, [], :bonfire_classify)
-  end
+  defdelegate preset_slugs, to: Bonfire.Classify.Boundaries, as: :group_preset_order
 
-  defp default_preset do
-    Bonfire.Common.Config.get(:group_default_preset, nil, :bonfire_classify)
-  end
+  defp default_preset, do: Bonfire.Classify.Boundaries.group_default_preset()
 
-  # Preset/toggle `label`/`description`/`help` use `l/1` in `Bonfire.Classify.RuntimeConfig`, so they
-  # are frozen to the boot locale — re-localise per-request for display via the shared `localise_tree/3`.
-  def preset_meta(slug) do
-    Bonfire.Common.Config.get([:group_presets, slug], %{}, :bonfire_classify)
-    |> localise_tree(Bonfire.Classify)
-  end
+  # Preset `label`/`description`/`help` re-localise per-request for display — see the context fn.
+  defdelegate preset_meta(slug), to: Bonfire.Boundaries.Presets, as: :group_preset_meta
 end

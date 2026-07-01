@@ -38,15 +38,9 @@ defmodule Bonfire.UI.Groups.BoundaryScopeSelectorLive do
     selected = assigns[:selected]
     selected_scope = if selected, do: slug_to_scope(selected)
 
-    # scope/role `label`/`description`/`disabled` use `l/1` in config, so they're frozen to the boot
-    # locale — re-localise for display via the shared `localise_tree/3` (bonfire_boundaries domain).
-    scopes_cfg =
-      Bonfire.Common.Config.get(:scopes, %{}, :bonfire_boundaries)
-      |> localise_tree(Bonfire.Boundaries)
-
-    role_verbs_cfg =
-      Bonfire.Common.Config.get(:role_verbs, %{})
-      |> localise_tree(Bonfire.Boundaries)
+    # scope/role `label`/`description`/`disabled` re-localise per-request for display — see the context fns.
+    scopes_cfg = Bonfire.Boundaries.Presets.scopes()
+    role_verbs_cfg = Bonfire.Boundaries.Presets.role_verbs()
 
     slug_order = assigns[:slug_order] || []
     options = assigns[:options] || %{}
