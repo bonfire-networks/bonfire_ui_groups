@@ -12,12 +12,12 @@
       />
     </label>
   </form>
-  <div class="bonfire-wrapper !p-0">
+  <div class="">
     {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
       {#match nil}
       {#match component}
         {#if @categories == []}
-          <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
+          <div class="bonfire-wrapper flex flex-col items-center justify-center px-6 py-16 text-center">
             <div class="w-14 h-14 rounded-2xl bg-base-content/[0.04] flex items-center justify-center mb-4">
               <#Icon
                 iconify={if @search_term != "",
@@ -44,7 +44,7 @@
             {/if}
           </div>
         {#else}
-          <div class="flex flex-col divide-hair divide-secondary -mx-card bonfire-wrapper pt-0">
+          <div class="flex flex-col">
             {#for {%{type: :group} = category, _children} <- @categories}
               <StatelessComponent
                 module={component}
