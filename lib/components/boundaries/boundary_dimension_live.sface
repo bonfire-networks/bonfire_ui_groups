@@ -1,7 +1,7 @@
 <div id={"boundary_dim_#{@dimension}"} class="w-full form-control">
   <label class="text-sm font-semibold text-base-content/80 mb-1">{@label}</label>
   {#if @description}
-    <p class="text-xs text-base-content/60 mb-2">{@description}</p>
+    <p class="text-xs text-muted mb-2">{@description}</p>
   {/if}
 
   <div class="flex flex-col gap-2 mt-1">
@@ -15,7 +15,7 @@
                 <div class="flex flex-col min-w-0 flex-1">
                   <span class="text-sm font-semibold">{opt[:label]}</span>
                   {#if opt[:description]}
-                    <span class="text-xs text-base-content/60">{opt[:description]}</span>
+                    <span class="text-xs text-muted">{opt[:description]}</span>
                   {/if}
                 </div>
                 <span class="badge badge-sm badge-ghost text-xs shrink-0">
@@ -32,14 +32,14 @@
               phx-target={@target}
               class={
                 "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
-                "ring-2 ring-primary bg-primary/5 border-primary/30": @selected == slug,
+                "ring-2 ring-primary bg-primary/5 border-secondary": @selected == slug,
                 "border-base-content/10 hover:bg-base-content/5": @selected != slug
               }
             >
               <div class="flex flex-col min-w-0 flex-1">
                 <span class="text-sm font-semibold">{opt[:label]}</span>
                 {#if opt[:description]}
-                  <span class="text-xs text-base-content/60">{opt[:description]}</span>
+                  <span class="text-xs text-muted">{opt[:description]}</span>
                 {/if}
               </div>
               <div class={
@@ -66,7 +66,7 @@
           phx-target={@target}
           class={
             "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
-            "ring-2 ring-primary bg-primary/5 border-primary/30": @selected == id(circle),
+            "ring-2 ring-primary bg-primary/5 border-secondary": @selected == id(circle),
             "border-base-content/10 hover:bg-base-content/5": @selected != id(circle)
           }
         >
@@ -76,13 +76,13 @@
               class={
                 "w-4 h-4",
                 "text-primary": @selected == id(circle),
-                "text-base-content/60": @selected != id(circle)
+                "text-muted": @selected != id(circle)
               }
             />
           </span>
           <span class="flex flex-col min-w-0 flex-1">
             <span class="text-sm font-semibold truncate">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>
-            <span class="text-xs text-base-content/60">{l("Members of this circle")}</span>
+            <span class="text-xs text-muted">{l("Members of this circle")}</span>
           </span>
           <div class={
             "w-4 h-4 rounded-full border-2 shrink-0 transition-all",

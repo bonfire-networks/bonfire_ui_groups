@@ -7,16 +7,16 @@
     class="hero relative bg-no-repeat h-[20px] w-[20px] rounded-full bg-cover bg-center]"
     style={"background-image: url('#{URI.encode(Media.banner_url(@category))}');"}
   />
-  <span class="text-base-content/90 max-w-[180px] truncate text-[15px] flex-1">{e(@category, :profile, :name, nil)}</span>
+  <span class="text-base-content max-w-[180px] truncate text-[15px] flex-1">{e(@category, :profile, :name, nil)}</span>
 </LinkLive>
 
 {!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
   <LinkLive
     to={path(@category, :discover)}
     alt={l("More topics")}
-    class="rounded btn btn-ghost btn-square btn-xs"
+    class="rounded btn btn-ghost btn-square btn-sm"
   >
-    <#Icon iconify="material-symbols:manage-search" class="w-4 h-4 text-base-content/70" />
+    <#Icon iconify="material-symbols:manage-search" class="w-4 h-4 text-muted" />
   </LinkLive>
 </div> --}
 

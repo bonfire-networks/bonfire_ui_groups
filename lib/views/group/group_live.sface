@@ -13,11 +13,11 @@
     >
       <div class="flex flex-1 items-start gap-3">
         <div class="grid size-10 shrink-0 place-items-center rounded-lg bg-base-content/5">
-          <#Icon iconify="ph:archive-duotone" class="size-5 text-base-content/70" />
+          <#Icon iconify="ph:archive-duotone" class="size-5 text-muted" />
         </div>
         <div class="flex-1">
           <div class="font-semibold text-base-content">{l("This group is archived")}</div>
-          <p class="mt-0.5 text-sm text-base-content/70">
+          <p class="mt-0.5 text-sm text-muted">
             {l("It's hidden from members and listings. Restore it to bring it back online.")}
           </p>
         </div>
@@ -173,20 +173,22 @@
             topic_count={e(assigns, :group_topic_count, nil)}
             date={e(assigns, :group_date, nil)}
           />
-          <StatelessComponent
-            :if={@can_create_in_category}
-            module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
-            selected_tab={@selected_tab}
-            prompt={l("Write in %{name}",
-              name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
-            )}
-            smart_input_opts={%{
-              context_id: id(@category),
-              mentions: [id(@category)],
-              to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
-              to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
-            }}
-          />
+          <div class="pb-1 border-b-hair border-secondary">
+            <StatelessComponent
+              :if={@can_create_in_category}
+              module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
+              selected_tab={@selected_tab}
+              prompt={l("Write in %{name}",
+                name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
+              )}
+              smart_input_opts={%{
+                context_id: id(@category),
+                mentions: [id(@category)],
+                to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
+                to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
+              }}
+            />
+          </div>
         {/if}
       </:header>
     </StatelessComponent>

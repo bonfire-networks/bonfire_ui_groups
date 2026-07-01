@@ -10,7 +10,7 @@
         selected_tab={@selected_tab}
         class="flex justify-between w-full border-b bg-base-100 tabs border-base-content border-opacity-20"
         tab_class="flex flex-1 pt-4 text-base capitalize hover:bg-base-content hover:bg-opacity-10 place-content-center lined_tab"
-        item_class="text-base-content/60 text-sm pb-4 border-b border-transparent font-medium"
+        item_class="text-muted text-sm pb-4 border-b border-transparent font-medium"
         path_prefix={"/@#{e(@user, :character, :username, "")}/"}
         tabs={if current_user_id(@__context__) == id(@user),
           do: Config.get([:ui, @showing_within, :network], followers: l("Followers")),
@@ -18,7 +18,7 @@
       /> -->
       <div :if={@selected_tab in ["requested", "followed"]}>
         <div class="flow-root">
-          <ul class="divide-y divide-base-content/10">
+          <ul class="divide-hair divide-secondary">
             {#for follow <- @feed}
               <li class="p-4">
                 <StatelessComponent
@@ -42,7 +42,7 @@
 
       <div :if={@selected_tab in ["requests", "followers"]}>
         <div class="flow-root">
-          <ul class="divide-y divide-base-content/10">
+          <ul class="divide-hair divide-secondary">
             {#for follow <- @feed}
               <li class="p-4">
                 <StatelessComponent
@@ -74,10 +74,10 @@
             <section :if={@moderators != []} id="group-moderators" class="mb-6">
               <header class="flex items-center justify-between px-4 py-3">
                 <h2 class="text-base font-semibold text-base-content">{l("Moderators")}</h2>
-                <span class="text-xs text-base-content/60">{length(@moderators)}</span>
+                <span class="text-xs text-muted">{length(@moderators)}</span>
               </header>
               <div class="flow-root">
-                <ul class="divide-y divide-base-content/10">
+                <ul class="divide-hair divide-secondary">
                   {#for mod <- @moderators}
                     <li class="p-4">
                       <StatelessComponent
@@ -100,7 +100,7 @@
             <section id="group-members">
               <header class="flex items-center justify-between px-4 py-3">
                 <h2 class="text-base font-semibold text-base-content">{l("Members")}</h2>
-                <span :if={other_members != []} class="text-xs text-base-content/60">{length(other_members)}</span>
+                <span :if={other_members != []} class="text-xs text-muted">{length(other_members)}</span>
               </header>
               {#if other_members == []}
                 <div id="members-empty-feed" class="flex items-center my-12 place-content-center">
@@ -108,7 +108,7 @@
                 </div>
               {#else}
                 <div class="flow-root">
-                  <ul class="divide-y divide-base-content/10">
+                  <ul class="divide-hair divide-secondary">
                     {#for follow <- other_members}
                       <li class="p-4">
                         <StatelessComponent

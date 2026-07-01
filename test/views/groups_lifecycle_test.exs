@@ -954,6 +954,34 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> assert_has_or_open_browser("article", text: "Group post content here")
     end
 
+    # Posting in a group triggers the group's auto-boost of the post into its outbox.
+    # When viewing inside the group itself (showing_within: :group) the "<group> boosted"
+    # reason-line is redundant, so it must be suppressed (see SubjectMinimalLive).
+    test "post in a group does not show a redundant boost reason-line inside the group" do
+      account = fake_account!()
+      me = fake_user!(account)
+
+      group =
+        create_group(me,
+          name: "No Redundant Boost Group",
+          membership: "local:members",
+          participation: "anyone",
+          visibility: "nonfederated",
+          default_content_visibility: "nonfederated"
+        )
+
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> post_in_group("<p>Post inside the group</p>", group.id)
+
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> assert_has_or_open_browser("article", text: "Post inside the group")
+      |> refute_has("[data-role=boosted_by]")
+    end
+
     # Submit through the form's hidden inputs (rather than injecting `to_boundaries`
     # directly into the params) so the test exercises the same render path as the
     # live UI — `BoundariesSelectionLive` previously dropped string-shaped slugs

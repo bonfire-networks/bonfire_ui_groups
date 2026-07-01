@@ -1,10 +1,10 @@
-<div class="flex flex-col bonfire-wrapper">
+<div class="flex flex-col">
   {!-- Joined/Discover/Archived tabs (logged-in only) --}
   <div
     :if={current_user_id(@__context__)}
     role="tablist"
     aria-label={l("Group views")}
-    class="m-3 flex gap-1 rounded-xl bg-base-content/5 p-1"
+    class="flex gap-1 border-y-hair border-secondary bg-base-300 p-1"
   >
     {#for {tab, label} <- [
         {"joined", l("Joined")},
@@ -15,119 +15,119 @@
         to={"/groups?tab=#{tab}"}
         opts={[role: "tab", "aria-selected": "#{@selected_tab == tab}"]}
         class={
-          "flex-1 rounded-lg px-4 py-2 text-center text-sm font-medium transition-colors duration-150",
-          "bg-base-100 text-base-content shadow-sm": @selected_tab == tab,
-          "text-base-content/60 hover:bg-base-content/5 hover:text-base-content/80": @selected_tab != tab
+          "flex-1 rounded-lg px-4 py-1 text-center text-sm transition-colors duration-150",
+          "font-medium": @selected_tab == tab
         }
       >{label}</Bonfire.UI.Common.LinkLive>
     {/for}
   </div>
 
   {#if @selected_tab == "joined"}
-    {#if @joined_categories == []}
-      <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
-        <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
-          <#Icon iconify="ph:users-three-duotone" class="size-7 text-base-content/30" />
-        </div>
-        <p class="text-base font-semibold text-base-content">
-          {l("You haven't joined any groups yet")}
-        </p>
-        <p class="mt-1 max-w-sm text-sm text-base-content/55">
-          {l("Groups you join will appear here. Head to Discover to find one.")}
-        </p>
-      </div>
-    {#else}
-      {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
-        {#match nil}
-        {#match component}
-          <div class="flex flex-col divide-y divide-base-content/10">
-            {#for {%{type: :group} = category, _children} <- @joined_categories}
-              <StatelessComponent
-                module={component}
-                object={category}
-                permalink={path(category)}
-                showing_within={:list}
-              />
-            {/for}
+    <div class="bonfire-wrapper !p-0">
+      {#if @joined_categories == []}
+        <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
+          <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
+            <#Icon iconify="ph:users-three-duotone" class="size-7 text-base-content/30" />
           </div>
-          <Bonfire.UI.Common.LoadMoreLive
-            :if={@joined_page_info}
-            live_handler="Bonfire.UI.Groups.ExploreLive"
-            page_info={@joined_page_info}
-            context="joined"
-            hide_if_no_more
-          />
-      {/case}
-    {/if}
-  {#elseif @selected_tab == "archived"}
-    {#if @archived_categories == []}
-      <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
-        <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
-          <#Icon iconify="ph:archive-duotone" class="size-7 text-base-content/30" />
+          <p class="text-base font-semibold text-base-content">
+            {l("You haven't joined any groups yet")}
+          </p>
+          <p class="mt-1 max-w-sm text-sm text-muted">
+            {l("Groups you join will appear here. Head to Discover to find one.")}
+          </p>
         </div>
-        <p class="text-base font-semibold text-base-content">
-          {l("No archived groups")}
-        </p>
-        <p class="mt-1 max-w-sm text-sm text-base-content/55">
-          {l("Groups you archive will appear here, where you can restore them.")}
-        </p>
-      </div>
-    {#else}
-      <h2 class="px-4 pt-1 pb-2 text-sm font-medium text-base-content/55">
-        {l("Groups you've archived")}
-      </h2>
-      <div class="flex flex-col divide-y divide-base-content/10">
-        {#for {%{type: :group} = category, _children} <- @archived_categories}
-          <div class="flex items-start gap-4 px-4 py-4">
-            <Bonfire.UI.Common.LinkLive
-              to={path(category)}
-              class="block shrink-0"
-              tabindex="-1"
-              aria-hidden="true"
-            >
-              {#case Bonfire.Common.Media.avatar_url(category)}
-                {#match "/images/avatar.png"}
-                  <div class="grid size-12 place-items-center rounded-xl bg-base-content/5">
-                    <#Icon iconify="ph:users-three-duotone" class="size-6 text-base-content/40" />
-                  </div>
-                {#match url}
-                  <img src={url} class="size-12 rounded-xl object-cover grayscale-[40%]">
-              {/case}
-            </Bonfire.UI.Common.LinkLive>
-
-            <div class="flex min-w-0 flex-1 flex-col gap-1.5">
+      {#else}
+        {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
+          {#match nil}
+          {#match component}
+            <div class="flex flex-col   divide-hair divide-secondary">
+              {#for {%{type: :group} = category, _children} <- @joined_categories}
+                <StatelessComponent
+                  module={component}
+                  object={category}
+                  permalink={path(category)}
+                  showing_within={:list}
+                />
+              {/for}
+            </div>
+            <Bonfire.UI.Common.LoadMoreLive
+              :if={@joined_page_info}
+              live_handler="Bonfire.UI.Groups.ExploreLive"
+              page_info={@joined_page_info}
+              context="joined"
+              hide_if_no_more
+            />
+        {/case}
+      {/if}
+    </div>
+  {#elseif @selected_tab == "archived"}
+    <div class="bonfire-wrapper !p-0">
+      {#if @archived_categories == []}
+        <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
+          <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
+            <#Icon iconify="ph:archive-duotone" class="size-7 text-base-content/30" />
+          </div>
+          <p class="text-base font-semibold text-base-content">
+            {l("No archived groups")}
+          </p>
+          <p class="mt-1 max-w-sm text-sm text-muted">
+            {l("Groups you archive will appear here, where you can restore them.")}
+          </p>
+        </div>
+      {#else}
+        <div class="flex flex-col divide-hair divide-secondary">
+          {#for {%{type: :group} = category, _children} <- @archived_categories}
+            <div class="flex items-start gap-4 px-4 py-4">
               <Bonfire.UI.Common.LinkLive
                 to={path(category)}
-                class="truncate font-semibold leading-tight text-base-content"
-              >{e(category, :profile, :name, l("Untitled group"))}</Bonfire.UI.Common.LinkLive>
+                class="block shrink-0"
+                tabindex="-1"
+                aria-hidden="true"
+              >
+                {#case Bonfire.Common.Media.avatar_url(category)}
+                  {#match "/images/avatar.png"}
+                    <div class="grid size-12 place-items-center rounded-xl bg-base-content/5">
+                      <#Icon iconify="ph:users-three-duotone" class="size-6 text-base-content/40" />
+                    </div>
+                  {#match url}
+                    <img src={url} class="size-12 rounded-xl object-cover grayscale-[40%]">
+                {/case}
+              </Bonfire.UI.Common.LinkLive>
 
-              <p
-                :if={e(category, :profile, :summary, "") != ""}
-                class="line-clamp-2 text-sm leading-relaxed text-base-content/65"
-              >{e(category, :profile, :summary, "")}</p>
+              <div class="flex min-w-0 flex-1 flex-col gap-1.5">
+                <Bonfire.UI.Common.LinkLive
+                  to={path(category)}
+                  class="truncate font-semibold leading-tight text-base-content"
+                >{e(category, :profile, :name, l("Untitled group"))}</Bonfire.UI.Common.LinkLive>
 
-              <div class="mt-0.5 flex items-center gap-1.5 text-xs">
-                <span class="inline-flex items-center gap-1 rounded-full bg-base-content/[0.06] px-2 py-0.5 font-medium text-base-content/60">
-                  <#Icon iconify="ph:archive-duotone" class="size-3.5" />
-                  {l("Archived")}
-                </span>
+                <p
+                  :if={e(category, :profile, :summary, "") != ""}
+                  class="line-clamp-2 text-sm leading-relaxed text-base-content/65"
+                >{e(category, :profile, :summary, "")}</p>
+
+                <div class="mt-0.5 flex items-center gap-1.5 text-xs">
+                  <span class="inline-flex items-center gap-1 rounded-full bg-base-content/[0.06] px-2 py-0.5 font-medium text-muted">
+                    <#Icon iconify="ph:archive-duotone" class="size-3.5" />
+                    {l("Archived")}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <button
-              type="button"
-              :on-click="unarchive"
-              phx-value-id={id(category)}
-              data-confirm={l("Restore this group and bring it back online?")}
-              class="btn btn-primary btn-sm shrink-0 gap-1.5 self-center normal-case"
-            >
-              <#Icon iconify="ph:arrow-counter-clockwise" class="size-4" />
-              {l("Restore")}
-            </button>
-          </div>
-        {/for}
-      </div>
-    {/if}
+              <button
+                type="button"
+                :on-click="unarchive"
+                phx-value-id={id(category)}
+                data-confirm={l("Restore this group and bring it back online?")}
+                class="btn btn-primary btn-sm shrink-0 gap-1.5 self-center normal-case"
+              >
+                <#Icon iconify="ph:arrow-counter-clockwise" class="size-4" />
+                {l("Restore")}
+              </button>
+            </div>
+          {/for}
+        </div>
+      {/if}
+    </div>
   {#else}
     <Bonfire.UI.Groups.DiscoverGroupsLive
       categories={@categories}

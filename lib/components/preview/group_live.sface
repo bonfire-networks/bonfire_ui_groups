@@ -28,10 +28,7 @@
           <div class="font-bold text-base text-base-content">
             {rich(name(@object))}
           </div>
-          <div
-            :if={e(@object, :profile, :summary, "") != ""}
-            class="text-sm text-base-content/60 line-clamp-2"
-          >{e(@object, :profile, :summary, "")}</div>
+          <div :if={e(@object, :profile, :summary, "") != ""} class="text-sm text-muted line-clamp-2">{e(@object, :profile, :summary, "")}</div>
           {!-- Meta --}
           <div class="flex items-center gap-3 mt-1">
             <span class="flex items-center gap-1 text-xs text-base-content/40">
@@ -86,7 +83,7 @@
             {#match %{} = meta}
               <span
                 title={e(meta, :description, e(meta, :label, ""))}
-                class="inline-flex items-center gap-1.5 text-base-content/60"
+                class="inline-flex items-center gap-1.5 text-muted"
               >
                 <Iconify.iconify icon={e(meta, :icon, "ph:users-three-duotone")} class="size-4 text-primary/70" />
                 <span class="font-medium">{e(meta, :label, "")}</span>

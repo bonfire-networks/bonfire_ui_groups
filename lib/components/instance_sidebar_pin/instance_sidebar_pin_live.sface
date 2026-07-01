@@ -9,7 +9,7 @@
       phx-value-id={id(@group)}
       class={@class}
     >
-      <span class="text-sm font-medium">{l("Unpin from everyone's sidebar")}</span>
+      <span class="text-sm">{l("Unpin from everyone's sidebar")}</span>
       <#Icon iconify="ph:push-pin-fill" class="w-5 h-5 shrink-0" />
     </button>
   {#else}
@@ -22,7 +22,7 @@
       phx-value-id={id(@group)}
       class={@class}
     >
-      <span class="text-sm font-medium">{l("Pin to everyone's sidebar")}</span>
+      <span class="text-sm">{l("Pin to everyone's sidebar")}</span>
       <#Icon iconify="ph:push-pin" class="w-5 h-5 shrink-0" />
     </button>
   {/if}

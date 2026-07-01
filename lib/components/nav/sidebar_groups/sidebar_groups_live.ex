@@ -12,6 +12,13 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
 
   def active_link?(_, _), do: false
 
+  # Active-state label classes — evaluates active_link?/2 once per row (not twice in the template)
+  def group_label_class(current_path, target) do
+    if active_link?(current_path, target),
+      do: "font-semibold text-primary",
+      else: "font-normal text-base-content"
+  end
+
   defdelegate group_icon(group), to: Bonfire.Boundaries.Presets
 
   # Pulls the path once (avoids a per-link URI.parse on every render).

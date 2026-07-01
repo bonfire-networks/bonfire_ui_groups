@@ -20,7 +20,7 @@
               phx-target={@myself}
               class={
                 "flex items-start gap-3 cursor-pointer p-3 rounded-lg border text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.99]",
-                "ring-2 ring-primary bg-primary/5 border-primary/40 shadow-sm": @preset == slug,
+                "ring-2 ring-primary bg-primary/5 border-secondary shadow-sm": @preset == slug,
                 "border-base-content/10 hover:bg-base-content/5 hover:border-base-content/20": @preset != slug
               }
             >
@@ -30,14 +30,14 @@
                   class={
                     "w-4 h-4",
                     "text-primary": @preset == slug,
-                    "text-base-content/70": @preset != slug
+                    "text-muted": @preset != slug
                   }
                 />
               </span>
               <span class="flex-1 min-w-0">
                 <span class="block text-sm font-semibold leading-tight">{e(meta, :label, slug)}</span>
                 {#if !(slug == @preset && (@layer2_touched || @advanced_open))}
-                  <span class="block mt-0.5 text-xs text-base-content/60 leading-snug">{e(meta, :description, nil)}</span>
+                  <span class="block mt-0.5 text-xs text-muted leading-snug">{e(meta, :description, nil)}</span>
                 {/if}
               </span>
             </button>
@@ -57,17 +57,17 @@
           phx-target={@myself}
           class={
             "flex items-start gap-3 p-3 rounded-lg border border-dashed text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.99]",
-            "ring-2 ring-primary bg-primary/5 border-primary/40": @preset == "custom",
+            "ring-2 ring-primary bg-primary/5 border-secondary": @preset == "custom",
             "border-base-content/20 hover:bg-base-content/5 hover:border-base-content/30":
               @preset != "custom"
           }
         >
           <span class="flex items-center justify-center w-8 h-8 rounded-md bg-base-content/5 shrink-0 mt-0.5">
-            <#Icon iconify="ri:settings-4-line" class="w-4 h-4 text-base-content/70" />
+            <#Icon iconify="ri:settings-4-line" class="w-4 h-4 text-muted" />
           </span>
           <span class="flex-1 min-w-0">
             <span class="block text-sm font-semibold leading-tight">{l("Custom")}</span>
-            <span class="block mt-0.5 text-xs text-base-content/60">{l("Start from scratch and configure every dimension.")}</span>
+            <span class="block mt-0.5 text-xs text-muted">{l("Start from scratch and configure every dimension.")}</span>
           </span>
         </button>
       {/if}
@@ -89,7 +89,7 @@
             type="button"
             phx-click="confirm_preset_change"
             phx-target={@myself}
-            class="btn btn-xs btn-warning normal-case"
+            class="btn btn-sm btn-warning normal-case"
           >
             {l("Apply defaults")}
           </button>
@@ -97,7 +97,7 @@
             type="button"
             phx-click="cancel_preset_change"
             phx-target={@myself}
-            class="btn btn-xs btn-ghost normal-case"
+            class="btn btn-sm btn-ghost normal-case"
           >
             {l("Keep my changes")}
           </button>
@@ -112,20 +112,20 @@
       <div class="flex items-baseline justify-between">
         <h3 class="text-sm font-semibold text-base-content/80">{l("Fine-tune")}</h3>
         {#if @layer2_touched}
-          <span class="inline-flex items-center gap-1 text-xs text-base-content/60">
+          <span class="inline-flex items-center gap-1 text-xs text-muted">
             <#Icon iconify="ph:pencil-simple-duotone" class="w-3 h-3" />
             {l("Modified")}
           </span>
         {/if}
       </div>
 
-      <div class="flex flex-col divide-y divide-base-content/10 rounded-lg border border-base-content/10 overflow-hidden">
+      <div class="flex flex-col   divide-hair divide-secondary rounded-lg border border-base-content/10 overflow-hidden">
         {#for %{key: key, label: label, help: help, locked: locked} <- @layer2_rows}
           {#if @show_unavailable_toggles || !locked}
             <div class="flex items-start gap-3 p-3">
               <div class="flex-1 min-w-0">
                 <div class="text-sm font-medium text-base-content">{label}</div>
-                <div class="text-xs text-base-content/55 mt-0.5 leading-snug">{help}</div>
+                <div class="text-xs text-muted mt-0.5 leading-snug">{help}</div>
                 {#if locked}
                   <div class="mt-1 inline-flex items-center gap-1 text-xs text-base-content/50">
                     <#Icon iconify="ph:lock-simple-duotone" class="w-3 h-3" />
@@ -167,14 +167,14 @@
           <span class="block text-sm font-semibold leading-tight text-base-content">
             {l("Fine-tune each dimension")}
           </span>
-          <span class="block mt-0.5 text-xs text-base-content/60 leading-snug">
+          <span class="block mt-0.5 text-xs text-muted leading-snug">
             {l("Optional — great for specific needs.")}
           </span>
         </span>
         <#Icon
-          iconify="ph:caret-down"
+          iconify="ph:caret-down-bold"
           class={
-            "w-4 h-4 text-base-content/70 shrink-0 transition-transform duration-150",
+            "w-4 h-4 text-muted shrink-0 transition-transform duration-150",
             "rotate-180": @advanced_open
           }
         />
@@ -182,7 +182,7 @@
 
       {#if @advanced_open}
         <div class="flex flex-col gap-5 p-4 border-t border-base-content/10">
-          <p class="text-xs text-base-content/60">
+          <p class="text-xs text-muted">
             {l(
               "These controls override the preset and fine-tune toggles above. Changes here stick even if you swap presets."
             )}

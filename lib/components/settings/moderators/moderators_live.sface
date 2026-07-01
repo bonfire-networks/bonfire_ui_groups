@@ -1,7 +1,7 @@
 <section id="group-moderators" class="mb-6">
   <header class="flex items-center justify-between px-4 py-3">
     <h2 class="text-base font-semibold text-base-content">{l("Moderators")}</h2>
-    <span class="text-xs text-base-content/60">{length(@moderators)}</span>
+    <span class="text-xs text-muted">{length(@moderators)}</span>
   </header>
 
   <div :if={@can_manage} class="px-4 pb-3">
@@ -28,7 +28,7 @@
     </div>
   {#else}
     <div class="flow-root">
-      <ul class="divide-y divide-base-content/10">
+      <ul class="divide-hair divide-secondary">
         {#for mod <- @moderators}
           <li id={"moderator-#{id(mod)}"} class="p-4">
             <StatelessComponent

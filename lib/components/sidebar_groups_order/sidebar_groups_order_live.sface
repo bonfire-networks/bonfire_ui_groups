@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-3">
   {#if Bonfire.Boundaries.can?(@__context__, :mediate, :instance)}
     {#if @groups == []}
-      <p class="text-sm text-base-content/60">
+      <p class="text-sm text-muted">
         {l("No groups are pinned to everyone's sidebar yet.")}
       </p>
     {#else}
@@ -33,7 +33,7 @@
               phx-target={@myself}
               title={l("Unpin from everyone's sidebar")}
               aria-label={l("Unpin from everyone's sidebar")}
-              class="btn btn-ghost btn-xs btn-circle text-base-content/50 hover:text-error"
+              class="btn btn-ghost btn-sm btn-circle text-base-content/50 hover:text-error"
             >
               <#Icon iconify="ph:push-pin-slash-duotone" class="w-4 h-4" />
             </button>
