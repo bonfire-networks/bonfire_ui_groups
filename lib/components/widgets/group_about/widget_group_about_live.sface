@@ -19,20 +19,20 @@
       <span class="text-[11px] uppercase tracking-wider text-base-content/45">{l("Part of")}</span>
       <LinkLive
         to={@parent_link}
-        class="text-sm font-semibold text-base-content hover:text-primary hover:underline truncate"
+        class="text-sm font-medium text-base-content hover:text-primary hover:underline truncate"
       >{@parent}</LinkLive>
     </div>
   </div>
 
   {!-- Three permission rules: who can join / see / post --}
-  <div class="flex flex-col gap-[36px] mt-card">
+  <div class="flex flex-col gap-panel mt-card">
     {#case dimension_meta(:membership, @membership_slug)}
       {#match %{} = meta}
         <div>
           <div class="text-caption uppercase tracking-wider text-base-content">
             {l("Who can join")}
           </div>
-          <div class="flex items-center gap-2 mt-card">
+          <div class="flex items-center gap-2 mt-1">
             <span class="text-body font-medium text-base-content leading-tight">
               {e(meta, :label, nil)}
             </span>
@@ -48,7 +48,7 @@
           <div class="text-caption uppercase tracking-wider text-base-content">
             {l("Who can see")}
           </div>
-          <div class="flex items-center gap-2 mt-card">
+          <div class="flex items-center gap-2 mt-1">
             <span class="text-sm font-medium text-base-content leading-tight">
               {e(meta, :label, nil)}
             </span>
@@ -64,7 +64,7 @@
           <div class="text-caption uppercase tracking-wider text-base-content">
             {l("Who can post")}
           </div>
-          <div class="flex items-center gap-2 mt-card">
+          <div class="flex items-center gap-2 mt-1">
             <span class="text-body font-medium text-base-content leading-tight">
               {e(meta, :label, nil)}
             </span>

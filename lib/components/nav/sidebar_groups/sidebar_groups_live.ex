@@ -15,7 +15,7 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
   # Active-state label classes — evaluates active_link?/2 once per row (not twice in the template)
   def group_label_class(current_path, target) do
     if active_link?(current_path, target),
-      do: "font-semibold text-primary",
+      do: "font-medium text-primary",
       else: "font-normal text-base-content"
   end
 

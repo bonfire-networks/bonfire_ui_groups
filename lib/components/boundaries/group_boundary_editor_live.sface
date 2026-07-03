@@ -2,7 +2,7 @@
   {!-- Layer 1 — Audience presets --}
   <section class="flex flex-col gap-2" role="radiogroup" aria-label={l("Audience preset")}>
     <div class="flex items-baseline justify-between">
-      <h3 class="text-sm font-semibold text-base-content/80">{l("Audience")}</h3>
+      <h3 class="text-sm font-medium text-base-content/80">{l("Audience")}</h3>
       <span class="text-xs text-base-content/50">{l("Pick one to start")}</span>
     </div>
 
@@ -35,7 +35,7 @@
                 />
               </span>
               <span class="flex-1 min-w-0">
-                <span class="block text-sm font-semibold leading-tight">{e(meta, :label, slug)}</span>
+                <span class="block text-sm font-medium leading-tight">{e(meta, :label, slug)}</span>
                 {#if !(slug == @preset && (@layer2_touched || @advanced_open))}
                   <span class="block mt-0.5 text-xs text-muted leading-snug">{e(meta, :description, nil)}</span>
                 {/if}
@@ -66,7 +66,7 @@
             <#Icon iconify="ri:settings-4-line" class="w-4 h-4 text-muted" />
           </span>
           <span class="flex-1 min-w-0">
-            <span class="block text-sm font-semibold leading-tight">{l("Custom")}</span>
+            <span class="block text-sm font-medium leading-tight">{l("Custom")}</span>
             <span class="block mt-0.5 text-xs text-muted">{l("Start from scratch and configure every dimension.")}</span>
           </span>
         </button>
@@ -110,7 +110,7 @@
   {#if @preset && @preset != "custom"}
     <section class="flex flex-col gap-1">
       <div class="flex items-baseline justify-between">
-        <h3 class="text-sm font-semibold text-base-content/80">{l("Fine-tune")}</h3>
+        <h3 class="text-sm font-medium text-base-content/80">{l("Fine-tune")}</h3>
         {#if @layer2_touched}
           <span class="inline-flex items-center gap-1 text-xs text-muted">
             <#Icon iconify="ph:pencil-simple-duotone" class="w-3 h-3" />
@@ -164,7 +164,7 @@
           <#Icon iconify="ph:sliders-horizontal-duotone" class="w-4 h-4 text-warning" />
         </span>
         <span class="flex-1 min-w-0">
-          <span class="block text-sm font-semibold leading-tight text-base-content">
+          <span class="block text-sm font-medium leading-tight text-base-content">
             {l("Fine-tune each dimension")}
           </span>
           <span class="block mt-0.5 text-xs text-muted leading-snug">

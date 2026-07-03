@@ -5,7 +5,7 @@
     "max-w-[680px] mx-auto": !current_user_id(@__context__)
   }>
     <div class="p-4 border-b border-base-content/20">
-      <div class="first-letter:capitalize flex-1 text-base font-semibold text-base-content">{l("Group details")}</div>
+      <div class="first-letter:capitalize flex-1 text-base font-medium text-base-content">{l("Group details")}</div>
 
       <div class="max-w-full mt-3 prose prose-sm">
         {e(@category, :profile, :summary, nil)}
@@ -34,7 +34,7 @@
     <div class="p-4">
       <div
         :if={@moderators != []}
-        class="mb-3 first-letter:capitalize flex-1 text-base font-semibold text-base-content"
+        class="mb-3 first-letter:capitalize flex-1 text-base font-medium text-base-content"
       >{l("Moderators")}</div>
       {#for user <- @moderators}
         <div class="mb-3">
@@ -51,7 +51,7 @@
           />
         </div>
       {/for}
-      <div class="mt-6 mb-3 first-letter:capitalize flex-1 text-lg font-semibold text-base-content">{l("Members")}</div>
+      <div class="mt-6 mb-3 first-letter:capitalize flex-1 text-lg font-medium text-base-content">{l("Members")}</div>
       {#for user <- @members}
         <div class="mb-3">
           <StatelessComponent

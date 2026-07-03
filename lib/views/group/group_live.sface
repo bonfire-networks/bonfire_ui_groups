@@ -16,7 +16,7 @@
           <#Icon iconify="ph:archive-duotone" class="size-5 text-muted" />
         </div>
         <div class="flex-1">
-          <div class="font-semibold text-base-content">{l("This group is archived")}</div>
+          <div class="font-medium text-base-content">{l("This group is archived")}</div>
           <p class="mt-0.5 text-sm text-muted">
             {l("It's hidden from members and listings. Restore it to bring it back online.")}
           </p>
@@ -142,7 +142,7 @@
                   <#Icon iconify="ph:arrow-left" class="w-5 h-5" />
                 </LinkLive>
                 <div class="flex items-center flex-1 w-full flex-1">
-                  <span class="max-w-[250px] lg:max-w-[600px] font-semibold text-base-content truncate text-ellipsis">
+                  <span class="max-w-[250px] lg:max-w-[600px] font-medium text-base-content truncate text-ellipsis">
                     {e(@category, :name, l("Group"))}
                   </span>
                 </div>
@@ -173,7 +173,7 @@
             topic_count={e(assigns, :group_topic_count, nil)}
             date={e(assigns, :group_date, nil)}
           />
-          <div class="pb-1 border-b-hair border-secondary">
+          <div class="py-feed">
             <StatelessComponent
               :if={@can_create_in_category}
               module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}

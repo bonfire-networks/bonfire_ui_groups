@@ -6,13 +6,13 @@
     class="hero relative bg-no-repeat h-[20px] w-[20px] rounded-full bg-cover bg-center]"
     style={"background-image: url('#{URI.encode(Media.banner_url(@category))}');"}
   />
-  <span class="text-[15px] font-normal capitalize text-base-content">{e(@category, :profile, :name, nil)}</span>
+  <span class="text-body font-normal capitalize text-base-content">{e(@category, :profile, :name, nil)}</span>
 </LinkLive>
 
 {!-- <div class="flex items-center justify-between px-1 group">
   <LinkLive
     to={path(@category)}
-    class="text-[10px] link link-hover px-2 font-semibold tracking-[0.175rem] uppercase text-muted"
+    class="text-[10px] link link-hover px-2 font-medium tracking-[0.175rem] uppercase text-muted"
   >{e(@category, :profile, :name, nil)}</LinkLive>
  <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
     <StatelessComponent module={maybe_component(Bonfire.UI.Topics.NewTopicLive)} parent={@category} />

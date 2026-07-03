@@ -1,7 +1,7 @@
 {!-- Two-level boundary selector: Row 1 = scope, Row 2 = access level for selected scope --}
 
 <div id={"boundary_scope_#{@dimension}"} class="w-full form-control">
-  <label class="text-sm font-semibold text-base-content/80 mb-1">{@label}</label>
+  <label class="text-sm font-medium text-base-content/80 mb-1">{@label}</label>
 
   {#if @description}
     <p class="text-xs text-muted mb-2">{@description}</p>

@@ -7,7 +7,7 @@
     {!-- Identity --}
     <section aria-labelledby="settings-identity-heading" class="flex flex-col gap-3">
       <header class="flex flex-col gap-0.5">
-        <h2 id="settings-identity-heading" class="text-xl font-semibold leading-tight">{l("Identity")}</h2>
+        <h2 id="settings-identity-heading" class="text-xl font-medium leading-tight">{l("Identity")}</h2>
         <p class="text-sm text-muted">{l("How this group looks and reads to others.")}</p>
       </header>
 
@@ -87,7 +87,7 @@
     <details class="group mt-10 pt-6 border-t border-base-content/10">
       <summary class="flex items-center gap-3 cursor-pointer list-none">
         <div class="flex-1">
-          <h2 class="text-xl font-semibold leading-tight">{l("Permissions")}</h2>
+          <h2 class="text-xl font-medium leading-tight">{l("Permissions")}</h2>
           <p class="text-sm text-muted mt-0.5">
             {l("Who can see, join, and post in this group.")}
           </p>
@@ -109,7 +109,7 @@
     <details class="group mt-8 pt-6 border-t border-base-content/10">
       <summary class="flex items-center gap-3 cursor-pointer list-none">
         <div class="flex-1">
-          <h2 class="text-xl font-semibold leading-tight">{l("Moderators")}</h2>
+          <h2 class="text-xl font-medium leading-tight">{l("Moderators")}</h2>
           <p class="text-sm text-muted mt-0.5">
             {l("People who can moderate this group.")}
           </p>
@@ -132,7 +132,7 @@
     {#if Bonfire.Boundaries.can?(current_user(@__context__), :configure, :instance)}
       <section class="flex flex-col gap-4 mt-8 pt-6 border-t border-base-content/10">
         <header class="flex flex-col gap-0.5">
-          <h2 class="text-xl font-semibold leading-tight">{l("Instance settings")}</h2>
+          <h2 class="text-xl font-medium leading-tight">{l("Instance settings")}</h2>
           <p class="text-sm text-muted">
             {l("Admin controls for how this group appears and behaves across the whole instance.")}
           </p>
@@ -165,7 +165,7 @@
     <details class="group mt-8 pt-6 border-t border-base-content/10">
       <summary class="flex items-center gap-3 cursor-pointer list-none">
         <div class="flex-1">
-          <h2 class="text-xl font-semibold leading-tight">{l("Rules")}</h2>
+          <h2 class="text-xl font-medium leading-tight">{l("Rules")}</h2>
           <p class="text-sm text-muted mt-0.5">
             {l("Community guidelines members agree to when joining.")}
           </p>
@@ -191,7 +191,7 @@
       class="flex flex-col gap-3 mt-12 pt-6 border-t border-base-content/10"
     >
       <header class="flex flex-col gap-0.5">
-        <h2 id="settings-danger-heading" class="text-xl font-semibold leading-tight">
+        <h2 id="settings-danger-heading" class="text-xl font-medium leading-tight">
           {l("Danger zone")}
         </h2>
         <p class="text-sm text-muted">

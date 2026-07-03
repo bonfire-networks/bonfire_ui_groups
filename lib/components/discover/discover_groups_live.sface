@@ -28,14 +28,14 @@
             </div>
 
             {#if @search_term != ""}
-              <p class="text-base font-semibold text-base-content">
+              <p class="text-base font-medium text-base-content">
                 {l("No groups match \"%{term}\"", term: @search_term)}
               </p>
               <p class="text-sm text-muted mt-1 max-w-sm">
                 {l("Try a different word, or clear the search to browse every group on this instance.")}
               </p>
             {#else}
-              <p class="text-base font-semibold text-base-content">
+              <p class="text-base font-medium text-base-content">
                 {l("No groups here yet")}
               </p>
               <p class="text-sm text-muted mt-1 max-w-sm">

@@ -1,6 +1,6 @@
 <section id="group-moderators" class="mb-6">
   <header class="flex items-center justify-between px-4 py-3">
-    <h2 class="text-base font-semibold text-base-content">{l("Moderators")}</h2>
+    <h2 class="text-base font-medium text-base-content">{l("Moderators")}</h2>
     <span class="text-xs text-muted">{length(@moderators)}</span>
   </header>
 

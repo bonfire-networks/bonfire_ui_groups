@@ -29,7 +29,7 @@
           <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
             <#Icon iconify="ph:users-three-duotone" class="size-7 text-base-content/30" />
           </div>
-          <p class="text-base font-semibold text-base-content">
+          <p class="text-base font-medium text-base-content">
             {l("You haven't joined any groups yet")}
           </p>
           <p class="mt-1 max-w-sm text-sm text-muted">
@@ -67,7 +67,7 @@
           <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
             <#Icon iconify="ph:archive-duotone" class="size-7 text-base-content/30" />
           </div>
-          <p class="text-base font-semibold text-base-content">
+          <p class="text-base font-medium text-base-content">
             {l("No archived groups")}
           </p>
           <p class="mt-1 max-w-sm text-sm text-muted">
@@ -97,7 +97,7 @@
               <div class="flex min-w-0 flex-1 flex-col gap-1.5">
                 <Bonfire.UI.Common.LinkLive
                   to={path(category)}
-                  class="truncate font-semibold leading-tight text-base-content"
+                  class="truncate font-medium leading-tight text-base-content"
                 >{e(category, :profile, :name, l("Untitled group"))}</Bonfire.UI.Common.LinkLive>
 
                 <p

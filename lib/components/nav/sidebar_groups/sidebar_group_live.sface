@@ -7,7 +7,7 @@
     class="hero relative bg-no-repeat h-[20px] w-[20px] rounded-full bg-cover bg-center]"
     style={"background-image: url('#{URI.encode(Media.banner_url(@category))}');"}
   />
-  <span class="text-base-content max-w-[180px] truncate text-[15px] flex-1">{e(@category, :profile, :name, nil)}</span>
+  <span class="text-base-content max-w-[180px] truncate text-body flex-1">{e(@category, :profile, :name, nil)}</span>
 </LinkLive>
 
 {!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
