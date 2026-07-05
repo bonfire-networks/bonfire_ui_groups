@@ -90,7 +90,7 @@
             class="relative font-medium uppercase pl-4 text-xs text-base-content/50 list-none after:content-none [&::-webkit-details-marker]:hidden"
           >
             <span>{l("Groups")}</span>
-            <div class="normal-case font-normal absolute right-4">
+            <div class="normal-case font-normal absolute right-2">
               <Bonfire.UI.Groups.NewGroupLive
                 id="sidebar_new_group"
                 parent_id="sidebar"
