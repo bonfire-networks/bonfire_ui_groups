@@ -67,9 +67,30 @@ defmodule Bonfire.UI.Groups.LiveHandler do
   end
 
   def handle_event("toggle_groups_nav_visibility", _params, socket) do
-    # Toggle is handled client-side by <details> natively;
-    # persisting to settings is best-effort
-    {:noreply, socket}
+    debug("toggle_groups_nav_visibility")
+
+    with {:ok, settings} <-
+           Bonfire.Common.Settings.set(
+             %{
+               Bonfire.UI.Groups.SidebarGroupsLive => %{
+                 show_groups_nav_open:
+                   !Bonfire.Common.Settings.get(
+                     [Bonfire.UI.Groups.SidebarGroupsLive, :show_groups_nav_open],
+                     true,
+                     context: assigns(socket),
+                     name: l("Default Groups Nav Open"),
+                     description:
+                       l("Whether the group navigation sidebar should be open by default.")
+                   )
+               }
+             },
+             current_user: current_user(socket)
+           ) do
+      {
+        :noreply,
+        socket |> maybe_assign_context(settings)
+      }
+    end
   end
 
   def handle_event("new", %{} = attrs, socket) do
