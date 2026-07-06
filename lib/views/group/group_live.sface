@@ -77,43 +77,17 @@
     >
       <:header>
         {#if @type == :topic}
-          {!-- handle the case where this page is loading a topic instead of a group, mirroring Bonfire.UI.Topics.CategoryLive --}
-          {#if e(@category, :parent_category, nil)}
-            <StatefulComponent
-              module={Config.get(
-                [:ui, :group, :hero_component],
-                Bonfire.UI.Me.ProfileHeroFullLive
-              )}
-              id={deterministic_dom_id(
-                "profile_hero_group",
-                id(e(@category, :parent_category, nil)),
-                @selected_tab
-              )}
-              user={e(@category, :parent_category, nil)}
-              path={path(e(@category, :parent_category, nil))}
-              character_type={:group}
-              boundary_preset={@boundary_preset}
-              object_boundary={@object_boundary}
-              permalink={path(e(@category, :parent_category, nil))}
-              follows_me={false}
-              selected_tab={@selected_tab}
-              members={e(assigns, :members, [])}
-              moderators={e(assigns, :moderators, [])}
-              subcategories={e(assigns, :subcategories, [])}
-              selected_category_id={id(@category)}
-              preset_slug={e(assigns, :group_preset_slug, nil)}
-              membership_slug={e(assigns, :group_membership_slug, "on_request")}
-              member_count={e(assigns, :group_member_count, nil)}
-              topic_count={e(assigns, :group_topic_count, nil)}
-              date={e(assigns, :group_date, nil)}
-            />
-          {/if}
+          {!-- a topic rendered in group context: show only the topic hero (which includes the
+               sibling-topic nav), mirroring Bonfire.UI.Topics.CategoryLive --}
           <StatelessComponent
             module={maybe_component(Bonfire.UI.Topics.TopicHeroLive, @__context__)}
             category={@category}
             permalink={@permalink}
             object_boundary={@object_boundary}
             boundary_preset={@boundary_preset}
+            subcategories={e(assigns, :subcategories, [])}
+            selected_category_id={id(@category)}
+            user={e(@category, :parent_category, nil)}
           />
           <StatelessComponent
             :if={@can_create_in_category}

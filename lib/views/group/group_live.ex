@@ -4,8 +4,6 @@ defmodule Bonfire.UI.Groups.GroupLive do
   on_mount {LivePlugs, [Bonfire.UI.Me.LivePlugs.LoadCurrentUser]}
 
   def mount(%{"id" => id} = params, session, socket) when id != "" do
-    debug(params, "ppppp")
-
     with {:ok, socket} <-
            undead_mount(socket, fn ->
              Bonfire.Classify.LiveHandler.mounted(params, session, socket)
@@ -24,13 +22,30 @@ defmodule Bonfire.UI.Groups.GroupLive do
      |> redirect_to("/groups")}
   end
 
-  def handle_params(params, uri, socket),
-    do:
-      Bonfire.Classify.LiveHandler.handle_params(
-        params,
-        uri,
-        socket
-      )
+  def handle_params(params, uri, socket) do
+    {:noreply, socket} = Bonfire.Classify.LiveHandler.handle_params(params, uri, socket)
+    {:noreply, maybe_patch_to_canonical_topic_url(socket, uri)}
+  end
+
+  # A topic reached via a non-canonical URL (e.g. the feed's `/&<topic_id>` group link) is
+  # normalised in place to `/<group>/topic/<topic>` — same LiveView, so `push_patch` reuses the
+  # already-loaded data (no remount). Usernames are preferred over ids when available.
+  defp maybe_patch_to_canonical_topic_url(socket, uri) do
+    category = e(assigns(socket), :category, nil)
+    group = e(category, :parent_category, nil)
+
+    # `:type` is the assign (defaults to `:topic` when the field is nil), matching the template
+    if e(assigns(socket), :type, nil) == :topic and not is_nil(group) do
+      topic_slug = e(category, :character, :username, nil) || id(category)
+      canonical = path(group) <> "/topic/" <> topic_slug
+
+      if URI.parse(uri).path != canonical,
+        do: push_patch(socket, to: canonical),
+        else: socket
+    else
+      socket
+    end
+  end
 
   def tab(selected_tab) do
     case maybe_to_atom(selected_tab) do

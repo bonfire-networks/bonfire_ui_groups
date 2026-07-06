@@ -82,7 +82,11 @@
         </details>
       {#else}
         <details
-          open={Bonfire.Common.Settings.get([Bonfire.UI.Groups.SidebarGroupsLive, :show_groups_nav_open], true, @__context__)}
+          open={Bonfire.Common.Settings.get(
+            [Bonfire.UI.Groups.SidebarGroupsLive, :show_groups_nav_open],
+            true,
+            @__context__
+          )}
           class="w-full overflow-hidden"
         >
           <summary

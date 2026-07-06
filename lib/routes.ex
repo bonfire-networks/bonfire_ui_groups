@@ -17,6 +17,11 @@ defmodule Bonfire.UI.Groups.Routes do
         live_aliases(aliases, "/:alias:id/follow", GroupLive, :follow, as: :group)
         live_aliases(aliases, "/:alias:id/discover", GroupLive, :discover, as: :group)
         live_aliases(aliases, "/:alias:id/about", GroupLive, :about, as: :group)
+
+        # a topic viewed in the context of its parent group (params: id=group, topic_id=topic).
+        # No explicit action, so `live_action` stays nil and the tab defaults to "discussions"
+        # (an action like `:topic` would be turned into a bogus `tab: "topic"` by the handler).
+        live_aliases(aliases, "/:alias:id/topic/:topic_id", GroupLive, as: :group)
       end
 
       # # pages only guests can view
