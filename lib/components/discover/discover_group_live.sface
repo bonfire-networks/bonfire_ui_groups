@@ -3,8 +3,11 @@
   class="hover:bg-base-content/10 flex items-center w-full gap-4 px-2 py-2 rounded-md group"
 >
   <div
-    class="hero relative bg-no-repeat h-[20px] w-[20px] rounded-full bg-cover bg-center]"
-    style={"background-image: url('#{URI.encode(Media.banner_url(@category))}');"}
+    class="hero relative bg-no-repeat h-[20px] w-[20px] rounded-full bg-primary bg-cover bg-center"
+    style={case Media.banner_url(@category, fallback: false) do
+      url when is_binary(url) -> "background-image: url('#{URI.encode(url)}');"
+      _ -> ""
+    end}
   />
   <span class="text-body font-normal capitalize text-base-content">{e(@category, :profile, :name, nil)}</span>
 </LinkLive>

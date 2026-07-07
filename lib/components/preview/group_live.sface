@@ -1,8 +1,9 @@
 {#if @showing_within == :feed}
   <div class="group block rounded-xl overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all">
     {!-- Banner --}
-    {#case Media.banner_url(@object)}
+    {#case Media.banner_url(@object, fallback: false)}
       {#match nil}
+        <div class="h-[160px] w-full bg-primary group-hover:scale-[1.02] transition-transform duration-300" />
       {#match banner}
         <div
           class="h-[160px] w-full bg-center bg-cover bg-no-repeat bg-base-300 group-hover:scale-[1.02] transition-transform duration-300"
