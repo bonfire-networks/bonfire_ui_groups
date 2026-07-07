@@ -27,7 +27,7 @@
         )}
         <details open class="details-static w-full overflow-hidden">
           <summary class="relative font-medium uppercase pl-4 text-xs text-base-content/50 list-none after:content-none [&::-webkit-details-marker]:hidden flex">
-            <span class="font-medium text-muted uppercase text-xs">{l("Groups")}</span>
+            <span class="font-medium text-muted uppercase text-xs flex-1">{l("Groups")}</span>
             <div class="pointer-events-auto">
               <Bonfire.UI.Groups.NewGroupLive
                 id="sidebar_new_group"
