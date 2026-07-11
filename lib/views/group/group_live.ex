@@ -30,6 +30,8 @@ defmodule Bonfire.UI.Groups.GroupLive do
   # A topic reached via a non-canonical URL (e.g. the feed's `/&<topic_id>` group link) is
   # normalised in place to `/<group>/topic/<topic>` — same LiveView, so `push_patch` reuses the
   # already-loaded data (no remount). Usernames are preferred over ids when available.
+  # `replace: true` so the non-canonical URL doesn't linger in the history stack, where
+  # going back to it would just re-patch forward (back button trap).
   defp maybe_patch_to_canonical_topic_url(socket, uri) do
     category = e(assigns(socket), :category, nil)
     group = e(category, :parent_category, nil)
@@ -40,7 +42,7 @@ defmodule Bonfire.UI.Groups.GroupLive do
       canonical = path(group) <> "/topic/" <> topic_slug
 
       if URI.parse(uri).path != canonical,
-        do: push_patch(socket, to: canonical),
+        do: push_patch(socket, to: canonical, replace: true),
         else: socket
     else
       socket
