@@ -43,8 +43,8 @@ defmodule Bonfire.UI.Groups.PresetVisualsTest do
 
       # data-role marker only renders on the no-avatar branch
       assert html =~ "data-role=\"group_preset_icon\""
-      # The lock icon slug appears in the rendered iconify output
-      assert html =~ "lock-duotone"
+      # The sidebar maps the stored ph:lock-duotone slug to its -fill variant
+      assert html =~ "lock-fill"
     end
 
     test "falls back to users-three icon when no preset slug is stored" do
