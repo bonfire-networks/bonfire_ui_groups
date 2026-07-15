@@ -12,7 +12,7 @@
     {#for {scope, scope_meta, is_selected} <- @scope_ordered}
       {#if e(scope_meta, :disabled, nil) || scope in @disabled_scopes}
         {#if @show_unavailable}
-          <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
+          <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-secondary opacity-40 cursor-not-allowed">
             <Iconify.iconify
               :if={e(scope_meta, :icon, nil)}
               icon={scope_meta[:icon]}
@@ -33,7 +33,7 @@
           class={
             "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-150 cursor-pointer",
             "ring-2 ring-primary bg-primary/5 border-secondary": is_selected,
-            "border-base-content/10 hover:bg-base-content/5": !is_selected
+            "border-secondary hover:bg-base-content/5": !is_selected
           }
         >
           <Iconify.iconify
@@ -48,7 +48,7 @@
   </div>
 
   {#if @circles != []}
-    <div class="divider text-xs font-medium text-base-content/50 uppercase tracking-wide mt-3 mb-2">
+    <div class="divider text-xs font-medium text-muted uppercase tracking-wide mt-3 mb-2">
       {l("Or one of your circles")}
     </div>
 
@@ -63,7 +63,7 @@
           class={
             "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-150 cursor-pointer",
             "ring-2 ring-primary bg-primary/5 border-secondary": @selected == id(circle),
-            "border-base-content/10 hover:bg-base-content/5": @selected != id(circle)
+            "border-secondary hover:bg-base-content/5": @selected != id(circle)
           }
         >
           <#Icon
@@ -98,7 +98,7 @@
         {#for {slug, opt, role_meta, access_role, is_selected_access} <- @scope_slugs}
           {#if e(opt, :disabled, nil)}
             {#if @show_unavailable}
-              <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed text-sm">
+              <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-secondary opacity-40 cursor-not-allowed text-sm">
                 <Iconify.iconify
                   :if={e(role_meta, :icon, nil)}
                   icon={role_meta[:icon]}
@@ -119,7 +119,7 @@
               class={
                 "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-150 cursor-pointer text-sm",
                 "ring-2 ring-primary bg-primary/5 border-secondary": is_selected_access,
-                "border-base-content/10 hover:bg-base-content/5": !is_selected_access
+                "border-secondary hover:bg-base-content/5": !is_selected_access
               }
             >
               <Iconify.iconify
@@ -131,7 +131,7 @@
               <div class={
                 "w-3 h-3 rounded-full border-2 shrink-0 ml-1 transition-all",
                 "border-primary bg-primary": is_selected_access,
-                "border-base-content/30": !is_selected_access
+                "border-secondary": !is_selected_access
               } />
             </button>
           {/if}

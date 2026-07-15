@@ -84,7 +84,7 @@
     </section>
 
     {!-- Permissions — embeds the same 3-layer editor as the dedicated Boundaries tab. --}
-    <details class="group mt-10 pt-6 border-t border-base-content/10">
+    <details class="group mt-10 pt-6 border-t border-secondary">
       <summary class="flex items-center gap-3 cursor-pointer list-none">
         <div class="flex-1">
           <h2 class="text-xl font-medium leading-tight">{l("Permissions")}</h2>
@@ -106,7 +106,7 @@
     </details>
 
     {!-- Moderators — promote/demote group moderators. --}
-    <details class="group mt-8 pt-6 border-t border-base-content/10">
+    <details class="group mt-8 pt-6 border-t border-secondary">
       <summary class="flex items-center gap-3 cursor-pointer list-none">
         <div class="flex-1">
           <h2 class="text-xl font-medium leading-tight">{l("Moderators")}</h2>
@@ -130,7 +130,7 @@
 
     {!-- Instance settings — admins only --}
     {#if Bonfire.Boundaries.can?(current_user(@__context__), :configure, :instance)}
-      <section class="flex flex-col gap-4 mt-8 pt-6 border-t border-base-content/10">
+      <section class="flex flex-col gap-4 mt-8 pt-6 border-t border-secondary">
         <header class="flex flex-col gap-0.5">
           <h2 class="text-xl font-medium leading-tight">{l("Instance settings")}</h2>
           <p class="text-sm text-muted">
@@ -162,7 +162,7 @@
     {/if}
 
     {!-- Rules — collapsed by default; the builder is heavy, most admins read more than they edit. --}
-    <details class="group mt-8 pt-6 border-t border-base-content/10">
+    <details class="group mt-8 pt-6 border-t border-secondary">
       <summary class="flex items-center gap-3 cursor-pointer list-none">
         <div class="flex-1">
           <h2 class="text-xl font-medium leading-tight">{l("Rules")}</h2>
@@ -188,7 +188,7 @@
     {!-- Danger zone — one reversible action (soft-delete = archive). --}
     <section
       aria-labelledby="settings-danger-heading"
-      class="flex flex-col gap-3 mt-12 pt-6 border-t border-base-content/10"
+      class="flex flex-col gap-3 mt-12 pt-6 border-t border-secondary"
     >
       <header class="flex flex-col gap-0.5">
         <h2 id="settings-danger-heading" class="text-xl font-medium leading-tight">
@@ -199,7 +199,7 @@
         </p>
       </header>
 
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg border border-base-content/15 bg-base-200/40 p-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg border border-secondary bg-base-200/40 p-4">
         <div class="flex-1">
           <div class="text-sm font-medium text-base-content">{l("Archive this group")}</div>
           <p class="text-xs text-muted mt-0.5 leading-snug">

@@ -17,7 +17,7 @@
           <div
             data-sortable-item
             data-item={id(group)}
-            class="flex items-center gap-2 rounded-lg border border-base-content/10 bg-base-100 px-3 py-2"
+            class="flex items-center gap-2 rounded-lg border border-secondary bg-base-100 px-3 py-2"
           >
             <span data-sortable-handler class="cursor-grab text-base-content/40">
               <#Icon iconify="ph:dots-six-vertical-bold" class="w-5 h-5" />
@@ -33,7 +33,7 @@
               phx-target={@myself}
               title={l("Unpin from everyone's sidebar")}
               aria-label={l("Unpin from everyone's sidebar")}
-              class="btn btn-ghost btn-sm btn-circle text-base-content/50 hover:text-error"
+              class="btn btn-ghost btn-sm btn-circle text-muted hover:text-error"
             >
               <#Icon iconify="ph:push-pin-slash-duotone" class="w-4 h-4" />
             </button>

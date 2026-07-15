@@ -5,7 +5,7 @@
   {#if e(@category, :deleted_at, nil) && @type != :topic}
     {!-- Archived group: restore notice up top, hero below as an inert preview --}
     <div
-      class="mb-4 flex flex-col gap-3 rounded-xl border border-base-content/15 bg-base-200 p-4 sm:flex-row sm:items-center"
+      class="mb-4 flex flex-col gap-3 rounded-xl border border-secondary bg-base-200 p-4 sm:flex-row sm:items-center"
       role="status"
     >
       <div class="flex flex-1 items-start gap-3">
@@ -101,7 +101,7 @@
             }}
           />
         {#elseif @selected_tab == "settings"}
-          <div class="sticky top-0 pt-safe z-sticky bg-base-100 lg:bg-base-100/70 backdrop-blur-sm border-b border-base-content/10">
+          <div class="sticky top-0 pt-safe z-sticky bg-base-100 lg:bg-base-100/70 backdrop-blur-sm border-b border-secondary">
             <div role="banner" class="flex items-center place-content-center flex-1 w-full min-h-[60px]">
               <div class="flex items-center gap-2 w-full">
                 <LinkLive

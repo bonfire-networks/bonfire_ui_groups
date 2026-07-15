@@ -11,7 +11,7 @@
         {#match opt}
           {#if e(opt, :disabled, nil)}
             {#if @show_unavailable}
-              <div class="flex items-center gap-3 p-3 rounded-lg border border-base-content/10 opacity-40 cursor-not-allowed">
+              <div class="flex items-center gap-3 p-3 rounded-lg border border-secondary opacity-40 cursor-not-allowed">
                 <div class="flex flex-col min-w-0 flex-1">
                   <span class="text-sm font-medium">{opt[:label]}</span>
                   {#if opt[:description]}
@@ -33,7 +33,7 @@
               class={
                 "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
                 "ring-2 ring-primary bg-primary/5 border-secondary": @selected == slug,
-                "border-base-content/10 hover:bg-base-content/5": @selected != slug
+                "border-secondary hover:bg-base-content/5": @selected != slug
               }
             >
               <div class="flex flex-col min-w-0 flex-1">
@@ -45,7 +45,7 @@
               <div class={
                 "w-4 h-4 rounded-full border-2 shrink-0 transition-all",
                 "border-primary bg-primary": @selected == slug,
-                "border-base-content/30": @selected != slug
+                "border-secondary": @selected != slug
               } />
             </button>
           {/if}
@@ -53,7 +53,7 @@
     {/for}
 
     {#if @circles != []}
-      <div class="divider text-xs font-medium text-base-content/50 uppercase tracking-wide mt-2 mb-0.5">
+      <div class="divider text-xs font-medium text-muted uppercase tracking-wide mt-2 mb-0.5">
         {l("Or one of your circles")}
       </div>
 
@@ -67,7 +67,7 @@
           class={
             "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
             "ring-2 ring-primary bg-primary/5 border-secondary": @selected == id(circle),
-            "border-base-content/10 hover:bg-base-content/5": @selected != id(circle)
+            "border-secondary hover:bg-base-content/5": @selected != id(circle)
           }
         >
           <span class="flex items-center justify-center w-8 h-8 rounded-md bg-base-content/5 shrink-0">
@@ -87,7 +87,7 @@
           <div class={
             "w-4 h-4 rounded-full border-2 shrink-0 transition-all",
             "border-primary bg-primary": @selected == id(circle),
-            "border-base-content/30": @selected != id(circle)
+            "border-secondary": @selected != id(circle)
           } />
         </button>
       {/for}
