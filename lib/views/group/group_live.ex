@@ -8,6 +8,10 @@ defmodule Bonfire.UI.Groups.GroupLive do
            undead_mount(socket, fn ->
              Bonfire.Classify.LiveHandler.mounted(params, session, socket)
            end) do
+      # emit social-card metadata (name/description/image) for the group/topic profile,
+      # via the Category `SEO.*.Build` impls in group_seo.ex (no-op on non-guest/connected renders)
+      socket = Bonfire.UI.Common.SEO.maybe_assign_seo(socket, e(assigns(socket), :category, nil))
+
       if e(assigns(socket), :type, nil) == :topic do
         {:ok, assign(socket, page: "topic", showing_within: :topic)}
       else

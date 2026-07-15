@@ -58,8 +58,7 @@
           class={
             "flex items-start gap-3 p-3 rounded-lg border border-dashed text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.99]",
             "ring-2 ring-primary bg-primary/5 border-secondary": @preset == "custom",
-            "border-secondary hover:bg-base-content/5 hover:border-secondary":
-              @preset != "custom"
+            "border-secondary hover:bg-base-content/5 hover:border-secondary": @preset != "custom"
           }
         >
           <span class="flex items-center justify-center w-8 h-8 rounded-md bg-base-content/5 shrink-0 mt-0.5">
