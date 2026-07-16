@@ -10,7 +10,9 @@ defmodule Bonfire.UI.Groups.PresetVisualsTest do
   rather than pixel-level so refactors of the Iconify component don't break us.
   """
 
-  use Bonfire.UI.Groups.ConnCase, async: System.get_env("TEST_UI_ASYNC") != "no"
+  # async: false — passes in isolation (6/6) but the group-icon iconify assertion fails under the
+  # concurrent ui battery (shared render/state race); run serially
+  use Bonfire.UI.Groups.ConnCase, async: false
   @moduletag :ui
 
   alias Bonfire.Classify.Categories
