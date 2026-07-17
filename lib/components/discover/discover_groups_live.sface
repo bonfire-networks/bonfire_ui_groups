@@ -44,7 +44,7 @@
             {/if}
           </div>
         {#else}
-          <div class="flex flex-col">
+          <div class="flex flex-col divide-hair divide-secondary">
             {#for {%{type: :group} = category, _children} <- @categories}
               <StatelessComponent
                 module={component}
