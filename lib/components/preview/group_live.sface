@@ -53,7 +53,7 @@
   </div>
 {#else}
   <article class="group">
-    <div class="flex flex-col gap-card bonfire-wrapper">
+    <div class="flex flex-col gap-card bg-base-100 p-card">
       <div class="flex items-start gap-card">
         {!-- Avatar --}
         <LinkLive to={@permalink} class="shrink-0 block" tabindex="-1" aria-hidden="true">
