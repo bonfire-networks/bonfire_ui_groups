@@ -10,7 +10,11 @@ defmodule Bonfire.UI.Groups.LiveHandler do
         ComponentID.send_assigns(
           e(params, "component", "join_btn_#{id}"),
           id,
-          [my_membership: if(result.requested, do: :requested, else: result.member)],
+          [
+            my_membership: if(result.requested, do: :requested, else: result.member),
+            # joining a group also creates a follow, so flip the sibling Follow button live
+            my_follow: if(result.requested, do: :requested, else: true)
+          ],
           socket
         )
 
