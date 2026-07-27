@@ -1,11 +1,11 @@
 <div>
   {!-- <#slot {@header} /> --}
   <div class={
-    "grid items-start grid-cols-1 mt-4 bonfire-wrapper",
+    "grid items-start grid-cols-1 mt-4 !p-0 bonfire-wrapper",
     "max-w-[680px] mx-auto": !current_user_id(@__context__)
   }>
     <main class="flex flex-col">
-      <!-- <Bonfire.UI.Common.TabsLive
+      {!-- <Bonfire.UI.Common.TabsLive
         :if={!@hide_tabs}
         selected_tab={@selected_tab}
         class="flex justify-between w-full border-b bg-base-100 tabs border-base-content border-opacity-20"
@@ -15,7 +15,7 @@
         tabs={if current_user_id(@__context__) == id(@user),
           do: Config.get([:ui, @showing_within, :network], followers: l("Followers")),
           else: Config.get([:ui, @showing_within, :network], followers: l("Followers"))}
-      /> -->
+      /> --}
       <div :if={@selected_tab in ["requested", "followed"]}>
         <div class="flow-root">
           <ul class="divide-hair divide-secondary">
@@ -100,7 +100,7 @@
             <section id="group-members">
               <header class="flex items-center justify-between px-4 py-3">
                 <h2 class="text-base font-medium text-base-content">{l("Members")}</h2>
-                <span :if={other_members != []} class="text-xs text-muted">{length(other_members)}</span>
+                <span :if={other_members != []} class="text-xs text-muted">{max(0, (@member_count || 0) - length(@moderators))}</span>
               </header>
               {#if other_members == []}
                 <div id="members-empty-feed" class="flex items-center my-12 place-content-center">
@@ -128,6 +128,13 @@
                     {/for}
                   </ul>
                 </div>
+                <Bonfire.UI.Common.LoadMoreLive
+                  :if={@page_info}
+                  live_handler="Bonfire.Classify.LiveHandler"
+                  context="members"
+                  page_info={@page_info}
+                  hide_if_no_more
+                />
               {/if}
             </section>
         {/case}

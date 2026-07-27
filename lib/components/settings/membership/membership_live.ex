@@ -8,6 +8,7 @@ defmodule Bonfire.UI.Groups.Settings.MembershipLive do
   prop feed, :list, default: []
   prop moderators, :list, default: []
   prop page_info, :any, default: nil
+  prop member_count, :integer, default: nil
   prop showing_within, :atom, default: :profile
   prop hide_tabs, :boolean, default: false
 
