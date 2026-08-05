@@ -71,7 +71,7 @@
       <div :if={@selected_tab == "members"}>
         {#case Bonfire.UI.Groups.Settings.MembershipLive.members_excluding_moderators(@feed, @moderators)}
           {#match other_members}
-            <section :if={@moderators != []} id="group-moderators" class="mb-6">
+            <section :if={@moderators != []} id="group-moderators" class="">
               <header class="flex items-center justify-between px-4 py-3">
                 <h2 class="text-base font-medium text-base-content">{l("Moderators")}</h2>
                 <span class="text-xs text-muted">{length(@moderators)}</span>
