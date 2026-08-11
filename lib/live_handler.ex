@@ -4,7 +4,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
   alias Bonfire.Classify.Categories
 
   def handle_event("join_group", %{"id" => id} = params, socket) do
-    with {:ok, current_user} <- current_user_or_remote_interaction(socket, l("join"), id),
+    with {:ok, current_user} <- current_user_or_remote_interaction(socket, "join", id),
          {:ok, result} <- Categories.join_group(current_user, id) do
       {:noreply, socket} =
         ComponentID.send_assigns(
