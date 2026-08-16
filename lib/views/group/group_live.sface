@@ -71,6 +71,7 @@
             Bonfire.UI.Social.ProfileTimelineLive}
       user={@category}
       {...assigns}
+      custom_actions={Bonfire.UI.Social.Activity.DiscussionPreviewActionsLive}
     >
       <:header>
         {#if @type == :topic}

@@ -1016,6 +1016,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> visit("/&#{group.character.username}")
       |> wait_async()
       |> assert_has_or_open_browser("article", text: "Group post content here")
+      |> assert_has_or_open_browser("[data-role=discussion_preview_actions]")
     end
 
     # Posting in a group triggers the group's auto-boost of the post into its outbox.
