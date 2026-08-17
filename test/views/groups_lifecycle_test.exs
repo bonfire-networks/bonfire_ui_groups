@@ -537,7 +537,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn(user: alice, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
-      |> click_link("[data-id=follow]", "Follow")
+      |> click_button("[data-id=follow]", "Follow")
       |> wait_async()
       |> refute_has("[data-id=flash_error]")
 
