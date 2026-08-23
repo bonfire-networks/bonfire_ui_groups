@@ -28,4 +28,5 @@ defmodule Bonfire.UI.Groups.SettingsLive do
       default
     end
   end
+
 end

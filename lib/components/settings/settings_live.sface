@@ -4,5 +4,14 @@
   tabs={Config.get([:ui, :group, :settings, :navigation], settings: l("General"))}
 /> -->
 
-<StatelessComponent module={tab_component(@tab_id || @selected_tab)} {...assigns}>
-</StatelessComponent>
+{#if tab_component(@tab_id || @selected_tab) == Bonfire.UI.Groups.Settings.BoundariesLive}
+  <Bonfire.UI.Groups.Settings.BoundariesLive
+    id={"group_settings_#{id(@category)}_#{@tab_id || @selected_tab || "general"}"}
+    selected_tab={@selected_tab}
+    category={@category}
+    boundary_preset={@boundary_preset}
+    __context__={@__context__}
+  />
+{#else}
+  <StatelessComponent module={tab_component(@tab_id || @selected_tab)} {...assigns} />
+{/if}
