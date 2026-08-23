@@ -84,7 +84,9 @@ defmodule Bonfire.UI.Groups.GroupFeedLoadMoreTest do
       |> visit("/&#{group.character.username}/discussions?time_limit=7")
       |> wait_async()
       |> assert_has_or_open_browser("[data-id=feed] article", text: "discussion from today")
-      |> refute_has_or_open_browser("[data-id=feed] article", text: "discussion from thirty days ago")
+      |> refute_has_or_open_browser("[data-id=feed] article",
+        text: "discussion from thirty days ago"
+      )
       |> refute_has("#activity_#{old_activity_id}")
       |> click_link("a[data-id=next_page]", "Next page")
       |> wait_async()
