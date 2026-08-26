@@ -94,7 +94,7 @@
             class="relative font-medium uppercase pl-4 text-xs text-muted list-none after:content-none [&::-webkit-details-marker]:hidden flex"
           >
             <span class="flex-1 w-full">{l("Groups")}</span>
-            <div class="normal-case font-normal absolute right-2">
+            <div class="normal-case font-normal absolute right-0">
               <Bonfire.UI.Groups.NewGroupLive
                 id="sidebar_new_group"
                 parent_id="sidebar"
