@@ -143,7 +143,11 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn = conn(user: me, account: account)
       {:ok, _view, html} = live(conn, "/&#{group.character.username}/about")
 
-      assert html =~ e(me, :profile, :name, "")
+      # escaped, because that is how the name appears in the page: faker generates names like `O'Kon, Murazik and Harber` often enough, and the apostrophe renders as `&#39;`, so a raw comparison fails for those and passes for every other name
+      assert html =~
+               e(me, :profile, :name, "")
+               |> Phoenix.HTML.html_escape()
+               |> Phoenix.HTML.safe_to_string()
     end
 
     test "group about page shows group details" do
