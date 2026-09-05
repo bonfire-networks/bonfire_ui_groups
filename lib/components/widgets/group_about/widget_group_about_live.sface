@@ -77,14 +77,14 @@
 
   {!-- Moderators --}
   <div :if={@moderators != []} class="mt-card pt-card border-t-hair border-secondary -mx-card">
-    <div class="text-caption px-card uppercase tracking-wider text-base-content pb-card border-b-hair border-secondary">
+    <div data-role="moderators-heading" class="text-caption px-card uppercase tracking-wider text-base-content pb-card border-b-hair border-secondary [.sidebar-widgets_&]:border-b-0">
       {l("Moderators")}
     </div>
     <div class="flex flex-col divide-hair divide-secondary">
       {#for user <- @moderators}
         <div class="p-1">
           <StatelessComponent
-            wrapper_class="flex items-center bg-base-100 p-1 justify-between gap-1 rounded-field border-hair border-secondary"
+            wrapper_class="widget-moderator-profile flex items-center bg-base-100 p-1 justify-between gap-1 rounded-field border-hair border-secondary [.sidebar-widgets_&]:px-0 [.sidebar-widgets_&]:border-0 [.sidebar-widgets_&]:rounded-none [.sidebar-widgets_&]:bg-transparent"
             avatar_class="w-9 h-9 rounded-full"
             fallback_class="w-9 h-9 rounded-full"
             module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}
