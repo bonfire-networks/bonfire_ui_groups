@@ -145,22 +145,20 @@
             topic_count={e(assigns, :group_topic_count, nil)}
             date={e(assigns, :group_date, nil)}
           />
-          <div class="py-feed">
-            <StatelessComponent
-              :if={@can_create_in_category}
-              module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
-              selected_tab={@selected_tab}
-              prompt={l("Write in %{name}",
-                name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
-              )}
-              smart_input_opts={%{
-                context_id: id(@category),
-                mentions: [id(@category)],
-                to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
-                to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
-              }}
-            />
-          </div>
+          <StatelessComponent
+            :if={@can_create_in_category}
+            module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
+            selected_tab={@selected_tab}
+            prompt={l("Write in %{name}",
+              name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
+            )}
+            smart_input_opts={%{
+              context_id: id(@category),
+              mentions: [id(@category)],
+              to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
+              to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
+            }}
+          />
         {/if}
       </:header>
     </StatelessComponent>

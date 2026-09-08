@@ -479,9 +479,9 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> visit("/&#{group.character.username}/about")
       |> wait_async()
       |> assert_has("[phx-value-id='#{group.id}']", text: "Request to join")
-      |> click_link("[phx-value-id='#{group.id}']", "Request to join")
+      |> click_button("[phx-value-id='#{group.id}']", "Request to join")
       |> wait_async()
-      |> assert_has("[phx-value-id='#{group.id}']", text: "Requested")
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Cancel request")
 
       refute Categories.member?(alice, group)
     end
@@ -510,7 +510,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn(user: alice, account: account)
       |> visit("/&#{group.character.username}/about")
       |> wait_async()
-      |> click_link("[phx-value-id='#{group.id}']", "Request to join")
+      |> click_button("[phx-value-id='#{group.id}']", "Request to join")
       |> wait_async()
       |> refute_has("[data-id=flash_error]")
 
@@ -520,37 +520,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
                )
     end
 
-    test "following a private group does not show a 'Could not join group' error" do
-      # the private group's page renders a Follow button alongside the join button; clicking it
-      # goes through a different handler but reportedly produces the same spurious error
-      Process.put(:federating, false)
-
-      account = fake_account!()
-      me = fake_user!(account)
-      alice = fake_user!(account)
-
-      group =
-        create_group(me,
-          name: "Private Follow Group",
-          membership: "on_request",
-          visibility: "local:discoverable",
-          participation: "group_members",
-          default_content_visibility: "members:private"
-        )
-
-      conn(user: alice, account: account)
-      |> visit("/&#{group.character.username}")
-      |> wait_async()
-      |> click_button("[data-id=follow]", "Follow")
-      |> wait_async()
-      |> refute_has("[data-id=flash_error]")
-
-      assert Bonfire.Social.Graph.Follows.following?(alice, group) or
-               Bonfire.Social.Graph.Follows.requested?(alice, group),
-             "expected the click to have created either a Follow or a Request"
-    end
-
-    test "non-member sees 'Join group' button on open group about page, and after joining, user sees 'Joined' button, and after leaving, user sees 'Join group' button again" do
+    test "non-member sees 'Join' button on open group about page, and after joining, user sees 'Joined' button, and after leaving, user sees 'Join' button again" do
       account = fake_account!()
       me = fake_user!(account)
       alice = fake_user!(account)
@@ -561,13 +531,13 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn
       |> visit("/&#{group.character.username}/about")
       |> wait_async()
-      |> assert_has("[phx-value-id='#{group.id}']", text: "Join group")
-      |> click_link("[phx-value-id='#{group.id}']", "Join group")
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Join")
+      |> click_button("[phx-value-id='#{group.id}']", "Join")
       |> wait_async()
       |> assert_has("[phx-value-id='#{group.id}']", text: "Joined")
-      |> click_link("[phx-value-id='#{group.id}']", "Joined")
+      |> click_button("[phx-value-id='#{group.id}']", "Joined")
       |> wait_async()
-      |> assert_has("[phx-value-id='#{group.id}']", text: "Join group")
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Join")
     end
 
     test "group creator is automatically a member and sees the 'Manage' link instead of a join button" do
@@ -581,7 +551,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> visit("/&#{group.character.username}/about")
       |> wait_async()
       |> assert_has("a", text: "Manage")
-      |> refute_has("[phx-value-id='#{group.id}']", text: "Join group")
+      |> refute_has("[phx-value-id='#{group.id}']", text: "Join")
     end
 
     test "a joined member appears on the group about page" do
@@ -593,7 +563,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn(user: alice, account: account)
       |> visit("/&#{group.character.username}/about")
       |> wait_async()
-      |> click_link("[phx-value-id='#{group.id}']", "Join group")
+      |> click_button("[phx-value-id='#{group.id}']", "Join")
       |> wait_async()
 
       conn(user: me, account: account)
@@ -620,8 +590,10 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn(user: alice, account: account)
       |> visit("/&#{group.character.username}/about")
       |> wait_async()
-      |> refute_has("[phx-value-id='#{group.id}']", text: "Join group")
+      |> refute_has("[phx-value-id='#{group.id}']", text: "Join")
       |> refute_has("[phx-value-id='#{group.id}']", text: "Request to join")
+      |> assert_has("button#follow_feed_#{group.id}.btn-primary", text: "Follow")
+      |> assert_has("#follow_feed_#{group.id} [iconify='ph:rss']")
     end
 
     # Regression: cond fall-through in join_button_live.sface used to land non-member

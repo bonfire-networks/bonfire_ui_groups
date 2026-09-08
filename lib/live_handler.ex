@@ -20,6 +20,12 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
       {:noreply, maybe_refresh_can_create(socket, current_user)}
     else
+      {:error, :approval_required} ->
+        {:noreply,
+         assign_flash(socket, :error,
+           l("You still follow this group. Ask a group moderator to approve your membership before rejoining.")
+         )}
+
       e ->
         error(e)
         {:noreply, assign_flash(socket, :error, l("Could not join group"))}
@@ -33,7 +39,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
         ComponentID.send_assigns(
           e(params, "component", "join_btn_#{id}"),
           id,
-          [my_membership: false, my_follow: false],
+          [my_membership: false, my_follow: Bonfire.Social.Graph.Follows.following?(current_user, id)],
           socket
         )
 
@@ -42,6 +48,23 @@ defmodule Bonfire.UI.Groups.LiveHandler do
       e ->
         error(e)
         {:noreply, assign_flash(socket, :error, l("Could not leave group"))}
+    end
+  end
+
+  def handle_event("cancel_join_request", %{"id" => id} = params, socket) do
+    with current_user <- current_user_required!(socket),
+         _ <- Bonfire.Social.Graph.Follows.unfollow(current_user, id),
+         false <- Bonfire.Social.Graph.Follows.requested?(current_user, id) do
+      ComponentID.send_assigns(
+        e(params, "component", "join_btn_#{id}"),
+        id,
+        [my_membership: false, my_follow: false],
+        socket
+      )
+    else
+      error ->
+        error(error)
+        {:noreply, assign_flash(socket, :error, l("Could not cancel join request"))}
     end
   end
 
