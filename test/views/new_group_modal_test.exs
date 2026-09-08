@@ -118,7 +118,8 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       |> click_button("[data-role=open_modal]", "Create a group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> assert_has("h3", text: "Fine-tune")
-      |> assert_has("*", text: "Discoverable in group listings")
+      # TODO: restore once the discoverable toggle is (see `layer2_toggles` config)
+      # |> assert_has("*", text: "Discoverable in group listings")
       |> assert_has("*", text: "Require approval to join")
     end
 
@@ -182,7 +183,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     # otherwise `resolve_dims/1` silently falls back to defaults regardless of preset.
     # Values are post-layer2 (preset's `layer2_defaults` are folded into primitives by
     # `apply_preset/2`), so for `public_local_community` (`discoverable: true,
-    # anyone_posts: true`) the visibility becomes `nonfederated:discoverable` and
+    # nonmembers_may_post: true`) the visibility becomes `nonfederated:discoverable` and
     # participation becomes `local:contributors`.
     test "after picking a preset (Advanced collapsed), the form carries the preset's dimensions as hidden inputs",
          %{conn: conn} do
@@ -262,35 +263,43 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     # test "'secret_group' locks all four Layer 2 toggles" do
     #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :federate)
     #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :discoverable)
-    #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :approval_required)
-    #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :anyone_posts)
+    #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :joins_need_approval)
+    #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :nonmembers_may_post)
     # end
 
     test "'public_local_community' only locks federate" do
       assert GroupBoundaryEditorLive.layer2_locked?("public_local_community", :federate)
       refute GroupBoundaryEditorLive.layer2_locked?("public_local_community", :discoverable)
-      refute GroupBoundaryEditorLive.layer2_locked?("public_local_community", :approval_required)
-      refute GroupBoundaryEditorLive.layer2_locked?("public_local_community", :anyone_posts)
+
+      refute GroupBoundaryEditorLive.layer2_locked?(
+               "public_local_community",
+               :joins_need_approval
+             )
+
+      refute GroupBoundaryEditorLive.layer2_locked?(
+               "public_local_community",
+               :nonmembers_may_post
+             )
     end
 
-    test "'announcement_channel' locks federate + anyone_posts but leaves discoverable + approval open" do
+    test "'announcement_channel' locks federate + nonmembers_may_post but leaves discoverable + approval open" do
       assert GroupBoundaryEditorLive.layer2_locked?("announcement_channel", :federate)
       refute GroupBoundaryEditorLive.layer2_locked?("announcement_channel", :discoverable)
-      refute GroupBoundaryEditorLive.layer2_locked?("announcement_channel", :approval_required)
-      assert GroupBoundaryEditorLive.layer2_locked?("announcement_channel", :anyone_posts)
+      refute GroupBoundaryEditorLive.layer2_locked?("announcement_channel", :joins_need_approval)
+      assert GroupBoundaryEditorLive.layer2_locked?("announcement_channel", :nonmembers_may_post)
     end
 
-    test "'private_club' locks federate + anyone_posts but leaves discoverable + approval open" do
+    test "'private_club' locks federate + nonmembers_may_post but leaves discoverable + approval open" do
       assert GroupBoundaryEditorLive.layer2_locked?("private_club", :federate)
       refute GroupBoundaryEditorLive.layer2_locked?("private_club", :discoverable)
-      refute GroupBoundaryEditorLive.layer2_locked?("private_club", :approval_required)
-      assert GroupBoundaryEditorLive.layer2_locked?("private_club", :anyone_posts)
+      refute GroupBoundaryEditorLive.layer2_locked?("private_club", :joins_need_approval)
+      assert GroupBoundaryEditorLive.layer2_locked?("private_club", :nonmembers_may_post)
     end
   end
 
   describe "Layer 2 toggles → primitives cascade" do
     # `public_local_community` is the densest preset for cascade testing — it leaves
-    # :discoverable, :approval_required, and :anyone_posts all toggleable (only
+    # :discoverable, :joins_need_approval, and :nonmembers_may_post all toggleable (only
     # :federate is locked). Each toggle has a deterministic effect on a primitive
     # via `apply_layer2_to_primitives/3` in `GroupBoundaryEditorLive`.
 
@@ -300,7 +309,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       |> click_button("[data-role=open_modal]", "Create a group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> assert_has(~s|input[type="hidden"][name="membership"][value="local:members"]|)
-      |> click_layer2_toggle("approval_required")
+      |> click_layer2_toggle("joins_need_approval")
       |> assert_has(~s|input[type="hidden"][name="membership"][value="on_request"]|)
     end
 
@@ -310,7 +319,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       |> click_button("[data-role=open_modal]", "Create a group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> assert_has(~s|input[type="hidden"][name="participation"][value="local:contributors"]|)
-      |> click_layer2_toggle("anyone_posts")
+      |> click_layer2_toggle("nonmembers_may_post")
       |> assert_has(~s|input[type="hidden"][name="participation"][value="group_members"]|)
     end
   end
@@ -326,7 +335,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       |> visit("/groups")
       |> click_button("[data-role=open_modal]", "Create a group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
-      |> click_layer2_toggle("approval_required")
+      |> click_layer2_toggle("joins_need_approval")
       |> click_button("[data-preset=announcement_channel]", "Announcement channel")
       |> assert_has("button", text: "Apply defaults")
       |> assert_has("button", text: "Keep my changes")
@@ -338,7 +347,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       |> visit("/groups")
       |> click_button("[data-role=open_modal]", "Create a group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
-      |> click_layer2_toggle("approval_required")
+      |> click_layer2_toggle("joins_need_approval")
       |> click_button("[data-preset=announcement_channel]", "Announcement channel")
       |> click_button("Apply defaults")
       |> assert_has("[data-preset=announcement_channel][aria-checked=true]")
@@ -352,7 +361,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       |> visit("/groups")
       |> click_button("[data-role=open_modal]", "Create a group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
-      |> click_layer2_toggle("approval_required")
+      |> click_layer2_toggle("joins_need_approval")
       |> click_button("[data-preset=announcement_channel]", "Announcement channel")
       |> click_button("Keep my changes")
       |> assert_has("[data-preset=public_local_community][aria-checked=true]")

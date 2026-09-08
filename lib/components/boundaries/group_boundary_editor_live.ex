@@ -196,20 +196,48 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
   defp apply_layer2_to_primitives(socket, :discoverable, false),
     do: swap_visibility_access(socket, :unlisted_read)
 
-  defp apply_layer2_to_primitives(socket, :approval_required, true),
-    do: assign(socket, membership: "on_request")
+  # Delegated for the same reason as the two below: this used to set `local:members` while the API path set `open` for the very same toggle, which is what a second copy of the mapping buys you.
+  defp apply_layer2_to_primitives(socket, :joins_need_approval, val) do
+    dims =
+      Bonfire.Classify.Boundaries.dims_from_layer2_overrides(
+        %{visibility: socket.assigns.visibility, membership: socket.assigns.membership},
+        %{joins_need_approval: val}
+      )
 
-  defp apply_layer2_to_primitives(socket, :approval_required, false),
-    do: assign(socket, membership: "local:members")
+    assign(socket, membership: dims[:membership])
+  end
 
-  defp apply_layer2_to_primitives(socket, :anyone_posts, true),
-    do: assign(socket, participation: "local:contributors")
+  # Delegated for the same reason as `federate` below: which population "non-members" means depends on the group's own scope, and a second copy of that here is what let this and the API path drift apart.
+  defp apply_layer2_to_primitives(socket, :nonmembers_may_post, val) do
+    dims =
+      Bonfire.Classify.Boundaries.dims_from_layer2_overrides(
+        %{
+          visibility: socket.assigns.visibility,
+          participation: socket.assigns.participation
+        },
+        %{nonmembers_may_post: val}
+      )
 
-  defp apply_layer2_to_primitives(socket, :anyone_posts, false),
-    do: assign(socket, participation: "group_members")
+    assign(socket, participation: dims[:participation])
+  end
 
-  # Federate is informational-only until groups federation ships.
-  defp apply_layer2_to_primitives(socket, :federate, _), do: socket
+  # Delegated rather than mirrored like the toggles above: `federate` enacts TWO dimensions at once (the group's `visibility` and its posts' `default_content_visibility`), and a second copy of that scope walk here would drift from the one the API path uses.
+  defp apply_layer2_to_primitives(socket, :federate, val) do
+    dims =
+      Bonfire.Classify.Boundaries.dims_from_layer2_overrides(
+        %{
+          visibility: socket.assigns.visibility,
+          default_content_visibility: socket.assigns.default_content_visibility
+        },
+        %{federate: val}
+      )
+
+    assign(socket,
+      visibility: dims[:visibility],
+      default_content_visibility: dims[:default_content_visibility]
+    )
+  end
+
   defp apply_layer2_to_primitives(socket, _, _), do: socket
 
   defp swap_visibility_access(socket, target_role) do
