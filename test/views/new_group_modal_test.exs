@@ -67,7 +67,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "opening the modal renders all configured preset cards + Custom", %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> assert_has("[data-preset=public_local_community]", text: "Public local community")
       |> assert_has("[data-preset=announcement_channel]", text: "Announcement channel")
       |> assert_has("[data-preset=private_club]", text: "Private club")
@@ -77,7 +77,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "modal shows the intent-framing copy and the name field", %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> assert_has("p", text: "A space for people to gather around something")
       |> assert_has("#new_group_name")
     end
@@ -85,7 +85,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "the default preset is preselected on open", %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> assert_has("[data-preset=public_local_community][aria-checked=true]")
       |> refute_has("[data-preset=private_club][aria-checked=true]")
     end
@@ -94,7 +94,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
          %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       # Layer 2 toggles header (preset is preselected) vs Layer 3 advanced (still collapsed)
       |> assert_has("h3", text: "Fine-tune")
       |> assert_has("button[aria-expanded=false]", text: "Fine-tune each dimension")
@@ -105,7 +105,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "clicking a preset marks it aria-checked, others unchecked", %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> assert_has("[data-preset=public_local_community][aria-checked=true]")
       |> refute_has("[data-preset=announcement_channel][aria-checked=true]")
@@ -115,7 +115,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "picking a non-Custom preset reveals Layer 2 fine-tune toggles", %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> assert_has("h3", text: "Fine-tune")
       # TODO: restore once the discoverable toggle is (see `layer2_toggles` config)
@@ -126,7 +126,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "picking Custom hides Layer 2 and auto-opens Advanced", %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=custom]", "Custom")
       |> refute_has("h3", text: "Fine-tune")
       |> assert_has("button[aria-expanded=true]", text: "Fine-tune each dimension")
@@ -135,7 +135,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "switching presets moves the check mark", %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> assert_has("[data-preset=public_local_community][aria-checked=true]")
       |> click_button("[data-preset=announcement_channel]", "Announcement channel")
@@ -148,7 +148,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "expanding Advanced reveals the four boundary dimension controls", %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("Fine-tune each dimension")
       |> assert_has("button[aria-expanded=true]", text: "Fine-tune each dimension")
       |> assert_has("*", text: "Who can join?")
@@ -168,7 +168,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
 
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> submit_new_group_form(%{"name" => name, "summary" => "Created from the modal UI."})
 
@@ -189,7 +189,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
          %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> assert_has(~s|input[type="hidden"][name="membership"][value="local:members"]|)
       |> assert_has(
@@ -216,7 +216,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
 
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> submit_new_group_form(%{"name" => name, "summary" => summary})
 
@@ -306,7 +306,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "toggling 'Require approval' on rewrites membership to on_request", %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> assert_has(~s|input[type="hidden"][name="membership"][value="local:members"]|)
       |> click_layer2_toggle("joins_need_approval")
@@ -316,7 +316,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "toggling 'Anyone can post' off rewrites participation to group_members", %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> assert_has(~s|input[type="hidden"][name="participation"][value="local:contributors"]|)
       |> click_layer2_toggle("nonmembers_may_post")
@@ -333,7 +333,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
          %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> click_layer2_toggle("joins_need_approval")
       |> click_button("[data-preset=announcement_channel]", "Announcement channel")
@@ -345,7 +345,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
          %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> click_layer2_toggle("joins_need_approval")
       |> click_button("[data-preset=announcement_channel]", "Announcement channel")
@@ -359,7 +359,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
          %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> click_layer2_toggle("joins_need_approval")
       |> click_button("[data-preset=announcement_channel]", "Announcement channel")
@@ -380,7 +380,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "picking Custom does not emit a preset_slug hidden input", %{conn: conn} do
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=custom]", "Custom")
       |> refute_has(~s|input[type="hidden"][name="preset_slug"]|)
     end
@@ -391,7 +391,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
 
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=custom]", "Custom")
       |> submit_new_group_form(%{
         "name" => name,
@@ -439,7 +439,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
 
       conn(user: admin, account: account)
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> click_button("Fine-tune each dimension")
       |> assert_has("*", text: name)
@@ -452,7 +452,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
 
       conn
       |> visit("/groups")
-      |> click_button("[data-role=open_modal]", "Create a group")
+      |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> click_button("Fine-tune each dimension")
       |> refute_has("*", text: name)

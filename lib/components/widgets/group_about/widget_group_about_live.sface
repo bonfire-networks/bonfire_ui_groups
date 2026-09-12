@@ -1,17 +1,4 @@
-<Bonfire.UI.Common.WidgetBlockLive class="w-full p-card pb-0 flex-auto mx-auto border-y-hair border-secondary">
-  <div class="">
-    {#case preset_meta(@preset_slug)}
-      {#match %{} = meta}
-        <span
-          data-role="group_preset_chip"
-          title={e(meta, :description, e(meta, :label, @preset_slug))}
-          class="inline-flex items-center gap-1.5 normal-case font-normal text-xs text-primary uppercase"
-        >
-          {e(meta, :label, @preset_slug)}
-        </span>
-      {#match _}
-    {/case}
-  </div>
+<Bonfire.UI.Common.WidgetBlockLive class="group-moderators-widget w-full p-card flex-auto mx-auto border-y-hair border-secondary" :if={not is_nil(@parent) or (@selected_tab != "members" and @moderators != [])} widget_title={if @selected_tab != "members" and @moderators != [], do: l("Moderators"), else: nil}>
   {!-- Parent group breadcrumb (nested groups only) --}
   <div :if={@parent} class="flex items-center gap-2 pb-3 mb-3 border-b border-secondary">
     <#Icon iconify="ph:arrow-bend-up-left-duotone" class="w-4 h-4 text-base-content/40" />
@@ -24,65 +11,8 @@
     </div>
   </div>
 
-  {!-- Three permission rules: who can join / see / post --}
-  <div class="flex flex-col gap-panel mt-card">
-    {#case dimension_meta(:membership, @membership_slug)}
-      {#match %{} = meta}
-        <div>
-          <div class="text-caption uppercase tracking-wider text-base-content">
-            {l("Who can join")}
-          </div>
-          <div class="flex items-center gap-2 mt-1">
-            <span class="text-body font-medium text-base-content leading-tight">
-              {e(meta, :label, nil)}
-            </span>
-          </div>
-          <p :if={e(meta, :description, nil)} class="text-body leading-snug">{e(meta, :description, nil)}</p>
-        </div>
-      {#match _}
-    {/case}
-
-    {#case dimension_meta(:visibility, @visibility_slug)}
-      {#match %{} = meta}
-        <div>
-          <div class="text-caption uppercase tracking-wider text-base-content">
-            {l("Who can see")}
-          </div>
-          <div class="flex items-center gap-2 mt-1">
-            <span class="text-sm font-medium text-base-content leading-tight">
-              {e(meta, :label, nil)}
-            </span>
-          </div>
-          <p :if={e(meta, :description, nil)} class="text-body leading-snug">{e(meta, :description, nil)}</p>
-        </div>
-      {#match _}
-    {/case}
-
-    {#case dimension_meta(:participation, @participation_slug)}
-      {#match %{} = meta}
-        <div>
-          <div class="text-caption uppercase tracking-wider text-base-content">
-            {l("Who can post")}
-          </div>
-          <div class="flex items-center gap-2 mt-1">
-            <span class="text-body font-medium text-base-content leading-tight">
-              {e(meta, :label, nil)}
-            </span>
-          </div>
-          <p :if={e(meta, :description, nil)} class="text-body leading-snug">{e(meta, :description, nil)}</p>
-        </div>
-      {#match _}
-    {/case}
-  </div>
-
   {!-- Moderators --}
-  <div :if={@moderators != []} class="mt-card pt-card border-t-hair border-secondary -mx-card">
-    <div
-      data-role="moderators-heading"
-      class="text-caption px-card uppercase tracking-wider text-base-content pb-card border-b-hair border-secondary [.sidebar-widgets_&]:border-b-0"
-    >
-      {l("Moderators")}
-    </div>
+  <div data-role="group-sidebar-moderators" :if={@selected_tab != "members" and @moderators != []}>
     <div class="flex flex-col divide-hair divide-secondary">
       {#for user <- @moderators}
         <div class="p-1">

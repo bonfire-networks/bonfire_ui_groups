@@ -1,4 +1,78 @@
-{#if @showing_within == :feed}
+{#if @showing_within in [:discovery, :joined]}
+  <article
+    id={"group-preview-#{id(@object)}"}
+    class="flex min-w-0 flex-col overflow-hidden rounded-xl border border-base-content/10 bg-base-100"
+  >
+    <div class="h-20 shrink-0 overflow-hidden bg-primary" aria-hidden="true">
+      {#case Media.banner_url(@object, fallback: false)}
+        {#match nil}
+        {#match banner}
+          <img src={banner} alt="" class="size-full object-cover" loading="lazy">
+      {/case}
+    </div>
+
+    <div class="flex flex-1 flex-col gap-3 px-4 pb-4">
+      <div class="flex min-w-0 items-start gap-3">
+        <div
+          class="relative -mt-3 grid shrink-0 place-items-center overflow-hidden rounded-xl border-2 border-base-100 bg-base-200 text-base-content"
+          style="width: 3rem; height: 3rem; min-width: 3rem;"
+          aria-hidden="true"
+        >
+          {#case Media.avatar_url(@object)}
+            {#match "/images/avatar.png"}
+              <#Icon iconify="ph:users-three-duotone" class="size-6" />
+            {#match url}
+              <img src={url} alt="" width="48" height="48" class="absolute inset-0 h-full w-full object-cover" loading="lazy">
+          {/case}
+        </div>
+        <div class="min-w-0 flex-1 pt-2">
+          <LinkLive
+            opts={[id: "group-preview-link-#{id(@object)}"]}
+            to={@permalink}
+            class="line-clamp-2 text-base font-semibold leading-snug text-base-content underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          >{name(@object)}</LinkLive>
+          <p :if={handle(@object)} class="mt-0.5 truncate text-xs leading-5 text-muted" title={handle(@object)}>{handle(@object)}</p>
+        </div>
+      </div>
+
+      <div :if={e(@object, :profile, :summary, "") != "" or e(@preview, :topics, []) != []} class="flex flex-col gap-1">
+        <p
+          :if={e(@object, :profile, :summary, "") != ""}
+          class="line-clamp-2 text-sm leading-5 text-base-content"
+        >{e(@object, :profile, :summary, "")}</p>
+
+        <div :if={e(@preview, :topics, []) != []} class="flex flex-wrap gap-x-3 gap-y-1" aria-label={l("Topics")}>
+          {#for topic <- Enum.take(e(@preview, :topics, []), 2)}
+            <LinkLive
+              :if={topic_name(topic)}
+              to={path(topic)}
+              class="max-w-full truncate py-1 text-xs text-primary underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            >{topic_name(topic)}</LinkLive>
+          {/for}
+        </div>
+      </div>
+
+      <div class="mt-auto flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-base-content/10 pt-3 text-xs leading-5 text-muted">
+        <span class="tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
+        {#case scope_meta(@object, @preview)}
+          {#match %{label: label, icon: icon}}
+            <span class="inline-flex items-center gap-1">
+              <Iconify.iconify icon={icon} class="size-3.5" />
+              {label}
+            </span>
+        {/case}
+        <span
+          :if={current_user_id(@__context__)}
+          id={"group-membership-#{id(@object)}"}
+          class={"ml-auto inline-flex items-center gap-1", "font-medium text-base-content": e(@preview, :joined?, false)}
+        >
+          <#Icon :if={e(@preview, :joined?, false)} iconify="ph:check" class="size-3.5" />
+          {if e(@preview, :joined?, false), do: l("Joined"), else: l("Not joined")}
+        </span>
+      </div>
+    </div>
+  </article>
+{#elseif @showing_within == :feed}
   <div class="group block rounded-xl overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all">
     {!-- Banner --}
     {#case Media.banner_url(@object, fallback: false)}

@@ -1,44 +1,20 @@
 {#if is_list(@topics) and @topics != []}
-  <nav
-    role="tablist"
-    aria-label={l("Topics in %{name}",
-      name: e(@group, :profile, :name, l("this group"))
-    )}
-    data-id="group_topics_nav"
-    class="relative bg-base-200 border-b-hair border-secondary"
-  >
-    <div
-      aria-hidden="true"
-      class="pointer-events-none absolute top-0 rounded-br-xl right-0 bottom-0 w-12 z-[2]"
-      style="background: linear-gradient(to left, var(--color-base-100), transparent);"
-    />
-    <div class="flex items-stretch gap-1 px-3 pl-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <LinkLive
-        to={path(@group)}
-        role="tab"
-        aria-selected={to_string(@selected_id == id(@group))}
-        class={Surface.css_class([
-          "sticky text-body left-0 bg-base-200 z-[1] shrink-0 px-6 py-2.5 whitespace-nowrap transition-colors duration-150 border-b-2 -mb-px",
-          "text-primary border-primary": @selected_id == id(@group),
-          "border-transparent": @selected_id != id(@group)
-        ])}
-      >
-        {l("All")}
-      </LinkLive>
-      {#for topic <- @topics}
-        <LinkLive
-          to={path(topic)}
-          role="tab"
-          aria-selected={to_string(@selected_id == id(topic))}
-          class={Surface.css_class([
-            "shrink-0 text-body px-3 py-2.5 whitespace-nowrap transition-colors duration-150 border-b-2 -mb-px max-w-[16rem] truncate",
-            "text-primary border-primary": @selected_id == id(topic),
-            "border-transparent": @selected_id != id(topic)
-          ])}
-        >
-          {e(topic, :profile, :name, l("Untitled topic"))}
-        </LinkLive>
-      {/for}
-    </div>
-  </nav>
+  <Bonfire.UI.Common.WidgetBlockLive widget_title={if @inline, do: nil, else: l("Topics in %{name}", name: e(@group, :profile, :name, l("this group")))} class={if @inline, do: "w-full", else: "group-topics-widget w-full p-card flex-auto mx-auto border-y-hair border-secondary"}>
+    <nav aria-label={l("Topics in %{name}", name: e(@group, :profile, :name, l("this group")))} data-id={if @inline, do: "group_topics_mobile", else: "group_topics_nav"}>
+      <ul class={if @inline, do: "flex gap-2 overflow-x-auto px-2 py-1 [scrollbar-width:thin]", else: "flex flex-col"}>
+        {#for topic <- @topics}
+          <li class={"shrink-0": @inline}>
+            <LinkLive
+              to={Bonfire.Classify.Web.GroupNavigation.link(path(topic), @group_return_to)}
+              opts={[id: "group-topic-#{if @inline, do: "mobile", else: "link"}-#{id(topic)}"]}
+              class={"flex gap-2 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2", "items-center px-2 py-3 hover:bg-base-200 active:bg-base-200": @inline, "items-start py-3 hover:underline": !@inline}
+            >
+              <#Icon iconify="ph:hash" class="mt-0.5 size-4 shrink-0 text-primary" />
+              <span class={if @inline, do: "max-w-[14rem] truncate", else: "min-w-0 break-words"}>{e(topic, :profile, :name, l("Untitled topic"))}</span>
+            </LinkLive>
+          </li>
+        {/for}
+      </ul>
+    </nav>
+  </Bonfire.UI.Common.WidgetBlockLive>
 {/if}

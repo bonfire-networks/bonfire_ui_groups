@@ -1,75 +1,72 @@
-<div class="flex flex-col">
-  <form :if={current_user_id(@__context__)} phx-change="search_groups" class="py-1">
-    <label class="input input-sm  border-hair border-secondary w-full">
-      <#Icon iconify="ph:magnifying-glass-duotone" class="w-5 h-5 text-primary" />
-      <input
-        type="search"
-        name="search_term"
-        value={@search_term}
-        placeholder={l("Search groups…")}
-        phx-debounce="300"
-        class="grow"
-      />
-    </label>
-  </form>
-  <div class="">
+<div class="flex flex-col bg-base-200/25">
+  <div class="p-4">
     {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
       {#match nil}
       {#match component}
         {#if @categories == []}
-          <div class="bonfire-wrapper flex flex-col items-center justify-center px-6 py-16 text-center">
-            <div class="w-14 h-14 rounded-2xl bg-base-content/[0.04] flex items-center justify-center mb-4">
-              <#Icon
-                iconify={if @search_term != "",
+          <div id="group-discovery-empty" role="status" class="flex flex-col items-center justify-center px-6 py-10 text-center">
+            <div class="mb-4 grid size-14 place-items-center rounded-2xl bg-base-content/[0.04]">
+              <Iconify.iconify
+                icon={if @search_term != "",
                   do: "ph:magnifying-glass-duotone",
                   else: "ph:campfire-duotone"}
-                class="w-7 h-7 text-base-content/30"
+                class="size-7 text-base-content/30"
               />
             </div>
 
-            {#if @search_term != ""}
+            {#if Bonfire.UI.Common.LoadMoreLive.end_cursor(@page_info)}
+              <p class="text-base font-medium text-base-content">{l("No matching groups loaded yet")}</p>
+              <p class="mt-1 max-w-sm text-sm text-muted">{l("Load more groups to keep looking, or change your filters.")}</p>
+            {#elseif @search_term != ""}
               <p class="text-base font-medium text-base-content">
                 {l("No groups match \"%{term}\"", term: @search_term)}
               </p>
-              <p class="text-sm text-muted mt-1 max-w-sm">
-                {l("Try a different word, or clear the search to browse every group on this instance.")}
+              <p class="mt-1 max-w-sm text-sm text-muted">
+                {l("Try another word, or clear your filters to browse all groups.")}
               </p>
+            {#elseif @join_filter != "all"}
+              <p class="text-base font-medium text-base-content">{l("No groups match this joining policy")}</p>
+              <p class="mt-1 max-w-sm text-sm text-muted">{l("Choose another joining policy, or clear your filters.")}</p>
+            {#elseif @selected_tab == "joined"}
+              <p class="text-base font-medium text-base-content">{l("You haven't joined any groups yet")}</p>
+              <p class="mt-1 max-w-sm text-sm text-muted">{l("Choose All groups to find a group to join.")}</p>
             {#else}
-              <p class="text-base font-medium text-base-content">
-                {l("No groups here yet")}
-              </p>
-              <p class="text-sm text-muted mt-1 max-w-sm">
+              <p class="text-base font-medium text-base-content">{l("No groups here yet")}</p>
+              <p class="mt-1 max-w-sm text-sm text-muted">
                 {l("Groups are spaces for people to gather around something: a topic, a practice, a place.")}
               </p>
             {/if}
+            <LinkLive
+              :if={@search_term != "" or @join_filter != "all"}
+              opts={[id: "group-discovery-clear-filters"]}
+              to={"/groups?tab=#{@selected_tab}"}
+              class="btn btn-sm btn-ghost mt-3"
+            >{l("Clear filters")}</LinkLive>
           </div>
         {#else}
-          <div class="flex flex-col divide-hair divide-secondary">
+          <div id={if @selected_tab == "joined", do: "group-joined-grid", else: "group-discovery-grid"} class="grid grid-cols-1 gap-4 md:grid-cols-2">
             {#for {%{type: :group} = category, _children} <- @categories}
               <StatelessComponent
                 module={component}
                 object={category}
+                preview={Map.get(@previews, id(category), %{})}
                 permalink={path(category)}
-                showing_within={:list}
+                showing_within={:discovery}
               />
             {/for}
           </div>
         {/if}
     {/case}
 
-    {#case maybe_module(Bonfire.UI.Topics.TopicsLive, @__context__)}
-      {#match nil}
-      {#match component}
-        <nav :for={{%{type: :topic} = category, children} <- @categories} class="px-3">
-          <StatelessComponent module={component} category={category} children={children} />
-        </nav>
-    {/case}
-
-    {#if @search_term == ""}
+    {#if Bonfire.UI.Common.LoadMoreLive.end_cursor(@page_info)}
+      <p :if={@search_term != "" or @join_filter != "all"} class="mt-4 text-center text-sm text-muted">
+        {l("Filters apply to the groups loaded so far. Load more to keep looking.")}
+      </p>
       <Bonfire.UI.Common.LoadMoreLive
         :if={@page_info}
         live_handler="Bonfire.UI.Groups.ExploreLive"
         page_info={@page_info}
+        context={if @selected_tab == "joined", do: "joined", else: nil}
         hide_if_no_more
       />
     {/if}

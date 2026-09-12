@@ -1,82 +1,24 @@
 <div class="flex flex-col">
-  {!-- Joined/Discover/Archived tabs (logged-in only) --}
-  <div
-    :if={current_user_id(@__context__)}
-    role="tablist"
-    aria-label={l("Group views")}
-    class="flex gap-1 border-y-hair border-secondary bg-base-300 p-1"
-  >
-    {#for {tab, label} <- [
-        {"joined", l("Joined")},
-        {"discover", l("Discover")},
-        {"archived", l("Archived")}
-      ]}
-      <Bonfire.UI.Common.LinkLive
-        to={"/groups?tab=#{tab}"}
-        opts={[role: "tab", "aria-selected": "#{@selected_tab == tab}"]}
-        class={
-          "flex-1 rounded-lg px-4 py-1 text-center text-sm transition-colors duration-150",
-          "font-medium": @selected_tab == tab
-        }
-      >{label}</Bonfire.UI.Common.LinkLive>
-    {/for}
-  </div>
+  <Bonfire.UI.Groups.GroupFiltersLive selected_tab={@selected_tab} search_term={@search_term} join_filter={@join_filter} />
 
-  {#if @selected_tab == "joined"}
+  {#if @selected_tab == "archived"}
     <div class="bonfire-wrapper !p-0">
-      {#if @joined_categories == []}
-        <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
-          <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
-            <#Icon iconify="ph:users-three-duotone" class="size-7 text-base-content/30" />
-          </div>
-          <p class="text-base font-medium text-base-content">
-            {l("You haven't joined any groups yet")}
-          </p>
-          <p class="mt-1 max-w-sm text-sm text-muted">
-            {l("Groups you join will appear here. Head to Discover to find one.")}
-          </p>
-        </div>
-      {#else}
-        {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
-          {#match nil}
-          {#match component}
-            <div class="flex flex-col   divide-hair divide-secondary">
-              {#for {%{type: :group} = category, _children} <- @joined_categories}
-                <StatelessComponent
-                  module={component}
-                  object={category}
-                  permalink={path(category)}
-                  showing_within={:list}
-                />
-              {/for}
-            </div>
-            <Bonfire.UI.Common.LoadMoreLive
-              :if={@joined_page_info}
-              live_handler="Bonfire.UI.Groups.ExploreLive"
-              page_info={@joined_page_info}
-              context="joined"
-              hide_if_no_more
-            />
-        {/case}
-      {/if}
-    </div>
-  {#elseif @selected_tab == "archived"}
-    <div class="bonfire-wrapper !p-0">
-      {#if @archived_categories == []}
+      {#if @categories == []}
         <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
           <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
             <#Icon iconify="ph:archive-duotone" class="size-7 text-base-content/30" />
           </div>
           <p class="text-base font-medium text-base-content">
-            {l("No archived groups")}
+            {if @search_term != "" or @join_filter != "all", do: l("No archived groups match your filters"), else: l("No archived groups")}
           </p>
+          <LinkLive :if={@search_term != "" or @join_filter != "all"} to="/groups?tab=archived" class="btn btn-ghost mt-3">{l("Clear filters")}</LinkLive>
           <p class="mt-1 max-w-sm text-sm text-muted">
             {l("Groups you archive will appear here, where you can restore them.")}
           </p>
         </div>
       {#else}
         <div class="flex flex-col divide-hair divide-secondary">
-          {#for {%{type: :group} = category, _children} <- @archived_categories}
+          {#for {%{type: :group} = category, _children} <- @categories}
             <div class="flex items-start gap-4 px-4 py-4">
               <Bonfire.UI.Common.LinkLive
                 to={path(category)}
@@ -130,9 +72,12 @@
     </div>
   {#else}
     <Bonfire.UI.Groups.DiscoverGroupsLive
+      selected_tab={@selected_tab}
       categories={@categories}
+      previews={@group_previews}
       page_info={@page_info}
       search_term={@search_term}
+      join_filter={@join_filter}
     />
   {/if}
 </div>

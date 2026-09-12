@@ -6,5 +6,7 @@ defmodule Bonfire.UI.Groups.NewGroupLive do
   prop open_btn_wrapper_class, :css_class, default: "flex flex-1 w-full"
   prop open_btn_class, :css_class, default: "flex items-center gap-2 text-sm text-muted"
 
+  prop header_action, :boolean, default: false
+
   slot open_btn
 end

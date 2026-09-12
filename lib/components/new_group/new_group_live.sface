@@ -1,5 +1,6 @@
 <div>
-  {#if Bonfire.Classify.Categories.can_create_group?(current_user(@__context__))}
+  {#if current_user_id(@__context__) &&
+      Bonfire.Classify.Categories.can_create_group?(current_user(@__context__)) == :ok}
     <Bonfire.UI.Common.OpenModalLive
       id={deterministic_dom_id(__MODULE__, nil, "create_new_group", @parent_id)}
       reusable_modal_id={if @__context__[:sticky], do: "persistent_modal"}
@@ -17,6 +18,11 @@
       <:open_btn>
         {#if slot_assigned?(:open_btn)}
           <#slot {@open_btn} />
+        {#elseif @header_action}
+          <span id="groups-create-header" class="btn btn-primary max-sm:btn-circle gap-2 whitespace-nowrap normal-case">
+            <#Icon iconify="ph:plus" class="size-5" />
+            <span class="sr-only sm:not-sr-only">{l("Create group")}</span>
+          </span>
         {#else}
           <div class={@open_btn_class}>
             <#Icon iconify="ph:plus-duotone" class="w-4 h-4" />

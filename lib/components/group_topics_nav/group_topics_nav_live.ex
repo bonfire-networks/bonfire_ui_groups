@@ -1,13 +1,9 @@
 defmodule Bonfire.UI.Groups.GroupTopicsNavLive do
-  @moduledoc """
-  Horizontal navigation between a group and its topics, rendered between the
-  persistent group hero and the feed. The "All" tab links to the group itself;
-  each subsequent tab links to a topic. Hidden entirely when a group has no
-  topics.
-  """
+  @moduledoc "Group topic links, arranged vertically in the sidebar or horizontally on mobile. Hidden when there are no topics."
   use Bonfire.UI.Common.Web, :stateless_component
 
   prop group, :any, required: true
   prop topics, :list, default: []
-  prop selected_id, :any, default: nil
+  prop group_return_to, :string, default: "/groups"
+  prop inline, :boolean, default: false
 end

@@ -3,6 +3,15 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
   alias Bonfire.Classify.Categories
 
+  def handle_event("filter_members", %{"members" => %{"search" => search}}, socket),
+    do: {:noreply, assign(socket, :member_search, search)}
+
+  def handle_event("clear_member_search", _, socket),
+    do: {:noreply, assign(socket, :member_search, "")}
+
+  def handle_event("filter_member_role", %{"role" => role}, socket) when role in ["all", "moderators"],
+    do: {:noreply, assign(socket, :member_role, role)}
+
   def handle_event("join_group", %{"id" => id} = params, socket) do
     with {:ok, current_user} <- current_user_or_remote_interaction(socket, "join", id),
          {:ok, result} <- Categories.join_group(current_user, id) do

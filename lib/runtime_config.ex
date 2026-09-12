@@ -46,7 +46,7 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
           # posts: Bonfire.UI.Posts.ProfileBoostsLive,
           discover: Bonfire.UI.Groups.DiscoverGroupsLive,
           followers: Bonfire.UI.Social.Graph.ProfileFollowsLive,
-          members: Bonfire.UI.Groups.Settings.MembershipLive,
+          members: Bonfire.UI.Groups.GroupMembersLive,
           settings: Bonfire.UI.Groups.SettingsLive,
           follow: Bonfire.UI.Me.RemoteInteractionFormLive,
           submitted: Bonfire.UI.Social.ProfileTimelineLive

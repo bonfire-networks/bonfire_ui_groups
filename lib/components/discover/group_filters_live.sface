@@ -1,0 +1,47 @@
+  <.form
+    for={@form}
+    id="group-discovery-filters"
+    action="/groups"
+    method="get"
+    phx-change="filter_groups"
+    phx-submit="filter_groups"
+    class="grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-b-hair border-secondary bg-base-100 p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto]"
+  >
+    <label for="group-discovery-search" class="sr-only">{l("Search groups")}</label>
+    <div class="input col-span-2 sm:col-span-1 w-full border-hair border-secondary bg-base-200/45 focus-within:border-base-content/30 focus-within:outline-none">
+      <button id="group-discovery-submit" type="submit" class="grid size-11 shrink-0 place-items-center rounded-lg text-muted hover:text-base-content focus-visible:outline focus-visible:outline-2" aria-label={l("Search groups")}>
+        <#Icon iconify="ph:magnifying-glass" class="size-5" />
+      </button>
+      <input
+        id="group-discovery-search"
+        type="search"
+        name={@form[:search_term].name}
+        value={@form[:search_term].value}
+        placeholder={l("Search groups…")}
+        phx-debounce="300"
+        class="min-w-0 grow bg-transparent text-base sm:text-sm"
+      />
+    </div>
+
+    <label for="group-view-filter" class="sr-only">{l("Group view")}</label>
+    <select id="group-view-filter" name={@form[:tab].name} class="select w-full border-hair border-secondary bg-base-100 text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:w-36">
+      <option class="bg-base-100 text-base-content" value="discover" selected={@selected_tab == "discover"}>{l("All groups")}</option>
+      <option :if={current_user_id(@__context__)} class="bg-base-100 text-base-content" value="joined" selected={@selected_tab == "joined"}>{l("Joined")}</option>
+      <option :if={current_user_id(@__context__)} class="bg-base-100 text-base-content" value="archived" selected={@selected_tab == "archived"}>{l("Archived")}</option>
+    </select>
+    <details id="group-policy-filters" class="relative" open={@join_filter != "all"}>
+      <summary aria-label={l("Filters")} data-tip={l("Filters")} class="tooltip tooltip-left btn btn-ghost min-w-11 px-3 font-normal">
+        <#Icon iconify="ph:sliders-horizontal" class="size-5" />
+        <span :if={@join_filter != "all"} class="badge badge-primary badge-xs" aria-label={l("One active filter")}></span>
+      </summary>
+      <fieldset class="absolute right-0 z-20 mt-2 w-52 rounded-lg border-hair border-secondary bg-base-100 p-2">
+        <legend class="sr-only">{l("Filter by joining policy")}</legend>
+        {#for {value, label} <- [{"all", l("Any joining policy")}, {"open", l("Open to join")}, {"request", l("By request")}, {"invite", l("Invite only")}]}
+          <label for={"group-policy-#{value}"} class="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 text-sm hover:bg-base-200">
+            <input id={"group-policy-#{value}"} type="radio" name={@form[:join_filter].name} value={value} checked={@join_filter == value} class="radio radio-primary radio-sm" />
+            <span>{label}</span>
+          </label>
+        {/for}
+      </fieldset>
+    </details>
+  </.form>

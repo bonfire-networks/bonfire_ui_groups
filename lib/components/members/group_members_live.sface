@@ -1,1 +1,58 @@
-test
+<section id="group-member-directory" class="bg-base-100">
+  <header class="flex items-center justify-between gap-3 border-b-hair border-secondary px-4 py-3">
+    <LinkLive to={Bonfire.Classify.Web.GroupNavigation.link(path(@category), @group_return_to)} opts={[id: "members-parent-link"]} class="inline-flex min-w-0 items-center gap-3 text-sm">
+      <#Icon iconify="ph:caret-left" class="size-4 shrink-0" />
+      <span class="grid size-7 shrink-0 place-items-center overflow-hidden rounded-lg bg-base-200">
+        {#case Media.avatar_url(@category)}
+          {#match "/images/avatar.png"}
+            <#Icon iconify="ph:users-three-duotone" class="size-5" />
+          {#match url}
+            <img src={url} alt="" width="28" height="28" class="size-7 object-cover" />
+        {/case}
+      </span>
+      <span class="truncate">{e(@category, :profile, :name, l("Group"))}</span>
+    </LinkLive>
+    <label for="widgets-drawer" class="btn btn-ghost btn-circle shrink-0 xl:hidden" aria-label={l("Open widgets sidebar")}>
+      <#Icon iconify="ph:sidebar-simple" class="size-5" />
+    </label>
+  </header>
+  <div class="px-4 pt-6 pb-4 sm:px-6">
+    <h1 class="flex items-baseline gap-2 text-2xl font-semibold tracking-tight">
+      {l("Members")}
+      <span id="members-directory-count" class="text-lg font-normal tabular-nums text-muted">
+        {@member_count}
+      </span>
+    </h1>
+    <p class="mt-2 text-sm text-muted">{l("People in %{group}", group: e(@category, :profile, :name, l("this group")))}</p>
+  </div>
+  <.form :if={length(@entries) > 10 or @more? or @member_search != ""} for={@form} id="member-directory-search" phx-change="Bonfire.UI.Groups:filter_members" phx-submit="Bonfire.UI.Groups:filter_members" class="flex gap-2 px-4 pb-4 sm:px-6">
+    <label for="member-search" class="sr-only">{l("Search members")}</label>
+    <input id="member-search" name={@form[:search].name} value={@form[:search].value} type="search" placeholder={l("Search members…")} phx-debounce="250" class="input w-full bg-base-200 border-secondary text-base" />
+    <button :if={@member_search != ""} type="button" id="clear-member-search" :on-click="Bonfire.UI.Groups:clear_member_search" class="btn btn-ghost btn-square" aria-label={l("Clear search")}>
+      <#Icon iconify="ph:x" class="size-4" />
+    </button>
+  </.form>
+  <div class="flex gap-2 border-b-hair border-secondary px-4 pb-4 sm:px-6" role="group" aria-label={l("Filter members")}>
+    {#for {role, label} <- [{"all", l("Everyone")}, {"moderators", l("Moderators")}]}
+      <button type="button" id={"members-filter-#{role}"} :on-click="Bonfire.UI.Groups:filter_member_role" phx-value-role={role} aria-pressed={to_string(@member_role == role)} class={"btn btn-sm font-normal", "btn-ghost": @member_role != role, "btn-soft": @member_role == role}>{label}</button>
+    {/for}
+  </div>
+  <ul class="divide-hair divide-secondary">
+    {#for entry <- @visible_entries}
+      <li id={"directory-member-#{entry.id}"} class="flex items-center gap-3 px-4 py-3 sm:px-6">
+        <Bonfire.UI.Common.AvatarLive user_id={entry.id} src={Media.avatar_url(entry.person)} title={entry.name} wrapper_class="avatar shrink-0" class="size-10 rounded-full overflow-hidden" fallback_class="size-10" parent_id="member-directory" />
+        <div class="min-w-0 flex-1">
+          <LinkLive to={path(entry.person)} class="text-base font-medium break-words hover:underline">{entry.name}</LinkLive>
+          <span :if={entry.id == current_user_id(@__context__)} class="ml-1 text-xs text-muted">{l("You")}</span>
+          <p class="text-sm text-muted break-all">{entry.handle}</p>
+        </div>
+        <span class={"text-xs shrink-0", "text-primary": entry.moderator?, "text-muted": !entry.moderator?}>{if entry.moderator?, do: l("Moderator"), else: l("Member")}</span>
+      </li>
+    {/for}
+  </ul>
+  <p :if={@visible_entries == []} id="member-directory-empty" role="status" class="px-4 py-10 text-center text-muted">
+    {if @member_search != "", do: l("No members match your search."), else: l("No members to show.")}
+  </p>
+  <p :if={@more? and @member_search != ""} class="px-4 pt-4 text-sm text-muted">{l("Search covers the members loaded so far. Load more to keep looking.")}</p>
+  <Bonfire.UI.Common.LoadMoreLive :if={@page_info} live_handler="Bonfire.Classify.LiveHandler" context="members" page_info={@page_info} hide_if_no_more />
+</section>

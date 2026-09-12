@@ -32,14 +32,12 @@ if Bonfire.Common.Extend.extension_enabled?(:bonfire_ui_groups) do
       members = for _ <- 1..3, do: fake_user!(fake_account!())
       for m <- members, do: {:ok, _} = Categories.join_group(m, group, skip_boundary_check: true)
 
-      # admin is added to members circle + moderators circle; non-mod members = total - 1 (admin mod)
       total = Categories.members_count(group)
-      expected_badge = total - 1
 
       conn
       |> visit(members_path(group))
       |> wait_async()
-      |> assert_has("#group-members span", text: to_string(expected_badge))
+      |> assert_has("#members-directory-count", text: to_string(total), exact: true)
     end
 
     test "members tab shows Load more button when members exceed page limit", %{
@@ -73,9 +71,9 @@ if Bonfire.Common.Extend.extension_enabled?(:bonfire_ui_groups) do
       |> visit(members_path(group))
       |> wait_async()
       |> click_button("[data-id=load_more]", "Load more")
-      |> assert_has("#group-members", text: "Alice Alpha")
-      |> assert_has("#group-members", text: "Bob Beta")
-      |> assert_has("#group-members", text: "Cara Gamma")
+      |> assert_has("#group-member-directory", text: "Alice Alpha")
+      |> assert_has("#group-member-directory", text: "Bob Beta")
+      |> assert_has("#group-member-directory", text: "Cara Gamma")
     end
   end
 end
