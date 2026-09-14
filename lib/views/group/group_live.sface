@@ -2,142 +2,145 @@
   data-id={if @type == :topic, do: "topic", else: "group"}
   data-group-id={e(@category, :id, "")}
 >
-  {#if e(@category, :deleted_at, nil) && @type != :topic}
-    {!-- Archived group: restore notice up top, hero below as an inert preview --}
-    <div
-      class="mb-4 flex flex-col gap-3 rounded-xl border border-secondary bg-base-200 p-4 sm:flex-row sm:items-center"
-      role="status"
-    >
-      <div class="flex flex-1 items-start gap-3">
-        <div class="grid size-10 shrink-0 place-items-center rounded-lg bg-base-content/5">
-          <#Icon iconify="ph:archive-duotone" class="size-5 text-muted" />
+  {!-- `view_mode` comes from `Bonfire.Classify.LiveHandler.mounted/3`, which picks it from the fetch that succeeded: `:full` for a visitor holding `:read`, `:preview` for one holding only `:see`, `:archived` for someone who could restore it. --}
+  {!-- Both reduced modes show the same card the groups directory shows, so there is one description of a group you are outside of. Archived adds the restore notice above it and makes the card inert, since joining an archived group is not a thing. --}
+  {#case e(assigns, :view_mode, :full)}
+    {#match mode when mode in [:archived, :preview]}
+      <div
+        :if={mode == :archived}
+        class="mb-4 flex flex-col gap-3 rounded-xl border border-secondary bg-base-200 p-4 sm:flex-row sm:items-center"
+        role="status"
+      >
+        <div class="flex flex-1 items-start gap-3">
+          <div class="grid size-10 shrink-0 place-items-center rounded-lg bg-base-content/5">
+            <#Icon iconify="ph:archive-duotone" class="size-5 text-muted" />
+          </div>
+          <div class="flex-1">
+            <div class="font-medium text-base-content">{l("This group is archived")}</div>
+            <p class="mt-0.5 text-sm text-muted">
+              {l("It's hidden from members and listings. Restore it to bring it back online.")}
+            </p>
+          </div>
         </div>
-        <div class="flex-1">
-          <div class="font-medium text-base-content">{l("This group is archived")}</div>
-          <p class="mt-0.5 text-sm text-muted">
-            {l("It's hidden from members and listings. Restore it to bring it back online.")}
-          </p>
-        </div>
-      </div>
-      {#if Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
-        <button
-          type="button"
-          id="group_unarchive_button"
-          :on-click="Bonfire.Classify:unarchive"
-          data-confirm={l("Restore this group and bring it back online?")}
-          class="btn btn-primary btn-sm shrink-0 gap-2 normal-case sm:self-center"
-        >
-          <#Icon iconify="ph:arrow-counter-clockwise" class="size-4" />
-          {l("Unarchive")}
-        </button>
-      {/if}
-    </div>
-    <div
-      class="pointer-events-none opacity-70 grayscale-[40%]"
-      aria-label={l("Preview of the archived group")}
-    >
-      <StatefulComponent
-        module={Config.get(
-          [:ui, :group, :hero_component],
-          Bonfire.UI.Me.ProfileHeroFullLive
-        )}
-        id={deterministic_dom_id("profile_hero", id(@category), "archived", @character_type)}
-        user={@category}
-        path={@path}
-        character_type={:group}
-        boundary_preset={@boundary_preset}
-        object_boundary={@object_boundary}
-        permalink={@permalink}
-        follows_me={false}
-        selected_tab={@selected_tab}
-        members={@members}
-        moderators={@moderators}
-        subcategories={e(assigns, :subcategories, [])}
-        group_return_to={e(assigns, :group_return_to, "/groups")}
-        membership_slug={e(assigns, :group_membership_slug, nil)}
-        visibility_slug={e(assigns, :group_visibility_slug, nil)}
-        participation_slug={e(assigns, :group_participation_slug, nil)}
-        member_count={e(assigns, :group_member_count, nil)}
-      />
-    </div>
-  {#else}
-    <StatelessComponent
-      module={if @type == :topic,
-        do:
-          Config.get([:ui, :topic, :sections], [])[tab(@selected_tab)] ||
-            Bonfire.UI.Social.ProfileTimelineLive,
-        else:
-          tab_component(@selected_tab) || tab_component(@tab_id) ||
-            Bonfire.UI.Social.ProfileTimelineLive}
-      user={@category}
-      {...assigns}
-      custom_actions={Bonfire.UI.Social.Activity.DiscussionPreviewActionsLive}
-    >
-      <:header>
-        {#if @type == :topic}
-          <StatelessComponent
-            module={maybe_component(Bonfire.UI.Topics.TopicHeroLive, @__context__)}
-            category={@category}
-            permalink={@permalink}
-            object_boundary={@object_boundary}
-            boundary_preset={@boundary_preset}
-            user={e(@category, :parent_category, nil)}
-          />
-          <StatelessComponent
-            :if={@can_create_in_category}
-            module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
-            selected_tab={@selected_tab}
-            prompt={l("Write in %{name}",
-              name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
-            )}
-            smart_input_opts={%{
-              context_id: id(@category),
-              mentions: [id(@category)],
-              to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
-              to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
-            }}
-          />
-        {#elseif @selected_tab == "settings"}
-        {#else}
-          <StatefulComponent
-            module={Config.get(
-              [:ui, :group, :hero_component],
-              Bonfire.UI.Me.ProfileHeroFullLive
-            )}
-            id={deterministic_dom_id("profile_hero", id(@category), @selected_tab, @character_type)}
-            user={@category}
-            path={@path}
-            character_type={:group}
-            boundary_preset={@boundary_preset}
-            object_boundary={@object_boundary}
-            permalink={@permalink}
-            follows_me={false}
-            selected_tab={@selected_tab}
-            members={@members}
-            moderators={@moderators}
-            subcategories={e(assigns, :subcategories, [])}
-            group_return_to={e(assigns, :group_return_to, "/groups")}
-            membership_slug={e(assigns, :group_membership_slug, nil)}
-            visibility_slug={e(assigns, :group_visibility_slug, nil)}
-            participation_slug={e(assigns, :group_participation_slug, nil)}
-            member_count={e(assigns, :group_member_count, nil)}
-          />
-          <StatelessComponent
-            :if={@can_create_in_category}
-            module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
-            selected_tab={@selected_tab}
-            prompt={l("Write in %{name}",
-              name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
-            )}
-            smart_input_opts={%{
-              context_id: id(@category),
-              mentions: [id(@category)],
-              to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
-              to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
-            }}
-          />
+        {#if Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
+          <button
+            type="button"
+            id="group_unarchive_button"
+            :on-click="Bonfire.Classify:unarchive"
+            data-confirm={l("Restore this group and bring it back online?")}
+            class="btn btn-primary btn-sm shrink-0 gap-2 normal-case sm:self-center"
+          >
+            <#Icon iconify="ph:arrow-counter-clockwise" class="size-4" />
+            {l("Unarchive")}
+          </button>
         {/if}
-      </:header>
-    </StatelessComponent>
-  {/if}
+      </div>
+      <div
+        data-role="category_preview"
+        class={
+          "mx-auto flex w-full max-w-2xl flex-col gap-4 p-4",
+          "pointer-events-none opacity-70 grayscale-40": mode == :archived
+        }
+        aria-label={if mode == :archived, do: l("Preview of the archived group")}
+      >
+        {!-- this page renders groups AND their topics, so the card comes from the `:object_preview` registry keyed on the category's own type --}
+        <StatelessComponent
+          module={maybe_component(
+            Config.get([:ui, :object_preview, @type], Bonfire.Classify.Web.Preview.CategoryLive),
+            @__context__
+          )}
+          object={@category}
+          object_boundary={@object_boundary}
+          permalink={@permalink}
+          showing_within={:preview}
+        />
+        {!-- `:see` without `:read`. Says nothing about WHY (members-only, blocked, silenced, ...) since the boundary check does not tell us. --}
+        <p :if={mode == :preview} class="text-sm text-muted" role="status">
+          {#if @type == :topic}
+            {l("You don't have access to this topic's contents.")}
+          {#else}
+            {l("You don't have access to this group's contents.")}
+          {/if}
+        </p>
+      </div>
+    {#match _}
+      <StatelessComponent
+        module={if @type == :topic,
+          do:
+            Config.get([:ui, :topic, :sections], [])[tab(@selected_tab)] ||
+              Bonfire.UI.Social.ProfileTimelineLive,
+          else:
+            tab_component(@selected_tab) || tab_component(@tab_id) ||
+              Bonfire.UI.Social.ProfileTimelineLive}
+        user={@category}
+        {...assigns}
+        custom_actions={Bonfire.UI.Social.Activity.DiscussionPreviewActionsLive}
+      >
+        <:header>
+          {#if @type == :topic}
+            <StatelessComponent
+              module={maybe_component(Bonfire.UI.Topics.TopicHeroLive, @__context__)}
+              category={@category}
+              permalink={@permalink}
+              object_boundary={@object_boundary}
+              boundary_preset={@boundary_preset}
+              user={e(@category, :parent_category, nil)}
+            />
+            <StatelessComponent
+              :if={@can_create_in_category}
+              module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
+              selected_tab={@selected_tab}
+              prompt={l("Write in %{name}",
+                name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
+              )}
+              smart_input_opts={%{
+                context_id: id(@category),
+                mentions: [id(@category)],
+                to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
+                to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
+              }}
+            />
+          {#elseif @selected_tab == "settings"}
+          {#else}
+            <StatefulComponent
+              module={Config.get(
+                [:ui, :group, :hero_component],
+                Bonfire.UI.Me.ProfileHeroFullLive
+              )}
+              id={deterministic_dom_id("profile_hero", id(@category), @selected_tab, @character_type)}
+              user={@category}
+              path={@path}
+              character_type={:group}
+              boundary_preset={@boundary_preset}
+              object_boundary={@object_boundary}
+              permalink={@permalink}
+              follows_me={false}
+              selected_tab={@selected_tab}
+              members={@members}
+              moderators={@moderators}
+              subcategories={e(assigns, :subcategories, [])}
+              group_return_to={e(assigns, :group_return_to, "/groups")}
+              membership_slug={e(assigns, :group_membership_slug, nil)}
+              visibility_slug={e(assigns, :group_visibility_slug, nil)}
+              participation_slug={e(assigns, :group_participation_slug, nil)}
+              member_count={e(assigns, :group_member_count, nil)}
+            />
+            <StatelessComponent
+              :if={@can_create_in_category}
+              module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
+              selected_tab={@selected_tab}
+              prompt={l("Write in %{name}",
+                name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
+              )}
+              smart_input_opts={%{
+                context_id: id(@category),
+                mentions: [id(@category)],
+                to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
+                to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
+              }}
+            />
+          {/if}
+        </:header>
+      </StatelessComponent>
+  {/case}
 </main>

@@ -8,12 +8,20 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     scopes = Bonfire.Boundaries.Presets.scopes()
     local = %{is_local: true}
 
-    for {visibility, scope} <- [{"members:private", :members}, {"local:discoverable", :local}, {"nonfederated", :nonfederated}, {"archipelago", :archipelago}, {"global", :global}] do
-      assert Bonfire.UI.Groups.Preview.GroupLive.scope_meta(local, %{visibility: visibility}) == scopes[scope]
+    for {visibility, scope} <- [
+          {"members:private", :members},
+          {"local:discoverable", :local},
+          {"nonfederated", :nonfederated},
+          {"archipelago", :archipelago},
+          {"global", :global}
+        ] do
+      assert Bonfire.UI.Groups.Preview.GroupLive.scope_meta(local, %{visibility: visibility}) ==
+               scopes[scope]
     end
 
     for visibility <- [nil, "unknown"] do
-      assert %{label: "Group"} = Bonfire.UI.Groups.Preview.GroupLive.scope_meta(local, %{visibility: visibility})
+      assert %{label: "Group"} =
+               Bonfire.UI.Groups.Preview.GroupLive.scope_meta(local, %{visibility: visibility})
     end
   end
 
@@ -90,7 +98,10 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_has(request_card)
   end
 
-  test "joined groups use the same cards with real topics and membership data", %{account: account, me: me} do
+  test "joined groups use the same cards with real topics and membership data", %{
+    account: account,
+    me: me
+  } do
     group = create_group(me, "Joined makers", "local:members")
     Simulate.fake_category!(me, group, %{name: "Craft", type: :topic})
     card = "#group-joined-grid #group-preview-#{id(group)}"
@@ -107,7 +118,10 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_path("/group/#{group.character.username}")
   end
 
-  test "loading more joined groups adds cards with their membership data", %{account: account, me: me} do
+  test "loading more joined groups adds cards with their membership data", %{
+    account: account,
+    me: me
+  } do
     oldest = create_group(me, "Earlier joined group", "local:members")
     create_group(me, "Middle joined group", "local:members")
     create_group(me, "Latest joined group", "local:members")
@@ -149,7 +163,11 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     group = create_group(me, "Needle group", "local:members")
     other = create_group(me, "Another group", "local:members")
 
-    params = URI.encode_query(%{"group_filters[search_term]" => "Needle", "group_filters[join_filter]" => "open"})
+    params =
+      URI.encode_query(%{
+        "group_filters[search_term]" => "Needle",
+        "group_filters[join_filter]" => "open"
+      })
 
     conn(user: me, account: account)
     |> visit("/groups?#{params}")
@@ -159,7 +177,10 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_has("#group-preview-#{id(other)}")
   end
 
-  test "filters keep pagination available and clearing restores loaded pages", %{account: account, me: me} do
+  test "filters keep pagination available and clearing restores loaded pages", %{
+    account: account,
+    me: me
+  } do
     group = create_group(me, "Older needle group", "local:members")
     create_group(me, "Newer garden", "local:members")
     create_group(me, "Newest workshop", "local:members")

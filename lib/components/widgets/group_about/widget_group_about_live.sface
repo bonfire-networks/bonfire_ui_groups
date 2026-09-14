@@ -1,4 +1,8 @@
-<Bonfire.UI.Common.WidgetBlockLive class="group-moderators-widget w-full p-card flex-auto mx-auto border-y-hair border-secondary" :if={not is_nil(@parent) or (@selected_tab != "members" and @moderators != [])} widget_title={if @selected_tab != "members" and @moderators != [], do: l("Moderators"), else: nil}>
+<Bonfire.UI.Common.WidgetBlockLive
+  class="group-moderators-widget w-full p-card flex-auto mx-auto border-y-hair border-secondary"
+  :if={not is_nil(@parent) or (@selected_tab != "members" and @moderators != [])}
+  widget_title={if @selected_tab != "members" and @moderators != [], do: l("Moderators"), else: nil}
+>
   {!-- Parent group breadcrumb (nested groups only) --}
   <div :if={@parent} class="flex items-center gap-2 pb-3 mb-3 border-b border-secondary">
     <#Icon iconify="ph:arrow-bend-up-left-duotone" class="w-4 h-4 text-base-content/40" />

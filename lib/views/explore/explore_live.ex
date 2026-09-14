@@ -42,7 +42,13 @@ defmodule Bonfire.UI.Groups.ExploreLive do
          join_filter: "all",
          page_info: page_info,
          page_header_aside: [
-           {Bonfire.UI.Groups.NewGroupLive, [id: "groups_header_create", parent_id: "groups_header", header_action: true, open_btn_wrapper_class: "shrink-0"]}
+           {Bonfire.UI.Groups.NewGroupLive,
+            [
+              id: "groups_header_create",
+              parent_id: "groups_header",
+              header_action: true,
+              open_btn_wrapper_class: "shrink-0"
+            ]}
          ],
          sidebar_widgets: [
            users: [
@@ -60,7 +66,11 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     tab = Map.get(params, "tab", "discover")
     socket = load_group_view(socket, tab)
 
-    filter_groups(socket, Map.get(params, "search_term", ""), Map.get(params, "join_filter", "all"))
+    filter_groups(
+      socket,
+      Map.get(params, "search_term", ""),
+      Map.get(params, "join_filter", "all")
+    )
   end
 
   defp load_group_view(socket, tab) do
@@ -68,25 +78,36 @@ defmodule Bonfire.UI.Groups.ExploreLive do
 
     {categories, previews, page_info} =
       case tab do
-        "joined" -> joined_groups_page(current_user(socket), [])
+        "joined" ->
+          joined_groups_page(current_user(socket), [])
+
         "archived" ->
           {groups, _page_info} = Classify.my_archived_groups(current_user(socket))
           {categories, previews} = hydrate_group_filters(groups, current_user(socket))
           {categories, previews, nil}
+
         "discover" ->
           if socket.assigns.selected_tab == "discover" do
-            {socket.assigns.all_categories, socket.assigns.group_previews, socket.assigns.page_info}
+            {socket.assigns.all_categories, socket.assigns.group_previews,
+             socket.assigns.page_info}
           else
-            %{edges: groups, page_info: page_info} = Categories.list_tree(
-              [:default, type: :group, tree_max_depth: 1, preload: :follow_count],
-              current_user: current_user(socket)
-            )
+            %{edges: groups, page_info: page_info} =
+              Categories.list_tree(
+                [:default, type: :group, tree_max_depth: 1, preload: :follow_count],
+                current_user: current_user(socket)
+              )
+
             {categories, previews} = hydrate_group_previews(groups, current_user(socket))
             {categories, previews, page_info}
           end
       end
 
-    assign(socket, selected_tab: tab, all_categories: categories, group_previews: previews, page_info: page_info)
+    assign(socket,
+      selected_tab: tab,
+      all_categories: categories,
+      group_previews: previews,
+      page_info: page_info
+    )
   end
 
   def handle_event("unarchive", %{"id" => id}, socket) do
@@ -109,8 +130,15 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     join_filter = Map.get(params, "join_filter", socket.assigns.join_filter)
 
     tab = Map.get(params, "tab", socket.assigns.selected_tab)
+
     if tab != socket.assigns.selected_tab do
-      query = URI.encode_query(%{"tab" => tab, "search_term" => search_term, "join_filter" => join_filter})
+      query =
+        URI.encode_query(%{
+          "tab" => tab,
+          "search_term" => search_term,
+          "join_filter" => join_filter
+        })
+
       {:noreply, push_patch(socket, to: "/groups?#{query}")}
     else
       filter_groups(socket, search_term, join_filter)
@@ -138,6 +166,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
              after: e(attrs, "after", nil)
            ) do
       {new_categories, new_previews} = hydrate_group_previews(list, current_user(socket))
+
       socket
       |> assign(
         all_categories: socket.assigns.all_categories ++ new_categories,
@@ -151,7 +180,13 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   defp filter_groups(socket, search_term, join_filter) do
     search_term = String.trim(search_term)
 
-    categories = filter_categories(socket.assigns.all_categories, search_term, join_filter, socket.assigns.group_previews)
+    categories =
+      filter_categories(
+        socket.assigns.all_categories,
+        search_term,
+        join_filter,
+        socket.assigns.group_previews
+      )
 
     {:noreply,
      assign(socket,
@@ -182,7 +217,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
       | Enum.map(children, &e(&1, :profile, :name, nil))
     ]
     |> Enum.reject(&is_nil/1)
-    |> Enum.any?(&(String.contains?(String.downcase(&1), search_term)))
+    |> Enum.any?(&String.contains?(String.downcase(&1), search_term))
   end
 
   defp matches_join_filter?(_preview, "all"), do: true

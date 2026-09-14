@@ -131,6 +131,10 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
       group = create_group(me, membership: "invite_only", visibility: "members:private")
 
+      # `members:private` grants neither verb to a non-member, so there is no reduced view to fall back to either. Asserted separately from the page so a leak points at the grants or at the fetch, rather than leaving "the page rendered" to mean both.
+      refute Bonfire.Boundaries.can?(alice, :read, group)
+      refute Bonfire.Boundaries.can?(alice, :see, group)
+
       conn = conn(user: alice, account: account)
       {:error, _} = live(conn, "/&#{group.character.username}")
     end
@@ -333,7 +337,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       alice = fake_user!(account)
       group = create_group(me, name: "Protected Group")
 
-      {:ok, _} = Categories.join_group(alice, group)
+      {:ok, _} = Categories.join_and_follow_group(alice, group)
 
       conn = conn(user: alice, account: account)
       {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings")
@@ -583,7 +587,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Invite Only Channel",
           membership: "invite_only",
-          visibility: "nonfederated:discoverable",
+          visibility: "nonfederated",
           participation: "moderators"
         )
 
@@ -721,6 +725,49 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> wait_async()
       |> assert_has("*", text: "Discoverable Group")
     end
+
+    test "a non-member gets the reduced preview instead of the group's contents" do
+      account = fake_account!()
+      me = fake_user!(account)
+      alice = fake_user!(account)
+
+      # states participation too, rather than letting it cascade: `local:contributors` grants locals
+      # a role that includes `:read`, which would decide the view mode regardless of what the
+      # visibility dimension says
+      group =
+        create_group(me,
+          name: "Discoverable Group",
+          membership: "on_request",
+          visibility: "local:discoverable",
+          participation: "group_members"
+        )
+
+      conn(user: alice, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> assert_has("[data-role=category_preview]", text: "Discoverable Group")
+      |> refute_has("#inline_composer_placeholder")
+    end
+
+    # positive control for the test above: the same group, seen by someone who holds `:read`,
+    # renders the members' page and no preview
+    test "a member gets the full group page rather than the preview" do
+      account = fake_account!()
+      me = fake_user!(account)
+
+      group =
+        create_group(me,
+          name: "Discoverable Group",
+          membership: "on_request",
+          visibility: "local:discoverable"
+        )
+
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> refute_has("[data-role=category_preview]")
+      |> assert_has("#inline_composer_placeholder")
+    end
   end
 
   describe "archived groups" do
@@ -813,7 +860,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       group = create_group(me, name: "Mod Restore Group", membership: "local:members")
 
       # mod joins (so they follow the group) and is promoted to moderator
-      {:ok, _} = Categories.join_group(mod, group)
+      {:ok, _} = Categories.join_and_follow_group(mod, group)
       {:ok, _} = Categories.add_moderator(me, group, id(mod))
 
       {:ok, _} = Categories.soft_delete(group, me)
@@ -875,7 +922,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       alice = fake_user!(account)
       group = create_group(me, name: "Joined Directory Group", membership: "local:members")
 
-      {:ok, _} = Categories.join_group(alice, group)
+      {:ok, _} = Categories.join_and_follow_group(alice, group)
 
       conn = conn(user: alice, account: account)
       {:ok, _view, html} = live(conn, "/groups?tab=joined")
@@ -949,7 +996,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
           create_group(me, name: "Joined Page Group #{n}", membership: "local:members")
         end
 
-      for group <- groups, do: {:ok, _} = Categories.join_group(alice, group)
+      for group <- groups, do: {:ok, _} = Categories.join_and_follow_group(alice, group)
 
       conn = conn(user: alice, account: account)
       {:ok, view, html} = live(conn, "/groups?tab=joined")
@@ -1036,7 +1083,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Announce Visibility Group",
           membership: "invite_only",
-          visibility: "nonfederated:discoverable",
+          visibility: "nonfederated",
           participation: "moderators",
           default_content_visibility: "nonfederated"
         )

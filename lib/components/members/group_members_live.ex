@@ -20,7 +20,8 @@ defmodule Bonfire.UI.Groups.GroupMembersLive do
       %{
         person: person,
         id: id(person),
-        name: e(person, :profile, :name, nil) || e(person, :character, :username, l("Unnamed member")),
+        name:
+          e(person, :profile, :name, nil) || e(person, :character, :username, l("Unnamed member")),
         handle: Bonfire.Me.Characters.display_username(person, true),
         moderator?: MapSet.member?(moderator_ids, id(person))
       }
@@ -32,10 +33,11 @@ defmodule Bonfire.UI.Groups.GroupMembersLive do
     entries = directory_entries(assigns.feed, assigns.moderators)
     search = assigns.member_search |> String.trim() |> String.downcase()
 
-    visible = Enum.filter(entries, fn entry ->
-      (assigns.member_role != "moderators" or entry.moderator?) and
-        String.contains?(String.downcase("#{entry.name} #{entry.handle}"), search)
-    end)
+    visible =
+      Enum.filter(entries, fn entry ->
+        (assigns.member_role != "moderators" or entry.moderator?) and
+          String.contains?(String.downcase("#{entry.name} #{entry.handle}"), search)
+      end)
 
     assigns
     |> assign(

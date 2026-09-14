@@ -30,7 +30,9 @@ if Bonfire.Common.Extend.extension_enabled?(:bonfire_ui_groups) do
 
       # test limit is 2; add 3 extra members so page 1 loads only 2 of them
       members = for _ <- 1..3, do: fake_user!(fake_account!())
-      for m <- members, do: {:ok, _} = Categories.join_group(m, group, skip_boundary_check: true)
+
+      for m <- members,
+          do: {:ok, _} = Categories.join_and_follow_group(m, group, skip_boundary_check: true)
 
       total = Categories.members_count(group)
 
@@ -48,7 +50,9 @@ if Bonfire.Common.Extend.extension_enabled?(:bonfire_ui_groups) do
         Simulate.fake_group!(admin, %{name: "Paginate Group", membership: "local:members"})
 
       members = for _ <- 1..3, do: fake_user!(fake_account!())
-      for m <- members, do: {:ok, _} = Categories.join_group(m, group, skip_boundary_check: true)
+
+      for m <- members,
+          do: {:ok, _} = Categories.join_and_follow_group(m, group, skip_boundary_check: true)
 
       conn
       |> visit(members_path(group))
@@ -65,7 +69,7 @@ if Bonfire.Common.Extend.extension_enabled?(:bonfire_ui_groups) do
       m3 = fake_user!(fake_account!(), %{name: "Cara Gamma"})
 
       for m <- [m1, m2, m3],
-          do: {:ok, _} = Categories.join_group(m, group, skip_boundary_check: true)
+          do: {:ok, _} = Categories.join_and_follow_group(m, group, skip_boundary_check: true)
 
       conn
       |> visit(members_path(group))

@@ -4,7 +4,11 @@
       {#match nil}
       {#match component}
         {#if @categories == []}
-          <div id="group-discovery-empty" role="status" class="flex flex-col items-center justify-center px-6 py-10 text-center">
+          <div
+            id="group-discovery-empty"
+            role="status"
+            class="flex flex-col items-center justify-center px-6 py-10 text-center"
+          >
             <div class="mb-4 grid size-14 place-items-center rounded-2xl bg-base-content/[0.04]">
               <Iconify.iconify
                 icon={if @search_term != "",
@@ -44,7 +48,10 @@
             >{l("Clear filters")}</LinkLive>
           </div>
         {#else}
-          <div id={if @selected_tab == "joined", do: "group-joined-grid", else: "group-discovery-grid"} class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div
+            id={if @selected_tab == "joined", do: "group-joined-grid", else: "group-discovery-grid"}
+            class="grid grid-cols-1 gap-4 md:grid-cols-2"
+          >
             {#for {%{type: :group} = category, _children} <- @categories}
               <StatelessComponent
                 module={component}

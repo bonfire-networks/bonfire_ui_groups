@@ -28,6 +28,7 @@ defmodule Bonfire.UI.Groups.GroupLive do
 
   def handle_params(params, uri, socket) do
     {:noreply, socket} = Bonfire.Classify.LiveHandler.handle_params(params, uri, socket)
+
     socket =
       socket
       |> assign(:no_header, socket.assigns.selected_tab == "members")
@@ -36,7 +37,14 @@ defmodule Bonfire.UI.Groups.GroupLive do
 
     socket =
       if socket.assigns.selected_tab == "settings" do
-        assign(socket, :back, Bonfire.Classify.Web.GroupNavigation.link(path(socket.assigns.category), socket.assigns.group_return_to))
+        assign(
+          socket,
+          :back,
+          Bonfire.Classify.Web.GroupNavigation.link(
+            path(socket.assigns.category),
+            socket.assigns.group_return_to
+          )
+        )
       else
         socket
       end
@@ -59,7 +67,11 @@ defmodule Bonfire.UI.Groups.GroupLive do
       canonical = path(group) <> "/topic/" <> topic_slug
 
       if URI.parse(uri).path != canonical,
-        do: push_patch(socket, to: URI.to_string(%URI{path: canonical, query: URI.parse(uri).query}), replace: true),
+        do:
+          push_patch(socket,
+            to: URI.to_string(%URI{path: canonical, query: URI.parse(uri).query}),
+            replace: true
+          ),
         else: socket
     else
       socket

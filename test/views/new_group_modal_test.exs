@@ -180,11 +180,10 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     end
 
     # When Advanced is collapsed, the dimensions must still reach the form payload —
-    # otherwise `resolve_dims/1` silently falls back to defaults regardless of preset.
-    # Values are post-layer2 (preset's `layer2_defaults` are folded into primitives by
-    # `apply_preset/2`), so for `public_local_community` (`discoverable: true,
-    # nonmembers_may_post: true`) the visibility becomes `nonfederated:discoverable` and
-    # participation becomes `local:contributors`.
+    # otherwise `resolve_dims/1` falls back to defaults regardless of preset.
+    # The values are the preset's own declared dimensions, so this also pins
+    # `public_local_community` to the audience its description promises: "visible to
+    # everyone" is `nonfederated` (see AND read), not a `*:discoverable` slug.
     test "after picking a preset (Advanced collapsed), the form carries the preset's dimensions as hidden inputs",
          %{conn: conn} do
       conn
@@ -192,9 +191,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=public_local_community]", "Public local community")
       |> assert_has(~s|input[type="hidden"][name="membership"][value="local:members"]|)
-      |> assert_has(
-        ~s|input[type="hidden"][name="visibility"][value="nonfederated:discoverable"]|
-      )
+      |> assert_has(~s|input[type="hidden"][name="visibility"][value="nonfederated"]|)
       |> assert_has(~s|input[type="hidden"][name="participation"][value="local:contributors"]|)
       |> assert_has(
         ~s|input[type="hidden"][name="default_content_visibility"][value="nonfederated"]|

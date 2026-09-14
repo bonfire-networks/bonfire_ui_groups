@@ -22,7 +22,14 @@
             {#match "/images/avatar.png"}
               <#Icon iconify="ph:users-three-duotone" class="size-6" />
             {#match url}
-              <img src={url} alt="" width="48" height="48" class="absolute inset-0 h-full w-full object-cover" loading="lazy">
+              <img
+                src={url}
+                alt=""
+                width="48"
+                height="48"
+                class="absolute inset-0 h-full w-full object-cover"
+                loading="lazy"
+              />
           {/case}
         </div>
         <div class="min-w-0 flex-1 pt-2">
@@ -31,17 +38,28 @@
             to={@permalink}
             class="line-clamp-2 text-base font-semibold leading-snug text-base-content underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           >{name(@object)}</LinkLive>
-          <p :if={handle(@object)} class="mt-0.5 truncate text-xs leading-5 text-muted" title={handle(@object)}>{handle(@object)}</p>
+          <p
+            :if={handle(@object)}
+            class="mt-0.5 truncate text-xs leading-5 text-muted"
+            title={handle(@object)}
+          >{handle(@object)}</p>
         </div>
       </div>
 
-      <div :if={e(@object, :profile, :summary, "") != "" or e(@preview, :topics, []) != []} class="flex flex-col gap-1">
+      <div
+        :if={e(@object, :profile, :summary, "") != "" or e(@preview, :topics, []) != []}
+        class="flex flex-col gap-1"
+      >
         <p
           :if={e(@object, :profile, :summary, "") != ""}
           class="line-clamp-2 text-sm leading-5 text-base-content"
         >{e(@object, :profile, :summary, "")}</p>
 
-        <div :if={e(@preview, :topics, []) != []} class="flex flex-wrap gap-x-3 gap-y-1" aria-label={l("Topics")}>
+        <div
+          :if={e(@preview, :topics, []) != []}
+          class="flex flex-wrap gap-x-3 gap-y-1"
+          aria-label={l("Topics")}
+        >
           {#for topic <- Enum.take(e(@preview, :topics, []), 2)}
             <LinkLive
               :if={topic_name(topic)}
@@ -64,7 +82,10 @@
         <span
           :if={current_user_id(@__context__)}
           id={"group-membership-#{id(@object)}"}
-          class={"ml-auto inline-flex items-center gap-1", "font-medium text-base-content": e(@preview, :joined?, false)}
+          class={
+            "ml-auto inline-flex items-center gap-1",
+            "font-medium text-base-content": e(@preview, :joined?, false)
+          }
         >
           <#Icon :if={e(@preview, :joined?, false)} iconify="ph:check" class="size-3.5" />
           {if e(@preview, :joined?, false), do: l("Joined"), else: l("Not joined")}
@@ -170,11 +191,12 @@
         </div>
       </div>
       <div class="flex items-center flex-wrap gap-card text-body text-base-content">
-        <div class="inline-flex items-center gap-1">
+        {!-- how many people are in a group is something only someone who may READ it gets to know, so the count is left out of the reduced view a `:see`-only visitor lands on. The governance chip below stays: that is the group's own stated policy, and it is what tells them whether joining is even possible. --}
+        <div :if={@showing_within != :preview} class="inline-flex items-center gap-1">
           <!-- FIXME: n+1 -->
           <span class="font-medium text-[18px]">{Categories.members_count(@object)}</span> {l("members")}
         </div>
-        <span class="text-base-content/25" aria-hidden="true">·</span>
+        <span :if={@showing_within != :preview} class="text-base-content/25" aria-hidden="true">·</span>
         {#case row_chip(@object)}
           {#match %{} = meta}
             <span

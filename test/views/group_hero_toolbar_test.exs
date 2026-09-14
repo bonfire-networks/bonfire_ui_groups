@@ -8,17 +8,24 @@ defmodule Bonfire.UI.Groups.GroupHeroToolbarTest do
     group = Bonfire.Classify.Simulate.fake_group!(me, %{name: "Reading together"})
     Bonfire.Classify.Simulate.fake_category!(me, group, %{name: "Reading notes"})
 
-    {:ok, view, _html} = live(conn(user: me, account: account), "/group/#{group.character.username}")
+    {:ok, view, _html} =
+      live(conn(user: me, account: account), "/group/#{group.character.username}")
 
     assert has_element?(view, "[data-id=profile_main_actions] a", "Manage")
     assert has_element?(view, "[data-id=profile_main_actions] [aria-label='Unfollow group']")
     assert has_element?(view, "[data-role=group-hero-members]", "1 member")
     assert has_element?(view, "[data-role=group-hero-visibility]")
     assert has_element?(view, "[data-role=group-hero-membership]")
-    assert has_element?(view, "#group-access-details-#{group.id}:not([open]) summary[aria-label='Group access details']")
+
+    assert has_element?(
+             view,
+             "#group-access-details-#{group.id}:not([open]) summary[aria-label='Group access details']"
+           )
+
     for label <- ["Joining ·", "Visibility ·", "Posting ·"] do
       assert has_element?(view, "[data-role=group-access-details-content] dt", label)
     end
+
     assert has_element?(view, "[data-role=group-sidebar-moderators]")
     refute has_element?(view, ".sidebar-widgets", "Who can join")
     refute has_element?(view, ".sidebar-widgets", "Who can see")
@@ -26,7 +33,13 @@ defmodule Bonfire.UI.Groups.GroupHeroToolbarTest do
     refute has_element?(view, "[data-id=profile_main_actions] a[href$='/topics']")
     assert has_element?(view, ".sidebar-widgets [data-id=group_topics_nav]", "Reading notes")
     refute has_element?(view, "[data-id=main_section] [data-id=group_topics_nav]")
-    assert has_element?(view, "[data-id=main_section] [data-id=group_topics_mobile] a", "Reading notes")
+
+    assert has_element?(
+             view,
+             "[data-id=main_section] [data-id=group_topics_mobile] a",
+             "Reading notes"
+           )
+
     assert has_element?(view, "#inline_composer_placeholder_open")
     refute has_element?(view, "#inline_composer_placeholder_post")
     refute has_element?(view, "#inline_composer_placeholder_continue")
@@ -36,7 +49,9 @@ defmodule Bonfire.UI.Groups.GroupHeroToolbarTest do
     account = fake_account!()
     me = fake_user!(account)
     group = Bonfire.Classify.Simulate.fake_group!(me, %{name: "Reading together"})
-    topic = Bonfire.Classify.Simulate.fake_category!(me, group, %{name: "Reading notes", type: :topic})
+
+    topic =
+      Bonfire.Classify.Simulate.fake_category!(me, group, %{name: "Reading notes", type: :topic})
 
     conn(user: me, account: account)
     |> visit("/group/#{group.character.username}")
@@ -49,5 +64,4 @@ defmodule Bonfire.UI.Groups.GroupHeroToolbarTest do
     |> click_link("#topic-parent-link", "Reading together")
     |> assert_has("a[href='/groups'][aria-label='Go back to the previous page']")
   end
-
 end

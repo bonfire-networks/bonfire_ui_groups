@@ -13,12 +13,26 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
 
     connection =
       conn(user: me, account: account)
-      |> Phoenix.LiveViewTest.put_connect_params(%{"_live_referer" => "http://localhost:4000" <> entry})
+      |> Phoenix.LiveViewTest.put_connect_params(%{
+        "_live_referer" => "http://localhost:4000" <> entry
+      })
 
     {:ok, view, _} = live(connection, "/group/#{group.character.username}")
-    assert has_element?(view, "a[href='/feed?sort=latest'][aria-label='Go back to the previous page']")
-    assert has_element?(view, "#group-topic-link-#{topic.id}[href*='group_from=%2Ffeed%3Fsort%3Dlatest']")
-    assert has_element?(view, "#group-topic-mobile-#{topic.id}[href*='group_from=%2Ffeed%3Fsort%3Dlatest']")
+
+    assert has_element?(
+             view,
+             "a[href='/feed?sort=latest'][aria-label='Go back to the previous page']"
+           )
+
+    assert has_element?(
+             view,
+             "#group-topic-link-#{topic.id}[href*='group_from=%2Ffeed%3Fsort%3Dlatest']"
+           )
+
+    assert has_element?(
+             view,
+             "#group-topic-mobile-#{topic.id}[href*='group_from=%2Ffeed%3Fsort%3Dlatest']"
+           )
 
     conn(user: me, account: account)
     |> visit(Bonfire.Classify.Web.GroupNavigation.link(Bonfire.Common.URIs.path(topic), entry))
@@ -50,13 +64,20 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
 
       session = click_link(session, selector, label)
 
-      parent_selector = if tab == "members", do: "#members-parent-link", else: "a[aria-label='Go back to the previous page']"
+      parent_selector =
+        if tab == "members",
+          do: "#members-parent-link",
+          else: "a[aria-label='Go back to the previous page']"
 
       session
-      |> assert_has("#{parent_selector}[href='#{Bonfire.Classify.Web.GroupNavigation.link(group_path, entry)}']")
-      |> click_link(parent_selector, if(tab == "members", do: group.profile.name, else: "Go back to the previous page"))
+      |> assert_has(
+        "#{parent_selector}[href='#{Bonfire.Classify.Web.GroupNavigation.link(group_path, entry)}']"
+      )
+      |> click_link(
+        parent_selector,
+        if(tab == "members", do: group.profile.name, else: "Go back to the previous page")
+      )
       |> assert_has("a[href='/feed?sort=latest'][aria-label='Go back to the previous page']")
     end
   end
-
 end

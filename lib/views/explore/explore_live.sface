@@ -1,5 +1,9 @@
 <div class="flex flex-col">
-  <Bonfire.UI.Groups.GroupFiltersLive selected_tab={@selected_tab} search_term={@search_term} join_filter={@join_filter} />
+  <Bonfire.UI.Groups.GroupFiltersLive
+    selected_tab={@selected_tab}
+    search_term={@search_term}
+    join_filter={@join_filter}
+  />
 
   {#if @selected_tab == "archived"}
     <div class="bonfire-wrapper !p-0">
@@ -9,9 +13,15 @@
             <#Icon iconify="ph:archive-duotone" class="size-7 text-base-content/30" />
           </div>
           <p class="text-base font-medium text-base-content">
-            {if @search_term != "" or @join_filter != "all", do: l("No archived groups match your filters"), else: l("No archived groups")}
+            {if @search_term != "" or @join_filter != "all",
+              do: l("No archived groups match your filters"),
+              else: l("No archived groups")}
           </p>
-          <LinkLive :if={@search_term != "" or @join_filter != "all"} to="/groups?tab=archived" class="btn btn-ghost mt-3">{l("Clear filters")}</LinkLive>
+          <LinkLive
+            :if={@search_term != "" or @join_filter != "all"}
+            to="/groups?tab=archived"
+            class="btn btn-ghost mt-3"
+          >{l("Clear filters")}</LinkLive>
           <p class="mt-1 max-w-sm text-sm text-muted">
             {l("Groups you archive will appear here, where you can restore them.")}
           </p>

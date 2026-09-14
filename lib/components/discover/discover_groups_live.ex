@@ -8,5 +8,4 @@ defmodule Bonfire.UI.Groups.DiscoverGroupsLive do
   prop join_filter, :string, default: "all"
 
   prop selected_tab, :string, default: "discover"
-
 end

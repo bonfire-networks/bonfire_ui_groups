@@ -9,20 +9,23 @@ defmodule Bonfire.UI.Groups.LiveHandler do
   def handle_event("clear_member_search", _, socket),
     do: {:noreply, assign(socket, :member_search, "")}
 
-  def handle_event("filter_member_role", %{"role" => role}, socket) when role in ["all", "moderators"],
-    do: {:noreply, assign(socket, :member_role, role)}
+  def handle_event("filter_member_role", %{"role" => role}, socket)
+      when role in ["all", "moderators"],
+      do: {:noreply, assign(socket, :member_role, role)}
 
   def handle_event("join_group", %{"id" => id} = params, socket) do
     with {:ok, current_user} <- current_user_or_remote_interaction(socket, "join", id),
-         {:ok, result} <- Categories.join_group(current_user, id) do
+         {:ok, result} <- Categories.join_and_follow_group(current_user, id) do
       {:noreply, socket} =
         ComponentID.send_assigns(
           e(params, "component", "join_btn_#{id}"),
           id,
+          # the context functions report only what they changed, so a key being absent means that half did not move
           [
-            my_membership: if(result.requested, do: :requested, else: result.member),
+            my_membership:
+              if(e(result, :requested, false), do: :requested, else: e(result, :member, false)),
             # joining a group also creates a follow, so flip the sibling Follow button live
-            my_follow: if(result.requested, do: :requested, else: true)
+            my_follow: if(e(result, :requested, false), do: :requested, else: true)
           ],
           socket
         )
@@ -31,8 +34,12 @@ defmodule Bonfire.UI.Groups.LiveHandler do
     else
       {:error, :approval_required} ->
         {:noreply,
-         assign_flash(socket, :error,
-           l("You still follow this group. Ask a group moderator to approve your membership before rejoining.")
+         assign_flash(
+           socket,
+           :error,
+           l(
+             "You still follow this group. Ask a group moderator to approve your membership before rejoining."
+           )
          )}
 
       e ->
@@ -48,7 +55,10 @@ defmodule Bonfire.UI.Groups.LiveHandler do
         ComponentID.send_assigns(
           e(params, "component", "join_btn_#{id}"),
           id,
-          [my_membership: false, my_follow: Bonfire.Social.Graph.Follows.following?(current_user, id)],
+          [
+            my_membership: false,
+            my_follow: Bonfire.Social.Graph.Follows.following?(current_user, id)
+          ],
           socket
         )
 
@@ -62,12 +72,19 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
   def handle_event("cancel_join_request", %{"id" => id} = params, socket) do
     with current_user <- current_user_required!(socket),
-         _ <- Bonfire.Social.Graph.Follows.unfollow(current_user, id),
-         false <- Bonfire.Social.Graph.Follows.requested?(current_user, id) do
+         {:ok, request} <-
+           Bonfire.Social.Requests.get(
+             current_user,
+             Bonfire.Boundaries.Verbs.get_id!(:join),
+             id,
+             skip_boundary_check: true
+           ),
+         {:ok, _} <- Bonfire.Social.Requests.ignore(request, current_user: current_user) do
+      # any follow is deliberately left alone: withdrawing a request to JOIN a group is not unsubscribing from its feed, and the two are separate rows precisely so one can be undone without the other
       ComponentID.send_assigns(
         e(params, "component", "join_btn_#{id}"),
         id,
-        [my_membership: false, my_follow: false],
+        [my_membership: false],
         socket
       )
     else

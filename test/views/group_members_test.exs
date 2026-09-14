@@ -8,13 +8,30 @@ defmodule Bonfire.UI.Groups.GroupMembersTest do
     Process.put(:federating, false)
     account = fake_account!()
     me = fake_user!(account)
-    {:ok, group} = Categories.create(me, %{name: Faker.Lorem.sentence(), username: "directory_#{System.unique_integer([:positive])}", type: :group, membership: "open", visibility: "global"}, true)
+
+    {:ok, group} =
+      Categories.create(
+        me,
+        %{
+          name: Faker.Lorem.sentence(),
+          username: "directory_#{System.unique_integer([:positive])}",
+          type: :group,
+          membership: "open",
+          visibility: "global"
+        },
+        true
+      )
+
     %{account: account, me: me, group: group}
   end
 
-  test "directory combines membership and moderator roles without duplicate people", %{account: account, me: me, group: group} do
+  test "directory combines membership and moderator roles without duplicate people", %{
+    account: account,
+    me: me,
+    group: group
+  } do
     member = fake_user!(fake_account!())
-    {:ok, _} = Categories.join_group(member, group)
+    {:ok, _} = Categories.join_and_follow_group(member, group)
 
     conn(user: me, account: account)
     |> visit("/group/#{group.character.username}/members")
@@ -40,12 +57,19 @@ defmodule Bonfire.UI.Groups.GroupMembersTest do
     entries = Bonfire.UI.Groups.GroupMembersLive.directory_entries([member], [moderator])
     assert Enum.map(entries, & &1.id) == [moderator.id, member.id]
     assert Enum.map(entries, & &1.moderator?) == [true, false]
-    assert length(Bonfire.UI.Groups.GroupMembersLive.directory_entries([moderator, member], [moderator])) == 2
+
+    assert length(
+             Bonfire.UI.Groups.GroupMembersLive.directory_entries([moderator, member], [moderator])
+           ) == 2
   end
 
-  test "search clearing restores loaded people and leaves pagination available", %{account: account, me: me, group: group} do
+  test "search clearing restores loaded people and leaves pagination available", %{
+    account: account,
+    me: me,
+    group: group
+  } do
     for _ <- 1..3 do
-      {:ok, _} = Categories.join_group(fake_user!(fake_account!()), group)
+      {:ok, _} = Categories.join_and_follow_group(fake_user!(fake_account!()), group)
     end
 
     conn(user: me, account: account)

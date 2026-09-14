@@ -63,5 +63,4 @@ defmodule Bonfire.UI.Groups.Preview.GroupLive do
 
   @doc "Whether the group is hosted on another instance."
   def remote?(object), do: !Bonfire.Me.Integration.is_local?(object)
-
 end
