@@ -97,14 +97,23 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
       |> click_button("#join_btn_#{group.id}", "Request to join")
       |> assert_has("#join_btn_#{group.id}", text: "Cancel request")
 
-    assert Follows.requested?(user, group)
+    # a join request is typed by the `:join` verb rather than standing in as a pending Follow, which is what lets someone hold one while already subscribed to the same group
+    assert requested_to_join?(user, group)
 
     session
     |> click_button("#join_btn_#{group.id}", "Cancel request")
     |> assert_has("#join_btn_#{group.id}", text: "Request to join")
     |> refute_has("[data-id=flash_error]")
 
-    refute Follows.requested?(user, group)
+    refute requested_to_join?(user, group)
     refute Map.get(Categories.member_of_groups?(user, [group.id]), group.id, false)
   end
+
+  defp requested_to_join?(user, group),
+    do:
+      Bonfire.Social.Requests.requested?(
+        user,
+        Bonfire.Boundaries.Verbs.get_id!(:join),
+        group
+      )
 end

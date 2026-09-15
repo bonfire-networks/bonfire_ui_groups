@@ -519,7 +519,9 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> refute_has("[data-id=flash_error]")
 
       assert [_request] =
-               Bonfire.Social.Requests.all_by_object(group, Bonfire.Data.Social.Follow,
+               Bonfire.Social.Requests.all_by_object(
+                 group,
+                 Bonfire.Boundaries.Verbs.get_id!(:join),
                  skip_boundary_check: true
                )
     end
