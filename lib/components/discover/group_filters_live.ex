@@ -13,7 +13,9 @@ defmodule Bonfire.UI.Groups.GroupFiltersLive do
           "tab" => assigns.selected_tab,
           "search_term" => assigns.search_term,
           "join_filter" => assigns.join_filter
-        }, as: :group_filters)
+        },
+        as: :group_filters
+      )
 
     assigns
     |> assign(:form, form)
