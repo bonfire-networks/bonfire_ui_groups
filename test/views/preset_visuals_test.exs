@@ -49,11 +49,13 @@ defmodule Bonfire.UI.Groups.PresetVisualsTest do
       assert html =~ "lock-fill"
     end
 
-    test "falls back to users-three icon when no preset slug is stored" do
+    test "falls back to users-three icon when the dimensions match no preset" do
       account = fake_account!()
       me = fake_user!(account)
 
-      # No preset_slug — `group_icon/1` falls back to default
+      # A group created without dimensions gets `on_request` + `local:unlisted` from
+      # `resolve_dims/1`, a pair no configured preset declares, so `group_icon/2` has nothing to
+      # back-translate to and returns the default
       {:ok, _group} =
         Categories.create(
           me,

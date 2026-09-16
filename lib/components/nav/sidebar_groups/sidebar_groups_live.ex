@@ -19,7 +19,15 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
       else: "font-normal text-base-content"
   end
 
-  defdelegate group_icon(group), to: Bonfire.Boundaries.Presets
+  # Resolved for the whole list in ONE query and handed to each row, since a group's preset icon is
+  # derived from its boundary dimensions and asking per row is a query per row.
+  defp assign_group_icons(socket) do
+    groups =
+      for {%{type: :group} = category, _children} <- e(socket.assigns, :categories, []),
+          do: category
+
+    assign(socket, :group_icons, Bonfire.Boundaries.Presets.group_icons(groups))
+  end
 
   # Pulls the path once (avoids a per-link URI.parse on every render).
   defp assign_current_path(socket) do
@@ -34,7 +42,10 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
 
   # a pin changed elsewhere → recompute reactively (routed via PersistentLive, see after_pin)
   def update(%{reload_pins: true}, socket) do
-    {:ok, assign(socket, categories: pinned_tree(current_user(socket)))}
+    {:ok,
+     socket
+     |> assign(categories: pinned_tree(current_user(socket)))
+     |> assign_group_icons()}
   end
 
   def update(assigns, %{assigns: %{categories: _}} = socket) do
@@ -46,6 +57,7 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
      socket
      |> assign(assigns)
      |> assign(categories: pinned_tree(current_user(assigns) || current_user(socket)))
+     |> assign_group_icons()
      |> register_for_pin_updates()
      |> assign_current_path()}
   end

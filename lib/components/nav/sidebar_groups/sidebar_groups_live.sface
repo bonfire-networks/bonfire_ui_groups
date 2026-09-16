@@ -93,6 +93,7 @@
               category={category}
               children={children}
               parent_id={@id}
+              preset_icon={e(@group_icons, id(category), nil)}
               current_path={@current_path}
               group_return_to={@group_return_to}
             />

@@ -222,14 +222,19 @@ defmodule Bonfire.UI.Groups.ExploreLive do
 
   defp matches_join_filter?(_preview, "all"), do: true
 
-  defp matches_join_filter?(preview, "open"),
-    do: e(preview, :membership, nil) in ["open", "local:members", "archipelago:members"]
+  # Asks the context rather than listing membership slugs again: `Categories.join_mode/1` is what decides this, and its values are a published API contract. The one word translated here is the
+  # free case, which this filter has always spelled "open", and `join_filter` goes into the query string (see the `push_patch` above), so renaming it would break links people already have.
+  defp matches_join_filter?(preview, filter) when filter in ~w(open request invite) do
+    case e(preview, :membership, nil) do
+      membership when is_binary(membership) ->
+        Bonfire.Classify.Categories.join_mode(membership) ==
+          if(filter == "open", do: "free", else: filter)
 
-  defp matches_join_filter?(preview, "request"),
-    do: e(preview, :membership, nil) == "on_request"
-
-  defp matches_join_filter?(preview, "invite"),
-    do: e(preview, :membership, nil) == "invite_only"
+      _ ->
+        # the listing query left it out, so there is nothing to filter on. `join_mode/1` would go to the database for it, which is not worth doing once per row of a list
+        false
+    end
+  end
 
   defp matches_join_filter?(_preview, _unknown), do: true
 

@@ -6,6 +6,9 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
   prop category, :any, required: true
   prop children, :list, default: []
   prop parent_id, :string, required: true
+
+  # resolved by `SidebarGroupsLive` for the whole list at once, since deriving it here would be one query per row
+  prop preset_icon, :string, default: nil
   prop current_path, :string, default: ""
   prop group_return_to, :string, default: "/groups"
 
@@ -28,11 +31,16 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
       end
 
     active_topic? = Enum.any?(topics, & &1.active?)
-    active? = SidebarGroupsLive.active_link?(assigns.current_path, group_path) and not active_topic?
+
+    active? =
+      SidebarGroupsLive.active_link?(assigns.current_path, group_path) and not active_topic?
 
     assigns
     |> assign(:group_path, group_path)
-    |> assign(:group_name, Bonfire.Classify.Web.Preview.CategoryLive.name(assigns.category, l("Group")))
+    |> assign(
+      :group_name,
+      Bonfire.Classify.Web.Preview.CategoryLive.name(assigns.category, l("Group"))
+    )
     |> assign(:topics, topics)
     |> assign(:active?, active?)
     |> assign(:expanded?, active? or active_topic?)
