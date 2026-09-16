@@ -3,6 +3,22 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
   @moduletag :ui
   doctest Bonfire.Classify.Web.GroupNavigation
 
+  test "a pinned sidebar topic opens its group and retains the entry page" do
+    account = fake_account!()
+    me = fake_user!(account)
+    group = Bonfire.Classify.Simulate.fake_group!(me)
+    topic = Bonfire.Classify.Simulate.fake_category!(me, group, %{name: Faker.Lorem.word(), type: :topic})
+    {:ok, _} = Bonfire.Social.Pins.pin(me, group, nil, to_feeds: [])
+    entry = "/feed?sort=latest"
+
+    conn(user: me, account: account)
+    |> visit(Bonfire.Classify.Web.GroupNavigation.link(Bonfire.Common.URIs.path(group), entry))
+    |> assert_has("[data-role='sidebar-group'] details[open]", timeout: 1_000)
+    |> click_link("[data-role='sidebar-topics'] a", topic.profile.name)
+    |> assert_has("[data-role='sidebar-topics'] a[aria-current='page']", text: topic.profile.name, timeout: 1_000)
+    |> assert_has("#topic-parent-link[href*='group_from=%2Ffeed%3Fsort%3Dlatest']")
+  end
+
   test "a feed entry survives the topic and parent links" do
     account = fake_account!()
     me = fake_user!(account)

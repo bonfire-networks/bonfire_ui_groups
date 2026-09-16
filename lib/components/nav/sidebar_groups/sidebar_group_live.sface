@@ -1,42 +1,63 @@
-{!-- <div class=""> --}
-<LinkLive
-  to={path(@category)}
-  class="w-full flex items-center !gap-3 !p-1 !px-2 !m-0 bg-base-200 hover:bg-base-content/10"
->
-  <div
-    class="hero relative bg-no-repeat h-[20px] w-[20px] rounded-full bg-primary bg-cover bg-center"
-    style={case Media.banner_url(@category, fallback: false) do
-      url when is_binary(url) -> "background-image: url('#{URI.encode(url)}');"
-      _ -> ""
-    end}
-  />
-  <span class="text-base-content max-w-[180px] truncate text-body flex-1">{e(@category, :profile, :name, nil)}</span>
-</LinkLive>
-
-{!-- <div class="flex items-center invisible gap-1 transition-opacity transform opacity-0 group-hover:visible group-hover:opacity-100">
-  <LinkLive
-    to={path(@category, :discover)}
-    alt={l("More topics")}
-    class="rounded btn btn-ghost btn-square btn-sm"
-  >
-    <#Icon iconify="material-symbols:manage-search" class="w-4 h-4 text-muted" />
-  </LinkLive>
-</div> --}
-
-{#case maybe_module(Bonfire.UI.Topics.SidebarTopicLive, @__context__)}
-  {#match nil}
-  {#match component}
-    <ul data-description="Topics and sub-groups" class="menu p-0  m-0">
-      <StatelessComponent
-        :for={{%{type: :topic} = subcategory, subchildren} <- @children}
-        module={component}
-        category={subcategory}
-        children={subchildren}
-      />
-      <Bonfire.UI.Groups.SidebarGroupLive
-        :for={{%{type: :group} = subcategory, subchildren} <- @children}
-        category={subcategory}
-        children={subchildren}
-      />
-    </ul>
-{/case}
+<li id={@row_id} data-role="sidebar-group" class="!block w-full min-w-0">
+  <div class="relative !block !p-0 !rounded-none hover:!bg-transparent">
+    <LinkLive
+      to={Bonfire.Classify.Web.GroupNavigation.link(@group_path, @group_return_to)}
+      opts={[id: @row_id <> "-link", title: @group_name, "aria-current": if(@active?, do: "page", else: nil)]}
+      class={[
+        "flex w-full min-w-0 items-center gap-2 min-h-9 px-3 pr-10 py-1.5 rounded-selector hover:bg-base-content/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:pr-12",
+        "bg-base-content/10": @active?
+      ]}
+    >
+      {#case Media.avatar_url(@category)}
+        {#match "/images/avatar.png"}
+          <span data-role="group_preset_icon" class="w-5 shrink-0 flex items-center justify-center">
+            {#case SidebarGroupsLive.group_icon(@category)}
+              {#match "ph:campfire-duotone"}
+                <#Icon iconify="ph:campfire-fill" class="size-5 text-primary" />
+              {#match "ph:megaphone-duotone"}
+                <#Icon iconify="ph:megaphone-fill" class="size-5 text-primary" />
+              {#match "ph:lock-duotone"}
+                <#Icon iconify="ph:lock-fill" class="size-5 text-primary" />
+              {#match _}
+                <#Icon iconify="ph:users-three-fill" class="size-5 text-primary" />
+            {/case}
+          </span>
+        {#match url}
+          <div
+            class="size-5 rounded-full bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 ring-[0.7px] ring-primary"
+            style={"background-image: url('#{URI.encode(url)}');"}
+            aria-hidden="true"
+          />
+      {/case}
+      <span class={["truncate min-w-0 text-base", Bonfire.UI.Common.LinkWidgetLive.active_label_class(@active?)]}>{@group_name}</span>
+    </LinkLive>
+    <details :if={@topics != []} id={@row_id <> "-topics"} open={@expanded?} class="group/sidebar-group !block">
+      <summary
+        aria-label={l("Topics in %{group}", group: @group_name)}
+        class="absolute right-0 top-0 flex !p-0 !min-h-0 !size-9 items-center justify-center rounded-md cursor-pointer list-none after:!content-none [&::-webkit-details-marker]:hidden hover:bg-base-content/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!size-11"
+      >
+        <#Icon iconify="ph:caret-right" class="size-3.5 text-muted group-open/sidebar-group:rotate-90" />
+      </summary>
+      <ul
+        data-role="sidebar-topics"
+        class="!m-0 !mb-1 !p-0 !gap-0 before:!content-none after:!content-none"
+        style="background-image: linear-gradient(color-mix(in oklch, var(--color-base-content) 20%, transparent), color-mix(in oklch, var(--color-base-content) 20%, transparent)); background-position: calc(var(--spacing) * 5.5 - 0.5px) 0; background-size: 1px 100%; background-repeat: no-repeat;"
+      >
+        <li :for={topic <- @topics} class="!block w-full min-w-0">
+          <LinkLive
+            to={Bonfire.Classify.Web.GroupNavigation.link(topic.path, @group_return_to)}
+            opts={[id: @row_id <> "-topic-" <> topic.id, title: topic.name, "aria-current": if(topic.active?, do: "page", else: nil)]}
+            class={[
+              "!flex w-full min-w-0 items-center !gap-2 !min-h-8 !h-8 !px-3 !py-0 rounded-selector text-base leading-6 hover:bg-base-content/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!min-h-11 [@media(pointer:coarse)]:!h-11",
+              "bg-base-content/10 text-base-content": topic.active?,
+              "text-base-content/80": not topic.active?
+            ]}
+          >
+            <span class="w-5 shrink-0" aria-hidden="true" />
+            <span class="min-w-0 truncate">{topic.name}</span>
+          </LinkLive>
+        </li>
+      </ul>
+    </details>
+  </div>
+</li>

@@ -19,13 +19,13 @@
   {/case}
 
   <ul class="menu relative p-0 w-full mt-2 px-0 lg:px-card gap-0">
-    <li class="w-full">
+    <li class="w-full min-w-0">
       {#if Bonfire.Common.Settings.get(
           [:ui, :sidebar, :disable_collapsible],
           false,
           @__context__[:instance_settings] || :instance
         )}
-        <details open class="details-static w-full overflow-hidden">
+        <details open class="details-static w-full min-w-0 overflow-hidden">
           <summary class="group/sidebar-summary relative font-medium uppercase pl-4 text-xs text-muted list-none after:content-none [&::-webkit-details-marker]:hidden flex">
             <span class="font-medium text-muted uppercase text-xs flex-1">{l("Groups")}</span>
             <div class="pointer-events-auto">
@@ -43,40 +43,20 @@
 
           <div class="pointer-events-auto">
             <ul class="menu before:content-none after:content-none !ml-0 p-0 w-full gap-0">
+              <Bonfire.UI.Groups.SidebarGroupLive
+                :for={{%{type: :group} = category, children} <- e(@categories, [])}
+                category={category}
+                children={children}
+                parent_id={@id}
+                current_path={@current_path}
+                group_return_to={@group_return_to}
+              />
               <li>
-                <LinkLive to="/groups" class="flex items-center !gap-[16px] py-[6px]">
-                  <#Icon iconify="ph:compass-fill" class="w-5 h-5 text-primary" />
-                  <span class={["text-base", group_label_class(@current_path, "/groups")]}>{l("Browse groups")}</span>
+                <LinkLive to="/groups" class="flex items-center !gap-2 !px-3 py-[6px] text-base-content/80">
+                  <#Icon iconify="ph:compass" class="size-5 shrink-0 text-muted" />
+                  <span class="text-base font-normal">{l("All groups")}</span>
                 </LinkLive>
               </li>
-              {#for {%{type: :group} = category, _children} <- e(@categories, [])}
-                <li>
-                  <LinkLive to={path(category)} class="flex items-center !gap-[16px] py-[6px]">
-                    {#case Media.avatar_url(category)}
-                      {#match "/images/avatar.png"}
-                        <span data-role="group_preset_icon" class="shrink-0 flex items-center">
-                          {#case group_icon(category)}
-                            {#match "ph:campfire-duotone"}
-                              <#Icon iconify="ph:campfire-fill" class="size-5 text-primary" />
-                            {#match "ph:megaphone-duotone"}
-                              <#Icon iconify="ph:megaphone-fill" class="size-5 text-primary" />
-                            {#match "ph:lock-duotone"}
-                              <#Icon iconify="ph:lock-fill" class="size-5 text-primary" />
-                            {#match _}
-                              <#Icon iconify="ph:users-three-fill" class="size-5 text-primary" />
-                          {/case}
-                        </span>
-                      {#match url}
-                        <div
-                          class="w-[22px] h-[22px] rounded-full bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 ring-[0.7px] ring-primary"
-                          style={"background-image: url('#{URI.encode(url)}');"}
-                          aria-hidden="true"
-                        />
-                    {/case}
-                    <span class={["text-base", group_label_class(@current_path, path(category))]}>{Bonfire.Classify.Web.Preview.CategoryLive.name(category, l("Group"))}</span>
-                  </LinkLive>
-                </li>
-              {/for}
             </ul>
           </div>
         </details>
@@ -87,7 +67,7 @@
             true,
             @__context__
           )}
-          class="w-full overflow-hidden"
+          class="w-full min-w-0 overflow-hidden"
         >
           <summary
             phx-click="Bonfire.UI.Groups:toggle_groups_nav_visibility"
@@ -108,40 +88,20 @@
           </summary>
 
           <ul class="menu before:content-none after:content-none !ml-0 p-0 w-full gap-0">
+            <Bonfire.UI.Groups.SidebarGroupLive
+              :for={{%{type: :group} = category, children} <- e(@categories, [])}
+              category={category}
+              children={children}
+              parent_id={@id}
+              current_path={@current_path}
+              group_return_to={@group_return_to}
+            />
             <li>
-              <LinkLive to="/groups" class="flex items-center !gap-[16px] py-[6px]">
-                <#Icon iconify="ph:compass-fill" class="w-5 h-5 text-primary" />
-                <span class={["text-base", group_label_class(@current_path, "/groups")]}>{l("Browse groups")}</span>
+              <LinkLive to="/groups" class="flex items-center !gap-2 !px-3 py-[6px] text-base-content/80">
+                <#Icon iconify="ph:compass" class="size-5 shrink-0 text-muted" />
+                <span class="text-base font-normal">{l("All groups")}</span>
               </LinkLive>
             </li>
-            {#for {%{type: :group} = category, _children} <- e(@categories, [])}
-              <li>
-                <LinkLive to={path(category)} class="flex items-center !gap-[16px] py-[6px]">
-                  {#case Media.avatar_url(category)}
-                    {#match "/images/avatar.png"}
-                      <span data-role="group_preset_icon" class="shrink-0 flex items-center">
-                        {#case group_icon(category)}
-                          {#match "ph:campfire-duotone"}
-                            <#Icon iconify="ph:campfire-fill" class="size-5 text-primary" />
-                          {#match "ph:megaphone-duotone"}
-                            <#Icon iconify="ph:megaphone-fill" class="size-5 text-primary" />
-                          {#match "ph:lock-duotone"}
-                            <#Icon iconify="ph:lock-fill" class="size-5 text-primary" />
-                          {#match _}
-                            <#Icon iconify="ph:users-three-fill" class="size-5 text-primary" />
-                        {/case}
-                      </span>
-                    {#match url}
-                      <div
-                        class="w-[22px] h-[22px] rounded-full bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 ring-[0.7px] ring-primary"
-                        style={"background-image: url('#{URI.encode(url)}');"}
-                        aria-hidden="true"
-                      />
-                  {/case}
-                  <span class={["text-base", group_label_class(@current_path, path(category))]}>{Bonfire.Classify.Web.Preview.CategoryLive.name(category, l("Group"))}</span>
-                </LinkLive>
-              </li>
-            {/for}
           </ul>
         </details>
       {/if}

@@ -25,7 +25,11 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
   defp assign_current_path(socket) do
     url = current_url(socket)
     path = is_binary(url) && (URI.parse(url).path || url)
-    assign(socket, :current_path, path || "")
+    params = e(socket.assigns, :__context__, :current_params, %{}) || %{}
+
+    socket
+    |> assign(:current_path, path || "")
+    |> assign(:group_return_to, Bonfire.Classify.Web.GroupNavigation.return_to(params, url))
   end
 
   # a pin changed elsewhere → recompute reactively (routed via PersistentLive, see after_pin)

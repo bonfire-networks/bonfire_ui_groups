@@ -45,6 +45,50 @@ defmodule Bonfire.UI.Groups.GroupHeroToolbarTest do
     refute has_element?(view, "#inline_composer_placeholder_continue")
   end
 
+  # Who can read what members post is the one dimension the access details left out, and the one a member most needs before writing: the other three say who can join, see and post, not who the posts reach.
+  test "access details say who can read posts, from the group's stored default" do
+    account = fake_account!()
+    me = fake_user!(account)
+
+    group =
+      Bonfire.Classify.Simulate.fake_group!(me, %{
+        name: "Backstage",
+        membership: "local:members",
+        visibility: "nonfederated",
+        participation: "local:contributors",
+        default_content_visibility: "local"
+      })
+
+    {:ok, view, _html} =
+      live(conn(user: me, account: account), "/group/#{group.character.username}")
+
+    assert has_element?(view, "[data-role=group-access-details-content] dt", "Posts · Local")
+
+    assert has_element?(
+             view,
+             "[data-role=group-access-details-content] dd",
+             "Posts visible to logged-in users on this instance"
+           )
+  end
+
+  # `Bonfire.Classify.Boundaries.init_boundaries/4` derives and stores a default for every group created here, so a group that states none still has one to show. The row only disappears for a group with nothing stored (an old one, or a mirrored remote community), which the factory cannot produce.
+  test "access details show the derived default for a group that stated none" do
+    account = fake_account!()
+    me = fake_user!(account)
+    group = Bonfire.Classify.Simulate.fake_group!(me, %{name: "No stated default"})
+
+    {:ok, view, _html} =
+      live(conn(user: me, account: account), "/group/#{group.character.username}")
+
+    assert has_element?(view, "[data-role=group-access-details-content] dt", "Posts ·")
+
+    assert has_element?(
+             view,
+             "[data-role=group-access-details-content] dd",
+             "Posts visible to"
+           )
+  end
+
   test "topic links open a child topic and keep a route back to its group" do
     account = fake_account!()
     me = fake_user!(account)
