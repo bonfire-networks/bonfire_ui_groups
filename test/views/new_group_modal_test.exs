@@ -394,7 +394,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
         "name" => name,
         "summary" => "Custom dims submission",
         "membership" => "invite_only",
-        "visibility" => "local:discoverable",
+        "visibility" => "local:preview",
         "participation" => "local:contributors",
         "default_content_visibility" => "members:private"
       })
@@ -415,7 +415,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       assert detected.membership == "invite_only",
              "expected membership=invite_only, got #{inspect(detected.membership)}"
 
-      assert detected.visibility == "local:discoverable",
+      assert detected.visibility == "local:preview",
              "expected visibility=local:discoverable, got #{inspect(detected.visibility)}"
     end
   end

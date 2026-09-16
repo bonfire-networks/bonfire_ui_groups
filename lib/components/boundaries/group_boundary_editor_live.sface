@@ -228,7 +228,7 @@
             dimension={:default_content_visibility}
             label={e(@preset_dimensions, :default_content_visibility, :label, l("Default post visibility"))}
             description={l(
-              "Pick the reach. Then pick how posts show up. Pre-fills each post's boundary selector — authors can still change it per-post. Affects future posts only."
+              "Pick content visibility: how posts are shared by default (authors may still change it per-post). Affects future posts only."
             )}
             name="default_content_visibility"
             selected={@default_content_visibility}

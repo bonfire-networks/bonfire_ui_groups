@@ -400,7 +400,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Custom Dims Group",
           membership: "invite_only",
-          visibility: "local:discoverable",
+          visibility: "local:preview",
           participation: "local:contributors"
         )
 
@@ -476,7 +476,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "on_request Group",
           membership: "on_request",
-          visibility: "local:discoverable"
+          visibility: "local:preview"
         )
 
       conn(user: alice, account: account)
@@ -506,7 +506,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Private Join Group",
           membership: "on_request",
-          visibility: "local:discoverable",
+          visibility: "local:preview",
           participation: "group_members",
           default_content_visibility: "members:private"
         )
@@ -613,7 +613,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Joined Label Regression Group",
           membership: "invite_only",
-          visibility: "nonfederated:discoverable",
+          visibility: "nonfederated:preview",
           participation: "moderators"
         )
 
@@ -649,7 +649,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Gated Private Group",
           membership: "on_request",
-          visibility: "local:discoverable",
+          visibility: "local:preview",
           participation: "group_members",
           default_content_visibility: "members:private"
         )
@@ -671,7 +671,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Announce Channel",
           membership: "invite_only",
-          visibility: "nonfederated:discoverable",
+          visibility: "nonfederated:preview",
           participation: "moderators",
           default_content_visibility: "nonfederated"
         )
@@ -696,7 +696,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
           name: "Open Participation Group",
           membership: "local:members",
           participation: "local:contributors",
-          visibility: "nonfederated:discoverable",
+          visibility: "nonfederated:preview",
           default_content_visibility: "nonfederated"
         )
 
@@ -707,10 +707,10 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     end
   end
 
-  describe "discoverable group access for non-members" do
+  describe "discoverable/preview group access for non-members" do
     # The `:see || :read` chain in classify_live_handler's mounted/3 is what allows
     # non-members to land on the page (and request to join) for discoverable groups.
-    test "non-member can load a local:discoverable on_request group page" do
+    test "non-member can load a local:preview on_request group page" do
       account = fake_account!()
       me = fake_user!(account)
       alice = fake_user!(account)
@@ -719,7 +719,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Discoverable Group",
           membership: "on_request",
-          visibility: "local:discoverable"
+          visibility: "local:preview"
         )
 
       conn(user: alice, account: account)
@@ -740,7 +740,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Discoverable Group",
           membership: "on_request",
-          visibility: "local:discoverable",
+          visibility: "local:preview",
           participation: "group_members"
         )
 
@@ -761,7 +761,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Discoverable Group",
           membership: "on_request",
-          visibility: "local:discoverable"
+          visibility: "local:preview"
         )
 
       conn(user: me, account: account)
@@ -900,7 +900,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Archived Discoverable Group",
           membership: "on_request",
-          visibility: "local:discoverable"
+          visibility: "local:preview"
         )
 
       # alice can see it while it's live
@@ -942,7 +942,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         create_group(me,
           name: "Unjoined Discoverable Group",
           membership: "local:members",
-          visibility: "local:discoverable"
+          visibility: "local:preview"
         )
 
       conn = conn(user: alice, account: account)

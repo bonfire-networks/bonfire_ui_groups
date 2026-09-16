@@ -191,7 +191,7 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
   # entry should declare which dim key/value it maps to. See `Bonfire.Classify.Boundaries.dims_from_layer2_overrides/2`.
 
   defp apply_layer2_to_primitives(socket, :discoverable, true),
-    do: swap_visibility_access(socket, :discover)
+    do: swap_visibility_access(socket, :preview_discover)
 
   defp apply_layer2_to_primitives(socket, :discoverable, false),
     do: swap_visibility_access(socket, :unlisted_read)

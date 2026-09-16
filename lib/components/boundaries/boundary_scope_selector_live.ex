@@ -70,7 +70,7 @@ defmodule Bonfire.UI.Groups.BoundaryScopeSelectorLive do
       selected_access: if(selected, do: ed(options, selected, :role, :interact)),
       scope_ordered: scope_ordered,
       scope_slugs: scope_slugs
-      # access_roles: [:interact, :discover, :unlisted_read]
+      # access_roles: [:interact, :preview_discover, :unlisted_read]
     )
     |> render_sface()
   end

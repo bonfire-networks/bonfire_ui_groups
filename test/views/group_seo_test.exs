@@ -20,7 +20,7 @@ defmodule Bonfire.UI.Groups.GroupSEOTest do
       Simulate.fake_group!(me, %{
         name: "Astronomy Club",
         summary: "We gather to look at the stars.",
-        visibility: "nonfederated:discoverable",
+        visibility: "nonfederated:preview",
         membership: "local:members",
         participation: "local:contributors"
       })

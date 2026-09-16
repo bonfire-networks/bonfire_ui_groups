@@ -10,7 +10,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
 
     for {visibility, scope} <- [
           {"members:private", :members},
-          {"local:discoverable", :local},
+          {"local:preview", :local},
           {"nonfederated", :nonfederated},
           {"archipelago", :archipelago},
           {"global", :global}
@@ -243,7 +243,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     Simulate.fake_group!(user, %{
       name: name,
       membership: membership,
-      visibility: "nonfederated:discoverable",
+      visibility: "nonfederated:preview",
       participation: "local:contributors",
       default_content_visibility: "nonfederated"
     })
