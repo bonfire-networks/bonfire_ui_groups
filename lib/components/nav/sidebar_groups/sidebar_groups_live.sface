@@ -1,24 +1,7 @@
 <div>
-  {!-- optional configurable section divider (instance setting) --}
-  {#case to_string(Bonfire.Common.Settings.get([:ui, :sidebar, :section_divider], "none", :instance))}
-    {#match "line"}
-      <div
-        class="my-1 mx-4"
-        style="border-top: 1px solid color-mix(in oklch, var(--color-base-content) 10%, transparent)"
-        aria-hidden="true"
-      />
-    {#match "custom"}
-      {#case to_string(Bonfire.Common.Settings.get([:ui, :sidebar, :section_divider_image], "", :instance))}
-        {#match src when src != ""}
-          <div class="lg:px-[30px] flex justify-center" aria-hidden="true">
-            <img src={src} class="h-6 w-full object-contain mt-[36px]" alt="">
-          </div>
-        {#match _}
-      {/case}
-    {#match _}
-  {/case}
+  <Bonfire.UI.Common.SidebarSectionDividerLive />
 
-  <ul class="menu relative p-0 w-full mt-2 px-0 lg:px-card gap-0">
+  <ul class="menu relative p-0 w-full mt-4 px-0 lg:px-card gap-0">
     <li class="w-full min-w-0">
       <details
         data-role="sidebar-groups"
@@ -31,13 +14,10 @@
       >
         <summary
           phx-click={if !@disable_collapsible, do: "Bonfire.UI.Groups:toggle_groups_nav_visibility"}
-          class="group/sidebar-summary relative font-medium uppercase pl-4 text-xs text-muted list-none after:content-none [&::-webkit-details-marker]:hidden flex"
+          class="group/sidebar-summary relative min-h-8 !py-1 font-medium uppercase pl-4 text-xs text-muted list-none after:content-none [&::-webkit-details-marker]:hidden flex"
         >
           <span class="flex-1">{l("Groups")}</span>
-          <div class={[
-            "pointer-events-auto": @disable_collapsible,
-            "normal-case font-normal absolute right-0": !@disable_collapsible
-          ]}>
+          <div class="pointer-events-auto normal-case font-normal absolute right-0 inset-y-0 flex items-center">
             <Bonfire.UI.Groups.NewGroupLive
               id="sidebar_new_group"
               parent_id="sidebar"
