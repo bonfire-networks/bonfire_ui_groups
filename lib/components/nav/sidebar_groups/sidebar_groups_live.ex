@@ -12,11 +12,18 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
 
   def active_link?(_, _), do: false
 
-  # Active-state label classes — evaluates active_link?/2 once per row (not twice in the template)
-  def group_label_class(current_path, target) do
-    if active_link?(current_path, target),
-      do: "font-medium text-primary",
-      else: "font-normal text-base-content"
+  @doc "Renders the group list with the instance's collapsible-sidebar preference."
+  def render(assigns) do
+    disable_collapsible =
+      Bonfire.Common.Settings.get(
+        [:ui, :sidebar, :disable_collapsible],
+        false,
+        assigns.__context__[:instance_settings] || :instance
+      )
+
+    assigns
+    |> assign(:disable_collapsible, disable_collapsible)
+    |> render_sface()
   end
 
   # Resolved for the whole list in ONE query and handed to each row, since a group's preset icon is

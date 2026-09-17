@@ -15,7 +15,13 @@ defmodule Bonfire.UI.Groups.GroupLive do
       if e(assigns(socket), :type, nil) == :topic do
         {:ok, assign(socket, page: "topic", showing_within: :topic)}
       else
-        {:ok, assign(socket, page: "group", showing_within: :group)}
+        {:ok,
+         assign(socket,
+           page: "group",
+           showing_within: :group,
+           content_visibility_slug:
+             Bonfire.Classify.Boundaries.read_default_content_visibility(socket.assigns.category)
+         )}
       end
     end
   end

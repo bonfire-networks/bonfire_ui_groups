@@ -20,92 +20,54 @@
 
   <ul class="menu relative p-0 w-full mt-2 px-0 lg:px-card gap-0">
     <li class="w-full min-w-0">
-      {#if Bonfire.Common.Settings.get(
-          [:ui, :sidebar, :disable_collapsible],
-          false,
-          @__context__[:instance_settings] || :instance
+      <details
+        data-role="sidebar-groups"
+        open={@disable_collapsible || Bonfire.Common.Settings.get(
+          [Bonfire.UI.Groups.SidebarGroupsLive, :show_groups_nav_open],
+          true,
+          @__context__
         )}
-        <details open class="details-static w-full min-w-0 overflow-hidden">
-          <summary class="group/sidebar-summary relative font-medium uppercase pl-4 text-xs text-muted list-none after:content-none [&::-webkit-details-marker]:hidden flex">
-            <span class="font-medium text-muted uppercase text-xs flex-1">{l("Groups")}</span>
-            <div class="pointer-events-auto">
-              <Bonfire.UI.Groups.NewGroupLive
-                id="sidebar_new_group"
-                parent_id="sidebar"
-                open_btn_wrapper_class=""
-              >
-                <:open_btn>
-                  <span class="[@media(hover:hover)]:opacity-0 group-hover/sidebar-summary:opacity-100 group-focus-within/sidebar-summary:opacity-100 btn btn-circle btn-outline btn-xs border-secondary"><#Icon iconify="ph:plus" class="w-4 h-4 text-primary" /></span>
-                </:open_btn>
-              </Bonfire.UI.Groups.NewGroupLive>
-            </div>
-          </summary>
-
-          <div class="pointer-events-auto">
-            <ul class="menu before:content-none after:content-none !ml-0 p-0 w-full gap-0">
-              <Bonfire.UI.Groups.SidebarGroupLive
-                :for={{%{type: :group} = category, children} <- e(@categories, [])}
-                category={category}
-                children={children}
-                parent_id={@id}
-                current_path={@current_path}
-                group_return_to={@group_return_to}
-              />
-              <li>
-                <LinkLive to="/groups" class="flex items-center !gap-2 !px-3 py-[6px] text-base-content/80">
-                  <#Icon iconify="ph:compass" class="size-5 shrink-0 text-muted" />
-                  <span class="text-base font-normal">{l("All groups")}</span>
-                </LinkLive>
-              </li>
-            </ul>
-          </div>
-        </details>
-      {#else}
-        <details
-          open={Bonfire.Common.Settings.get(
-            [Bonfire.UI.Groups.SidebarGroupsLive, :show_groups_nav_open],
-            true,
-            @__context__
-          )}
-          class="w-full min-w-0 overflow-hidden"
+        class={["w-full min-w-0 overflow-hidden", "details-static": @disable_collapsible]}
+      >
+        <summary
+          phx-click={if !@disable_collapsible, do: "Bonfire.UI.Groups:toggle_groups_nav_visibility"}
+          class="group/sidebar-summary relative font-medium uppercase pl-4 text-xs text-muted list-none after:content-none [&::-webkit-details-marker]:hidden flex"
         >
-          <summary
-            phx-click="Bonfire.UI.Groups:toggle_groups_nav_visibility"
-            class="group/sidebar-summary relative font-medium uppercase pl-4 text-xs text-muted list-none after:content-none [&::-webkit-details-marker]:hidden flex"
-          >
-            <span class="flex-1 w-full">{l("Groups")}</span>
-            <div class="normal-case font-normal absolute right-0">
-              <Bonfire.UI.Groups.NewGroupLive
-                id="sidebar_new_group"
-                parent_id="sidebar"
-                open_btn_wrapper_class=""
-              >
-                <:open_btn>
-                  <span class="[@media(hover:hover)]:opacity-0 group-hover/sidebar-summary:opacity-100 group-focus-within/sidebar-summary:opacity-100 btn btn-circle btn-outline btn-xs border-secondary"><#Icon iconify="ph:plus" class="w-4 h-4 text-primary" /></span>
-                </:open_btn>
-              </Bonfire.UI.Groups.NewGroupLive>
-            </div>
-          </summary>
+          <span class="flex-1">{l("Groups")}</span>
+          <div class={[
+            "pointer-events-auto": @disable_collapsible,
+            "normal-case font-normal absolute right-0": !@disable_collapsible
+          ]}>
+            <Bonfire.UI.Groups.NewGroupLive
+              id="sidebar_new_group"
+              parent_id="sidebar"
+              open_btn_wrapper_class=""
+            >
+              <:open_btn>
+                <span class="[@media(hover:hover)]:opacity-0 group-hover/sidebar-summary:opacity-100 group-focus-within/sidebar-summary:opacity-100 btn btn-circle btn-outline btn-xs border-secondary"><#Icon iconify="ph:plus" class="w-4 h-4 text-primary" /></span>
+              </:open_btn>
+            </Bonfire.UI.Groups.NewGroupLive>
+          </div>
+        </summary>
 
-          <ul class="menu before:content-none after:content-none !ml-0 p-0 w-full gap-0">
-            <Bonfire.UI.Groups.SidebarGroupLive
-              :for={{%{type: :group} = category, children} <- e(@categories, [])}
-              category={category}
-              children={children}
-              parent_id={@id}
-              preset_icon={e(@group_icons, id(category), nil)}
-              current_path={@current_path}
-              group_return_to={@group_return_to}
-            />
-            <li>
-              <LinkLive to="/groups" class="flex items-center !gap-2 !px-3 py-[6px] text-base-content/80">
-                <#Icon iconify="ph:compass" class="size-5 shrink-0 text-muted" />
-                <span class="text-base font-normal">{l("All groups")}</span>
-              </LinkLive>
-            </li>
-          </ul>
-        </details>
-      {/if}
+        <ul class="menu pointer-events-auto before:content-none after:content-none !ml-0 p-0 w-full gap-0">
+          <Bonfire.UI.Groups.SidebarGroupLive
+            :for={{%{type: :group} = category, children} <- e(@categories, [])}
+            category={category}
+            children={children}
+            parent_id={@id}
+            preset_icon={e(@group_icons, id(category), nil)}
+            current_path={@current_path}
+            group_return_to={@group_return_to}
+          />
+          <li>
+            <LinkLive to="/groups" class="flex items-center !gap-2 !px-3 py-[6px] text-base-content/80">
+              <#Icon iconify="ph:compass" class="size-5 shrink-0 text-muted" />
+              <span class="text-base font-normal">{l("All groups")}</span>
+            </LinkLive>
+          </li>
+        </ul>
+      </details>
     </li>
   </ul>
 </div>

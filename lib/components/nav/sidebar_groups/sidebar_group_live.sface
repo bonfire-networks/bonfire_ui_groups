@@ -48,7 +48,7 @@
         class="!m-0 !mb-1 !p-0 !gap-0 before:!content-none after:!content-none"
         style="background-image: linear-gradient(color-mix(in oklch, var(--color-base-content) 20%, transparent), color-mix(in oklch, var(--color-base-content) 20%, transparent)); background-position: calc(var(--spacing) * 5.5 - 0.5px) 0; background-size: 1px 100%; background-repeat: no-repeat;"
       >
-        <li :for={topic <- @topics} class="!block w-full min-w-0">
+        <li :for={topic <- @topics} class="!block w-full min-w-0 !pl-7">
           <LinkLive
             to={Bonfire.Classify.Web.GroupNavigation.link(topic.path, @group_return_to)}
             opts={[
@@ -57,12 +57,11 @@
               "aria-current": if(topic.active?, do: "page", else: nil)
             ]}
             class={[
-              "!flex w-full min-w-0 items-center !gap-2 !min-h-8 !h-8 !px-3 !py-0 rounded-selector text-base leading-6 hover:bg-base-content/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!min-h-11 [@media(pointer:coarse)]:!h-11",
+              "!flex w-full min-w-0 items-center !min-h-8 !h-8 !px-3 !py-0 rounded-selector text-base leading-6 hover:bg-base-content/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!min-h-11 [@media(pointer:coarse)]:!h-11",
               "bg-base-content/10 text-base-content": topic.active?,
               "text-base-content/80": not topic.active?
             ]}
           >
-            <span class="w-5 shrink-0" aria-hidden="true" />
             <span class="min-w-0 truncate">{topic.name}</span>
           </LinkLive>
         </li>

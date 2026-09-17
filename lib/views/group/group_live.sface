@@ -64,20 +64,14 @@
         </p>
       </div>
     {#match _}
-      {!-- `guest_gated?` (set in `Bonfire.Classify.LiveHandler.mounted/3`): a guest on a group whose posts are for people with an account. The invitation takes the timeline's place, keeping the same header slot, so the hero still says who the group is. --}
       <StatelessComponent
-        module={cond do
-          e(assigns, :guest_gated?, false) ->
-            Bonfire.UI.Groups.GuestGateLive
-
-          @type == :topic ->
+        module={if @type == :topic,
+          do:
             Config.get([:ui, :topic, :sections], [])[tab(@selected_tab)] ||
-              Bonfire.UI.Social.ProfileTimelineLive
-
-          true ->
+              Bonfire.UI.Social.ProfileTimelineLive,
+          else:
             tab_component(@selected_tab) || tab_component(@tab_id) ||
-              Bonfire.UI.Social.ProfileTimelineLive
-        end}
+              Bonfire.UI.Social.ProfileTimelineLive}
         user={@category}
         {...assigns}
         custom_actions={Bonfire.UI.Social.Activity.DiscussionPreviewActionsLive}
@@ -129,7 +123,7 @@
               membership_slug={e(assigns, :group_membership_slug, nil)}
               visibility_slug={e(assigns, :group_visibility_slug, nil)}
               participation_slug={e(assigns, :group_participation_slug, nil)}
-              content_visibility_slug={e(assigns, :group_content_visibility_slug, nil)}
+              content_visibility_slug={e(assigns, :content_visibility_slug, nil)}
               member_count={e(assigns, :group_member_count, nil)}
             />
             <StatelessComponent
