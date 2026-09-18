@@ -43,10 +43,7 @@
       >
         <#Icon iconify="ph:caret-right" class="size-3.5 text-muted group-open/sidebar-group:rotate-90" />
       </summary>
-      <ul
-        data-role="sidebar-topics"
-        class="sidebar-child-list"
-      >
+      <ul data-role="sidebar-topics" class="sidebar-child-list">
         <li :for={topic <- @topics} class="!block w-full min-w-0 !pl-7">
           <LinkLive
             to={Bonfire.Classify.Web.GroupNavigation.link(topic.path, @group_return_to)}

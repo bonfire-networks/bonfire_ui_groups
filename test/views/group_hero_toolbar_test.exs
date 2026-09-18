@@ -62,7 +62,11 @@ defmodule Bonfire.UI.Groups.GroupHeroToolbarTest do
     {:ok, view, _html} =
       live(conn(user: me, account: account), "/group/#{group.character.username}")
 
-    assert has_element?(view, "[data-role=group-access-details-content] dt", "Default post visibility · Local")
+    assert has_element?(
+             view,
+             "[data-role=group-access-details-content] dt",
+             "Default post visibility · Local"
+           )
 
     assert has_element?(
              view,
@@ -80,7 +84,11 @@ defmodule Bonfire.UI.Groups.GroupHeroToolbarTest do
     {:ok, view, _html} =
       live(conn(user: me, account: account), "/group/#{group.character.username}")
 
-    assert has_element?(view, "[data-role=group-access-details-content] dt", "Default post visibility ·")
+    assert has_element?(
+             view,
+             "[data-role=group-access-details-content] dt",
+             "Default post visibility ·"
+           )
 
     assert has_element?(
              view,

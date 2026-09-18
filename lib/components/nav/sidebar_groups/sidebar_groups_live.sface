@@ -5,11 +5,12 @@
     <li class="w-full min-w-0">
       <details
         data-role="sidebar-groups"
-        open={@disable_collapsible || Bonfire.Common.Settings.get(
-          [Bonfire.UI.Groups.SidebarGroupsLive, :show_groups_nav_open],
-          true,
-          @__context__
-        )}
+        open={@disable_collapsible ||
+          Bonfire.Common.Settings.get(
+            [Bonfire.UI.Groups.SidebarGroupsLive, :show_groups_nav_open],
+            true,
+            @__context__
+          )}
         class={["w-full min-w-0 overflow-hidden", "details-static": @disable_collapsible]}
       >
         <summary
