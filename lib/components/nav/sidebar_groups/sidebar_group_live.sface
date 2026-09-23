@@ -41,7 +41,7 @@
         aria-label={l("Topics in %{group}", group: @group_name)}
         class="absolute right-0 top-0 flex !p-0 !min-h-0 !size-9 items-center justify-center rounded-md cursor-pointer list-none after:!content-none [&::-webkit-details-marker]:hidden hover:bg-base-content/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!size-11"
       >
-        <#Icon iconify="ph:caret-right" class="size-3.5 text-muted group-open/sidebar-group:rotate-90" />
+        <#Icon iconify="carbon:chevron-right" class="size-3.5 text-muted group-open/sidebar-group:rotate-90" />
       </summary>
       <ul data-role="sidebar-topics" class="sidebar-child-list">
         <li :for={topic <- @topics} class="!block w-full min-w-0 !pl-7">
