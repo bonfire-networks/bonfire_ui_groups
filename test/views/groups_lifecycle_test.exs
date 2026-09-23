@@ -4,20 +4,9 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
   alias Bonfire.Classify.Categories
 
-  defp post_in_group(session, content, group_id) do
-    params = %{
-      "post" => %{"post_content" => %{"html_body" => content}},
-      "context_id" => group_id,
-      "to_circles" => [group_id]
-    }
-
-    session
-    |> PhoenixTest.unwrap(fn view ->
-      view
-      |> Phoenix.LiveViewTest.element("#smart_input_form")
-      |> Phoenix.LiveViewTest.render_submit(params)
-    end)
-  end
+  # kept as its own name rather than inlined at its nine callers: it states which fields make a post land IN a group, the same two a group page's composer carries
+  defp post_in_group(session, content, group_id),
+    do: submit_composer(session, content, %{"context_id" => group_id, "to_circles" => [group_id]})
 
   defp create_group(creator, attrs \\ %{}) do
     name = attrs[:name] || "Test Group #{System.unique_integer([:positive])}"
@@ -1090,19 +1079,10 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
           default_content_visibility: "nonfederated"
         )
 
-      params = %{
-        "post" => %{"post_content" => %{"html_body" => "<p>Announcement to all</p>"}},
-        "context_id" => group.id
-      }
-
       conn(user: me, account: account)
       |> visit("/&#{group.character.username}")
       |> wait_async()
-      |> PhoenixTest.unwrap(fn view ->
-        view
-        |> Phoenix.LiveViewTest.element("#smart_input_form")
-        |> Phoenix.LiveViewTest.render_submit(params)
-      end)
+      |> submit_composer("<p>Announcement to all</p>", %{"context_id" => group.id})
 
       conn(user: alice, account: account)
       |> visit("/&#{group.character.username}")

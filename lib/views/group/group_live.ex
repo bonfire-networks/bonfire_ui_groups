@@ -8,20 +8,27 @@ defmodule Bonfire.UI.Groups.GroupLive do
            undead_mount(socket, fn ->
              Bonfire.Classify.LiveHandler.mounted(params, session, socket)
            end) do
-      # emit social-card metadata (name/description/image) for the group/topic profile,
-      # via the Category `SEO.*.Build` impls in group_seo.ex (no-op on non-guest/connected renders)
-      socket = Bonfire.UI.Common.SEO.maybe_assign_seo(socket, e(assigns(socket), :category, nil))
+      case e(assigns(socket), :category, nil) do
+        # `mounted/3` found nothing this visitor may see (a members-private group seen by a guest, say), and `undead_mount/2` still answers `{:ok, socket}`, having already sent them to the not-found page. There is no group to build the rest from
+        nil ->
+          {:ok, socket}
 
-      if e(assigns(socket), :type, nil) == :topic do
-        {:ok, assign(socket, page: "topic", showing_within: :topic)}
-      else
-        {:ok,
-         assign(socket,
-           page: "group",
-           showing_within: :group,
-           content_visibility_slug:
-             Bonfire.Classify.Boundaries.read_default_content_visibility(socket.assigns.category)
-         )}
+        category ->
+          # emit social-card metadata (name/description/image) for the group/topic profile,
+          # via the Category `SEO.*.Build` impls in group_seo.ex (no-op on non-guest/connected renders)
+          socket = Bonfire.UI.Common.SEO.maybe_assign_seo(socket, category)
+
+          if e(assigns(socket), :type, nil) == :topic do
+            {:ok, assign(socket, page: "topic", showing_within: :topic)}
+          else
+            {:ok,
+             assign(socket,
+               page: "group",
+               showing_within: :group,
+               content_visibility_slug:
+                 Bonfire.Classify.Boundaries.read_default_content_visibility(category)
+             )}
+          end
       end
     end
   end

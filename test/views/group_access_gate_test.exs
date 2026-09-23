@@ -52,6 +52,43 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
     |> assert_has("[data-id=feed]", text: "Restricted discussion")
   end
 
+  # A members-private group denies guests `:see` as well as `:read`, unlike the preview club above, so there is no hero a guest is entitled to. They still arrive here: from a pasted link, a remote profile, and the `/pub/group/<id>` redirect, which lands on the `/group/` path. Whatever the page shows them, it must not be an error.
+  for path_fun <- [:friendly, :group_path] do
+    test "a guest opening a members-private group (#{path_fun}) gets a not-found page, not a crash",
+         context do
+      group =
+        Bonfire.Classify.Simulate.fake_group!(context.owner, %{
+          name: "Members only club",
+          membership: "invite_only",
+          visibility: "members:private",
+          participation: "group_members",
+          default_content_visibility: "members:private"
+        })
+
+      Bonfire.Classify.Simulate.fake_post_in_group!(
+        context.owner,
+        group,
+        "<p>members only talk</p>"
+      )
+
+      path =
+        case unquote(path_fun) do
+          :friendly -> "/&#{group.character.username}"
+          :group_path -> Bonfire.Common.URIs.path(group)
+        end
+
+      conn()
+      |> visit(path)
+      |> wait_async()
+      # the not-found page, reached on purpose: `mounted/3` refuses a group this visitor may not see, and says so
+      |> assert_has("#error-headline", text: "Not found")
+      # not the crash `GroupLive.mount/3` used to hit by reading a `:category` that was never assigned
+      |> refute_has("#error-headline", text: "unexpected")
+      |> refute_has("[data-id=feed]")
+      |> refute_has("[data-id=group]", text: "members only talk")
+    end
+  end
+
   test "a restricted post default does not gate a readable group", context do
     group =
       Bonfire.Classify.Simulate.fake_group!(context.owner, %{
