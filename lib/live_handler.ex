@@ -3,6 +3,44 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
   alias Bonfire.Classify.Categories
 
+  def handle_event("save_group_identity", %{"profile" => profile}, socket) do
+    user = current_user_required!(socket)
+    profile = Map.take(profile, ["name", "summary"])
+    socket = assign(socket, :draft, profile)
+
+    # Uploads save independently, so the modal's opening snapshot can be stale.
+    with {:ok, category} <- Categories.get(id(socket.assigns.category), [:default, current_user: user]),
+         {:ok, category} <- Categories.update(user, category, %{profile: profile}) do
+      send_self(category: category)
+
+      {:noreply,
+       socket
+       |> assign(category: category, draft: nil)
+       |> Phoenix.LiveView.clear_flash()
+       |> assign_flash(:info, l("Category updated!"))}
+    else
+      {:error, reason} ->
+        error(reason, "Could not save group details")
+
+        {:noreply,
+         socket
+         |> Phoenix.LiveView.clear_flash()
+         |> assign_flash(:error, l("Could not save group details. Check the name and try again."))}
+    end
+  end
+
+  def handle_event("load_settings_people", _, socket),
+    do: {:noreply, Bonfire.UI.Groups.Settings.PeopleLive.load_more(socket)}
+
+  def handle_event("open_settings_people_search", _, socket),
+    do: {:noreply, assign(socket, :search_open?, true)}
+
+  def handle_event("search_settings_people", %{"members" => %{"search" => search}}, socket),
+    do: {:noreply, Bonfire.UI.Groups.Settings.PeopleLive.search(socket, search)}
+
+  def handle_event("clear_settings_people_search", _, socket),
+    do: {:noreply, Bonfire.UI.Groups.Settings.PeopleLive.search(socket, "")}
+
   def handle_event("filter_members", %{"members" => %{"search" => search}}, socket),
     do: {:noreply, assign(socket, :member_search, search)}
 

@@ -1,17 +1,13 @@
-<!-- <Bonfire.UI.Common.TabsLive
-  selected_tab={@tab_id || @selected_tab}
-  path_prefix={"#{@permalink}/settings/"}
-  tabs={Config.get([:ui, :group, :settings, :navigation], settings: l("General"))}
-/> -->
-
-{#if tab_component(@tab_id || @selected_tab) == Bonfire.UI.Groups.Settings.BoundariesLive}
-  <Bonfire.UI.Groups.Settings.BoundariesLive
-    id={"group_settings_#{id(@category)}_#{@tab_id || @selected_tab || "general"}"}
-    selected_tab={@selected_tab}
-    category={@category}
-    boundary_preset={@boundary_preset}
-    __context__={@__context__}
-  />
+{#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
+  <p class="p-4 text-sm text-muted">{l("You don't have permission to edit this group's settings.")}</p>
+{#elseif @settings_component == Bonfire.UI.Groups.Settings.GeneralLive}
+  <Bonfire.UI.Groups.Settings.GeneralLive {...assigns} />
 {#else}
-  <StatelessComponent module={tab_component(@tab_id || @selected_tab)} {...assigns} />
+  <section id="group-settings-detail" class="bonfire-wrapper mx-auto w-full max-w-3xl px-4 pb-12 pt-5 sm:px-8">
+    {#if @settings_component == Bonfire.UI.Groups.Settings.BoundariesLive}
+      <Bonfire.UI.Groups.Settings.BoundariesLive id={"group_settings_boundaries_#{id(@category)}"} category={@category} boundary_preset={@boundary_preset} show_header={false} />
+    {#else}
+      <StatelessComponent module={@settings_component} {...assigns} />
+    {/if}
+  </section>
 {/if}

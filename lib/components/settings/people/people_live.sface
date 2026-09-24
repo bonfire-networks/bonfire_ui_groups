@@ -1,0 +1,38 @@
+<section id="group-settings-people" aria-labelledby="settings-people-heading" class="flex flex-col gap-3">
+  <header class="flex items-center justify-between gap-3 px-1">
+    <h2 id="settings-people-heading" class="font-semibold">
+      {if is_integer(@member_count), do: lp("%{count} person", "%{count} people", @member_count, count: @member_count), else: l("People")}
+    </h2>
+    <button id="group_settings_members_search_open" type="button" :on-click="Bonfire.UI.Groups:open_settings_people_search" phx-target={@myself} aria-expanded={@search_open?} aria-controls="settings-people-search-form" class="btn btn-ghost min-h-11 min-w-11">
+      <#Icon iconify="ph:magnifying-glass" class="size-5" />
+      <span class="sr-only">{l("Search members")}</span>
+    </button>
+  </header>
+  <.form :if={@search_open?} for={@form} id="settings-people-search-form" phx-change="Bonfire.UI.Groups:search_settings_people" phx-submit="Bonfire.UI.Groups:search_settings_people" phx-target={@myself} class="flex items-center gap-2">
+    <label for="settings-people-search" class="sr-only">{l("Search members")}</label>
+    <input id="settings-people-search" type="search" name={@form[:search].name} value={@form[:search].value} placeholder={l("Search members…")} phx-debounce="250" autocomplete="off" spellcheck="false" class="input w-full border-base-content/20 bg-base-200 text-base" />
+    <button :if={@search != ""} id="settings-people-search-clear" type="button" :on-click="Bonfire.UI.Groups:clear_settings_people_search" phx-target={@myself} class="btn btn-ghost min-h-11">{l("Clear search")}</button>
+  </.form>
+  <div class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)">
+    <LinkLive to={@permalink <> "/settings/moderators"} opts={[id: "group_settings_moderators_link"]} class="flex min-h-11 items-center gap-3 px-4 py-4 text-primary hover:bg-base-content/5 sm:px-5">
+      <#Icon iconify="ph:users-three" class="size-5" />
+      {l("Manage moderators")}
+    </LinkLive>
+    <ul>
+      {#for person <- @people}
+        <li id={"settings-person-#{id(person)}"} data-role="settings-person" class="flex items-center gap-3 px-4 py-3 sm:px-5">
+          <Bonfire.UI.Common.AvatarLive user_id={id(person)} src={Media.avatar_url(person)} wrapper_class="avatar shrink-0" class="size-11 overflow-hidden rounded-full" parent_id="settings-people" />
+          <LinkLive to={path(person)} class="min-w-0 flex-1 break-words font-medium hover:underline">
+            {if id(person) == current_user_id(@__context__), do: l("You"), else: e(person, :profile, :name, nil) || e(person, :character, :username, l("Member"))}
+          </LinkLive>
+          <span :if={Enum.any?(@moderators, &(id(&1) == id(person)))} class="shrink-0 text-sm text-muted">{l("Moderator")}</span>
+        </li>
+      {/for}
+    </ul>
+    <p :if={@people == []} class="px-5 py-6 text-sm text-muted">{if @search != "", do: l("No members match your search."), else: l("No members to show.")}</p>
+    <button :if={@cursor} id="group_settings_people_more" type="button" :on-click="Bonfire.UI.Groups:load_settings_people" phx-target={@myself} phx-disable-with={l("Loading…")} class="flex min-h-11 w-full items-center gap-3 px-4 py-4 text-left hover:bg-base-content/5 sm:px-5">
+      <#Icon iconify="ph:caret-down" class="size-5" />
+      {l("Load more")}
+    </button>
+  </div>
+</section>

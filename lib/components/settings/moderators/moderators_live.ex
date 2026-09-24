@@ -10,6 +10,7 @@ defmodule Bonfire.UI.Groups.Settings.ModeratorsLive do
 
   alias Bonfire.Classify.Categories
 
+  prop show_header, :boolean, default: true
   prop category, :any, required: true
   # nil (not []) so an un-passed prop falls through to self-fetching the list —
   # `[] || fetch()` would short-circuit to `[]` since an empty list is truthy.

@@ -1,0 +1,78 @@
+<section class="flex flex-col gap-4">
+  <p :if={Phoenix.Flash.get(@flash, :info)} role="status" class="text-sm text-success">{Phoenix.Flash.get(@flash, :info)}</p>
+  <p :if={Phoenix.Flash.get(@flash, :error)} role="alert" class="text-sm text-error">{Phoenix.Flash.get(@flash, :error)}</p>
+      <div class="relative">
+        <StatefulComponent
+          module={maybe_component(Bonfire.Files.Web.UploadBannerLive, @__context__)}
+          id={:upload_banner}
+          object={@category}
+          set_field={:category}
+          set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
+          container_class="relative rounded-xl flex justify-center px-6 py-10 bg-center bg-cover h-[140px] overflow-hidden"
+          label_class="absolute inset-0 flex flex-col items-center justify-center w-full h-full text-sm font-medium text-white transition-opacity duration-200 ease-out rounded-xl cursor-pointer bg-black/40 opacity-0 hover:opacity-100 focus-within:opacity-100"
+        />
+
+        <div class="flex items-end gap-3 px-3 -mt-[40px]">
+          <StatefulComponent
+            module={maybe_component(Bonfire.Files.Web.UploadIconLive, @__context__)}
+            id={:upload_icon}
+            src={Bonfire.Common.Media.avatar_url(@category)}
+            container_class="relative bg-base-100 flex-shrink-0 block w-24 h-24 overflow-hidden rounded-full ring-4 ring-base-100"
+            class="inline-block w-24 h-24"
+            object={@category}
+            set_field={:category}
+            set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
+          />
+          <p class="pb-2 text-xs text-muted leading-snug">
+            {l("Click the banner or avatar to upload a new image.")}
+          </p>
+        </div>
+      </div>
+
+      <Phoenix.Component.form
+        for={@form}
+        id="group_settings_identity_form"
+        phx-submit="Bonfire.UI.Groups:save_group_identity"
+        phx-target={@myself}
+        class="flex flex-col gap-3 mt-2"
+      >
+        <div class="form-control">
+          <label for="group_settings_name" class="text-sm font-medium text-base-content/80 mb-1">
+            {l("Group name")}
+          </label>
+          <input
+            id="group_settings_name"
+            name={@form[:name].name}
+            value={@form[:name].value}
+            type="text"
+            minlength="3"
+            maxlength="120"
+            required
+            placeholder={l("e.g. Design team, Book club…")}
+            class="w-full input input-bordered min-h-11 text-base focus:input-primary invalid:input-error"
+          />
+        </div>
+
+        <div class="form-control">
+          <label for="group_settings_summary" class="text-sm font-medium text-base-content/80 mb-1">
+            {l("Description")}
+          </label>
+          <textarea
+            id="group_settings_summary"
+            name={@form[:summary].name}
+            rows="3"
+            maxlength="500"
+            placeholder={l("What is this group about?")}
+            class="w-full textarea textarea-bordered text-base focus:textarea-primary"
+          >{@form[:summary].value}</textarea>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-3">
+          <button type="reset" id="group_settings_identity_reset" class="btn btn-ghost min-h-11 normal-case">{l("Reset text fields")}</button>
+          <button id="group_settings_identity_save" type="submit" phx-disable-with={l("Saving…")} class="btn btn-primary min-h-11 normal-case">
+            {l("Save changes")}
+          </button>
+        </div>
+      </Phoenix.Component.form>
+
+</section>

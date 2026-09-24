@@ -1,0 +1,29 @@
+{#case @tab_id}
+  {#match "moderators"}
+    <StatefulComponent id={"group-moderators-#{id(@category)}"} module={maybe_component(Bonfire.UI.Groups.Settings.ModeratorsLive, @__context__)} category={@category} show_header={false} />
+  {#match "rules"}
+    <StatefulComponent id={"group-rules-#{id(@category)}"} module={maybe_component(Bonfire.CommunityRules.Web.RulesBuilderLive, @__context__)} entity={@category} show_header={false} />
+  {#match "instance"}
+    {#if Bonfire.Boundaries.can?(current_user(@__context__), :configure, :instance)}
+      <p class="mb-5 text-sm text-muted">{l("These settings affect new accounts across the whole instance.")}</p>
+      <Phoenix.Component.form for={to_form(%{})} phx-change="Bonfire.Classify:toggle_auto_join" id="group_settings_auto_join_form">
+        <input type="hidden" name="group_id" value={id(@category)}>
+        <label class="flex min-h-11 cursor-pointer items-start gap-3">
+          <input type="checkbox" name="enabled" class="toggle toggle-primary mt-1" checked={Bonfire.Classify.Categories.auto_join_new_users?(@category)}>
+          <span>
+            <span class="block font-medium">{l("Auto-join new users")}</span>
+            <span class="mt-1 block text-sm text-muted">{l("New users automatically become members of this group when they sign up.")}</span>
+          </span>
+        </label>
+      </Phoenix.Component.form>
+    {#else}
+      <p role="status">{l("Only instance administrators can change these settings.")}</p>
+    {/if}
+  {#match "archive"}
+    <p class="text-sm text-muted">{l("Hides it from the public. Members keep their content; you can restore the group later.")}</p>
+    <div class="mt-6 flex justify-end">
+      <button type="button" id="group_settings_archive_button" :on-click="Bonfire.Classify:archive" data-confirm={l("Archive this group? You can restore it later.")} class="btn btn-error btn-outline min-h-11 normal-case">
+        {l("Archive group")}
+      </button>
+    </div>
+{/case}

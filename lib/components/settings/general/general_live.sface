@@ -1,221 +1,93 @@
-<div class="bonfire-wrapper flex flex-col gap-1 p-4">
+<div id="group-settings-overview" class="bonfire-wrapper mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 pb-12 pt-5 sm:px-8">
   {#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
     <div class="rounded-lg border border-warning/30 bg-warning/5 p-4 text-sm text-base-content/80">
       {l("You don't have permission to edit this group's settings.")}
     </div>
   {#else}
-    {!-- Identity --}
-    <section aria-labelledby="settings-identity-heading" class="flex flex-col gap-3">
-      <header class="flex flex-col gap-0.5">
-        <h2 id="settings-identity-heading" class="text-xl font-medium leading-tight">{l("Identity")}</h2>
-        <p class="text-sm text-muted">{l("How this group looks and reads to others.")}</p>
-      </header>
-
-      <div class="relative">
-        <StatefulComponent
-          module={maybe_component(Bonfire.Files.Web.UploadBannerLive, @__context__)}
-          id={:upload_banner}
-          object={@category}
-          set_field={:category}
-          set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
-          container_class="relative rounded-xl flex justify-center px-6 py-10 bg-center bg-cover h-[140px] overflow-hidden"
-          label_class="absolute inset-0 flex flex-col items-center justify-center w-full h-full text-sm font-medium text-white transition-opacity duration-200 ease-out rounded-xl cursor-pointer bg-black/40 opacity-0 hover:opacity-100 focus-within:opacity-100"
-        />
-
-        <div class="flex items-end gap-3 px-3 -mt-[40px]">
-          <StatefulComponent
-            module={maybe_component(Bonfire.Files.Web.UploadIconLive, @__context__)}
-            id={:upload_icon}
-            src={Bonfire.Common.Media.avatar_url(@category)}
-            container_class="relative bg-base-100 flex-shrink-0 block w-24 h-24 overflow-hidden rounded-full ring-4 ring-base-100"
-            class="inline-block w-24 h-24"
-            object={@category}
-            set_field={:category}
-            set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
-          />
-          <p class="pb-2 text-xs text-muted leading-snug">
-            {l("Click the banner or avatar to upload a new image.")}
-          </p>
-        </div>
+    <section aria-labelledby="settings-group-name" class="flex flex-col items-center text-center">
+      <div class="h-28 w-full overflow-hidden rounded-2xl bg-base-200 sm:h-36" aria-hidden="true">
+        {#case Media.banner_url(@category, fallback: false)}
+          {#match nil}
+          {#match banner}
+            <img src={banner} alt="" class="h-full w-full object-cover">
+        {/case}
       </div>
-
-      <form
-        id="group_settings_identity_form"
-        phx-submit="Bonfire.Classify:edit"
-        class="flex flex-col gap-3 mt-2"
-      >
-        <div class="form-control">
-          <label for="group_settings_name" class="text-sm font-medium text-base-content/80 mb-1">
-            {l("Group name")}
-          </label>
-          <input
-            id="group_settings_name"
-            name="profile[name]"
-            value={e(@category, :profile, :name, nil) || e(@category, :character, :username, nil)}
-            type="text"
-            minlength="3"
-            maxlength="120"
-            required
-            placeholder={l("e.g. Design team, Book club…")}
-            class="w-full input input-bordered input-sm focus:input-primary invalid:input-error"
-          />
-        </div>
-
-        <div class="form-control">
-          <label for="group_settings_summary" class="text-sm font-medium text-base-content/80 mb-1">
-            {l("Description")}
-          </label>
-          <textarea
-            id="group_settings_summary"
-            name="profile[summary]"
-            rows="3"
-            maxlength="500"
-            placeholder={l("What is this group about?")}
-            class="w-full textarea textarea-bordered textarea-sm focus:textarea-primary"
-          >{e(@category, :profile, :summary, nil)}</textarea>
-        </div>
-
-        <div class="flex justify-end pt-1">
-          <button type="submit" phx-disable-with={l("Saving…")} class="btn btn-primary btn-sm normal-case">
-            {l("Save changes")}
-          </button>
-        </div>
-      </form>
-    </section>
-
-    {!-- Permissions — embeds the same 3-layer editor as the dedicated Boundaries tab. --}
-    <details class="group mt-10 pt-6 border-t border-secondary">
-      <summary class="flex items-center gap-3 cursor-pointer list-none">
-        <div class="flex-1">
-          <h2 class="text-xl font-medium leading-tight">{l("Permissions")}</h2>
-          <p class="text-sm text-muted mt-0.5">
-            {l("Who can see, join, and post in this group.")}
-          </p>
-        </div>
-        <#Icon
-          iconify="carbon:chevron-down"
-          class="w-4 h-4 text-muted shrink-0 transition-transform duration-150 group-open:rotate-180"
-        />
-      </summary>
-      <div class="mt-4">
-        <Bonfire.UI.Groups.Settings.BoundariesLive
-          id="settings_general_boundaries"
-          category={@category}
-        />
-      </div>
-    </details>
-
-    {!-- Moderators — promote/demote group moderators. --}
-    <details class="group mt-8 pt-6 border-t border-secondary">
-      <summary class="flex items-center gap-3 cursor-pointer list-none">
-        <div class="flex-1">
-          <h2 class="text-xl font-medium leading-tight">{l("Moderators")}</h2>
-          <p class="text-sm text-muted mt-0.5">
-            {l("People who can moderate this group.")}
-          </p>
-        </div>
-        <#Icon
-          iconify="carbon:chevron-down"
-          class="w-4 h-4 text-muted shrink-0 transition-transform duration-150 group-open:rotate-180"
-        />
-      </summary>
-      <div class="mt-4">
-        <StatefulComponent
-          id={"group-moderators-#{e(@category, :id, "unknown")}"}
-          module={maybe_component(Bonfire.UI.Groups.Settings.ModeratorsLive, @__context__)}
-          category={@category}
-        />
-      </div>
-    </details>
-
-    {!-- Instance settings — admins only --}
-    {#if Bonfire.Boundaries.can?(current_user(@__context__), :configure, :instance)}
-      <section class="flex flex-col gap-4 mt-8 pt-6 border-t border-secondary">
-        <header class="flex flex-col gap-0.5">
-          <h2 class="text-xl font-medium leading-tight">{l("Instance settings")}</h2>
-          <p class="text-sm text-muted">
-            {l("Admin controls for how this group appears and behaves across the whole instance.")}
-          </p>
-        </header>
-
-        {!-- pin to everyone's sidebar now lives only in the group's profile-hero ⋯ menu (InstanceSidebarPinLive) --}
-
-        {!-- Auto-join new users --}
-        <form phx-change="Bonfire.Classify:toggle_auto_join" id="group_settings_auto_join_form">
-          <input type="hidden" name="group_id" value={e(@category, :id, nil)}>
-          <label class="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              name="enabled"
-              class="toggle toggle-primary mt-0.5"
-              checked={Bonfire.Classify.Categories.auto_join_new_users?(@category)}
-            />
-            <span class="flex flex-col">
-              <span class="text-sm font-medium">{l("Auto-join new users")}</span>
-              <span class="text-sm text-muted">
-                {l("New users automatically become members of this group when they sign up.")}
-              </span>
-            </span>
-          </label>
-        </form>
-      </section>
-    {/if}
-
-    {!-- Rules — collapsed by default; the builder is heavy, most admins read more than they edit. --}
-    <details class="group mt-8 pt-6 border-t border-secondary">
-      <summary class="flex items-center gap-3 cursor-pointer list-none">
-        <div class="flex-1">
-          <h2 class="text-xl font-medium leading-tight">{l("Rules")}</h2>
-          <p class="text-sm text-muted mt-0.5">
-            {l("Community guidelines members agree to when joining.")}
-          </p>
-        </div>
-        <#Icon
-          iconify="carbon:chevron-down"
-          class="w-4 h-4 text-muted shrink-0 transition-transform duration-150 group-open:rotate-180"
-        />
-      </summary>
-      <div class="mt-4">
-        <StatefulComponent
-          id={"group-rules-#{e(@category, :id, "unknown")}"}
-          module={maybe_component(Bonfire.CommunityRules.Web.RulesBuilderLive, @__context__)}
-          entity={@category}
-          show_header={false}
-        />
-      </div>
-    </details>
-
-    {!-- Danger zone — one reversible action (soft-delete = archive). --}
-    <section
-      aria-labelledby="settings-danger-heading"
-      class="flex flex-col gap-3 mt-12 pt-6 border-t border-secondary"
-    >
-      <header class="flex flex-col gap-0.5">
-        <h2 id="settings-danger-heading" class="text-xl font-medium leading-tight">
-          {l("Danger zone")}
-        </h2>
-        <p class="text-sm text-muted">
-          {l("Take the group offline. You can restore it later.")}
-        </p>
-      </header>
-
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg border border-secondary bg-base-200/40 p-4">
-        <div class="flex-1">
-          <div class="text-sm font-medium text-base-content">{l("Archive this group")}</div>
-          <p class="text-xs text-muted mt-0.5 leading-snug">
-            {l("Hides it from the public. Members keep their content; you can restore the group later.")}
-          </p>
-        </div>
-        <button
-          type="button"
-          id="group_settings_archive_button"
-          :on-click="Bonfire.Classify:archive"
-          data-confirm={l("Archive this group? You can restore it later.")}
-          class="btn btn-sm btn-outline normal-case shrink-0"
+      <img src={Media.avatar_url(@category)} alt="" width="80" height="80" class="relative -mt-9 size-20 rounded-full border-4 border-base-100 bg-base-200 object-cover">
+      <h1 id="settings-group-name" class="mt-3 max-w-full break-words text-2xl font-semibold leading-tight">
+        {e(@category, :profile, :name, nil) || e(@category, :character, :username, nil)}
+      </h1>
+      <p :if={e(@category, :profile, :summary, nil)} class="mt-2 max-w-lg break-words whitespace-pre-line text-sm text-muted">
+        {e(@category, :profile, :summary, nil)}
+      </p>
+      <div class="mt-3">
+        <Bonfire.UI.Common.OpenModalLive
+          id="group_settings_identity"
+          title_text={l("Edit group details")}
+          open_btn_text={l("Edit group details")}
+          open_btn_opts={[id: "group_settings_identity_open"]}
+          open_btn_wrapper_class="min-h-11 rounded-lg px-4 py-2 text-center font-medium text-primary hover:bg-base-content/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          without_form
+          no_actions
         >
-          {l("Archive group")}
-        </button>
+          <Bonfire.UI.Groups.Settings.IdentityLive id="group_settings_identity_editor" category={@category} />
+        </Bonfire.UI.Common.OpenModalLive>
       </div>
     </section>
+
+    <Bonfire.UI.Groups.Settings.PeopleLive
+      id={"settings-people-#{id(@category)}"}
+      category={@category}
+      permalink={@permalink}
+      member_count={@group_member_count}
+      moderators={@moderators}
+    />
+
+    <section aria-label={l("Group management")} class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)">
+      <Bonfire.UI.Groups.Settings.RowLive
+        id="group_settings_access_link"
+        to={@permalink <> "/settings/boundaries"}
+        title={l("Access & participation")}
+        description={@membership_label}
+        value={@visibility_label}
+        icon="ph:shield-check"
+      />
+      <hr :if={module_enabled?(Bonfire.CommunityRules.Web.RulesBuilderLive, @__context__)} class="m-0 h-px border-0 bg-base-content/10" />
+      <Bonfire.UI.Groups.Settings.RowLive
+        :if={module_enabled?(Bonfire.CommunityRules.Web.RulesBuilderLive, @__context__)}
+        id="group_settings_rules_link"
+        to={@permalink <> "/settings/rules"}
+        title={l("Community rules")}
+        description={l("Guidelines members agree to when joining")}
+        icon="ph:book-open"
+      />
+    </section>
+
+    <section :if={Bonfire.Boundaries.can?(current_user(@__context__), :configure, :instance)} aria-labelledby="group-settings-instance-heading" class="flex flex-col gap-3">
+      <header class="flex items-center justify-between gap-3 px-1 text-sm text-muted">
+        <h2 id="group-settings-instance-heading">{l("Instance administration")}</h2>
+        <span>{l("Admins only")}</span>
+      </header>
+      <div class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)">
+        <Bonfire.UI.Groups.Settings.RowLive
+          id="group_settings_instance_link"
+          to={@permalink <> "/settings/instance"}
+          title={l("Instance settings")}
+          description={l("Automatically add new users")}
+          value={if Bonfire.Classify.Categories.auto_join_new_users?(@category), do: l("Auto-join on"), else: l("Auto-join off")}
+          icon="ph:hard-drives"
+        />
+      </div>
+    </section>
+
+    <div class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)">
+      <Bonfire.UI.Groups.Settings.RowLive
+        id="group_settings_archive_link"
+        to={@permalink <> "/settings/archive"}
+        title={l("Archive group")}
+        description={l("You can restore the group later")}
+        icon="ph:archive"
+        danger
+      />
+    </div>
   {/if}
 </div>

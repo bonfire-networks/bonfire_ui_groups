@@ -297,9 +297,9 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn = conn(user: me, account: account)
       {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings")
 
-      assert html =~ "Identity"
-      assert html =~ "Permissions"
-      assert html =~ "Rules"
+      assert html =~ "Group info &amp; settings"
+      assert html =~ "Access &amp; participation"
+      assert html =~ "Community rules"
     end
 
     test "group admin can edit group name and description" do
@@ -335,7 +335,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       assert html =~ "permission to edit this group"
     end
 
-    test "settings page shows danger zone with archive action" do
+    test "settings page links to the dedicated archive page" do
       account = fake_account!()
       me = fake_user!(account)
       group = create_group(me, name: "Danger Group")
@@ -343,7 +343,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn = conn(user: me, account: account)
       {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings")
 
-      assert html =~ "Danger zone"
+      assert html =~ "group_settings_archive_link"
       assert html =~ "Archive group"
     end
   end

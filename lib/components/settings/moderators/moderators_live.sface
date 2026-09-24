@@ -1,5 +1,5 @@
 <section id="group-moderators" class="">
-  <header class="flex items-center justify-between px-4 py-3">
+  <header :if={@show_header} class="flex items-center justify-between px-4 py-3">
     <h2 class="text-base font-medium text-base-content">{l("Moderators")}</h2>
     <span class="text-xs text-muted">{length(@moderators)}</span>
   </header>

@@ -64,13 +64,21 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
             members: Bonfire.UI.Groups.Settings.MembershipLive,
             invites: Bonfire.UI.Groups.Settings.InvitesLive,
             boundaries: Bonfire.UI.Groups.Settings.BoundariesLive,
+            rules: Bonfire.UI.Groups.Settings.DetailLive,
+            instance: Bonfire.UI.Groups.Settings.DetailLive,
+            archive: Bonfire.UI.Groups.Settings.DetailLive,
+            moderators: Bonfire.UI.Groups.Settings.DetailLive,
             moderation: Bonfire.UI.Groups.Settings.FlagsLive
           ],
           navigation: [
-            nil: l("Settings"),
+            nil: l("Group settings"),
             members: l("Members"),
             # invites: l("Invites"),
-            boundaries: l("Boundaries"),
+            boundaries: l("Access & participation"),
+            rules: l("Community rules"),
+            instance: l("Instance settings"),
+            archive: l("Archive group"),
+            moderators: l("Manage moderators"),
             moderation: l("Moderation")
             # submitted: l("Mentions")
           ]

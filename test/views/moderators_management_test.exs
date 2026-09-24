@@ -22,7 +22,7 @@ defmodule Bonfire.UI.Groups.ModeratorsManagementTest do
     {:ok, conn: conn, account: account, admin: admin, member: member, group: group}
   end
 
-  defp settings_path(group), do: "/&#{group.character.username}/settings"
+  defp settings_path(group), do: "/&#{group.character.username}/settings/moderators"
 
   test "admin sees the moderators section with the add-moderator form", %{
     conn: conn,
