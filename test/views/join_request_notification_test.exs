@@ -28,8 +28,7 @@ defmodule Bonfire.UI.Groups.JoinRequestNotificationTest do
     {:ok, _} = Categories.add_moderator(creator, group, id(moderator))
     {:ok, %{requested: true}} = Categories.join_and_follow_group(requester, group)
 
-    {:ok,
-     conn: conn(user: moderator, account: account), requester: requester, group: group}
+    {:ok, conn: conn(user: moderator, account: account), requester: requester, group: group}
   end
 
   test "a moderator accepting a join request from their notifications makes the requester a member and a follower",
