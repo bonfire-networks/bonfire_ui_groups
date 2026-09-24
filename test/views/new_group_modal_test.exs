@@ -68,6 +68,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       conn
       |> visit("/groups")
       |> click_button("[data-role=open_modal]", "Create group")
+      |> assert_has("[data-preset=open_network]", text: "Open network")
       |> assert_has("[data-preset=public_local_community]", text: "Public local community")
       |> assert_has("[data-preset=announcement_channel]", text: "Announcement channel")
       |> assert_has("[data-preset=private_club]", text: "Private club")
@@ -263,6 +264,13 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :joins_need_approval)
     #   assert GroupBoundaryEditorLive.layer2_locked?("secret_group", :nonmembers_may_post)
     # end
+
+    test "'open_network' only locks federate" do
+      assert GroupBoundaryEditorLive.layer2_locked?("open_network", :federate)
+      refute GroupBoundaryEditorLive.layer2_locked?("open_network", :discoverable)
+      refute GroupBoundaryEditorLive.layer2_locked?("open_network", :joins_need_approval)
+      refute GroupBoundaryEditorLive.layer2_locked?("open_network", :nonmembers_may_post)
+    end
 
     test "'public_local_community' only locks federate" do
       assert GroupBoundaryEditorLive.layer2_locked?("public_local_community", :federate)

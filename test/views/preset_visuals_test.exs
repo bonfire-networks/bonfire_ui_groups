@@ -112,11 +112,12 @@ defmodule Bonfire.UI.Groups.PresetVisualsTest do
       end
     end
 
+    # open + global + anyone is `open_network` now, so the custom case federates but restricts posting, which no preset declares
     test "returns nil for an unknown dim combination (custom group)" do
       assert Bonfire.Boundaries.Presets.preset_slug_from_dims(%{
                membership: "open",
                visibility: "global",
-               participation: "anyone"
+               participation: "moderators"
              }) == nil
     end
   end
