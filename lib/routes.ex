@@ -15,6 +15,8 @@ defmodule Bonfire.UI.Groups.Routes do
 
         live_aliases(aliases, "/:alias:id", GroupLive, as: :group)
         live_aliases(aliases, "/:alias:id/follow", GroupLive, :follow, as: :group)
+        # the remote-follow deeplink shape users and topics have, which the guest Follow button links to
+        live_aliases(aliases, "/:alias:id/interact/follow", GroupLive, :follow, as: :group)
         live_aliases(aliases, "/:alias:id/discover", GroupLive, :discover, as: :group)
         live_aliases(aliases, "/:alias:id/about", GroupLive, :about, as: :group)
 

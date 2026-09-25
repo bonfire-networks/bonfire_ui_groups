@@ -80,6 +80,10 @@ defmodule Bonfire.UI.Groups.LiveHandler do
            )
          )}
 
+      # a guest: `current_user_or_remote_interaction/3` hands back the socket already redirecting them to sign in or to remote interaction
+      %Phoenix.LiveView.Socket{} = redirecting ->
+        {:noreply, redirecting}
+
       e ->
         error(e)
         {:noreply, assign_flash(socket, :error, l("Could not join group"))}
