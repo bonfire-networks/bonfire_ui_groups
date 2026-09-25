@@ -29,7 +29,7 @@
             aria-hidden="true"
           />
       {/case}
-      <span class={["truncate min-w-0 text-base", Bonfire.UI.Common.LinkWidgetLive.active_label_class(@active?)]}>{@group_name}</span>
+      <span class={["truncate min-w-0 text-body", Bonfire.UI.Common.LinkWidgetLive.active_label_class(@active?)]}>{@group_name}</span>
     </LinkLive>
     <details
       :if={@topics != []}
