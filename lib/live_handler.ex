@@ -9,7 +9,8 @@ defmodule Bonfire.UI.Groups.LiveHandler do
     socket = assign(socket, :draft, profile)
 
     # Uploads save independently, so the modal's opening snapshot can be stale.
-    with {:ok, category} <- Categories.get(id(socket.assigns.category), [:default, current_user: user]),
+    with {:ok, category} <-
+           Categories.get(id(socket.assigns.category), [:default, current_user: user]),
          {:ok, category} <- Categories.update(user, category, %{profile: profile}) do
       send_self(category: category)
 

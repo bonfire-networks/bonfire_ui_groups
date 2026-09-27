@@ -40,7 +40,8 @@ defmodule Bonfire.UI.Groups.GroupLive do
   end
 
   def handle_params(params, uri, socket) do
-    leaving_settings? = e(socket.assigns, :selected_tab, nil) == "settings" and params["tab"] != "settings"
+    leaving_settings? =
+      e(socket.assigns, :selected_tab, nil) == "settings" and params["tab"] != "settings"
 
     {:noreply, socket} = Bonfire.Classify.LiveHandler.handle_params(params, uri, socket)
 
@@ -59,14 +60,21 @@ defmodule Bonfire.UI.Groups.GroupLive do
         |> assign(
           :back,
           Bonfire.Classify.Web.GroupNavigation.link(
-            if(socket.assigns.tab_id, do: path(socket.assigns.category) <> "/settings", else: path(socket.assigns.category)),
+            if(socket.assigns.tab_id,
+              do: path(socket.assigns.category) <> "/settings",
+              else: path(socket.assigns.category)
+            ),
             socket.assigns.group_return_to
           )
         )
       else
         assign(socket,
           page_title: Bonfire.Classify.Web.Preview.CategoryLive.name(socket.assigns.category),
-          back: if(leaving_settings? and socket.assigns.selected_tab != "members", do: socket.assigns.group_return_to, else: socket.assigns.back)
+          back:
+            if(leaving_settings? and socket.assigns.selected_tab != "members",
+              do: socket.assigns.group_return_to,
+              else: socket.assigns.back
+            )
         )
       end
 

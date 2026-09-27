@@ -12,8 +12,18 @@ defmodule Bonfire.UI.Groups.Settings.GeneralLive do
   def render(assigns) do
     assigns
     |> assign(
-      membership_label: e(Bonfire.Boundaries.Presets.dimension_meta(:membership, assigns.group_membership_slug), :label, l("Custom membership")),
-      visibility_label: e(Bonfire.Boundaries.Presets.dimension_meta(:visibility, assigns.group_visibility_slug), :label, l("Custom visibility"))
+      membership_label:
+        e(
+          Bonfire.Boundaries.Presets.dimension_meta(:membership, assigns.group_membership_slug),
+          :label,
+          l("Custom membership")
+        ),
+      visibility_label:
+        e(
+          Bonfire.Boundaries.Presets.dimension_meta(:visibility, assigns.group_visibility_slug),
+          :label,
+          l("Custom visibility")
+        )
     )
     |> render_sface()
   end

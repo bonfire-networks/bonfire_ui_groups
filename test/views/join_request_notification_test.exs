@@ -51,6 +51,47 @@ defmodule Bonfire.UI.Groups.JoinRequestNotificationTest do
            "accepted as a member but not made a follower, though pressing Join asked for both"
   end
 
+  # as with a follow request, accepting removes the request's row, so there is no Accept left to press a second time
+  test "after accepting, no Accept is left to press again", %{conn: conn} do
+    conn
+    |> visit("/notifications")
+    |> wait_async()
+    |> click_button("[data-id=feed] article button", "Accept")
+    |> wait_async()
+    |> refute_has("[data-id=feed] article button", text: "Accept")
+    |> refute_has("[data-id=flash_error]")
+  end
+
+  # ignoring is how a moderator declines: the request is only marked ignored (nothing is sent, see `group_membership_incoming_test.exs`), the requester stays out, and Accept is still there to change one's mind
+  test "ignoring leaves the requester out and the request no longer pending", %{
+    conn: conn,
+    requester: requester,
+    group: group
+  } do
+    assert Bonfire.Social.Requests.requested?(
+             requester,
+             Bonfire.Boundaries.Verbs.get_id!(:join),
+             group
+           ),
+           "control: pending before the ignore"
+
+    conn
+    |> visit("/notifications")
+    |> wait_async()
+    |> click_button("[data-id=feed] article button", "Ignore")
+    |> refute_has("[data-id=flash_error]")
+    |> assert_has("[data-id=feed] article button", text: "Accept")
+
+    refute Categories.member?(requester, group)
+
+    refute Bonfire.Social.Requests.requested?(
+             requester,
+             Bonfire.Boundaries.Verbs.get_id!(:join),
+             group
+           ),
+           "ignored, so no longer pending"
+  end
+
   describe "a join request on its own" do
     # asking to join without asking to follow, so the only ask in the moderator's notifications is the join request, and whatever its row says is about that one
     setup %{group: group} do

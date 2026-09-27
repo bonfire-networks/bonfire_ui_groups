@@ -13,10 +13,10 @@ defmodule Bonfire.UI.Groups.SettingsLive do
   prop group_membership_slug, :string, default: nil
   prop group_visibility_slug, :string, default: nil
 
-
   @doc "Resolves the heading from the extension-configured settings navigation."
   def page_title(selected_tab) do
-    Config.get([:ui, :group, :settings, :navigation], [])[tab(selected_tab)] || l("Group settings")
+    Config.get([:ui, :group, :settings, :navigation], [])[tab(selected_tab)] ||
+      l("Group settings")
   end
 
   @doc "Resolves the configured settings component once per render."
