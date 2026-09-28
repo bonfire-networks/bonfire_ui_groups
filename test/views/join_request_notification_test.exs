@@ -42,7 +42,8 @@ defmodule Bonfire.UI.Groups.JoinRequestNotificationTest do
     |> visit("/notifications")
     |> wait_async()
     |> assert_has_or_open_browser("[data-id=feed] article", text: "Hopeful Joiner")
-    |> click_button("[data-id=feed] article button", "Accept")
+    |> click_button("[data-id=feed] article button", "Approve")
+    |> assert_has("[data-id=flash_info]", text: "Join request approved")
 
     assert Categories.member?(requester, group),
            "accepted from the notification but not made a member"
@@ -56,9 +57,9 @@ defmodule Bonfire.UI.Groups.JoinRequestNotificationTest do
     conn
     |> visit("/notifications")
     |> wait_async()
-    |> click_button("[data-id=feed] article button", "Accept")
+    |> click_button("[data-id=feed] article button", "Approve")
     |> wait_async()
-    |> refute_has("[data-id=feed] article button", text: "Accept")
+    |> refute_has("[data-id=feed] article button", text: "Approve")
     |> refute_has("[data-id=flash_error]")
   end
 
@@ -78,9 +79,16 @@ defmodule Bonfire.UI.Groups.JoinRequestNotificationTest do
     conn
     |> visit("/notifications")
     |> wait_async()
-    |> click_button("[data-id=feed] article button", "Ignore")
+    |> click_button("[data-id=feed] article button", "Decline")
     |> refute_has("[data-id=flash_error]")
-    |> assert_has("[data-id=feed] article button", text: "Accept")
+    |> assert_has("[role=status]", text: "Declined")
+    |> refute_has("[data-id=feed] article button", text: "Decline")
+    |> assert_has("[data-id=feed] article button", text: "Approve instead")
+    |> visit("/notifications")
+    |> wait_async()
+    |> assert_has("[role=status]", text: "Declined")
+    |> refute_has("[data-id=feed] article button", text: "Decline")
+    |> assert_has("[data-id=feed] article button", text: "Approve instead")
 
     refute Categories.member?(requester, group)
 
@@ -90,6 +98,25 @@ defmodule Bonfire.UI.Groups.JoinRequestNotificationTest do
              group
            ),
            "ignored, so no longer pending"
+  end
+
+  test "a declined request remains labelled after reload and can still be approved", %{
+    conn: conn,
+    requester: requester,
+    group: group
+  } do
+    conn
+    |> visit("/notifications")
+    |> wait_async()
+    |> click_button("[data-id=feed] article button", "Decline")
+    |> visit("/notifications")
+    |> wait_async()
+    |> assert_has("[role=status]", text: "Declined")
+    |> refute_has("[data-id=feed] article button", text: "Decline")
+    |> click_button("[data-id=feed] article button", "Approve instead")
+
+    assert Categories.member?(requester, group)
+    assert Bonfire.Social.Graph.Follows.following?(requester, group)
   end
 
   describe "a join request on its own" do
@@ -112,6 +139,16 @@ defmodule Bonfire.UI.Groups.JoinRequestNotificationTest do
         # which group, since a moderator can have several: its preview names it
         |> assert_has("[data-id=feed] article", text: e(group, :profile, :name, nil) || "no name")
         |> refute_has("[data-id=feed] article", text: "Unnamed group")
+        |> assert_has("[data-role=join-request-notification]", text: "Only Joining")
+        |> assert_has("[data-role=join-request-notification] form input[name=request_id]")
+        |> refute_has("[data-role=join-request-notification] form input[name=id]")
+        # a string, not a boolean attribute, so the focus hook's `=== 'true'` check can match: a bare `false` isn't rendered at all
+        |> assert_has("[data-role=join-request-notification] [data-request-status=pending][data-request-error=false]")
+        |> refute_has("[data-id=feed] article [data-role=action_reply]")
+        |> refute_has("[data-id=feed] article [data-id=action_reply]")
+        |> refute_has("[data-id=feed] article [data-role=like_enabled]")
+        |> refute_has("[data-id=feed] article", text: "Joined")
+        |> refute_has("[data-id=feed] article", text: "PRIVATE CLUB")
       end
     end
   end

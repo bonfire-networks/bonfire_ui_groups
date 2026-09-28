@@ -64,14 +64,16 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
     |> visit_fresh(ctx.group_path)
     |> assert_has("#group_access_gate")
     |> click_button(ctx.join_btn, "Request to join")
-    |> assert_has(ctx.join_btn, text: "Cancel request")
+    |> assert_has(ctx.join_btn, text: "Pending")
 
     withdrawn = join_request!(ctx.requester, ctx.group)
 
     ctx.as_requester.()
     |> visit_fresh(ctx.group_path)
-    |> assert_has(ctx.join_btn, text: "Cancel request")
-    |> click_button(ctx.join_btn, "Cancel request")
+    |> assert_has(ctx.join_btn, text: "Pending")
+    |> click_button(ctx.join_btn, "Pending")
+    |> assert_has("[role=dialog]", text: "Withdraw join request?")
+    |> click_button("#join_btn_#{ctx.group.id}-withdraw-request", "Withdraw request")
     |> refute_has("[data-id=flash_error]")
     |> assert_has(ctx.join_btn, text: "Request to join")
 
@@ -79,7 +81,7 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
     ctx.as_requester.()
     |> visit_fresh(ctx.group_path)
     |> assert_has(ctx.join_btn, text: "Request to join")
-    |> refute_has(ctx.join_btn, text: "Cancel request")
+    |> refute_has(ctx.join_btn, text: "Pending")
     |> assert_has("#group_access_gate")
 
     ctx.as_moderator.()
@@ -89,11 +91,11 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
     ctx.as_requester.()
     |> visit_fresh(ctx.group_path)
     |> click_button(ctx.join_btn, "Request to join")
-    |> assert_has(ctx.join_btn, text: "Cancel request")
+    |> assert_has(ctx.join_btn, text: "Pending")
 
     ctx.as_requester.()
     |> visit_fresh(ctx.group_path)
-    |> assert_has(ctx.join_btn, text: "Cancel request")
+    |> assert_has(ctx.join_btn, text: "Pending")
     |> assert_has("#group_access_gate")
 
     asked_again = join_request!(ctx.requester, ctx.group)
@@ -101,7 +103,7 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
 
     ctx.as_moderator.()
     |> visit_fresh("/notifications")
-    |> assert_has(request_button(asked_again.id), text: "Accept")
+    |> assert_has(request_button(asked_again.id), text: "Approve")
   end
 
   test "request → Ignore → fresh visit shows Request to join → request again → moderator approves → requester has member access",
@@ -111,13 +113,13 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
     ctx.as_requester.()
     |> visit_fresh(ctx.group_path)
     |> click_button(ctx.join_btn, "Request to join")
-    |> assert_has(ctx.join_btn, text: "Cancel request")
+    |> assert_has(ctx.join_btn, text: "Pending")
 
     declined = join_request!(ctx.requester, ctx.group)
 
     ctx.as_moderator.()
     |> visit_fresh("/notifications")
-    |> click_button(request_button(declined.id), "Ignore")
+    |> click_button(request_button(declined.id), "Decline")
     |> refute_has("[data-id=flash_error]")
 
     # a decline is silent: nothing about the group lands in the requester's notifications
@@ -129,10 +131,10 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
     ctx.as_requester.()
     |> visit_fresh(ctx.group_path)
     |> assert_has(ctx.join_btn, text: "Request to join")
-    |> refute_has(ctx.join_btn, text: "Cancel request")
+    |> refute_has(ctx.join_btn, text: "Pending")
     |> assert_has("#group_access_gate")
     |> click_button(ctx.join_btn, "Request to join")
-    |> assert_has(ctx.join_btn, text: "Cancel request")
+    |> assert_has(ctx.join_btn, text: "Pending")
 
     asked_again = join_request!(ctx.requester, ctx.group)
 
@@ -142,7 +144,7 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
     ctx.as_moderator.()
     |> visit_fresh("/notifications")
     |> refute_has(request_button(declined.id))
-    |> click_button(request_button(asked_again.id), "Accept")
+    |> click_button(request_button(asked_again.id), "Approve")
     |> refute_has("[data-id=flash_error]")
 
     assert Categories.member?(ctx.requester, ctx.group)
@@ -179,13 +181,14 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
 
     ctx.as_moderator.()
     |> visit_fresh("/notifications")
-    |> click_button(request_button(join_request.id), "Accept")
+    |> click_button(request_button(join_request.id), "Approve")
     |> refute_has("[data-id=flash_error]")
 
     ctx.as_moderator.()
     |> visit_fresh("/notifications")
     |> refute_has(request_button(join_request.id))
     |> refute_has(request_button(follow_request.id))
+    |> refute_has("[data-id=feed] article button", text: "Approve")
     |> refute_has("[data-id=feed] article button", text: "Accept")
 
     assert is_nil(Requests.edge(join_request.id)), "the accepted join request is consumed"

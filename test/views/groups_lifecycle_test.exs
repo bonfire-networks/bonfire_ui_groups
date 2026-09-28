@@ -474,7 +474,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> assert_has("[phx-value-id='#{group.id}']", text: "Request to join")
       |> click_button("[phx-value-id='#{group.id}']", "Request to join")
       |> wait_async()
-      |> assert_has("[phx-value-id='#{group.id}']", text: "Cancel request")
+      |> assert_has("[phx-value-id='#{group.id}']", text: "Pending")
 
       refute Categories.member?(alice, group)
     end

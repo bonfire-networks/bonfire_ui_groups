@@ -31,13 +31,13 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
       |> visit(path)
       |> assert_has("#join_btn_#{group.id}", text: "Joined")
       |> assert_has(
-        "div.tooltip[data-tip='Unfollow group'] button#follow_feed_#{group.id}.bg-transparent.text-primary[aria-label='Unfollow group'][aria-pressed='true']"
+        "button.tooltip[data-tip='Unfollow group']#follow_feed_#{group.id}[class~='bg-[var(--stream-surface,var(--color-base-200))]'].text-primary[aria-label='Unfollow group'][aria-pressed='true']"
       )
       |> assert_has("#follow_feed_#{group.id} [iconify='ph:rss']")
       |> click_button("button#follow_feed_#{group.id}[data-id=unfollow]", "")
       |> assert_has("#join_btn_#{group.id}", text: "Joined")
       |> assert_has(
-        "div.tooltip[data-tip='Follow group'] button#follow_feed_#{group.id}.bg-transparent.text-muted[aria-label='Follow group'][aria-pressed='false']"
+        "button.tooltip[data-tip='Follow group']#follow_feed_#{group.id}[class~='bg-[var(--stream-surface,var(--color-base-200))]'].text-muted[aria-label='Follow group'][aria-pressed='false']"
       )
 
     refute Follows.following?(user, group)
@@ -49,7 +49,7 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
       |> assert_has("#join_btn_#{group.id}", text: "Join")
       |> click_button("button#follow_feed_#{group.id}[data-id=follow]", "")
       |> assert_has(
-        "div.tooltip[data-tip='Unfollow group'] button#follow_feed_#{group.id}.bg-transparent.text-primary[aria-label='Unfollow group'][aria-pressed='true']"
+        "button.tooltip[data-tip='Unfollow group']#follow_feed_#{group.id}[class~='bg-[var(--stream-surface,var(--color-base-200))]'].text-primary[aria-label='Unfollow group'][aria-pressed='true']"
       )
 
     assert Follows.following?(user, group)
@@ -95,13 +95,19 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
       conn(user: user, account: account)
       |> visit("/&#{group.character.username}")
       |> click_button("#join_btn_#{group.id}", "Request to join")
-      |> assert_has("#join_btn_#{group.id}", text: "Cancel request")
+      |> assert_has("#join_btn_#{group.id}", text: "Pending")
 
     # a join request is typed by the `:join` verb rather than standing in as a pending Follow, which is what lets someone hold one while already subscribed to the same group
     assert requested_to_join?(user, group)
 
     session
-    |> click_button("#join_btn_#{group.id}", "Cancel request")
+    |> click_button("#join_btn_#{group.id}", "Pending")
+    |> assert_has("[role=dialog]", text: "Withdraw join request?")
+    |> click_button("#join_btn_#{group.id}-keep-request", "Keep request")
+    |> refute_has("#join_btn_#{group.id}-withdrawal")
+    |> assert_has("#join_btn_#{group.id}", text: "Pending")
+    |> click_button("#join_btn_#{group.id}", "Pending")
+    |> click_button("#join_btn_#{group.id}-withdraw-request", "Withdraw request")
     |> assert_has("#join_btn_#{group.id}", text: "Request to join")
     |> refute_has("[data-id=flash_error]")
 

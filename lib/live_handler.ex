@@ -113,20 +113,60 @@ defmodule Bonfire.UI.Groups.LiveHandler do
     end
   end
 
+  def handle_event("open_withdrawal", %{"id" => id} = params, socket) do
+    Bonfire.UI.Common.ReusableModalLive.set(
+      show: true,
+      title_text: l("Withdraw join request?"),
+      no_actions: true,
+      modal_assigns: [
+        modal_component: Bonfire.Classify.Web.WithdrawJoinRequestLive,
+        modal_component_stateful?: true,
+        object_id: id,
+        button_id: e(params, "component", "join_btn_#{id}"),
+        group_name: e(params, "group-name", l("this group")),
+        withdrawal_error: nil
+      ]
+    )
+
+    {:noreply, socket}
+  end
+
+  def handle_event("close_withdrawal", _, socket) do
+    Bonfire.UI.Common.OpenModalLive.close()
+    {:noreply, socket}
+  end
+
   def handle_event("cancel_join_request", %{"id" => id} = params, socket) do
-    with current_user <- current_user_required!(socket),
-         {:ok, _} <- Categories.cancel_join_request(current_user, id) do
-      # any follow is deliberately left alone: withdrawing a request to JOIN a group is not unsubscribing from its feed, and the two are separate rows precisely so one can be undone without the other
-      ComponentID.send_assigns(
-        e(params, "component", "join_btn_#{id}"),
-        id,
-        [my_membership: false],
-        socket
+    current_user = current_user_required!(socket)
+
+    set_button = fn my_membership ->
+      Bonfire.UI.Common.OpenModalLive.close()
+
+      Phoenix.LiveView.send_update(Bonfire.Classify.Web.JoinButtonLive,
+        id: e(params, "component", "join_btn_#{id}"),
+        my_membership: my_membership
       )
-    else
+
+      {:noreply, socket}
+    end
+
+    case Categories.cancel_join_request(current_user, id) do
+      # any follow is deliberately left alone: withdrawing a request to JOIN a group is not unsubscribing from its feed, and the two are separate rows precisely so one can be undone without the other
+      {:ok, _} ->
+        set_button.(false)
+
+      # already approved or declined elsewhere, so there is nothing to withdraw: show where the membership stands now
+      {:error, :not_found} ->
+        set_button.(Map.has_key?(Categories.member_of_groups?(current_user, [id]), id))
+
       error ->
         error(error)
-        {:noreply, assign_flash(socket, :error, l("Could not cancel join request"))}
+        Phoenix.LiveView.send_update(Bonfire.Classify.Web.WithdrawJoinRequestLive,
+          id: "modal_component",
+          withdrawal_error: l("Could not withdraw your request. Please try again.")
+        )
+
+        {:noreply, socket}
     end
   end
 
