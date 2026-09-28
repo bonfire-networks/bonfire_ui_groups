@@ -115,14 +115,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
   def handle_event("cancel_join_request", %{"id" => id} = params, socket) do
     with current_user <- current_user_required!(socket),
-         {:ok, request} <-
-           Bonfire.Social.Requests.get(
-             current_user,
-             Bonfire.Boundaries.Verbs.get_id!(:join),
-             id,
-             skip_boundary_check: true
-           ),
-         {:ok, _} <- Bonfire.Social.Requests.ignore(request, current_user: current_user) do
+         {:ok, _} <- Categories.cancel_join_request(current_user, id) do
       # any follow is deliberately left alone: withdrawing a request to JOIN a group is not unsubscribing from its feed, and the two are separate rows precisely so one can be undone without the other
       ComponentID.send_assigns(
         e(params, "component", "join_btn_#{id}"),
