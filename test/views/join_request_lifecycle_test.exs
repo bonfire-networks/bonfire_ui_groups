@@ -53,7 +53,8 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
     request
   end
 
-  defp request_button(request_id), do: "[data-id=feed] article button[phx-value-id='#{request_id}']"
+  defp request_button(request_id),
+    do: "[data-id=feed] article button[phx-value-id='#{request_id}']"
 
   defp visit_fresh(conn, path), do: conn |> visit(path) |> wait_async()
 
@@ -134,7 +135,9 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
     |> assert_has(ctx.join_btn, text: "Cancel request")
 
     asked_again = join_request!(ctx.requester, ctx.group)
-    assert asked_again.id != declined.id, "asking again is a new attempt, not the declined one revived"
+
+    assert asked_again.id != declined.id,
+           "asking again is a new attempt, not the declined one revived"
 
     ctx.as_moderator.()
     |> visit_fresh("/notifications")
