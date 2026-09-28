@@ -4,25 +4,20 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
 
   alias Bonfire.Classify.Simulate
 
-  test "scope labels use configured visibility and do not infer federation from unknown values" do
-    scopes = Bonfire.Boundaries.Presets.scopes()
-    local = %{is_local: true}
+  test "discovery keeps joining policy while full visibility details remain on the group page", context do
+    owner = fake_user!(fake_account!())
+    group = create_group(owner, "Preview readers", "on_request")
+    card = "#group-preview-#{id(group)}"
 
-    for {visibility, scope} <- [
-          {"members:private", :members},
-          {"local:preview", :local},
-          {"nonfederated", :nonfederated},
-          {"archipelago", :archipelago},
-          {"global", :global}
-        ] do
-      assert Bonfire.UI.Groups.Preview.GroupLive.scope_meta(local, %{visibility: visibility}) ==
-               scopes[scope]
-    end
-
-    for visibility <- [nil, "unknown"] do
-      assert %{label: "Group"} =
-               Bonfire.UI.Groups.Preview.GroupLive.scope_meta(local, %{visibility: visibility})
-    end
+    conn(user: context.me, account: context.account)
+    |> visit("/groups")
+    |> assert_has("#{card} [data-role=group-card-membership-policy]", text: "On request")
+    |> click_link("#group-preview-link-#{id(group)}", "Preview readers")
+    |> assert_has("[data-role=group-hero-visibility]", text: "Discoverable group preview")
+    |> assert_has("[data-role=group-hero-membership]", text: "On request")
+    |> assert_has("[data-role=group-access-details-content]",
+      text: "Access to discussions depends on membership"
+    )
   end
 
   setup do
@@ -46,6 +41,10 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
 
     conn(user: me, account: account)
     |> visit("/groups")
+    |> assert_has("[data-two-columns]")
+    |> refute_has("#widgets-drawer")
+    |> assert_has("#group-discovery-hero", text: "Find your community")
+    |> assert_has("#{card} [data-role=group-card-cover]")
     |> assert_has(card, text: "Accessible systems guild")
     |> assert_has(card, text: "Accessibility")
     |> assert_has(card, text: "1 member")
@@ -108,14 +107,32 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
 
     conn(user: me, account: account)
     |> visit("/groups?tab=joined")
+    |> refute_has("#group-discovery-hero")
     |> assert_has(card, text: "Joined makers")
     |> assert_has(card, text: "Craft")
     |> assert_has(card, text: "1 member")
-    |> assert_has(card, text: "Public")
+    |> assert_has("#{card} [data-role=group-card-cover]")
     |> assert_has("#{card} #group-membership-#{id(group)}", text: "Joined")
     |> refute_has("#{card} button")
     |> click_link("#group-preview-link-#{id(group)}", "Joined makers")
     |> assert_path("/group/#{group.character.username}")
+  end
+
+  test "Joined includes membership without following and excludes following without membership", context do
+    owner = fake_user!(fake_account!())
+    member_group = create_group(owner, "Membership only", "local:members")
+    followed_group = create_group(owner, "Following only", "local:members")
+    {:ok, _} = Bonfire.Classify.Categories.join_group(context.me, member_group)
+    {:ok, _} = Bonfire.Social.Graph.Follows.follow(context.me, followed_group)
+
+    assert Bonfire.Classify.Categories.member?(context.me, member_group)
+    refute Bonfire.Social.Graph.Follows.following?(context.me, member_group)
+    refute Bonfire.Classify.Categories.member?(context.me, followed_group)
+
+    conn(user: context.me, account: context.account)
+    |> visit("/groups?tab=joined")
+    |> assert_has("#group-membership-#{id(member_group)}", text: "Joined")
+    |> refute_has("#group-preview-#{id(followed_group)}")
   end
 
   test "loading more joined groups adds cards with their membership data", %{
@@ -124,11 +141,19 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
   } do
     oldest = create_group(me, "Earlier joined group", "local:members")
     create_group(me, "Middle joined group", "local:members")
-    create_group(me, "Latest joined group", "local:members")
+    latest = create_group(me, "Latest joined group", "local:members")
+    Bonfire.Social.Graph.Follows.unfollow(me, oldest)
+    Bonfire.Social.Graph.Follows.unfollow(me, latest)
+    refute Bonfire.Social.Graph.Follows.following?(me, oldest)
+    refute Bonfire.Social.Graph.Follows.following?(me, latest)
+    owner = fake_user!(fake_account!())
+    followed_only = create_group(owner, "Newer followed-only group", "local:members")
+    {:ok, _} = Bonfire.Social.Graph.Follows.follow(me, followed_only)
 
     conn(user: me, account: account)
     |> visit("/groups?tab=joined")
     |> assert_has("#group-joined-grid article", count: 2)
+    |> refute_has("#group-preview-#{id(followed_only)}")
     |> click_button("#load_more_joined", "Load more")
     |> assert_has("#group-joined-grid article", count: 3)
     |> assert_has("#group-membership-#{id(oldest)}", text: "Joined")
@@ -148,14 +173,15 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_has("#group-preview-#{id(group)}")
   end
 
-  test "nonmembers see a status instead of a join action", %{account: account, me: me} do
+  test "nonmember cards omit redundant status and keep the joining policy", %{account: account, me: me} do
     owner = fake_user!(fake_account!())
     group = create_group(owner, "Reading circle", "local:members")
     card = "#group-preview-#{id(group)}"
 
     conn(user: me, account: account)
     |> visit("/groups")
-    |> assert_has("#group-membership-#{id(group)}", text: "Not joined")
+    |> refute_has("#group-membership-#{id(group)}")
+    |> assert_has("#{card} [data-role=group-card-membership-policy]")
     |> refute_has("#{card} button")
   end
 

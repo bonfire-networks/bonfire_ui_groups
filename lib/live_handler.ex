@@ -69,7 +69,8 @@ defmodule Bonfire.UI.Groups.LiveHandler do
           socket
         )
 
-      {:noreply, maybe_refresh_can_create(socket, current_user)}
+      send(self(), {{Bonfire.Classify.LiveHandler, :refresh_membership}, id})
+      {:noreply, socket}
     else
       {:error, :approval_required} ->
         {:noreply,
@@ -94,18 +95,27 @@ defmodule Bonfire.UI.Groups.LiveHandler do
   def handle_event("leave_group", %{"id" => id} = params, socket) do
     with current_user <- current_user_required!(socket),
          {:ok, _} <- Categories.leave_group(current_user, id) do
+      following? = Bonfire.Social.Graph.Follows.following?(current_user, id)
       {:noreply, socket} =
         ComponentID.send_assigns(
           e(params, "component", "join_btn_#{id}"),
           id,
           [
             my_membership: false,
-            my_follow: Bonfire.Social.Graph.Follows.following?(current_user, id)
+            my_follow: following?
           ],
           socket
         )
 
-      {:noreply, maybe_refresh_can_create(socket, current_user)}
+      send(self(), {{Bonfire.Classify.LiveHandler, :refresh_membership}, id})
+
+      {:noreply,
+       assign_flash(socket, :info,
+         if(following?,
+           do: l("You left this group. You still follow its feed."),
+           else: l("You left this group.")
+         )
+       )}
     else
       e ->
         error(e)
@@ -169,20 +179,6 @@ defmodule Bonfire.UI.Groups.LiveHandler do
         {:noreply, socket}
     end
   end
-
-  # Recompute permission-derived assigns on the parent socket so sibling components
-  # (e.g. `:if={@can_create_in_category}` on the composer placeholder) reactively
-  # update without a manual page reload. No-op on pages without a category.
-  defp maybe_refresh_can_create(
-         %{assigns: %{category: %{} = category}} = socket,
-         current_user
-       ) do
-    assign(socket,
-      can_create_in_category: Bonfire.Boundaries.can?(current_user, :create, category) || false
-    )
-  end
-
-  defp maybe_refresh_can_create(socket, _current_user), do: socket
 
   def handle_event("accept_join_request", %{"id" => request_id}, socket) do
     with {:ok, _} <-

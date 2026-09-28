@@ -1,4 +1,17 @@
 <div class="flex flex-col">
+  <section
+    :if={@selected_tab == "discover"}
+    id="group-discovery-hero"
+    aria-labelledby="group-discovery-title"
+    class="border-b-hair border-secondary bg-base-200 px-6 py-8 sm:px-8 sm:py-10"
+  >
+    <h2 id="group-discovery-title" class="max-w-2xl text-3xl font-bold tracking-tight text-base-content sm:text-4xl">
+      {l("Find your community")}
+    </h2>
+    <p class="mt-3 max-w-xl text-base leading-relaxed text-muted">
+      {l("Discover groups around your interests. Meet people, share ideas and join the conversation.")}
+    </p>
+  </section>
   <Bonfire.UI.Groups.GroupFiltersLive
     selected_tab={@selected_tab}
     search_term={@search_term}

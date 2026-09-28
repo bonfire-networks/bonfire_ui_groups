@@ -5,9 +5,18 @@
   {!-- `view_mode` comes from `Bonfire.Classify.LiveHandler.mounted/3`, which picks it from the fetch that succeeded: `:full` for a visitor holding `:read`, `:preview` for one holding only `:see`, `:archived` for someone who could restore it. --}
   {!-- Group previews keep the hero, but replace the timeline with an access notice. --}
   {#case e(assigns, :view_mode, :full)}
-    {#match mode when mode == :archived or (mode == :preview and @type == :topic)}
+    {#match :preview when @type == :topic}
+      <StatelessComponent
+        module={maybe_component(Bonfire.UI.Topics.TopicAccessGateLive, @__context__)}
+        category={@category}
+        permalink={@permalink}
+        group_return_to={@group_return_to}
+        parent={e(assigns, :topic_gate, :parent, nil)}
+        parent_member={e(assigns, :topic_gate, :parent_member, false)}
+        membership={e(assigns, :topic_gate, :membership, nil)}
+      />
+    {#match :archived}
       <div
-        :if={mode == :archived}
         class="mb-4 flex flex-col gap-3 rounded-xl border border-secondary bg-base-200 p-4 sm:flex-row sm:items-center"
         role="status"
       >
@@ -37,11 +46,8 @@
       </div>
       <div
         data-role="category_preview"
-        class={
-          "mx-auto flex w-full max-w-2xl flex-col gap-4 p-4",
-          "pointer-events-none opacity-70 grayscale-40": mode == :archived
-        }
-        aria-label={if mode == :archived, do: l("Preview of the archived group")}
+        class="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4 pointer-events-none opacity-70 grayscale-40"
+        aria-label={l("Preview of the archived group")}
       >
         {!-- this page renders groups AND their topics, so the card comes from the `:object_preview` registry keyed on the category's own type --}
         <StatelessComponent
@@ -54,14 +60,6 @@
           permalink={@permalink}
           showing_within={:preview}
         />
-        {!-- `:see` without `:read`. Says nothing about WHY (members-only, blocked, silenced, ...) since the boundary check does not tell us. --}
-        <p :if={mode == :preview} class="text-sm text-muted" role="status">
-          {#if @type == :topic}
-            {l("You don't have access to this topic's contents.")}
-          {#else}
-            {l("You don't have access to this group's contents.")}
-          {/if}
-        </p>
       </div>
     {#match _}
       <StatelessComponent
@@ -91,20 +89,6 @@
               boundary_preset={@boundary_preset}
               user={e(@category, :parent_category, nil)}
             />
-            <StatelessComponent
-              :if={e(assigns, :view_mode, :full) == :full and @can_create_in_category}
-              module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
-              selected_tab={@selected_tab}
-              prompt={l("Write in %{name}",
-                name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
-              )}
-              smart_input_opts={%{
-                context_id: id(@category),
-                mentions: [id(@category)],
-                to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
-                to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
-              }}
-            />
           {#elseif @selected_tab == "settings" and e(assigns, :view_mode, :full) == :full}
           {#else}
             <StatefulComponent
@@ -131,21 +115,21 @@
               content_visibility_slug={e(assigns, :content_visibility_slug, nil)}
               member_count={e(assigns, :group_member_count, nil)}
             />
-            <StatelessComponent
-              :if={e(assigns, :view_mode, :full) == :full and @can_create_in_category}
-              module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
-              selected_tab={@selected_tab}
-              prompt={l("Write in %{name}",
-                name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
-              )}
-              smart_input_opts={%{
-                context_id: id(@category),
-                mentions: [id(@category)],
-                to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
-                to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
-              }}
-            />
           {/if}
+          <StatelessComponent
+            :if={e(assigns, :view_mode, :full) == :full and @can_create_in_category and (@type == :topic or @selected_tab != "settings")}
+            module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
+            selected_tab={@selected_tab}
+            prompt={l("Write in %{name}",
+              name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
+            )}
+            smart_input_opts={%{
+              context_id: id(@category),
+              mentions: [id(@category)],
+              to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
+              to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
+            }}
+          />
         </:header>
       </StatelessComponent>
   {/case}

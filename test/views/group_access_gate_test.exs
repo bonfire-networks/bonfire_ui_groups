@@ -14,11 +14,12 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
         name: "Preview club",
         membership: "on_request",
         visibility: "nonfederated:preview",
-        participation: "group_members"
+        participation: "group_members",
+        default_content_visibility: "members:private"
       })
 
-    Bonfire.Classify.Simulate.fake_post_in_group!(owner, group, "<p>Restricted discussion</p>")
-    %{account: account, owner: owner, group: group}
+    post = Bonfire.Classify.Simulate.fake_post_in_group!(owner, group, "<p>Restricted discussion</p>")
+    %{account: account, owner: owner, group: group, post: post}
   end
 
   test "guests see the hero and sign-in overlay without a feed", %{group: group} do
@@ -50,6 +51,43 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
     |> wait_async()
     |> refute_has("#group_access_gate")
     |> assert_has("[data-id=feed]", text: "Restricted discussion")
+  end
+
+  test "leaving a populated private group immediately gates content while preserving following", context do
+    Process.put(:federating, false)
+    member_account = fake_account!()
+    member = fake_user!(member_account)
+    group = context.group
+    {:ok, %{requested: true}} = Bonfire.Classify.Categories.join_and_follow_group(member, group)
+    {:ok, request} = Bonfire.Social.Requests.get(member, Bonfire.Boundaries.Verbs.get_id!(:join), group, current_user: context.owner)
+    {:ok, _} = Bonfire.Classify.Categories.accept_join_request(context.owner, request)
+    assert {:ok, _} = Bonfire.Posts.read(context.post.id, current_user: member)
+
+    conn(user: member, account: member_account)
+    |> visit("/&#{group.character.username}")
+    |> wait_async()
+    |> assert_has("[data-id=feed]", text: "Restricted discussion")
+    |> assert_has("#inline_composer_placeholder")
+    |> assert_has("[data-id=group]", text: "2 members")
+    |> click_button("#join_btn_#{group.id}", "Joined")
+    |> wait_async()
+    |> assert_has("#group_access_gate")
+    |> refute_has("[data-id=feed]")
+    |> refute_has("[data-id=group]", text: "Restricted discussion")
+    |> refute_has("#inline_composer_placeholder")
+    |> assert_has("[data-id=group]", text: "1 member")
+
+    refute Bonfire.Classify.Categories.member?(member, group)
+    assert Bonfire.Social.Graph.Follows.following?(member, group)
+    assert {:error, :not_found} = Bonfire.Posts.read(context.post.id, current_user: member)
+    refute Bonfire.Boundaries.can?(member, :create, group)
+    refute Bonfire.Boundaries.can?(member, :reply, context.post)
+
+    conn(user: member, account: member_account)
+    |> visit("/&#{group.character.username}")
+    |> wait_async()
+    |> assert_has("#group_access_gate")
+    |> refute_has("#inline_composer_placeholder")
   end
 
   # A members-private group denies guests `:see` as well as `:read`, unlike the preview club above, so there is no hero a guest is entitled to. They still arrive here: from a pasted link, a remote profile, and the `/pub/group/<id>` redirect, which lands on the `/group/` path. Whatever the page shows them, it must not be an error.

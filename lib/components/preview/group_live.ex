@@ -1,6 +1,5 @@
 defmodule Bonfire.UI.Groups.Preview.GroupLive do
   use Bonfire.UI.Common.Web, :stateless_component
-  alias Bonfire.Classify.Categories
 
   prop object, :any
   prop preview, :map, default: %{}
@@ -28,24 +27,6 @@ defmodule Bonfire.UI.Groups.Preview.GroupLive do
   def handle(object) do
     Bonfire.Me.Characters.display_username(object, true) ||
       e(object, :character, :username, nil)
-  end
-
-  @doc "Labels group scope using the preloaded listing dimensions."
-  def scope_meta(object, preview) do
-    if Bonfire.Me.Integration.is_local?(object) do
-      scope =
-        case e(preview, :visibility, nil) do
-          slug when is_binary(slug) -> slug |> String.split(":", parts: 2) |> List.first()
-          _ -> nil
-        end
-
-      Bonfire.Boundaries.Presets.scopes()
-      |> Enum.find_value(%{label: l("Group"), icon: "ph:users-three-duotone"}, fn {key, meta} ->
-        if to_string(key) == scope, do: meta
-      end)
-    else
-      %{label: l("Remote group"), icon: "ph:globe-hemisphere-west-duotone"}
-    end
   end
 
   @doc "Returns a topic label for the group card."

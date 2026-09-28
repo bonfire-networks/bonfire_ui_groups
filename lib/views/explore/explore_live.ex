@@ -32,6 +32,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
       {:ok,
        assign(socket,
          page: "groups",
+         without_secondary_widgets: true,
          page_title: l("Groups"),
          back: true,
          selected_tab: "discover",
@@ -49,13 +50,6 @@ defmodule Bonfire.UI.Groups.ExploreLive do
               header_action: true,
               open_btn_wrapper_class: "shrink-0"
             ]}
-         ],
-         sidebar_widgets: [
-           users: [
-             secondary: [
-               {Bonfire.Tag.Web.WidgetTagsLive, []}
-             ]
-           ]
          ]
        )}
     end
@@ -283,12 +277,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   end
 
   defp joined_groups_page(user, opts) do
-    {joined, page_info} = Classify.my_followed_tree(user, opts)
-
-    groups =
-      joined
-      |> Enum.filter(fn {category, _children} -> e(category, :type, nil) == :group end)
-      |> Enum.map(&elem(&1, 0))
+    %{edges: groups, page_info: page_info} = Categories.list_joined_groups(user, opts)
 
     {groups, previews} = hydrate_group_previews(groups, user)
 

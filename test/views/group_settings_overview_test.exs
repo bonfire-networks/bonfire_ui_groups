@@ -26,6 +26,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     conn
     |> visit("/&#{group.character.username}/settings")
     |> assert_has("[data-role=page_title]", text: "Group settings")
+    |> refute_has("#inline_composer_placeholder")
     |> assert_has("#settings-group-name", text: group.profile.name)
     |> assert_has("#group-settings-people")
     |> assert_has("#group_settings_access_link", text: "On request")

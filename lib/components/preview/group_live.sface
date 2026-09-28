@@ -1,9 +1,9 @@
 {#if @showing_within in [:discovery, :joined]}
   <article
     id={"group-preview-#{id(@object)}"}
-    class="flex min-w-0 flex-col overflow-hidden rounded-xl border border-base-content/10 bg-base-100"
+    class="flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-base-content/10 bg-base-100"
   >
-    <div class="h-20 shrink-0 overflow-hidden bg-primary" aria-hidden="true">
+    <div class="h-24 shrink-0 overflow-hidden bg-base-300" aria-hidden="true" data-role="group-card-cover">
       {#case Media.banner_url(@object, fallback: false)}
         {#match nil}
         {#match banner}
@@ -11,11 +11,10 @@
       {/case}
     </div>
 
-    <div class="flex flex-1 flex-col gap-3 px-4 pb-4">
-      <div class="flex min-w-0 items-start gap-3">
+    <div class="flex flex-1 flex-col gap-3 p-4">
+      <div class="flex min-w-0 flex-col gap-2">
         <div
-          class="relative -mt-3 grid shrink-0 place-items-center overflow-hidden rounded-xl border-2 border-base-100 bg-base-200 text-base-content"
-          style="width: 3rem; height: 3rem; min-width: 3rem;"
+          class="relative -mt-8 grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl border-4 border-base-100 bg-base-200 text-base-content"
           aria-hidden="true"
         >
           {#case Media.avatar_url(@object)}
@@ -25,21 +24,21 @@
               <img
                 src={url}
                 alt=""
-                width="48"
-                height="48"
+                width="40"
+                height="40"
                 class="absolute inset-0 h-full w-full object-cover"
                 loading="lazy"
               />
           {/case}
         </div>
-        <div class="min-w-0 flex-1 pt-2">
+        <div class="w-full min-w-0">
           <LinkLive
-            opts={[id: "group-preview-link-#{id(@object)}"]}
+            opts={[id: "group-preview-link-#{id(@object)}", title: handle(@object)]}
             to={@permalink}
-            class="line-clamp-2 text-base font-semibold leading-snug text-base-content underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            class="min-h-12 line-clamp-2 break-words text-lg font-semibold leading-6 text-base-content underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           >{name(@object)}</LinkLive>
           <p
-            :if={handle(@object)}
+            :if={remote?(@object) and handle(@object)}
             class="mt-0.5 truncate text-xs leading-5 text-muted"
             title={handle(@object)}
           >{handle(@object)}</p>
@@ -47,12 +46,10 @@
       </div>
 
       <div
-        :if={e(@object, :profile, :summary, "") != "" or e(@preview, :topics, []) != []}
-        class="flex flex-col gap-1"
+        class="flex flex-1 flex-col gap-1"
       >
         <p
-          :if={e(@object, :profile, :summary, "") != ""}
-          class="line-clamp-2 text-sm leading-5 text-base-content"
+          class="min-h-10 line-clamp-3 text-sm leading-5 text-muted"
         >{e(@object, :profile, :summary, "")}</p>
 
         <div
@@ -64,23 +61,24 @@
             <LinkLive
               :if={topic_name(topic)}
               to={path(topic)}
-              class="max-w-full truncate py-1 text-xs text-primary underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              class="inline-flex min-h-11 max-w-full items-center truncate text-xs text-primary underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >{topic_name(topic)}</LinkLive>
           {/for}
         </div>
       </div>
 
-      <div class="mt-auto flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-base-content/10 pt-3 text-xs leading-5 text-muted">
+      <div class="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs leading-5 text-muted">
         <span class="tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
-        {#case scope_meta(@object, @preview)}
-          {#match %{label: label, icon: icon}}
-            <span class="inline-flex items-center gap-1">
-              <Iconify.iconify icon={icon} class="size-3.5" />
-              {label}
+        {#case Bonfire.Boundaries.Presets.dimension_meta(:membership, e(@preview, :membership, nil))}
+          {#match %{} = meta}
+            <span class="inline-flex items-center gap-1" data-role="group-card-membership-policy">
+              <Iconify.iconify icon={e(meta, :icon, "ph:users")} class="size-3.5" />
+              {e(meta, :label, nil)}
             </span>
+          {#match _}
         {/case}
         <span
-          :if={current_user_id(@__context__)}
+          :if={not is_nil(current_user_id(@__context__)) and e(@preview, :joined?, false)}
           id={"group-membership-#{id(@object)}"}
           class={
             "ml-auto inline-flex items-center gap-1",
@@ -88,7 +86,7 @@
           }
         >
           <#Icon :if={e(@preview, :joined?, false)} iconify="ph:check" class="size-3.5" />
-          {if e(@preview, :joined?, false), do: l("Joined"), else: l("Not joined")}
+          {l("Joined")}
         </span>
       </div>
     </div>
