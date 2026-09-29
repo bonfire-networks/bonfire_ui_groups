@@ -31,7 +31,8 @@ defmodule Bonfire.UI.Groups.TopicAccessGateTest do
     end
   end
 
-  test "invite-only topic links to its parent without misleading follow or join actions", context do
+  test "invite-only topic links to its parent without misleading follow or join actions",
+       context do
     {_group, topic} = restricted_topic(context.owner, "invite_only")
 
     conn(user: context.visitor, account: context.account)

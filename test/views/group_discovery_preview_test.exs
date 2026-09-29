@@ -4,7 +4,8 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
 
   alias Bonfire.Classify.Simulate
 
-  test "discovery keeps joining policy while full visibility details remain on the group page", context do
+  test "discovery keeps joining policy while full visibility details remain on the group page",
+       context do
     owner = fake_user!(fake_account!())
     group = create_group(owner, "Preview readers", "on_request")
     card = "#group-preview-#{id(group)}"
@@ -118,7 +119,8 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_path("/group/#{group.character.username}")
   end
 
-  test "Joined includes membership without following and excludes following without membership", context do
+  test "Joined includes membership without following and excludes following without membership",
+       context do
     owner = fake_user!(fake_account!())
     member_group = create_group(owner, "Membership only", "local:members")
     followed_group = create_group(owner, "Following only", "local:members")
@@ -173,7 +175,10 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_has("#group-preview-#{id(group)}")
   end
 
-  test "nonmember cards omit redundant status and keep the joining policy", %{account: account, me: me} do
+  test "nonmember cards omit redundant status and keep the joining policy", %{
+    account: account,
+    me: me
+  } do
     owner = fake_user!(fake_account!())
     group = create_group(owner, "Reading circle", "local:members")
     card = "#group-preview-#{id(group)}"

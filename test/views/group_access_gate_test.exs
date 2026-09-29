@@ -18,7 +18,9 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
         default_content_visibility: "members:private"
       })
 
-    post = Bonfire.Classify.Simulate.fake_post_in_group!(owner, group, "<p>Restricted discussion</p>")
+    post =
+      Bonfire.Classify.Simulate.fake_post_in_group!(owner, group, "<p>Restricted discussion</p>")
+
     %{account: account, owner: owner, group: group, post: post}
   end
 
@@ -53,13 +55,19 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
     |> assert_has("[data-id=feed]", text: "Restricted discussion")
   end
 
-  test "leaving a populated private group immediately gates content while preserving following", context do
+  test "leaving a populated private group immediately gates content while preserving following",
+       context do
     Process.put(:federating, false)
     member_account = fake_account!()
     member = fake_user!(member_account)
     group = context.group
     {:ok, %{requested: true}} = Bonfire.Classify.Categories.join_and_follow_group(member, group)
-    {:ok, request} = Bonfire.Social.Requests.get(member, Bonfire.Boundaries.Verbs.get_id!(:join), group, current_user: context.owner)
+
+    {:ok, request} =
+      Bonfire.Social.Requests.get(member, Bonfire.Boundaries.Verbs.get_id!(:join), group,
+        current_user: context.owner
+      )
+
     {:ok, _} = Bonfire.Classify.Categories.accept_join_request(context.owner, request)
     assert {:ok, _} = Bonfire.Posts.read(context.post.id, current_user: member)
 

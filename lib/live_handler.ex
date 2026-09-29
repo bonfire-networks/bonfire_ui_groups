@@ -96,6 +96,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
     with current_user <- current_user_required!(socket),
          {:ok, _} <- Categories.leave_group(current_user, id) do
       following? = Bonfire.Social.Graph.Follows.following?(current_user, id)
+
       {:noreply, socket} =
         ComponentID.send_assigns(
           e(params, "component", "join_btn_#{id}"),
@@ -110,7 +111,9 @@ defmodule Bonfire.UI.Groups.LiveHandler do
       send(self(), {{Bonfire.Classify.LiveHandler, :refresh_membership}, id})
 
       {:noreply,
-       assign_flash(socket, :info,
+       assign_flash(
+         socket,
+         :info,
          if(following?,
            do: l("You left this group. You still follow its feed."),
            else: l("You left this group.")
@@ -171,6 +174,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
       error ->
         error(error)
+
         Phoenix.LiveView.send_update(Bonfire.Classify.Web.WithdrawJoinRequestLive,
           id: "modal_component",
           withdrawal_error: l("Could not withdraw your request. Please try again.")

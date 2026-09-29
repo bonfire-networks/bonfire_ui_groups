@@ -3,7 +3,11 @@
     id={"group-preview-#{id(@object)}"}
     class="flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-base-content/10 bg-base-100"
   >
-    <div class="h-24 shrink-0 overflow-hidden bg-base-300" aria-hidden="true" data-role="group-card-cover">
+    <div
+      class="h-24 shrink-0 overflow-hidden bg-base-300"
+      aria-hidden="true"
+      data-role="group-card-cover"
+    >
       {#case Media.banner_url(@object, fallback: false)}
         {#match nil}
         {#match banner}
@@ -45,12 +49,8 @@
         </div>
       </div>
 
-      <div
-        class="flex flex-1 flex-col gap-1"
-      >
-        <p
-          class="min-h-10 line-clamp-3 text-sm leading-5 text-muted"
-        >{e(@object, :profile, :summary, "")}</p>
+      <div class="flex flex-1 flex-col gap-1">
+        <p class="min-h-10 line-clamp-3 text-sm leading-5 text-muted">{e(@object, :profile, :summary, "")}</p>
 
         <div
           :if={e(@preview, :topics, []) != []}

@@ -117,7 +117,8 @@
             />
           {/if}
           <StatelessComponent
-            :if={e(assigns, :view_mode, :full) == :full and @can_create_in_category and (@type == :topic or @selected_tab != "settings")}
+            :if={e(assigns, :view_mode, :full) == :full and @can_create_in_category and
+              (@type == :topic or @selected_tab != "settings")}
             module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
             selected_tab={@selected_tab}
             prompt={l("Start a discussion in %{name}…",

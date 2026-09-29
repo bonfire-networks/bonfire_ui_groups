@@ -5,7 +5,10 @@
     aria-labelledby="group-discovery-title"
     class="border-b-hair border-secondary bg-base-200 px-6 py-8 sm:px-8 sm:py-10"
   >
-    <h2 id="group-discovery-title" class="max-w-2xl text-3xl font-bold tracking-tight text-base-content sm:text-4xl">
+    <h2
+      id="group-discovery-title"
+      class="max-w-2xl text-3xl font-bold tracking-tight text-base-content sm:text-4xl"
+    >
       {l("Find your community")}
     </h2>
     <p class="mt-3 max-w-xl text-base leading-relaxed text-muted">
