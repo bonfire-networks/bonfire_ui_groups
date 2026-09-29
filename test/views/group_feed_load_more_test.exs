@@ -20,12 +20,8 @@ defmodule Bonfire.UI.Groups.GroupFeedLoadMoreTest do
   alias Bonfire.Social.FeedLoader
 
   setup do
-    original_deferred = Config.get([Bonfire.Social.Feeds, :query_with_deferred_join])
-    Config.put([Bonfire.Social.Feeds, :query_with_deferred_join], false)
-
-    on_exit(fn ->
-      Config.put([Bonfire.Social.Feeds, :query_with_deferred_join], original_deferred)
-    end)
+    # for this test process (and the LiveViews it starts) only, so async tests running alongside keep the global value
+    Process.put([:bonfire_social, Bonfire.Social.Feeds, :query_with_deferred_join], false)
 
     repo().delete_all(Bonfire.Data.Social.FeedPublish)
 
