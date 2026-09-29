@@ -4,9 +4,9 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
   alias Bonfire.Classify.Categories
 
-  # kept as its own name rather than inlined at its nine callers: it states which fields make a post land IN a group, the same two a group page's composer carries
-  defp post_in_group(session, content, group_id),
-    do: submit_composer(session, content, %{"context_id" => group_id, "to_circles" => [group_id]})
+  # kept as its own name rather than inlined at its callers: posting from the group page's own "Write in …" button, so the post carries what that page gives the composer rather than fields a test passes. `group_id` is unused, as the page supplies it, and kept so the callers still say which group they post in
+  defp post_in_group(session, content, _group_id),
+    do: submit_composer(session, content, %{}, open: "#inline_composer_placeholder_open")
 
   defp create_group(creator, attrs \\ %{}) do
     name = attrs[:name] || "Test Group #{System.unique_integer([:positive])}"
@@ -86,6 +86,42 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
   end
 
   describe "group page" do
+    # through the page's own "Write in …" button, so the post carries what the page gives the composer and nothing a test adds. A shared per-group ACL is what a group post should get, not an ACL of its own, which would mean a new ACL and grant rows for every post
+    test "a post written from the group page lands in the group, with no ACL of its own" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group(me, name: "Quiet Group")
+      content = "written in the group #{System.unique_integer([:positive])}"
+
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}")
+      |> submit_composer(content, %{}, open: "#inline_composer_placeholder_open")
+      |> wait_async()
+
+      # what I just created, rather than a match on the stored body, which the composer may have reshaped
+      post_id =
+        Bonfire.Common.Repo.one(
+          Ecto.Query.from(c in Bonfire.Data.Social.Created,
+            join: p in Bonfire.Data.Social.Post,
+            on: p.id == c.id,
+            where: c.creator_id == ^id(me),
+            order_by: [desc: c.id],
+            limit: 1,
+            select: c.id
+          )
+        )
+
+      assert post_id, "the post was not created"
+
+      assert {:ok, _, %{id: group_id}} = Categories.group_of_object(post_id)
+
+      assert group_id == id(group),
+             "control: the post is in the group, so the button gave the composer the group"
+
+      refute match?({:ok, _}, Bonfire.Boundaries.Acls.get_object_custom_acl(post_id)),
+             "a group post should get no ACL of its own"
+    end
+
     test "group creator can see the group page with name and description" do
       account = fake_account!()
       me = fake_user!(account)
