@@ -120,7 +120,7 @@
             :if={e(assigns, :view_mode, :full) == :full and @can_create_in_category and (@type == :topic or @selected_tab != "settings")}
             module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
             selected_tab={@selected_tab}
-            prompt={l("Write in %{name}",
+            prompt={l("Start a discussion in %{name}…",
               name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
             )}
             smart_input_opts={%{

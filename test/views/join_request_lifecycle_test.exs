@@ -153,7 +153,7 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
     |> visit_fresh(ctx.group_path)
     |> assert_has(ctx.join_btn, text: "Joined")
     |> refute_has("#group_access_gate")
-    |> assert_has("#inline_composer_placeholder_open", text: "Write in")
+    |> assert_has("#inline_composer_placeholder_open", text: "Start a discussion in")
   end
 
   # The live row removal after Accept is covered (and currently red for a LiveViewTest reason) in `join_request_notification_test.exs`; this checks what a moderator finds when they come back, tied to the request that was accepted.
