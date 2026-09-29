@@ -10,21 +10,21 @@
     >
       {#case Media.avatar_url(@category)}
         {#match "/images/avatar.png"}
-          <span data-role="group_preset_icon" class="w-5 shrink-0 flex items-center justify-center">
+          <span data-role="group_preset_icon" class="w-7 h-7 bg-base-content/10 rounded place-content-center shrink-0 flex items-center justify-center">
             {#case @preset_icon}
               {#match "ph:campfire-duotone"}
-                <#Icon iconify="ph:campfire-fill" class="size-5 text-primary" />
+                <#Icon iconify="ph:campfire-fill" class="size-5 text-base-content/70" />
               {#match "ph:megaphone-duotone"}
-                <#Icon iconify="ph:megaphone-fill" class="size-5 text-primary" />
+                <#Icon iconify="ph:megaphone-fill" class="size-5 text-base-content/70" />
               {#match "ph:lock-duotone"}
-                <#Icon iconify="ph:lock-fill" class="size-5 text-primary" />
+                <#Icon iconify="ph:lock-fill" class="size-5 text-base-content/70" />
               {#match _}
-                <#Icon iconify="ph:users-three-fill" class="size-5 text-primary" />
+                <#Icon iconify="ph:users-three-fill" class="size-5 text-base-content/70" />
             {/case}
           </span>
         {#match url}
           <div
-            class="size-5 rounded-full bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 ring-[0.7px] ring-primary"
+            class="size-7 rounded bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 ring-[0.7px] ring-primary"
             style={"background-image: url('#{URI.encode(url)}');"}
             aria-hidden="true"
           />
