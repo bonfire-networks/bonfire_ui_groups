@@ -333,7 +333,10 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       conn = conn(user: me, account: account)
       {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings")
 
-      assert html =~ "Group info &amp; settings"
+      # the settings page's heading is the group's name since its redesign (24 September); "Group info & settings" was never in it
+      # assert html =~ "Group info &amp; settings"
+      assert html =~ "Settings"
+      assert html =~ "Edit group"
       assert html =~ "Access &amp; participation"
       assert html =~ "Community rules"
     end
@@ -344,16 +347,25 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       group = create_group(me, name: "Old Name", description: "Old description")
 
       conn = conn(user: me, account: account)
-      {:ok, view, _html} = live(conn, "/&#{group.character.username}/settings")
 
-      html =
-        view
-        |> form("form[phx-submit='Bonfire.Classify:edit']", %{
-          "profile" => %{"name" => "New Name", "summary" => "New description"}
-        })
-        |> render_submit()
+      # the details are edited in a modal since the settings redesign (24 September), whose form replaced `Bonfire.Classify:edit`
+      # {:ok, view, _html} = live(conn, "/&#{group.character.username}/settings")
+      # html =
+      #   view
+      #   |> form("form[phx-submit='Bonfire.Classify:edit']", %{
+      #     "profile" => %{"name" => "New Name", "summary" => "New description"}
+      #   })
+      #   |> render_submit()
+      # assert html =~ "updated" or html =~ "New Name"
 
-      assert html =~ "updated" or html =~ "New Name"
+      conn
+      |> visit("/&#{group.character.username}/settings")
+      |> click_button("Edit group details")
+      |> fill_in("Group name", with: "New Name")
+      |> fill_in("Description", with: "New description")
+      |> click_button("#group_settings_identity_save", "Save changes")
+      |> assert_has("#settings-group-name", text: "New Name")
+      |> assert_has("#group-settings-overview p", text: "New description")
     end
 
     test "non-admin cannot edit group settings" do

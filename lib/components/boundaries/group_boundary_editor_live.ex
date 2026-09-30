@@ -50,8 +50,10 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
         :preset_dimensions,
         fn -> Bonfire.Boundaries.Presets.preset_dimensions() end
       )
-      |> assign_new(:preset_slug_list, fn -> preset_slugs() end)
-      |> assign_new(:preset_metas, fn -> Map.new(preset_slugs(), &{&1, preset_meta(&1)}) end)
+      |> assign_new(:preset_slug_list, fn -> with_current_preset(preset_slugs(), assigns) end)
+      |> assign_new(:preset_metas, fn ->
+        Map.new(with_current_preset(preset_slugs(), assigns), &{&1, preset_meta(&1)})
+      end)
 
     socket =
       if socket.assigns.initialised do
@@ -63,6 +65,29 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
       end
 
     {:ok, socket}
+  end
+
+  # A preset taken off `group_preset_order` (eg. `public_local_community`) is still shown to a group already on it, so its settings say what it is; new groups aren't offered it
+  defp with_current_preset(slugs, assigns) do
+    # the stored preset can come back as an atom (see `Presets.group_preset_meta/1`)
+    current = if preset = assigns[:initial_preset], do: to_string(preset)
+
+    if current && current not in slugs && is_map(preset_meta(current)),
+      do: slugs ++ [current],
+      else: slugs
+  end
+
+  @doc "A dimension's options, with `slugs` marked `disabled:` (keeping a reason already set), so the picker hides them, or greys them out when unavailable options are shown."
+  def with_disabled(options, slugs) do
+    Enum.reduce(slugs, options, fn slug, options ->
+      case options do
+        %{^slug => opt} ->
+          Map.put(options, slug, Map.put_new(opt, :disabled, l("Not with who can see the group")))
+
+        _ ->
+          options
+      end
+    end)
   end
 
   defp apply_initial_state(socket) do
