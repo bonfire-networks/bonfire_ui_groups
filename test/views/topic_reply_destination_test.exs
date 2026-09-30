@@ -73,6 +73,34 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
       end)
     end
 
+    test "a minimised draft leaves a bar to resume it", context do
+      context.conn
+      |> open_reply(context.post, :feed)
+      |> PhoenixTest.unwrap(fn view ->
+        composer = composer_view(view)
+        refute has_element?(composer, "#composer_draft_bar")
+        type_draft(composer)
+
+        composer |> element("#minimize_composer_button") |> render_click()
+        assert has_element?(composer, "#smart_input_container[data-hidden]")
+        assert has_element?(composer, "#composer_draft_bar", "Draft in progress")
+
+        composer |> element("#composer_draft_bar") |> render_click()
+        refute has_element?(composer, "#smart_input_container[data-hidden]")
+        assert has_element?(composer, "#smart_input_container[data-draft=true]")
+        assert has_element?(composer, "input[name=context_id][value='#{context.post.id}']")
+
+        # resuming from the compose button keeps the draft too, so minimising again shows the bar
+        composer |> element("#minimize_composer_button") |> render_click()
+        composer |> element("#main_smart_input_button") |> render_click()
+        assert has_element?(composer, "#smart_input_container[data-draft=true]")
+        refute has_element?(composer, "#submit_btn[disabled]")
+        composer |> element("#minimize_composer_button") |> render_click()
+        assert has_element?(composer, "#composer_draft_bar")
+        render(view)
+      end)
+    end
+
     test "removing a reply asks first, then keeps the draft as a private profile post", context do
       context.conn
       |> open_reply(context.post, :feed)

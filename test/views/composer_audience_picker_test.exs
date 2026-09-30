@@ -58,6 +58,11 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       assert has_element?(composer, "input[name=context_id][value='#{group.id}']")
       assert has_element?(composer, "[data-role=group-composer-audience]", "Members only")
       refute has_element?(composer, "#composer_topic_controls")
+      # minimising and resuming keeps the group destination
+      composer |> element("#minimize_composer_button") |> render_click()
+      composer |> element("#composer_draft_bar") |> render_click()
+      assert has_element?(composer, "input[name=context_id][value='#{group.id}']")
+      assert has_element?(composer, "#composer_audience_picker_trigger", "Needle design collective")
       composer |> element("[data-role=post_in_profile]") |> render_click()
       refute has_element?(composer, "input[name=context_id][value='#{group.id}']")
       assert has_element?(composer, "#composer_audience_picker_trigger", "Your profile")
