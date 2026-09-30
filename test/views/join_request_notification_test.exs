@@ -143,7 +143,9 @@ defmodule Bonfire.UI.Groups.JoinRequestNotificationTest do
         |> assert_has("[data-role=join-request-notification] form input[name=request_id]")
         |> refute_has("[data-role=join-request-notification] form input[name=id]")
         # a string, not a boolean attribute, so the focus hook's `=== 'true'` check can match: a bare `false` isn't rendered at all
-        |> assert_has("[data-role=join-request-notification] [data-request-status=pending][data-request-error=false]")
+        |> assert_has(
+          "[data-role=join-request-notification] [data-request-status=pending][data-request-error=false]"
+        )
         |> refute_has("[data-id=feed] article [data-role=action_reply]")
         |> refute_has("[data-id=feed] article [data-id=action_reply]")
         |> refute_has("[data-id=feed] article [data-role=like_enabled]")

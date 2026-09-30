@@ -61,22 +61,36 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
   test "opening the group composer explains its configured audience" do
     account = fake_account!()
     owner = fake_user!(account)
-    group = Bonfire.Classify.Simulate.fake_group!(owner, %{
-      name: "Private audience check",
-      membership: "on_request",
-      visibility: "nonfederated:preview",
-      participation: "group_members",
-      default_content_visibility: "members:private"
-    })
 
-    topic = Bonfire.Classify.Simulate.fake_category!(owner, group, %{type: :topic, name: "Design feedback"})
+    group =
+      Bonfire.Classify.Simulate.fake_group!(owner, %{
+        name: "Private audience check",
+        membership: "on_request",
+        visibility: "nonfederated:preview",
+        participation: "group_members",
+        default_content_visibility: "members:private"
+      })
+
+    topic =
+      Bonfire.Classify.Simulate.fake_category!(owner, group, %{
+        type: :topic,
+        name: "Design feedback"
+      })
 
     conn(user: owner, account: account)
     |> visit("/&#{group.character.username}")
     |> wait_async()
-    |> click_button("#inline_composer_placeholder_open", "Start a discussion in Private audience check…")
+    |> click_button(
+      "#inline_composer_placeholder_open",
+      "Start a discussion in Private audience check…"
+    )
     |> PhoenixTest.unwrap(fn view ->
-      assert has_element?(composer_view(view), "[data-role=group-composer-audience]", "Members only")
+      assert has_element?(
+               composer_view(view),
+               "[data-role=group-composer-audience]",
+               "Members only"
+             )
+
       composer = composer_view(view)
       assert has_element?(composer, "header #composer_type_chooser")
       refute has_element?(composer, "#composer_publish_controls #composer_type_chooser")
