@@ -13,12 +13,10 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
     |> visit("/feed/local")
     |> PhoenixTest.unwrap(fn view ->
       composer = composer_view(view)
-      assert has_element?(composer, "header #composer_audience_picker")
       assert has_element?(composer, "#composer_audience_picker_trigger", "Your profile")
       assert has_element?(composer, "#composer_visibility_picker_trigger", "Public")
       refute has_element?(composer, "#composer_audience_picker [data-audience-preset]")
       assert has_element?(composer, "#composer_resize_handle[role=separator][tabindex='0'][aria-label='Resize composer']")
-      assert has_element?(composer, "header #composer_type_chooser")
       assert has_element?(composer, "#composer_type_chooser_trigger", "Create post")
       assert has_element?(composer, "#smart_input_post_title:not(.hidden) input[placeholder='Add a title (optional)']")
       refute has_element?(composer, "#smart_input_post_title input[required]")
@@ -35,15 +33,13 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
     end)
   end
 
-  test "author identity and labelled policy controls occupy separate header rows", %{conn: conn} do
+  test "policy controls are a labelled group that includes the custom boundaries editor", %{conn: conn} do
     conn
     |> visit("/feed/local")
     |> PhoenixTest.unwrap(fn view ->
       composer = composer_view(view)
-      assert has_element?(composer, "header #composer_author", "Posting as")
-      assert has_element?(composer, "header #composer_policy_controls[aria-label='Audience and permissions'] #composer_audience_picker")
+      assert has_element?(composer, "#composer_policy_controls[role=group][aria-label='Audience and permissions'] #composer_audience_picker")
       assert has_element?(composer, "#composer_policy_controls #define_permissions button[aria-label='Custom boundaries']")
-      refute has_element?(composer, "#composer_author #composer_audience_picker")
       render(view)
     end)
   end
@@ -74,6 +70,28 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
       refute has_element?(composer, "#customize_boundary_live [data-role=action_toggle_reply][checked]")
       composer |> element("#customize_boundary_live [data-role=action_toggle_read]") |> render_click()
       assert has_element?(composer, "#composer_visibility_picker_trigger", "Custom audience")
+      render(view)
+    end)
+  end
+
+  test "direct messages get the encryption notice instead of audience controls", %{conn: conn} do
+    conn
+    |> visit("/feed/local")
+    |> PhoenixTest.unwrap(fn view ->
+      composer = composer_view(view)
+      assert has_element?(composer, "#composer_visibility_picker")
+
+      # how the messages page opens its composer (`open_dm_composer/2`)
+      render_click(composer, "Bonfire.UI.Common.SmartInput:select_smart_input", %{
+        "opts" => Jason.encode!(%{create_object_type: "message"})
+      })
+
+      assert has_element?(composer, "#composer_policy_controls", "Not encrypted")
+      refute has_element?(composer, "#composer_audience_picker")
+      refute has_element?(composer, "#composer_visibility_picker")
+      refute has_element?(composer, "#composer_group_visibility")
+      refute has_element?(composer, "#composer_reply_visibility")
+      refute has_element?(composer, "#define_permissions")
       render(view)
     end)
   end
@@ -111,6 +129,4 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
       render(view)
     end)
   end
-
-  defp open_menu(composer, id), do: composer |> element("##{id}_trigger") |> render_click()
 end

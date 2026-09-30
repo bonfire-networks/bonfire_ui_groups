@@ -85,26 +85,19 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
       "Start a discussion in Private audience check…"
     )
     |> PhoenixTest.unwrap(fn view ->
-      assert has_element?(
-               composer_view(view),
-               "[data-role=group-composer-audience]",
-               "Members only"
-             )
-
       composer = composer_view(view)
+      assert has_element?(composer, "[data-role=group-composer-audience]", "Members only")
       assert has_element?(composer, "header #composer_type_chooser")
       refute has_element?(composer, "#composer_publish_controls #composer_type_chooser")
       assert has_element?(composer, "#smart_input_more_options #discard_composer")
 
       assert has_element?(composer, "#composer_topic_controls #composer_destination_trigger", "Whole group")
-      refute has_element?(composer, "#composer_audience_picker #composer_destination")
 
       composer
       |> element("#composer_destination [phx-value-id='#{topic.id}']", "Design feedback")
       |> render_click()
 
       assert has_element?(composer, "input[name=context_id][value='#{topic.id}']")
-      refute has_element?(composer, "#composer_subtopic_chooser")
       assert has_element?(composer, "#composer_audience_picker_trigger", "Private audience check")
       assert has_element?(composer, "#composer_destination_trigger", "Design feedback")
       assert has_element?(composer, "#composer_destination [phx-value-id='#{topic.id}'][aria-pressed=true]")
@@ -122,6 +115,4 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
       render(view)
     end)
   end
-
-  defp open_menu(composer, id), do: composer |> element("##{id}_trigger") |> render_click()
 end

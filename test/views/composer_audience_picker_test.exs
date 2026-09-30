@@ -124,6 +124,34 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
     end)
   end
 
+  test "saved boundary presets are offered as audiences, and someone else's cannot be forged" do
+    account = fake_account!()
+    user = fake_user!(account)
+
+    {:ok, mine} =
+      Bonfire.Boundaries.Acls.create(%{named: %{name: "Book club preset"}}, current_user: user)
+
+    {:ok, foreign} =
+      Bonfire.Boundaries.Acls.create(%{named: %{name: "Not my preset"}}, current_user: fake_user!())
+
+    conn(user: user, account: account)
+    |> visit("/feed/local")
+    |> PhoenixTest.unwrap(fn view ->
+      composer = composer_view(view)
+      open_menu(composer, "composer_visibility_picker")
+      assert has_element?(composer, "[data-audience-preset='#{mine.id}']", "Book club preset")
+      refute has_element?(composer, "[data-audience-preset='#{foreign.id}']")
+
+      composer |> element("[data-audience-preset='#{mine.id}']") |> render_click()
+      assert has_element?(composer, "input[name='to_boundaries[]'][value='#{mine.id}']")
+
+      render_click(composer, "Bonfire.UI.Common.SmartInput:select_audience", %{"id" => foreign.id})
+      refute has_element?(composer, "input[name='to_boundaries[]'][value='#{foreign.id}']")
+      assert has_element?(composer, "input[name='to_boundaries[]'][value='#{mine.id}']")
+      render(view)
+    end)
+  end
+
   test "the selected circle's submitted boundary grants participation without public access" do
     account = fake_account!()
     user = fake_user!(account)
@@ -242,6 +270,4 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       render(view)
     end)
   end
-
-  defp open_menu(composer, id), do: composer |> element("##{id}_trigger") |> render_click()
 end
