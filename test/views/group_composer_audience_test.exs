@@ -23,9 +23,12 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
     |> visit("/feed/local")
     |> PhoenixTest.unwrap(fn view ->
       composer = composer_view(view)
+      refute has_element?(composer, "#smart_input_post_title")
       open_menu(composer, "composer_audience_picker")
       composer |> element("[data-audience-group='#{group.id}']") |> render_click()
       assert has_element?(composer, "#composer_group_visibility_trigger", "Group members only")
+      # the optional title appears once posting in a group
+      assert has_element?(composer, "#smart_input_post_title:not(.hidden) #composer_post_title")
       refute has_element?(composer, "[data-group-audience=public]")
       composer |> element("[data-group-audience=moderators]") |> render_click()
       assert has_element?(composer, "#composer_group_visibility_trigger", "Group moderators only")

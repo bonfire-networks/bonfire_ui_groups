@@ -25,12 +25,8 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
 
       assert has_element?(composer, "#composer_type_chooser_trigger", "Create post")
 
-      assert has_element?(
-               composer,
-               "#smart_input_post_title:not(.hidden) input[placeholder='Add a title (optional)']"
-             )
-
-      refute has_element?(composer, "#smart_input_post_title input[required]")
+      # the optional title is only offered when posting in a group/topic
+      refute has_element?(composer, "#smart_input_post_title")
       refute has_element?(composer, "#title_btn")
       assert has_element?(composer, "#composer_publish_controls #language_dropdown")
       assert has_element?(composer, "#smart_input_more_options #discard_composer")
