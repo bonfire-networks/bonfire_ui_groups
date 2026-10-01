@@ -91,6 +91,56 @@
       </div>
     </div>
   </article>
+{#elseif @showing_within == :compact}
+  {!-- compact card for carousels (eg. the guest homepage): no cover, nothing reserved for missing text --}
+  <article
+    id={"group-preview-#{id(@object)}"}
+    data-role="group-card-compact"
+    class="flex h-full min-w-0 flex-col gap-2 rounded-box bg-(--stream-surface) p-4"
+  >
+    <div class="flex min-w-0 items-center gap-3">
+      <div
+        class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-base-200 text-base-content"
+        aria-hidden="true"
+      >
+        {#case Media.avatar_url(@object)}
+          {#match "/images/avatar.png"}
+            <#Icon iconify="ph:users-three-duotone" class="size-5" />
+          {#match url}
+            <img
+              src={url}
+              alt=""
+              width="40"
+              height="40"
+              class="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+            />
+        {/case}
+      </div>
+      <div class="min-w-0 flex-1">
+        <LinkLive
+          opts={[id: "group-preview-link-#{id(@object)}", title: handle(@object)]}
+          to={@permalink}
+          class="block truncate text-base font-semibold leading-6 text-base-content underline-offset-2 hover:underline"
+        >{name(@object)}</LinkLive>
+        <div class="flex min-w-0 flex-wrap items-center gap-x-2 text-xs leading-5 text-muted">
+          <span class="tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
+          {#case Bonfire.Boundaries.Presets.dimension_meta(:membership, e(@preview, :membership, nil))}
+            {#match %{} = meta}
+              <span class="inline-flex items-center gap-1" data-role="group-card-membership-policy">
+                <Iconify.iconify icon={e(meta, :icon, "ph:users")} class="size-3.5" />
+                {e(meta, :label, nil)}
+              </span>
+            {#match _}
+          {/case}
+        </div>
+      </div>
+    </div>
+    <p
+      :if={e(@object, :profile, :summary, "") not in [nil, ""]}
+      class="line-clamp-2 text-sm leading-5 text-muted"
+    >{e(@object, :profile, :summary, "")}</p>
+  </article>
 {#elseif @showing_within == :feed}
   <div class="group block rounded-xl overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all">
     {!-- Banner --}

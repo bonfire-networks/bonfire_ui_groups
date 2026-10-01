@@ -232,16 +232,37 @@ defmodule Bonfire.UI.Groups.ExploreLive do
 
   defp matches_join_filter?(_preview, _unknown), do: true
 
-  defp hydrate_group_filters(groups, current_user) do
-    topics_by_group = Categories.list_topics_for_groups(groups, current_user: current_user)
+  @doc """
+  Lists the groups `current_user` may see (boundary-checked, so for guests only the ones visible to guests), with the same card preview data the directory uses. Returns `{[{group, topics}], previews_by_group_id}`.
+
+  Pass `topics: false` to skip loading each group's topics (one query) when the cards won't show them; other opts go to `Categories.list_tree/2` (eg. `limit:`).
+  """
+  def list_groups_with_previews(current_user, opts \\ []) do
+    {topics?, opts} = Keyword.pop(opts, :topics, true)
+
+    case Categories.list_tree(
+           [:default, type: :group, tree_max_depth: 1, preload: :follow_count],
+           Keyword.merge([current_user: current_user], opts)
+         ) do
+      %{edges: [_ | _] = list} -> hydrate_group_previews(list, current_user, topics?)
+      _ -> {[], %{}}
+    end
+  end
+
+  defp hydrate_group_filters(groups, current_user, topics? \\ true) do
+    topics_by_group =
+      if topics?,
+        do: Categories.list_topics_for_groups(groups, current_user: current_user),
+        else: %{}
+
     dimensions = Bonfire.Boundaries.Presets.group_listing_dimension_slugs(groups)
 
     categories = Enum.map(groups, &{&1, Map.get(topics_by_group, id(&1), [])})
     {categories, dimensions}
   end
 
-  defp hydrate_group_previews(groups, current_user) do
-    {categories, dimensions} = hydrate_group_filters(groups, current_user)
+  defp hydrate_group_previews(groups, current_user, topics? \\ true) do
+    {categories, dimensions} = hydrate_group_filters(groups, current_user, topics?)
     member_counts = Categories.member_counts(groups)
 
     memberships =

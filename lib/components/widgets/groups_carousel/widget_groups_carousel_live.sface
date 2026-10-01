@@ -1,0 +1,61 @@
+<div data-id="groups_carousel_widget">
+  <Bonfire.UI.Common.WidgetBlockLive
+    :if={@groups != []}
+    class="w-full border-t border-base-content/14 pb-5.5 pt-4.5"
+    widget_title={@title}
+    widget_subtitle={@subtitle}
+    title_class="gap-3 px-5 pb-3.5 sm:px-6"
+    heading_class="text-xl font-medium leading-snug theme-light:text-2xl theme-light:font-semibold"
+    subtitle_class="mt-0.5 text-xs text-muted theme-light:text-xs"
+  >
+    <:action>
+      {!-- data attributes handled by the delegated listener in scroll.js, so they also work on static guest pages --}
+      <div :if={length(@groups) > 1} class="flex items-center gap-1.5">
+        <.icon_button
+          icon="carbon:chevron-left"
+          aria_label={l("Scroll left")}
+          variant="outline"
+          size="sm"
+          class="size-11 border-base-content/14 bg-transparent text-primary"
+          data-carousel-scroll="previous"
+          aria-controls={"#{@id}-carousel"}
+        />
+        <.icon_button
+          icon="carbon:chevron-right"
+          aria_label={l("Scroll right")}
+          variant="outline"
+          size="sm"
+          class="size-11 border-base-content/14 bg-transparent text-primary"
+          data-carousel-scroll="next"
+          aria-controls={"#{@id}-carousel"}
+        />
+      </div>
+    </:action>
+    <div class="grid grid-cols-1 overflow-hidden">
+      <div
+        id={"#{@id}-carousel"}
+        class="carousel-scroll items-stretch px-5 scroll-px-5 sm:px-6 sm:scroll-px-6"
+        phx-hook="CarouselScroll"
+      >
+        <div
+          :for={{%{type: :group} = group, _topics} <- @groups}
+          class="w-5/6 sm:w-2/5"
+        >
+          <StatelessComponent
+            module={maybe_component(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
+            object={group}
+            preview={Map.get(@previews, id(group), %{})}
+            permalink={path(group)}
+            showing_within={:compact}
+          />
+        </div>
+      </div>
+    </div>
+    <div class="px-5 pt-3 sm:px-6">
+      <LinkLive
+        to="/groups"
+        class="inline-flex min-h-11 items-center text-sm font-medium text-primary underline-offset-3 hover:underline"
+      >{l("Browse all groups")}</LinkLive>
+    </div>
+  </Bonfire.UI.Common.WidgetBlockLive>
+</div>
