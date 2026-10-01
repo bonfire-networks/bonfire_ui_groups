@@ -65,7 +65,7 @@ defmodule Bonfire.UI.Groups.GroupHeroToolbarTest do
     assert has_element?(
              view,
              "[data-role=group-access-details-content] dt",
-             "Default post visibility · Local"
+             "Default post visibility · Users of this instance"
            )
 
     assert has_element?(
