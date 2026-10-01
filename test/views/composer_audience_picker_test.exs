@@ -30,39 +30,68 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
   test "search finds writable groups and returning to your profile clears group context" do
     account = fake_account!()
     user = fake_user!(account)
-    group = Bonfire.Classify.Simulate.fake_group!(user, %{
-      name: "Needle design collective",
-      membership: "on_request",
-      visibility: "nonfederated:preview",
-      participation: "group_members",
-      default_content_visibility: "members:private"
-    })
+
+    group =
+      Bonfire.Classify.Simulate.fake_group!(user, %{
+        name: "Needle design collective",
+        membership: "on_request",
+        visibility: "nonfederated:preview",
+        participation: "group_members",
+        default_content_visibility: "members:private"
+      })
 
     conn(user: user, account: account)
     |> visit("/feed/local")
     |> PhoenixTest.unwrap(fn view ->
       composer = composer_view(view)
       assert has_element?(composer, "#composer_audience_picker_trigger")
-      composer |> element("#smart_input_form") |> render_change(%{
+
+      composer
+      |> element("#smart_input_form")
+      |> render_change(%{
         "post" => %{"post_content" => %{"html_body" => "Keep this draft"}},
         "_target" => ["post", "post_content", "html_body"]
       })
+
       assert has_element?(composer, "#smart_input_container[data-draft=true]")
       open_menu(composer, "composer_audience_picker")
-      composer |> element("#composer_audience_picker_search_form") |> render_change(%{"search" => "no-such-audience-xyz"})
-      assert has_element?(composer, "#composer_audience_picker [role=status]", "No matching joined groups")
-      composer |> element("#composer_audience_picker_search_form") |> render_change(%{"search" => "Needle"})
-      assert has_element?(composer, "[data-audience-group='#{group.id}']", "Needle design collective")
+
+      composer
+      |> element("#composer_audience_picker_search_form")
+      |> render_change(%{"search" => "no-such-audience-xyz"})
+
+      assert has_element?(
+               composer,
+               "#composer_audience_picker [role=status]",
+               "No matching joined groups"
+             )
+
+      composer
+      |> element("#composer_audience_picker_search_form")
+      |> render_change(%{"search" => "Needle"})
+
+      assert has_element?(
+               composer,
+               "[data-audience-group='#{group.id}']",
+               "Needle design collective"
+             )
+
       refute has_element?(composer, "#composer_audience_picker [data-audience-preset]")
       composer |> element("[data-audience-group='#{group.id}']") |> render_click()
       assert has_element?(composer, "input[name=context_id][value='#{group.id}']")
-      assert has_element?(composer, "[data-role=group-composer-audience]", "Members only")
+      assert has_element?(composer, "[data-role=group-composer-audience]", "Group members only")
       refute has_element?(composer, "#composer_topic_controls")
       # minimising and resuming keeps the group destination
       composer |> element("#minimize_composer_button") |> render_click()
       composer |> element("#composer_draft_bar") |> render_click()
       assert has_element?(composer, "input[name=context_id][value='#{group.id}']")
-      assert has_element?(composer, "#composer_audience_picker_trigger", "Needle design collective")
+
+      assert has_element?(
+               composer,
+               "#composer_audience_picker_trigger",
+               "Needle design collective"
+             )
+
       composer |> element("[data-role=post_in_profile]") |> render_click()
       refute has_element?(composer, "input[name=context_id][value='#{group.id}']")
       assert has_element?(composer, "#composer_audience_picker_trigger", "Your profile")
@@ -76,6 +105,7 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
   test "personal visibility changes independently of the publication destination" do
     account = fake_account!()
     user = fake_user!(account)
+
     conn(user: user, account: account)
     |> visit("/feed/local")
     |> PhoenixTest.unwrap(fn view ->
@@ -102,18 +132,32 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
     |> visit("/feed/local")
     |> PhoenixTest.unwrap(fn view ->
       composer = composer_view(view)
-      assert has_element?(composer, "#composer_visibility_picker #define_permissions", "Custom boundaries")
+
+      assert has_element?(
+               composer,
+               "#composer_visibility_picker #define_permissions",
+               "Custom boundaries"
+             )
+
       refute has_element?(composer, "#composer_audience_picker [data-audience-circle]")
       refute has_element?(composer, "[data-audience-circle='#{foreign.id}']")
       open_menu(composer, "composer_visibility_picker")
-      composer |> element("#composer_visibility_picker_search_form") |> render_change(%{"search" => "Close"})
+
+      composer
+      |> element("#composer_visibility_picker_search_form")
+      |> render_change(%{"search" => "Close"})
+
       assert has_element?(composer, "[data-audience-circle='#{circle.id}']")
       refute has_element?(composer, "[data-audience-circle='#{other.id}']")
       composer |> element("[data-audience-circle='#{circle.id}']") |> render_click()
       assert has_element?(composer, "input[name='to_boundaries[]'][value=private]")
       assert has_element?(composer, "input[name='to_circles[#{circle.id}]'][value=participate]")
       assert has_element?(composer, "[data-audience-circle='#{circle.id}'][aria-pressed=true]")
-      composer |> element("#composer_visibility_picker_search_form") |> render_change(%{"search" => ""})
+
+      composer
+      |> element("#composer_visibility_picker_search_form")
+      |> render_change(%{"search" => ""})
+
       composer |> element("[data-audience-circle='#{other.id}']") |> render_click()
       assert has_element?(composer, "input[name='to_circles[#{circle.id}]'][value=participate]")
       assert has_element?(composer, "input[name='to_circles[#{other.id}]'][value=participate]")
@@ -121,7 +165,11 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       refute has_element?(composer, "input[name='to_circles[#{circle.id}]']")
       composer |> element("[data-audience-circle='#{other.id}']") |> render_click()
       assert has_element?(composer, "input[name='to_boundaries[]'][value=private]")
-      render_click(composer, "Bonfire.UI.Common.SmartInput:toggle_audience_circle", %{"id" => foreign.id})
+
+      render_click(composer, "Bonfire.UI.Common.SmartInput:toggle_audience_circle", %{
+        "id" => foreign.id
+      })
+
       refute has_element?(composer, "input[name='to_circles[#{foreign.id}]']")
       composer |> element("[data-audience-preset=public]") |> render_click()
       assert has_element?(composer, "input[name='to_boundaries[]'][value=public]")
@@ -137,7 +185,9 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       Bonfire.Boundaries.Acls.create(%{named: %{name: "Book club preset"}}, current_user: user)
 
     {:ok, foreign} =
-      Bonfire.Boundaries.Acls.create(%{named: %{name: "Not my preset"}}, current_user: fake_user!())
+      Bonfire.Boundaries.Acls.create(%{named: %{name: "Not my preset"}},
+        current_user: fake_user!()
+      )
 
     conn(user: user, account: account)
     |> visit("/feed/local")
@@ -151,6 +201,7 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       assert has_element?(composer, "input[name='to_boundaries[]'][value='#{mine.id}']")
 
       render_click(composer, "Bonfire.UI.Common.SmartInput:select_audience", %{"id" => foreign.id})
+
       refute has_element?(composer, "input[name='to_boundaries[]'][value='#{foreign.id}']")
       assert has_element?(composer, "input[name='to_boundaries[]'][value='#{mine.id}']")
       render(view)
@@ -174,17 +225,21 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       html = composer |> render() |> Floki.parse_document!()
       [boundary] = Floki.attribute(html, "input[name='to_boundaries[]']", "value")
       [role] = Floki.attribute(html, "input[name='to_circles[#{circle.id}]']", "value")
-      {:ok, post} = Bonfire.Posts.publish(
-        current_user: user,
-        post_attrs: %{post_content: %{html_body: Faker.Lorem.sentence()}},
-        boundary: boundary,
-        to_circles: [{circle.id, role}]
-      )
+
+      {:ok, post} =
+        Bonfire.Posts.publish(
+          current_user: user,
+          post_attrs: %{post_content: %{html_body: Faker.Lorem.sentence()}},
+          boundary: boundary,
+          to_circles: [{circle.id, role}]
+        )
+
       for verb <- [:see, :read, :reply] do
         assert Bonfire.Boundaries.can?(member, verb, post)
         refute Bonfire.Boundaries.can?(outsider, verb, post)
         refute Bonfire.Boundaries.can?(:guest, verb, post)
       end
+
       render(view)
     end)
   end
@@ -194,8 +249,18 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
     user = fake_user!(account)
     group = Bonfire.Classify.Simulate.fake_group!(user, %{name: "First topic collective"})
     other_group = Bonfire.Classify.Simulate.fake_group!(user, %{name: "Second topic collective"})
-    topic = Bonfire.Classify.Simulate.fake_category!(user, group, %{type: :topic, name: "Design feedback"})
-    other_topic = Bonfire.Classify.Simulate.fake_category!(user, other_group, %{type: :topic, name: "Planning"})
+
+    topic =
+      Bonfire.Classify.Simulate.fake_category!(user, group, %{
+        type: :topic,
+        name: "Design feedback"
+      })
+
+    other_topic =
+      Bonfire.Classify.Simulate.fake_category!(user, other_group, %{
+        type: :topic,
+        name: "Planning"
+      })
 
     conn(user: user, account: account)
     |> visit("/feed/local")
@@ -212,7 +277,11 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       assert has_element?(composer, "input[name=context_id][value='#{other_group.id}']")
       assert has_element?(composer, "#composer_destination_trigger", "Whole group")
       refute has_element?(composer, "#composer_destination [phx-value-id='#{topic.id}']")
-      composer |> element("#composer_destination [phx-value-id='#{other_topic.id}']") |> render_click()
+
+      composer
+      |> element("#composer_destination [phx-value-id='#{other_topic.id}']")
+      |> render_click()
+
       assert has_element?(composer, "input[name=context_id][value='#{other_topic.id}']")
 
       composer |> element("[data-role=post_in_profile]") |> render_click()
@@ -228,9 +297,25 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
     user = fake_user!(account)
     owner = fake_user!()
     attrs = %{membership: "open", visibility: "global", participation: "anyone"}
-    joined = Bonfire.Classify.Simulate.fake_group!(owner, Map.put(attrs, :name, "Picker joined collective"))
-    unjoined = Bonfire.Classify.Simulate.fake_group!(owner, Map.put(attrs, :name, "Picker unjoined collective"))
-    readonly = Bonfire.Classify.Simulate.fake_group!(owner, Map.merge(attrs, %{name: "Picker announcements", participation: "moderators"}))
+
+    joined =
+      Bonfire.Classify.Simulate.fake_group!(
+        owner,
+        Map.put(attrs, :name, "Picker joined collective")
+      )
+
+    unjoined =
+      Bonfire.Classify.Simulate.fake_group!(
+        owner,
+        Map.put(attrs, :name, "Picker unjoined collective")
+      )
+
+    readonly =
+      Bonfire.Classify.Simulate.fake_group!(
+        owner,
+        Map.merge(attrs, %{name: "Picker announcements", participation: "moderators"})
+      )
+
     {:ok, _} = Bonfire.Classify.Categories.join_group(user, joined)
     {:ok, _} = Bonfire.Classify.Categories.join_group(user, readonly)
 
@@ -242,12 +327,25 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       assert has_element?(composer, "[data-audience-group='#{joined.id}']")
       refute has_element?(composer, "[data-audience-group='#{unjoined.id}']")
       refute has_element?(composer, "[data-audience-group='#{readonly.id}']")
-      composer |> element("#composer_audience_picker_search_form") |> render_change(%{"search" => "Picker"})
+
+      composer
+      |> element("#composer_audience_picker_search_form")
+      |> render_change(%{"search" => "Picker"})
+
       assert has_element?(composer, "[data-audience-group='#{joined.id}']")
       refute has_element?(composer, "[data-audience-group='#{unjoined.id}']")
       refute has_element?(composer, "[data-audience-group='#{readonly.id}']")
-      composer |> element("#composer_audience_picker_search_form") |> render_change(%{"search" => "unjoined"})
-      assert has_element?(composer, "#composer_audience_picker [role=status]", "No matching joined groups")
+
+      composer
+      |> element("#composer_audience_picker_search_form")
+      |> render_change(%{"search" => "unjoined"})
+
+      assert has_element?(
+               composer,
+               "#composer_audience_picker [role=status]",
+               "No matching joined groups"
+             )
+
       render(view)
     end)
   end
@@ -256,21 +354,31 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
     account = fake_account!()
     user = fake_user!(account)
     owner = fake_user!()
-    group = Bonfire.Classify.Simulate.fake_group!(owner, %{
-      name: "Restricted needle collective",
-      membership: "on_request",
-      visibility: "nonfederated:preview",
-      participation: "group_members",
-      default_content_visibility: "members:private"
-    })
+
+    group =
+      Bonfire.Classify.Simulate.fake_group!(owner, %{
+        name: "Restricted needle collective",
+        membership: "on_request",
+        visibility: "nonfederated:preview",
+        participation: "group_members",
+        default_content_visibility: "members:private"
+      })
 
     conn(user: user, account: account)
     |> visit("/feed/local")
     |> PhoenixTest.unwrap(fn view ->
       composer = composer_view(view)
-      composer |> element("#composer_audience_picker_search_form") |> render_change(%{"search" => "Restricted needle"})
+
+      composer
+      |> element("#composer_audience_picker_search_form")
+      |> render_change(%{"search" => "Restricted needle"})
+
       refute has_element?(composer, "[data-audience-group='#{group.id}']")
-      render_click(composer, "Bonfire.UI.Common.SmartInput:select_audience_group", %{"id" => group.id})
+
+      render_click(composer, "Bonfire.UI.Common.SmartInput:select_audience_group", %{
+        "id" => group.id
+      })
+
       refute has_element?(composer, "input[name=context_id][value='#{group.id}']")
       render(view)
     end)

@@ -17,7 +17,7 @@
           phx-click={if !@disable_collapsible, do: "Bonfire.UI.Groups:toggle_groups_nav_visibility"}
           class="group/sidebar-summary relative min-h-8 !py-1 font-medium uppercase pl-4 text-xs text-muted list-none after:content-none [&::-webkit-details-marker]:hidden flex"
         >
-          <span class="flex-1">{l("Groups")}</span>
+          <LinkLive to="/groups" class="flex-1">{l("Groups")}</LinkLive>
           <div class="pointer-events-auto normal-case font-normal absolute right-0 inset-y-0 flex items-center">
             <Bonfire.UI.Groups.NewGroupLive
               id="sidebar_new_group"
@@ -41,12 +41,12 @@
             current_path={@current_path}
             group_return_to={@group_return_to}
           />
-          <li>
+          {!-- <li>
             <LinkLive to="/groups" class="flex items-center !gap-2 !px-3 py-[6px] text-base-content/80">
               <#Icon iconify="ph:compass" class="size-5 shrink-0 text-muted" />
               <span class="text-base font-normal">{l("All groups")}</span>
             </LinkLive>
-          </li>
+          </li> --}
         </ul>
       </details>
     </li>

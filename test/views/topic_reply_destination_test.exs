@@ -16,10 +16,17 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
         })
 
       topic =
-        Bonfire.Classify.Simulate.fake_category!(user, group, %{type: :topic, name: "Accessibility"})
+        Bonfire.Classify.Simulate.fake_category!(user, group, %{
+          type: :topic,
+          name: "Accessibility"
+        })
 
       post =
-        Bonfire.Classify.Simulate.fake_post_in_topic!(user, topic, "<p>Topic reply destination check</p>")
+        Bonfire.Classify.Simulate.fake_post_in_topic!(
+          user,
+          topic,
+          "<p>Topic reply destination check</p>"
+        )
 
       {:ok, conn: conn(user: user, account: account), topic: topic, post: post}
     end
@@ -33,11 +40,18 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
           assert has_element?(composer, "#composer_reply_destination", "Design collective")
           assert has_element?(composer, "#composer_reply_destination", "Accessibility")
           assert has_element?(composer, "#composer_policy_controls", "Reply in")
-          assert has_element?(composer, "#composer_reply_visibility_trigger", "Same as original post")
+
+          assert has_element?(
+                   composer,
+                   "#composer_reply_visibility_trigger",
+                   "Same as original post"
+                 )
+
           assert has_element?(composer, "#composer_reply_actions_trigger", "Replying to")
           assert has_element?(composer, "#reply_peek", "Topic reply destination check")
           # the preview omits the author, already named in the header
           refute has_element?(composer, "#reply_peek [data-role=subject]")
+
           assert has_element?(
                    composer,
                    "#toggle_reply_preview[aria-controls=reply_peek][aria-expanded=false]",
@@ -63,11 +77,20 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
         assert has_element?(composer, "input[name='to_boundaries[]'][value=reply_moderators]")
 
         # a forged, broader choice is rejected by the server
-        render_click(composer, "Bonfire.UI.Common.SmartInput:select_reply_audience", %{"id" => "public"})
+        render_click(composer, "Bonfire.UI.Common.SmartInput:select_reply_audience", %{
+          "id" => "public"
+        })
+
         refute has_element?(composer, "input[name='to_boundaries[]'][value=public]")
 
         composer |> element("[data-reply-audience=clone_context]") |> render_click()
-        assert has_element?(composer, "#composer_reply_visibility_trigger", "Same as original post")
+
+        assert has_element?(
+                 composer,
+                 "#composer_reply_visibility_trigger",
+                 "Same as original post"
+               )
+
         assert has_element?(composer, "input[name=context_id][value='#{context.post.id}']")
         render(view)
       end)
@@ -111,7 +134,11 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
         # cancelling keeps replying, with the draft
         composer |> element("#convert_reply button[data-role=open_modal]") |> render_click()
         assert has_element?(composer, "#confirm_standalone_post", "Remove reply")
-        composer |> element("#persistent_modal .modal-action > div[phx-click=close]") |> render_click()
+
+        composer
+        |> element("#persistent_modal .modal-action > div[phx-click=close]")
+        |> render_click()
+
         assert has_element?(composer, "#composer_reply_actions")
         assert has_element?(composer, "input[name=context_id][value='#{context.post.id}']")
         assert has_element?(composer, "#smart_input_container[data-draft=true]")
@@ -127,7 +154,12 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
         refute has_element?(composer, "[data-role=composer_recipients]")
         refute has_element?(composer, "input[name=context_id][value='#{context.post.id}']")
         assert has_element?(composer, "#composer_audience_picker")
-        assert has_element?(composer, "#define_permissions button[aria-label='Custom boundaries']")
+
+        assert has_element?(
+                 composer,
+                 "#define_permissions button[aria-label='Custom boundaries']"
+               )
+
         assert has_element?(composer, "input[name='to_boundaries[]'][value=private]")
         assert has_element?(composer, "#smart_input_container[data-draft=true]")
         refute has_element?(composer, "#submit_btn[disabled]")
@@ -154,7 +186,13 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
       composer = composer_view(view)
       assert has_element?(composer, "#composer_reply_visibility_trigger", "Same as original post")
       composer |> element("[data-reply-audience=reply_participants]") |> render_click()
-      assert has_element?(composer, "#composer_reply_visibility_trigger", "Original author and you")
+
+      assert has_element?(
+               composer,
+               "#composer_reply_visibility_trigger",
+               "Original author and you"
+             )
+
       assert has_element?(composer, "input[name='to_boundaries[]'][value=reply_participants]")
       assert has_element?(composer, "input[name=context_id][value='#{post.id}']")
       refute has_element?(composer, "[data-role=composer_recipients]")

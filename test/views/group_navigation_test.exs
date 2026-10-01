@@ -33,7 +33,9 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
         conn(user: me, account: account)
         |> visit("/group/#{group.character.username}")
         |> assert_has("#{section} [data-role='sidebar-group']", timeout: 1_000)
-        |> assert_has("#{section} a[href='/groups']", text: "All groups", count: 1)
+        # the section's heading is the link to all groups (it replaced an "All groups" item)
+        # |> assert_has("#{section} a[href='/groups']", text: "All groups", count: 1)
+        |> assert_has("#{section} > summary a[href='/groups']", text: "Groups", count: 1)
         |> assert_has("#{section} [data-role='group_preset_icon'] [iconify='ph:campfire-fill']")
 
       if unquote(fixed? or saved_open?) do

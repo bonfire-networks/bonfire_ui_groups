@@ -1,8 +1,8 @@
 <div class="contents">
   {!-- Layer 1 — Audience presets --}
-  <section class="flex flex-col gap-2" role="radiogroup" aria-label={l("Audience preset")}>
+  <section class="flex flex-col gap-2" role="radiogroup" aria-label={l("What kind of group?")}>
     <div class="flex items-baseline justify-between">
-      <h3 class="text-sm font-medium text-base-content/80">{l("Audience")}</h3>
+      <h3 class="text-sm font-medium text-base-content/80">{l("What kind of group?")}</h3>
       <span class="text-xs text-muted">{l("Pick one to start")}</span>
     </div>
 
@@ -36,7 +36,8 @@
               </span>
               <span class="flex-1 min-w-0">
                 <span class="block text-sm font-medium leading-tight">{e(meta, :label, slug)}</span>
-                {#if !(slug == @preset && (@layer2_touched || @advanced_open))}
+                {!-- hidden once a Layer 2 toggle has fine-tuned it; a field picked in Advanced selects Custom instead, and only opening Advanced changes nothing --}
+                {#if !(slug == @preset && @layer2_touched)}
                   <span class="block mt-0.5 text-xs text-muted leading-snug">{e(meta, :description, nil)}</span>
                 {/if}
               </span>
@@ -164,10 +165,10 @@
         </span>
         <span class="flex-1 min-w-0">
           <span class="block text-sm font-medium leading-tight text-base-content">
-            {l("Fine-tune each dimension")}
+            {l("Custom group boundaries")}
           </span>
           <span class="block mt-0.5 text-xs text-muted leading-snug">
-            {l("Optional — great for specific needs.")}
+            {l("Optional, only for specific needs.")}
           </span>
         </span>
         <#Icon
@@ -187,6 +188,20 @@
             )}
           </p>
 
+          {!-- visibility first: the options below it depend on who can see the group, so each choice only narrows the ones after it --}
+          <Bonfire.UI.Groups.BoundaryScopeSelectorLive
+            dimension={:visibility}
+            label={e(@preset_dimensions, :visibility, :label, l("Who can see the group?"))}
+            description={l("Decide who should be able to find this group.")}
+            name="visibility"
+            selected={@visibility}
+            target={@myself}
+            slug_order={e(@preset_dimensions, :visibility, :slug_order, [])}
+            options={e(@preset_dimensions, :visibility, :options, %{})}
+            circles={@circles}
+            show_unavailable_toggles={@show_unavailable_toggles}
+          />
+
           <Bonfire.UI.Groups.BoundaryDimensionLive
             dimension={:membership}
             label={e(@preset_dimensions, :membership, :label, l("Who can join?"))}
@@ -194,20 +209,10 @@
             selected={@membership}
             target={@myself}
             slug_order={e(@preset_dimensions, :membership, :slug_order, [])}
-            options={e(@preset_dimensions, :membership, :options, %{})}
-            circles={@circles}
-            show_unavailable_toggles={@show_unavailable_toggles}
-          />
-
-          <Bonfire.UI.Groups.BoundaryScopeSelectorLive
-            dimension={:visibility}
-            label={e(@preset_dimensions, :visibility, :label, l("Who can see the group?"))}
-            description={l("Pick the audience. Then, if options appear, choose how much they can see.")}
-            name="visibility"
-            selected={@visibility}
-            target={@myself}
-            slug_order={e(@preset_dimensions, :visibility, :slug_order, [])}
-            options={e(@preset_dimensions, :visibility, :options, %{})}
+            options={with_disabled(
+              e(@preset_dimensions, :membership, :options, %{}),
+              Bonfire.Classify.Boundaries.disabled_options_by_reach(:membership, @visibility)
+            )}
             circles={@circles}
             show_unavailable_toggles={@show_unavailable_toggles}
           />
@@ -219,7 +224,10 @@
             selected={@participation}
             target={@myself}
             slug_order={e(@preset_dimensions, :participation, :slug_order, [])}
-            options={e(@preset_dimensions, :participation, :options, %{})}
+            options={with_disabled(
+              e(@preset_dimensions, :participation, :options, %{}),
+              Bonfire.Classify.Boundaries.disabled_options_by_reach(:participation, @visibility)
+            )}
             circles={@circles}
             show_unavailable_toggles={@show_unavailable_toggles}
           />
