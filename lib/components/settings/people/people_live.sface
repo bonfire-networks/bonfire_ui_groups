@@ -16,7 +16,7 @@
       phx-target={@myself}
       aria-expanded={@search_open?}
       aria-controls="settings-people-search-form"
-      class="btn btn-ghost "
+      class="btn btn-ghost"
     >
       <#Icon iconify="ph:magnifying-glass" class="size-5" />
       <span class="sr-only">{l("Search members")}</span>

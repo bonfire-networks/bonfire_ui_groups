@@ -37,10 +37,7 @@
         class="carousel-scroll items-stretch px-5 scroll-px-5 sm:px-6 sm:scroll-px-6"
         phx-hook="CarouselScroll"
       >
-        <div
-          :for={{%{type: :group} = group, _topics} <- @groups}
-          class="w-5/6 sm:w-2/5"
-        >
+        <div :for={{%{type: :group} = group, _topics} <- @groups} class="w-5/6 sm:w-2/5">
           <StatelessComponent
             module={maybe_component(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
             object={group}
