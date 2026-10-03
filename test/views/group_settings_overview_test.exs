@@ -108,7 +108,8 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     |> assert_has("#group-settings-overview p", text: "Readers sharing ideas together.")
     |> click_button("#modal [data-role=close-modal]", "Close")
     |> click_button("Edit group details")
-    |> assert_has("#group_settings_name[value='#{updated_name}']")
+    # double quotes, since company names can have an apostrophe (eg. "Ziemann-O'Hara")
+    |> assert_has(~s(#group_settings_name[value="#{updated_name}"]))
     |> assert_has("#group_settings_summary", text: "Readers sharing ideas together.")
 
     conn
