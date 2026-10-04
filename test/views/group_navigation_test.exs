@@ -87,7 +87,9 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
     account = fake_account!()
     me = fake_user!(account)
     group = Bonfire.Classify.Simulate.fake_group!(me)
-    topic_name = Faker.Lorem.word()
+
+    # a bare `Faker.Lorem.word()` can be "a", whose derived username is too short to be valid, so the insert failed now and then
+    topic_name = "#{Faker.Lorem.word()} topic"
     topic = Bonfire.Classify.Simulate.fake_category!(me, group, %{name: topic_name, type: :topic})
     entry = "/feed?sort=latest"
 

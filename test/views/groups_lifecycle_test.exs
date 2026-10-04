@@ -728,12 +728,13 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       me = fake_user!(account)
       alice = fake_user!(account)
 
+      # a visibility locals can READ: under a `preview` one a non-member gets the preview page with no composer, and posting without reading isn't offered there (`Classify.Boundaries.disabled_options_by_reach/2`)
       group =
         create_group(me,
           name: "Open Participation Group",
           membership: "local:members",
           participation: "local:contributors",
-          visibility: "nonfederated:preview",
+          visibility: "nonfederated",
           default_content_visibility: "nonfederated"
         )
 
