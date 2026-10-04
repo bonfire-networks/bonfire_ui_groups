@@ -26,6 +26,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     conn
     |> visit("/&#{group.character.username}/settings")
     |> assert_has("[data-role=page_title]", text: "Group settings")
+    # |> open_browser()
     |> refute_has("#inline_composer_placeholder")
     |> assert_has("#settings-group-name", text: group.profile.name)
     |> assert_has("#group-settings-people")
@@ -45,7 +46,9 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
           {"access", "Access & participation", "#group_settings_boundaries_form"},
           {"rules", "Community rules", "#group-rules-#{id(group)}"},
           {"archive", "Archive group", "#group_settings_archive_button"},
-          {"moderators", "Manage moderators", "#add_moderator_form"}
+          {"moderators", "Manage moderators", "#add_moderator_form"},
+          # the group's inbox, for whoever moderates it (the owner does); it used to be reachable by URL only
+          {"moderation", "Moderation", "[data-id=feed]"}
         ] do
       conn
       |> visit("/&#{group.character.username}/settings")

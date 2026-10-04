@@ -1,10 +1,17 @@
 {#if Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category) ||
     Bonfire.Boundaries.can?(@__context__, :mediate, @category)}
+  {!-- the group's inbox, as its "submitted" view loads it (its notifications minus its outbox): reports on what's posted in it, join requests and submissions. Reports are kept in (`include_flags`) only here, behind the moderation check above --}
   <StatefulComponent
-    module={maybe_component(Bonfire.UI.Moderation.FlagsLive, @__context__)}
+    module={maybe_component(Bonfire.UI.Social.FeedLive, @__context__)}
+    id={ComponentID.new(Bonfire.UI.Social.FeedLive, "group_moderation_#{id(@category)}", __MODULE__)}
+    feed_id={e(@category, :character, :notifications_id, nil)}
+    feed_filters={%{
+      exclude_feed_ids: e(@category, :character, :outbox_id, nil),
+      # an inbox lists events, and most of a group's are about the group itself (join requests, follows), which one-row-per-object would collapse into one, as the flag presets also avoid
+      show_objects_only_once: false
+    }}
+    include_flags
     selected_tab={@selected_tab}
-    id="group_flags"
-    scope={@category}
   />
 {#else}
   <div class="p-4 m-4 mt-2 bg-warning/10 rounded flex flex-col items-center place-content-center h-80">

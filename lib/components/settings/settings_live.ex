@@ -15,8 +15,11 @@ defmodule Bonfire.UI.Groups.SettingsLive do
 
   @doc "Resolves the heading from the extension-configured settings navigation."
   def page_title(selected_tab) do
-    Config.get([:ui, :group, :settings, :navigation], [])[tab(selected_tab)] ||
-      l("Group settings")
+    case Config.get([:ui, :group, :settings, :navigation], [])[tab(selected_tab)] do
+      %{title: title} when is_binary(title) -> title
+      title when is_binary(title) -> title
+      _ -> l("Group settings")
+    end
   end
 
   @doc "Resolves the configured settings component once per render."

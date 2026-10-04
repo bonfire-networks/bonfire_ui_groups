@@ -70,17 +70,54 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
             moderators: Bonfire.UI.Groups.Settings.DetailLive,
             moderation: Bonfire.UI.Groups.Settings.FlagsLive
           ],
+          # Each page's title, and the overview's rows linking to it (`Settings.GeneralLive`), in order. An entry with a `group` is rendered in that section of the overview (`:people`, `:management`, `:admin`, `:danger`), as a row linking to the page, or as its `component` instead. `description` and `value` may be a function of the overview's assigns, for what has to be worked out per group. A row shows only if its `module` is enabled and the viewer `can` do the verb on the object (`:group` meaning the group). A plain string is a title alone, which extensions may still configure.
           navigation: [
-            nil: l("Group settings"),
-            members: l("Members"),
-            # invites: l("Invites"),
-            boundaries: l("Access & participation"),
-            rules: l("Community rules"),
-            instance: l("Instance settings"),
-            archive: l("Archive group"),
-            moderators: l("Manage moderators"),
-            moderation: l("Moderation")
-            # submitted: l("Mentions")
+            nil: %{title: l("Group settings")},
+            members: %{title: l("Members")},
+            # invites: %{title: l("Invites")},
+            people: %{group: :people, component: Bonfire.UI.Groups.Settings.PeopleLive},
+            boundaries: %{
+              title: l("Access & participation"),
+              group: :management,
+              id: "group_settings_access_link",
+              icon: "ph:shield-check",
+              description: &Bonfire.UI.Groups.Settings.GeneralLive.membership_label/1,
+              value: &Bonfire.UI.Groups.Settings.GeneralLive.visibility_label/1
+            },
+            rules: %{
+              title: l("Community rules"),
+              group: :management,
+              id: "group_settings_rules_link",
+              icon: "ph:book-open",
+              description: l("Guidelines members agree to when joining"),
+              module: Bonfire.CommunityRules.Web.RulesBuilderLive
+            },
+            moderation: %{
+              title: l("Moderation"),
+              group: :management,
+              id: "group_settings_moderation_link",
+              icon: "ph:flag-duotone",
+              description: l("Reports on what's posted in the group"),
+              can: {:mediate, :group}
+            },
+            instance: %{
+              title: l("Instance settings"),
+              group: :admin,
+              id: "group_settings_instance_link",
+              icon: "ph:hard-drives",
+              description: l("Automatically add new users"),
+              value: &Bonfire.UI.Groups.Settings.GeneralLive.auto_join_label/1,
+              can: {:configure, :instance}
+            },
+            archive: %{
+              title: l("Archive group"),
+              group: :danger,
+              id: "group_settings_archive_link",
+              icon: "ph:archive",
+              description: l("You can restore the group later")
+            },
+            moderators: %{title: l("Manage moderators")}
+            # submitted: %{title: l("Mentions")}
           ]
         ]
       ]

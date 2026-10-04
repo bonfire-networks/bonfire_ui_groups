@@ -52,42 +52,38 @@
       </div>
     </section>
 
-    <Bonfire.UI.Groups.Settings.PeopleLive
-      id={"settings-people-#{id(@category)}"}
-      category={@category}
-      permalink={@permalink}
-      member_count={@group_member_count}
-      moderators={@moderators}
-    />
+    {!-- every row below comes from the settings `navigation` config (see `GeneralLive.entries/2`) --}
+    {#for entry <- @people_entries}
+      <StatefulComponent
+        module={entry.component}
+        id={"settings-people-#{id(@category)}"}
+        category={@category}
+        permalink={@permalink}
+        member_count={@group_member_count}
+        moderators={@moderators}
+      />
+    {/for}
 
     <section
+      :if={@management_entries != []}
       aria-label={l("Group management")}
       class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)"
     >
-      <Bonfire.UI.Groups.Settings.RowLive
-        id="group_settings_access_link"
-        to={@permalink <> "/settings/boundaries"}
-        title={l("Access & participation")}
-        description={@membership_label}
-        value={@visibility_label}
-        icon="ph:shield-check"
-      />
-      <hr
-        :if={module_enabled?(Bonfire.CommunityRules.Web.RulesBuilderLive, @__context__)}
-        class="m-0 h-px border-0 bg-base-content/10"
-      />
-      <Bonfire.UI.Groups.Settings.RowLive
-        :if={module_enabled?(Bonfire.CommunityRules.Web.RulesBuilderLive, @__context__)}
-        id="group_settings_rules_link"
-        to={@permalink <> "/settings/rules"}
-        title={l("Community rules")}
-        description={l("Guidelines members agree to when joining")}
-        icon="ph:book-open"
-      />
+      {#for {entry, index} <- Enum.with_index(@management_entries)}
+        <hr :if={index > 0} class="m-0 h-px border-0 bg-base-content/10">
+        <Bonfire.UI.Groups.Settings.RowLive
+          id={entry.id}
+          to={entry.to}
+          title={entry.title}
+          description={entry[:description]}
+          value={entry[:value]}
+          icon={entry.icon}
+        />
+      {/for}
     </section>
 
     <section
-      :if={Bonfire.Boundaries.can?(current_user(@__context__), :configure, :instance)}
+      :if={@admin_entries != []}
       aria-labelledby="group-settings-instance-heading"
       class="flex flex-col gap-3"
     >
@@ -96,28 +92,36 @@
         <span>{l("Admins only")}</span>
       </header>
       <div class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)">
-        <Bonfire.UI.Groups.Settings.RowLive
-          id="group_settings_instance_link"
-          to={@permalink <> "/settings/instance"}
-          title={l("Instance settings")}
-          description={l("Automatically add new users")}
-          value={if Bonfire.Classify.Categories.auto_join_new_users?(@category),
-            do: l("Auto-join on"),
-            else: l("Auto-join off")}
-          icon="ph:hard-drives"
-        />
+        {#for {entry, index} <- Enum.with_index(@admin_entries)}
+          <hr :if={index > 0} class="m-0 h-px border-0 bg-base-content/10">
+          <Bonfire.UI.Groups.Settings.RowLive
+            id={entry.id}
+            to={entry.to}
+            title={entry.title}
+            description={entry[:description]}
+            value={entry[:value]}
+            icon={entry.icon}
+          />
+        {/for}
       </div>
     </section>
 
-    <div class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)">
-      <Bonfire.UI.Groups.Settings.RowLive
-        id="group_settings_archive_link"
-        to={@permalink <> "/settings/archive"}
-        title={l("Archive group")}
-        description={l("You can restore the group later")}
-        icon="ph:archive"
-        danger
-      />
+    <div
+      :if={@danger_entries != []}
+      class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)"
+    >
+      {#for {entry, index} <- Enum.with_index(@danger_entries)}
+        <hr :if={index > 0} class="m-0 h-px border-0 bg-base-content/10">
+        <Bonfire.UI.Groups.Settings.RowLive
+          id={entry.id}
+          to={entry.to}
+          title={entry.title}
+          description={entry[:description]}
+          value={entry[:value]}
+          icon={entry.icon}
+          danger
+        />
+      {/for}
     </div>
   {/if}
 </div>
