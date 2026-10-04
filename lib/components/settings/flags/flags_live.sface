@@ -1,6 +1,6 @@
 {#if Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category) ||
     Bonfire.Boundaries.can?(@__context__, :mediate, @category)}
-  {!-- the group's inbox, as its "submitted" view loads it (its notifications minus its outbox): reports on what's posted in it, join requests and submissions. Reports are kept in (`include_flags`) only here, behind the moderation check above --}
+  {!-- the group's inbox, as its "submitted" view loads it (its notifications minus its outbox): reports on what's posted in it, join requests and submissions. Reports (`include_flags`) and requests about the group rather than the viewer (`include_requests`) are kept in only here, behind the moderation check above, as the notifications preset does for one's own --}
   <StatefulComponent
     module={maybe_component(Bonfire.UI.Social.FeedLive, @__context__)}
     id={ComponentID.new(Bonfire.UI.Social.FeedLive, "group_moderation_#{id(@category)}", __MODULE__)}
@@ -11,6 +11,7 @@
       show_objects_only_once: false
     }}
     include_flags
+    include_requests
     selected_tab={@selected_tab}
   />
 {#else}

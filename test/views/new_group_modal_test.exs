@@ -189,6 +189,32 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
              "expected a group named #{inspect(name)} to exist after submit"
     end
 
+    # a refused create has to say what to fix and keep what was chosen, so the person can correct it and submit again. The typed name and summary survive the re-render on their own (`phx-update="ignore"`, client-side, which LiveViewTest can't see); the picked preset is server state, and this checks it
+    test "a refused create says why and keeps the picked preset, and a corrected resubmit creates the group",
+         %{conn: conn} do
+      name = "Resubmitted Group #{System.unique_integer([:positive])}"
+      summary = "Typed once, kept through the error."
+
+      session =
+        conn
+        |> visit("/groups")
+        |> click_button("[data-role=open_modal]", "Create group")
+        |> click_button("[data-preset=local_community]", "Local community")
+        |> submit_new_group_form(%{
+          "name" => name,
+          "summary" => summary,
+          "visibility" => "global:undeclared"
+        })
+        |> assert_has("[data-id=flash_error]", text: "visibility")
+        |> assert_has("[data-preset=local_community][aria-checked=true]")
+
+      refute group_with_name_exists?(name), "the refused group was created anyway"
+
+      submit_new_group_form(session, %{"name" => name, "summary" => summary})
+
+      assert group_with_name_exists?(name), "the corrected resubmit didn't create the group"
+    end
+
     # When Advanced is collapsed, the dimensions must still reach the form payload —
     # otherwise `resolve_dims/1` falls back to defaults regardless of preset.
     # The values are the preset's own declared dimensions, so this also pins

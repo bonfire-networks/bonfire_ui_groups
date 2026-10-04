@@ -36,9 +36,13 @@ defmodule Bonfire.UI.Groups.GroupPostRemovalTest do
   end
 
   defp remove_from_group(user, account, group, post) do
-    {:ok, view, _html} = live(conn(user: user, account: account), "/group/#{group.character.username}")
+    {:ok, view, _html} =
+      live(conn(user: user, account: account), "/group/#{group.character.username}")
 
-    render_hook(view, "Bonfire.Social.Flags:unpublish", %{"id" => id(post), "context" => id(group)})
+    render_hook(view, "Bonfire.Social.Flags:unpublish", %{
+      "id" => id(post),
+      "context" => id(group)
+    })
   end
 
   test "a moderator of the group can remove a post from it", %{

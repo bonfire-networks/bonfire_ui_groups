@@ -12,6 +12,7 @@ defmodule Bonfire.UI.Groups.GroupModerationInboxTest do
 
   setup do
     Process.put(:federating, false)
+
     # the test page size is 2, and the inbox holds more than that (follows, the join request, the report)
     Process.put([:bonfire, :default_pagination_limit], 10)
 

@@ -499,6 +499,47 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       assert detected.visibility == target.visibility,
              "settings submit: visibility detected #{inspect(detected.visibility)}, expected #{inspect(target.visibility)}"
     end
+
+    # the form only offers declared slugs, but the event takes whatever it's sent, so a refusal has to reach the person as what to fix, and leave the group as it was
+    test "a refused boundaries edit says why, and leaves the group's boundaries as they were" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group_with_preset(me, "public_local_community", "Refused Edit Group")
+      before = Bonfire.Boundaries.Presets.group_dimension_slugs(%{id: group.id})
+
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}/settings/boundaries")
+      |> unwrap(fn view ->
+        view
+        |> element("#group_settings_boundaries_form")
+        |> render_submit(%{"visibility" => "global:undeclared"})
+      end)
+      |> assert_has("[data-id=flash_error]", text: "visibility")
+
+      assert Bonfire.Boundaries.Presets.group_dimension_slugs(%{id: group.id}) == before
+    end
+
+    # the event names the group by id, so it can be sent from any page, for any group
+    test "someone who doesn't manage a group can't change its boundaries through the settings event" do
+      owner = fake_user!()
+      group = create_group_with_preset(owner, "public_local_community", "Not Yours Group")
+      before = Bonfire.Boundaries.Presets.group_dimension_slugs(%{id: group.id})
+
+      account = fake_account!()
+      stranger = fake_user!(account)
+      {:ok, view, _html} = live(conn(user: stranger, account: account), "/groups")
+
+      render_hook(view, "Bonfire.Classify:set_group_boundaries", %{
+        "id" => group.id,
+        "membership" => "invite_only",
+        "visibility" => "members:private",
+        "participation" => "moderators",
+        "default_content_visibility" => "members:private"
+      })
+
+      assert Bonfire.Boundaries.Presets.group_dimension_slugs(%{id: group.id}) == before,
+             "a stranger changed someone else's group's boundaries"
+    end
   end
 
   describe "group membership" do
