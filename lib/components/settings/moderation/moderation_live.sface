@@ -1,11 +1,19 @@
 {#if Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category) ||
     Bonfire.Boundaries.can?(@__context__, :mediate, @category)}
-  {!-- the group's inbox, as its "submitted" view loads it (its notifications minus its outbox): reports on what's posted in it, join requests and submissions. Reports (`include_flags`) and requests about the group rather than the viewer (`include_requests`) are kept in only here, behind the moderation check above, as the notifications preset does for one's own --}
+  {!-- the group's two moderation feeds together: its NOTIFICATIONS (what moderators act on: reports, join requests, and the moderation records, its log) and its INBOX (posts submitted to it), minus what it has already shared (its outbox). Reports (`include_flags`) and requests about the group rather than the viewer (`include_requests`) are kept in only here, behind the moderation check above, as the notifications preset does for one's own. The feeds go in `feed_filters`, which a named preset keeps, not `feed_id`, which it replaces --}
   <StatefulComponent
     module={maybe_component(Bonfire.UI.Social.FeedLive, @__context__)}
     id={ComponentID.new(Bonfire.UI.Social.FeedLive, "group_moderation_#{id(@category)}", __MODULE__)}
-    feed_id={e(@category, :character, :notifications_id, nil)}
+    feed_name={:moderation}
     feed_filters={%{
+      feed_ids:
+        Enum.reject(
+          [
+            e(@category, :character, :notifications_id, nil),
+            e(@category, :character, :inbox_id, nil)
+          ],
+          &is_nil/1
+        ),
       exclude_feed_ids: e(@category, :character, :outbox_id, nil),
       # an inbox lists events, and most of a group's are about the group itself (join requests, follows), which one-row-per-object would collapse into one, as the flag presets also avoid
       show_objects_only_once: false

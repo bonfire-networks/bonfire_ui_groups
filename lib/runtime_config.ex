@@ -68,7 +68,7 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
             instance: Bonfire.UI.Groups.Settings.DetailLive,
             archive: Bonfire.UI.Groups.Settings.DetailLive,
             moderators: Bonfire.UI.Groups.Settings.DetailLive,
-            moderation: Bonfire.UI.Groups.Settings.FlagsLive
+            moderation: Bonfire.UI.Groups.Settings.ModerationLive
           ],
           # Each page's title, and the overview's rows linking to it (`Settings.GeneralLive`), in order. An entry with a `group` is rendered in that section of the overview (`:people`, `:management`, `:admin`, `:danger`), as a row linking to the page, or as its `component` instead. `description` and `value` may be a function of the overview's assigns, for what has to be worked out per group. A row shows only if its `module` is enabled and the viewer `can` do the verb on the object (`:group` meaning the group). A plain string is a title alone, which extensions may still configure.
           navigation: [

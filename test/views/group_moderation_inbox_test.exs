@@ -48,7 +48,8 @@ defmodule Bonfire.UI.Groups.GroupModerationInboxTest do
      moderator: moderator,
      moderator_account: moderator_account,
      member: member,
-     member_account: member_account}
+     member_account: member_account,
+     post: post}
   end
 
   test "a moderator sees reports and join requests on the group's moderation page", %{
@@ -61,6 +62,54 @@ defmodule Bonfire.UI.Groups.GroupModerationInboxTest do
     |> wait_async()
     |> assert_has_or_open_browser("[data-id=feed] article", text: "Reported post")
     |> assert_has("[data-id=feed] article", text: "Hopeful Joiner")
+  end
+
+  # the moderation log: a lock leaves a record of who closed what and why, shown to the group's moderators where they already find reports and requests
+  test "a moderator sees a lock and its reason on the moderation page, and a member can't open the page",
+       %{
+         group: group,
+         moderator: moderator,
+         moderator_account: moderator_account,
+         member: member,
+         member_account: member_account,
+         post: post
+       } do
+    assert {:ok, _} =
+             Bonfire.Boundaries.Blocks.lock(post,
+               current_user: moderator,
+               reason: "Closed: the thread went off topic"
+             )
+
+    conn(user: moderator, account: moderator_account)
+    |> visit("/group/#{group.character.username}/settings/moderation")
+    |> wait_async()
+    |> assert_has_or_open_browser("[data-id=feed] article",
+      text: "Closed: the thread went off topic"
+    )
+
+    conn(user: member, account: member_account)
+    |> visit("/group/#{group.character.username}/settings/moderation")
+    |> wait_async()
+    # refused by the group settings around the page, before the moderation page's own check
+    |> assert_has("*", text: "You don't have permission to edit this group's settings.")
+    |> refute_has("*", text: "Closed: the thread went off topic")
+  end
+
+  # the moderation page shows the group's notifications, not everything: an ordinary post, neither reported nor a request, isn't something to moderate
+  test "the moderation page doesn't show the group's ordinary posts", %{
+    group: group,
+    member: member,
+    moderator: moderator,
+    moderator_account: moderator_account
+  } do
+    Simulate.fake_post_in_group!(member, group, "<p>Just an ordinary post</p>")
+
+    conn(user: moderator, account: moderator_account)
+    |> visit("/group/#{group.character.username}/settings/moderation")
+    |> wait_async()
+    # the control: the page loaded its feed
+    |> assert_has_or_open_browser("[data-id=feed] article", text: "Hopeful Joiner")
+    |> refute_has("[data-id=feed] article", text: "Just an ordinary post")
   end
 
   test "someone who doesn't moderate the group doesn't see its reports in the group's inbox", %{
