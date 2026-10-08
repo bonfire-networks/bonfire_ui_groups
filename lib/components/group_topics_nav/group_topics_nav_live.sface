@@ -1,36 +1,51 @@
-{#if is_list(@topics) and @topics != []}
+{#if @inline}
+  <nav :if={@topics != []} aria-label={topics_label(@group)} data-id="group_topics_mobile">
+    <.topic_links topics={@topics} group_return_to={@group_return_to} inline />
+  </nav>
+{#elseif show?(@topics, @can_create_topic)}
+  {!-- the aside is labelled by `widget_title`, so the nav inside needs no label of its own --}
   <Bonfire.UI.Common.WidgetBlockLive
-    widget_title={if @inline,
-      do: nil,
-      else: l("Topics in %{name}", name: e(@group, :profile, :name, l("this group")))}
-    class={if @inline,
-      do: "w-full",
-      else: "group-topics-widget w-full p-card flex-auto mx-auto border-y-hair border-secondary"}
+    widget_title={topics_label(@group)}
+    class="group-topics-widget w-full p-card flex-auto mx-auto border-y-hair border-secondary"
+    empty={@topics == []}
+    empty_message={l("No topics yet. Topics organise this group's discussions by theme.")}
+    empty_icon="ph:hash"
   >
-    <nav
-      aria-label={l("Topics in %{name}", name: e(@group, :profile, :name, l("this group")))}
-      data-id={if @inline, do: "group_topics_mobile", else: "group_topics_nav"}
-    >
-      <ul class={if @inline,
-        do: "flex gap-2 overflow-x-auto px-2 py-1 [scrollbar-width:thin]",
-        else: "flex flex-col"}>
-        {#for topic <- @topics}
-          <li class={"shrink-0": @inline}>
-            <LinkLive
-              to={Bonfire.Classify.Web.GroupNavigation.link(path(topic), @group_return_to)}
-              opts={[id: "group-topic-#{if @inline, do: "mobile", else: "link"}-#{id(topic)}"]}
-              class={
-                "flex gap-2 rounded-lg text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
-                "items-center px-2 py-3 hover:bg-base-200 active:bg-base-200": @inline,
-                "items-start py-3 hover:underline": !@inline
-              }
-            >
-              <#Icon iconify="ph:hash" class="mt-0.5 size-4 shrink-0 text-primary" />
-              <span class={if @inline, do: "max-w-[14rem] truncate", else: "min-w-0 break-words"}>{e(topic, :profile, :name, l("Untitled topic"))}</span>
-            </LinkLive>
-          </li>
-        {/for}
-      </ul>
+    {!-- only reached with no topics, which `show?/2` only allows for someone who may create one --}
+    <:empty_action>
+      <StatelessComponent
+        module={maybe_component(Bonfire.UI.Topics.NewTopicLive, @__context__)}
+        id="new_topic_widget"
+        parent={@group}
+        label={l("Create the first topic")}
+        open_modal_wrapper_class="flex"
+        open_btn_wrapper_class="btn btn-sm btn-primary normal-case"
+      >
+        <:open_btn>
+          <span class="flex items-center gap-1.5">
+            <#Icon iconify="ph:plus" class="size-4 shrink-0" />
+            {l("Create the first topic")}
+          </span>
+        </:open_btn>
+      </StatelessComponent>
+    </:empty_action>
+    <nav data-id="group_topics_nav">
+      <.topic_links topics={@topics} group_return_to={@group_return_to} inline={false} />
     </nav>
+    <div :if={@can_create_topic} class="mt-1 border-t border-secondary">
+      <StatelessComponent
+        module={maybe_component(Bonfire.UI.Topics.NewTopicLive, @__context__)}
+        id="new_topic_widget"
+        parent={@group}
+        label={l("New topic")}
+        open_modal_wrapper_class="flex"
+        open_btn_wrapper_class="flex items-center gap-2 rounded-lg py-3 text-sm font-medium text-primary hover:underline !pb-0"
+      >
+        <:open_btn>
+          <#Icon iconify="ph:plus" class="size-4 shrink-0" />
+          <span>{l("New topic")}</span>
+        </:open_btn>
+      </StatelessComponent>
+    </div>
   </Bonfire.UI.Common.WidgetBlockLive>
 {/if}

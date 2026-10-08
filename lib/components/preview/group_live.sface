@@ -61,7 +61,7 @@
             <LinkLive
               :if={topic_name(topic)}
               to={path(topic)}
-              class="inline-flex min-h-11 max-w-full items-center truncate text-xs text-primary underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              class="inline-flex min-h-11 max-w-full items-center truncate text-xs text-primary underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 pb-0"
             >{topic_name(topic)}</LinkLive>
           {/for}
         </div>

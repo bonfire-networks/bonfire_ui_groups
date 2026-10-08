@@ -108,6 +108,7 @@
               members={@members}
               moderators={@moderators}
               subcategories={e(assigns, :subcategories, [])}
+              can_create_topic={e(assigns, :can_create_topic, false)}
               group_return_to={e(assigns, :group_return_to, "/groups")}
               membership_slug={e(assigns, :group_membership_slug, nil)}
               visibility_slug={e(assigns, :group_visibility_slug, nil)}
