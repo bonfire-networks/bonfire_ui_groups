@@ -51,7 +51,7 @@
           />
         </div>
       {/for}
-      <div class="mt-6 mb-3 first-letter:capitalize flex-1 text-lg font-medium text-base-content">{l("Members")}</div>
+      <div class="mt-6 mb-3 first-letter:capitalize flex-1 type-heading text-base-content">{l("Members")}</div>
       {#for user <- @members}
         <div class="mb-3">
           <StatelessComponent

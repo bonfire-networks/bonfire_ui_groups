@@ -7,7 +7,7 @@
   <div :if={@parent} class="flex items-center gap-2 pb-3 mb-3 border-b border-divider">
     <#Icon iconify="ph:arrow-bend-up-left-duotone" class="w-4 h-4 text-subtle" />
     <div class="flex flex-col min-w-0">
-      <span class="text-[11px] uppercase tracking-wider text-subtle">{l("Part of")}</span>
+      <span class="type-overline text-subtle">{l("Part of")}</span>
       <LinkLive
         to={@parent_link}
         class="text-sm font-medium text-base-content hover:text-primary hover:underline truncate"

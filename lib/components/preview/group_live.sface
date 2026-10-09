@@ -1,7 +1,7 @@
 {#if @showing_within in [:discovery, :joined]}
   <article
     id={"group-preview-#{id(@object)}"}
-    class="flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-divider bg-base-100"
+    class="flex h-full min-w-0 flex-col overflow-hidden rounded-box border border-divider bg-base-100"
   >
     <div
       class="h-24 shrink-0 overflow-hidden bg-base-300"
@@ -18,7 +18,7 @@
     <div class="flex flex-1 flex-col gap-3 p-4">
       <div class="flex min-w-0 flex-col gap-2">
         <div
-          class="relative -mt-8 grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl border-4 border-base-100 bg-base-200 text-base-content"
+          class="relative -mt-8 grid size-12 shrink-0 place-items-center overflow-hidden rounded-box border-4 border-base-100 bg-base-200 text-base-content"
           aria-hidden="true"
         >
           {#case Media.avatar_url(@object)}
@@ -39,7 +39,7 @@
           <LinkLive
             opts={[id: "group-preview-link-#{id(@object)}", title: handle(@object)]}
             to={@permalink}
-            class="min-h-12 line-clamp-2 break-words text-lg font-semibold leading-6 text-base-content underline-offset-2 hover:underline focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            class="min-h-12 line-clamp-2 break-words type-heading leading-6 text-base-content underline-offset-2 hover:underline focus-visible:rounded-selector focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           >{name(@object)}</LinkLive>
           <p
             :if={remote?(@object) and handle(@object)}
@@ -100,7 +100,7 @@
   >
     <div class="flex min-w-0 items-center gap-3">
       <div
-        class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-base-200 text-base-content"
+        class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-box bg-base-200 text-base-content"
         aria-hidden="true"
       >
         {#case Media.avatar_url(@object)}
@@ -121,7 +121,7 @@
         <LinkLive
           opts={[id: "group-preview-link-#{id(@object)}", title: handle(@object)]}
           to={@permalink}
-          class="block truncate text-base font-semibold leading-6 text-base-content underline-offset-2 hover:underline"
+          class="block truncate text-base font-bold leading-6 text-base-content underline-offset-2 hover:underline"
         >{name(@object)}</LinkLive>
         <div class="flex min-w-0 flex-wrap items-center gap-x-2 text-xs leading-5 text-muted">
           <span class="tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
@@ -142,7 +142,7 @@
     >{e(@object, :profile, :summary, "")}</p>
   </article>
 {#elseif @showing_within == :feed}
-  <div class="group block rounded-xl overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all">
+  <div class="group block rounded-box overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all">
     {!-- Banner --}
     {#case Media.banner_url(@object, fallback: false)}
       {#match nil}
@@ -160,11 +160,11 @@
         <div class="shrink-0 -mt-10 relative z-10">
           {#case Media.avatar_url(@object)}
             {#match "/images/avatar.png"}
-              <div class="w-14 h-14 rounded-xl bg-base-100 shadow-lg flex items-center justify-center">
+              <div class="w-14 h-14 rounded-box bg-base-100 shadow-lg flex items-center justify-center">
                 <#Icon iconify="ph:users-three-duotone" class="w-7 h-7 text-subtle" />
               </div>
             {#match url}
-              <img src={url} class="w-14 h-14 rounded-xl ring-2 ring-base-100 object-cover">
+              <img src={url} class="w-14 h-14 rounded-box ring-2 ring-base-100 object-cover">
           {/case}
         </div>
 
@@ -202,14 +202,14 @@
         <LinkLive to={@permalink} class="shrink-0 block" tabindex="-1" aria-hidden="true">
           {#case Media.avatar_url(@object)}
             {#match "/images/avatar.png"}
-              <div class="w-[115px] h-[115px] rounded-xl bg-primary flex items-center justify-center">
+              <div class="w-[115px] h-[115px] rounded-box bg-primary flex items-center justify-center">
                 <#Icon
                   iconify="ph:users-three-duotone"
                   class="w-12 h-12 text-primary-content group-hover:text-primary-content"
                 />
               </div>
             {#match url}
-              <img src={url} class="w-[115px] h-[115px] rounded-xl object-cover">
+              <img src={url} class="w-[115px] h-[115px] rounded-box object-cover">
           {/case}
         </LinkLive>
 
@@ -218,7 +218,7 @@
           <div class="flex justify-between items-center">
             <LinkLive
               to={@permalink}
-              class="font-medium text-display leading-tight text-base-content truncate"
+              class="type-title leading-tight text-base-content truncate"
             >{name(@object)}</LinkLive>
             <div :if={current_user_id(@__context__)} class="shrink-0 self-start">
               <Bonfire.Classify.Web.CategoryActionsLive
@@ -232,17 +232,17 @@
           </div>
           <p
             :if={e(@object, :profile, :summary, "") != ""}
-            class="text-body text-base-content line-clamp-4"
+            class="text-base text-base-content line-clamp-4"
           >{e(@object, :profile, :summary, "")}</p>
 
           {!-- Meta line: governance chip + members count --}
         </div>
       </div>
-      <div class="flex items-center flex-wrap gap-card text-body text-base-content">
+      <div class="flex items-center flex-wrap gap-card text-base text-base-content">
         {!-- how many people are in a group is something only someone who may READ it gets to know, so the count is left out of the reduced view a `:see`-only visitor lands on. The governance chip below stays: that is the group's own stated policy, and it is what tells them whether joining is even possible. --}
         <div :if={@showing_within != :preview} class="inline-flex items-center gap-1">
           <!-- FIXME: n+1 -->
-          <span class="font-medium text-[18px]">{Categories.members_count(@object)}</span> {l("members")}
+          <span class="type-heading">{Categories.members_count(@object)}</span> {l("members")}
         </div>
         <span :if={@showing_within != :preview} class="text-base-content/25" aria-hidden="true">·</span>
         {#case row_chip(@object)}

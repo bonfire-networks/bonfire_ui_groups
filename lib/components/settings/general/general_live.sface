@@ -3,12 +3,12 @@
   class="bonfire-wrapper mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 pb-12 pt-5 sm:px-8"
 >
   {#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
-    <div class="rounded-lg border border-warning/30 bg-warning/5 p-4 text-sm text-muted">
+    <div class="rounded-box border border-warning/30 bg-warning/5 p-4 text-sm text-muted">
       {l("You don't have permission to edit this group's settings.")}
     </div>
   {#else}
     <section aria-labelledby="settings-group-name" class="flex flex-col items-center text-center">
-      <div class="h-28 w-full overflow-hidden rounded-2xl bg-base-200 sm:h-36" aria-hidden="true">
+      <div class="h-28 w-full overflow-hidden rounded-box bg-base-200 sm:h-36" aria-hidden="true">
         {#case Media.banner_url(@category, fallback: false)}
           {#match nil}
           {#match banner}
@@ -24,7 +24,7 @@
       />
       <h1
         id="settings-group-name"
-        class="mt-3 max-w-full break-words text-2xl font-semibold leading-tight"
+        class="mt-3 max-w-full break-words type-title leading-tight"
       >
         {e(@category, :profile, :name, nil) || e(@category, :character, :username, nil)}
       </h1>
@@ -40,7 +40,7 @@
           title_text={l("Edit group details")}
           open_btn_text={l("Edit group details")}
           open_btn_opts={[id: "group_settings_identity_open"]}
-          open_btn_wrapper_class="min-h-11 rounded-lg px-4 py-2 text-center font-medium text-primary hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          open_btn_wrapper_class="min-h-11 rounded-selector px-4 py-2 text-center font-medium text-primary hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           without_form
           no_actions
         >
@@ -67,7 +67,7 @@
     <section
       :if={@management_entries != []}
       aria-label={l("Group management")}
-      class="overflow-hidden rounded-2xl border border-divider bg-surface"
+      class="overflow-hidden rounded-box border border-divider bg-surface"
     >
       {#for {entry, index} <- Enum.with_index(@management_entries)}
         <hr :if={index > 0} class="m-0 h-px border-0 bg-fill-strong">
@@ -91,7 +91,7 @@
         <h2 id="group-settings-instance-heading">{l("Instance administration")}</h2>
         <span>{l("Admins only")}</span>
       </header>
-      <div class="overflow-hidden rounded-2xl border border-divider bg-surface">
+      <div class="overflow-hidden rounded-box border border-divider bg-surface">
         {#for {entry, index} <- Enum.with_index(@admin_entries)}
           <hr :if={index > 0} class="m-0 h-px border-0 bg-fill-strong">
           <Bonfire.UI.Groups.Settings.RowLive
@@ -108,7 +108,7 @@
 
     <div
       :if={@danger_entries != []}
-      class="overflow-hidden rounded-2xl border border-divider bg-surface"
+      class="overflow-hidden rounded-box border border-divider bg-surface"
     >
       {#for {entry, index} <- Enum.with_index(@danger_entries)}
         <hr :if={index > 0} class="m-0 h-px border-0 bg-fill-strong">

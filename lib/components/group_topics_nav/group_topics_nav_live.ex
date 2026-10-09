@@ -27,7 +27,7 @@ defmodule Bonfire.UI.Groups.GroupTopicsNavLive do
             to={Bonfire.Classify.Web.GroupNavigation.link(path(topic), @group_return_to)}
             opts={[id: "group-topic-#{if @inline, do: "mobile", else: "link"}-#{id(topic)}"]}
             class={
-              "flex gap-2 rounded-lg text-sm",
+              "flex gap-2 rounded-selector text-sm",
               "items-center px-2 py-3 hover:bg-base-200 active:bg-base-200": @inline,
               "items-start py-3 hover:underline": !@inline
             }

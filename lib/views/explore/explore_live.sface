@@ -7,7 +7,7 @@
   >
     <h2
       id="group-discovery-title"
-      class="max-w-2xl text-3xl font-bold tracking-tight text-base-content sm:text-4xl"
+      class="max-w-2xl text-3xl font-bold tracking-tight text-base-content sm:text-3xl"
     >
       {l("Find your community")}
     </h2>
@@ -25,7 +25,7 @@
     <div class="bonfire-wrapper !p-0">
       {#if @categories == []}
         <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
-          <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
+          <div class="mb-4 flex size-14 items-center justify-center rounded-box bg-base-content/[0.04]">
             <#Icon iconify="ph:archive-duotone" class="size-7 text-subtle" />
           </div>
           <p class="text-base font-medium text-base-content">
@@ -54,11 +54,11 @@
               >
                 {#case Bonfire.Common.Media.avatar_url(category)}
                   {#match "/images/avatar.png"}
-                    <div class="grid size-12 place-items-center rounded-xl bg-fill">
+                    <div class="grid size-12 place-items-center rounded-box bg-fill">
                       <#Icon iconify="ph:users-three-duotone" class="size-6 text-subtle" />
                     </div>
                   {#match url}
-                    <img src={url} class="size-12 rounded-xl object-cover grayscale-[40%]">
+                    <img src={url} class="size-12 rounded-box object-cover grayscale-[40%]">
                 {/case}
               </Bonfire.UI.Common.LinkLive>
 

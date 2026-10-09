@@ -32,7 +32,7 @@
             aria-hidden="true"
           />
       {/case}
-      <span class={["truncate min-w-0 text-body", Bonfire.UI.Common.LinkWidgetLive.active_label_class(@active?)]}>{@group_name}</span>
+      <span class={["truncate min-w-0 text-base", Bonfire.UI.Common.LinkWidgetLive.active_label_class(@active?)]}>{@group_name}</span>
     </LinkLive>
     <details
       :if={@topics != []}
@@ -42,7 +42,7 @@
     >
       <summary
         aria-label={l("Topics in %{group}", group: @group_name)}
-        class="absolute right-0 top-0 flex !p-0 !min-h-0 !size-9 items-center justify-center rounded-md cursor-pointer list-none after:!content-none [&::-webkit-details-marker]:hidden hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!size-11"
+        class="absolute right-0 top-0 flex !p-0 !min-h-0 !size-9 items-center justify-center rounded-selector cursor-pointer list-none after:!content-none [&::-webkit-details-marker]:hidden hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!size-11"
       >
         <#Icon
           iconify="carbon:chevron-right"

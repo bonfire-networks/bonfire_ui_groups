@@ -8,8 +8,8 @@
       object={@category}
       set_field={:category}
       set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
-      container_class="relative rounded-xl flex justify-center px-6 py-10 bg-center bg-cover h-[140px] overflow-hidden"
-      label_class="absolute inset-0 flex flex-col items-center justify-center w-full h-full text-sm font-medium text-white transition-opacity duration-200 ease-out rounded-xl cursor-pointer bg-black/40 opacity-0 hover:opacity-100 focus-within:opacity-100"
+      container_class="relative rounded-box flex justify-center px-6 py-10 bg-center bg-cover h-[140px] overflow-hidden"
+      label_class="absolute inset-0 flex flex-col items-center justify-center w-full h-full text-sm font-medium text-white transition-opacity duration-200 ease-out rounded-box cursor-pointer bg-black/40 opacity-0 hover:opacity-100 focus-within:opacity-100"
     />
 
     <div class="flex items-end gap-3 px-3 -mt-[40px]">

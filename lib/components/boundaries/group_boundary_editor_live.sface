@@ -19,7 +19,7 @@
               phx-value-preset={slug}
               phx-target={@myself}
               class={
-                "flex items-start gap-3 cursor-pointer p-3 rounded-lg border text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.99]",
+                "flex items-start gap-3 cursor-pointer p-3 rounded-selector border text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.99]",
                 "ring-2 ring-primary bg-primary/5 border-divider shadow-sm": @preset == slug,
                 "border-divider hover:bg-fill hover:border-divider": @preset != slug
               }
@@ -57,7 +57,7 @@
           phx-value-preset="custom"
           phx-target={@myself}
           class={
-            "flex items-start gap-3 p-3 rounded-lg border border-dashed text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.99]",
+            "flex items-start gap-3 p-3 rounded-box border border-dashed text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.99]",
             "ring-2 ring-primary bg-primary/5 border-divider": @preset == "custom",
             "border-divider hover:bg-fill hover:border-divider": @preset != "custom"
           }
@@ -76,7 +76,7 @@
 
   {!-- Override-swap banner --}
   {#if @pending_preset}
-    <div class="flex items-start gap-3 p-3 rounded-lg bg-warning/10 border border-warning/40">
+    <div class="flex items-start gap-3 p-3 rounded-box bg-warning/10 border border-warning/40">
       <#Icon iconify="ph:warning-duotone" class="w-4 h-4 text-warning shrink-0 mt-0.5" />
       <div class="flex-1 text-sm">
         <div class="font-medium text-base-content">
@@ -119,7 +119,7 @@
         {/if}
       </div>
 
-      <div class="flex flex-col   divide-hair divide-divider rounded-lg border border-divider overflow-hidden">
+      <div class="flex flex-col divide-hair divide-divider rounded-box border border-divider overflow-hidden">
         {#for %{key: key, label: label, help: help, locked: locked} <- @layer2_rows}
           {#if @show_unavailable_toggles || !locked}
             <div class="flex items-start gap-3 p-3">
@@ -151,7 +151,7 @@
   {/if}
 
   {!-- Layer 3 — Fine-tune each dimension (mirrors the "Advanced Permissions" card from the boundary modal) --}
-  <section class="rounded-lg p-[1.5px] bg-gradient-to-br from-primary/70 via-warning/60 to-primary/70">
+  <section class="rounded-box p-[1.5px] bg-gradient-to-br from-primary/70 via-warning/60 to-primary/70">
     <div class="bg-base-100 rounded-[calc(0.5rem-1.5px)]">
       <button
         type="button"

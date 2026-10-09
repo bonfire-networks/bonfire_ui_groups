@@ -9,7 +9,7 @@
             role="status"
             class="flex flex-col items-center justify-center px-6 py-10 text-center"
           >
-            <div class="mb-4 grid size-14 place-items-center rounded-2xl bg-base-content/[0.04]">
+            <div class="mb-4 grid size-14 place-items-center rounded-box bg-base-content/[0.04]">
               <Iconify.iconify
                 icon={if @search_term != "",
                   do: "ph:magnifying-glass-duotone",

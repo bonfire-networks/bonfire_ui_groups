@@ -12,7 +12,7 @@
     <button
       id="group-discovery-submit"
       type="submit"
-      class="grid size-11 shrink-0 place-items-center rounded-lg text-muted hover:text-base-content focus-visible:outline focus-visible:outline-2"
+      class="grid size-11 shrink-0 place-items-center rounded-box text-muted hover:text-base-content focus-visible:outline focus-visible:outline-2"
       aria-label={l("Search groups")}
     >
       <#Icon iconify="ph:magnifying-glass" class="size-5" />
@@ -65,7 +65,7 @@
         aria-label={l("One active filter")}
       />
     </summary>
-    <fieldset class="absolute right-0 z-20 mt-2 w-52 rounded-lg border-hair border-divider bg-base-100 p-2">
+    <fieldset class="absolute right-0 z-20 mt-2 w-52 rounded-box border-hair border-divider bg-base-100 p-2">
       <legend class="sr-only">{l("Filter by joining policy")}</legend>
       {#for {value, label} <- [
           {"all", l("Any joining policy")},
@@ -75,7 +75,7 @@
         ]}
         <label
           for={"group-policy-#{value}"}
-          class="flex cursor-pointer items-center gap-3 rounded-md px-2 py-2 text-sm hover:bg-base-200"
+          class="flex cursor-pointer items-center gap-3 rounded-selector px-2 py-2 text-sm hover:bg-base-200"
         >
           <input
             id={"group-policy-#{value}"}

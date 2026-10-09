@@ -39,7 +39,7 @@
         parent={@group}
         label={l("New topic")}
         open_modal_wrapper_class="flex"
-        open_btn_wrapper_class="flex items-center gap-2 rounded-lg py-3 text-sm font-medium text-primary hover:underline !pb-0"
+        open_btn_wrapper_class="flex items-center gap-2 rounded-selector py-3 text-sm font-medium text-primary hover:underline !pb-0"
       >
         <:open_btn>
           <#Icon iconify="ph:plus" class="size-4 shrink-0" />

@@ -4,7 +4,7 @@
   class="flex flex-col gap-3"
 >
   <header class="flex items-center justify-between gap-3 px-1">
-    <h2 id="settings-people-heading" class="font-semibold">
+    <h2 id="settings-people-heading" class="font-bold">
       {if is_integer(@member_count),
         do: lp("%{count} person", "%{count} people", @member_count, count: @member_count),
         else: l("People")}
@@ -52,7 +52,7 @@
       class="btn btn-ghost min-h-11"
     >{l("Clear search")}</button>
   </.form>
-  <div class="overflow-hidden rounded-2xl border border-divider bg-surface">
+  <div class="overflow-hidden rounded-box border border-divider bg-surface">
     <LinkLive
       to={@permalink <> "/settings/moderators"}
       opts={[id: "group_settings_moderators_link"]}

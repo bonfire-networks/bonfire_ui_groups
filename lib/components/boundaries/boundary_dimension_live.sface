@@ -11,7 +11,7 @@
         {#match opt}
           {#if e(opt, :disabled, nil)}
             {#if @show_unavailable}
-              <div class="flex items-center gap-3 p-3 rounded-lg border border-divider opacity-40 cursor-not-allowed">
+              <div class="flex items-center gap-3 p-3 rounded-box border border-divider opacity-40 cursor-not-allowed">
                 <div class="flex flex-col min-w-0 flex-1">
                   <span class="text-sm font-medium">{opt[:label]}</span>
                   {#if opt[:description]}
@@ -31,7 +31,7 @@
               phx-value-slug={slug}
               phx-target={@target}
               class={
-                "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
+                "flex items-center gap-3 p-3 rounded-selector border transition-all duration-150 cursor-pointer text-left",
                 "ring-2 ring-primary bg-primary/5 border-divider": @selected == slug,
                 "border-divider hover:bg-fill": @selected != slug
               }
@@ -65,7 +65,7 @@
           phx-value-slug={id(circle)}
           phx-target={@target}
           class={
-            "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
+            "flex items-center gap-3 p-3 rounded-selector border transition-all duration-150 cursor-pointer text-left",
             "ring-2 ring-primary bg-primary/5 border-divider": @selected == id(circle),
             "border-divider hover:bg-fill": @selected != id(circle)
           }

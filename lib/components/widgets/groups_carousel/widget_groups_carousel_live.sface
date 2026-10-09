@@ -5,7 +5,7 @@
     widget_title={@title}
     widget_subtitle={@subtitle}
     title_class="gap-3 px-5 pb-3.5 sm:px-6"
-    heading_class="text-xl font-medium leading-snug theme-light:text-2xl theme-light:font-semibold"
+    heading_class="text-xl font-medium leading-snug theme-light:text-2xl theme-light:font-bold"
     subtitle_class="mt-0.5 text-xs text-muted theme-light:text-xs"
   >
     <:action>

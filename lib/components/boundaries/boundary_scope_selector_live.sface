@@ -12,7 +12,7 @@
     {#for {scope, scope_meta, is_selected} <- @scope_ordered}
       {#if e(scope_meta, :disabled, nil) || scope in @disabled_scopes}
         {#if @show_unavailable}
-          <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-divider opacity-40 cursor-not-allowed">
+          <div class="flex items-center gap-2 px-3 py-2 rounded-box border border-divider opacity-40 cursor-not-allowed">
             <Iconify.iconify
               :if={e(scope_meta, :icon, nil)}
               icon={scope_meta[:icon]}
@@ -31,7 +31,7 @@
           phx-target={@target}
           title={e(scope_meta, :description, nil)}
           class={
-            "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-150 cursor-pointer",
+            "flex items-center gap-2 px-3 py-2 rounded-selector border transition-all duration-150 cursor-pointer",
             "ring-2 ring-primary bg-primary/5 border-divider": is_selected,
             "border-divider hover:bg-fill": !is_selected
           }
@@ -61,7 +61,7 @@
           phx-value-slug={id(circle)}
           phx-target={@target}
           class={
-            "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-150 cursor-pointer",
+            "flex items-center gap-2 px-3 py-2 rounded-selector border transition-all duration-150 cursor-pointer",
             "ring-2 ring-primary bg-primary/5 border-divider": @selected == id(circle),
             "border-divider hover:bg-fill": @selected != id(circle)
           }
@@ -98,7 +98,7 @@
         {#for {slug, opt, role_meta, access_role, is_selected_access} <- @scope_slugs}
           {#if e(opt, :disabled, nil)}
             {#if @show_unavailable}
-              <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-divider opacity-40 cursor-not-allowed text-sm">
+              <div class="flex items-center gap-2 px-3 py-2 rounded-box border border-divider opacity-40 cursor-not-allowed text-sm">
                 <Iconify.iconify
                   :if={e(role_meta, :icon, nil)}
                   icon={role_meta[:icon]}
@@ -117,7 +117,7 @@
               phx-target={@target}
               title={e(role_meta, :description, nil) || e(opt, :description, nil)}
               class={
-                "flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-150 cursor-pointer text-sm",
+                "flex items-center gap-2 px-3 py-2 rounded-selector border transition-all duration-150 cursor-pointer text-sm",
                 "ring-2 ring-primary bg-primary/5 border-divider": is_selected_access,
                 "border-divider hover:bg-fill": !is_selected_access
               }

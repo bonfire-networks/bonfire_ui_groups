@@ -6,7 +6,7 @@
       class="inline-flex min-w-0 items-center gap-3 text-sm"
     >
       <#Icon iconify="carbon:chevron-left" class="size-4 shrink-0" />
-      <span class="grid size-7 shrink-0 place-items-center overflow-hidden rounded-lg bg-base-200">
+      <span class="grid size-7 shrink-0 place-items-center overflow-hidden rounded-box bg-base-200">
         {#case Media.avatar_url(@category)}
           {#match "/images/avatar.png"}
             <#Icon iconify="ph:users-three-duotone" class="size-5" />
@@ -25,7 +25,7 @@
     </label>
   </header>
   <div class="px-4 pt-6 pb-4 sm:px-6">
-    <h1 class="flex items-baseline gap-2 text-2xl font-semibold tracking-tight">
+    <h1 class="flex items-baseline gap-2 type-title">
       {l("Members")}
       <span id="members-directory-count" class="text-lg font-normal tabular-nums text-muted">
         {@member_count}
