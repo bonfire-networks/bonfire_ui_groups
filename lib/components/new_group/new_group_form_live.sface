@@ -16,7 +16,7 @@
     {!-- Name + description --}
     <section class="flex flex-col gap-2">
       <div class="form-control">
-        <label for="new_group_name" class="text-sm font-medium text-base-content/80 mb-1">
+        <label for="new_group_name" class="text-sm font-medium text-muted mb-1">
           {l("Group name")} <span class="text-error" aria-hidden="true">*</span>
         </label>
         <input

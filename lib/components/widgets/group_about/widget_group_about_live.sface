@@ -1,13 +1,13 @@
 <Bonfire.UI.Common.WidgetBlockLive
-  class="group-moderators-widget w-full p-card flex-auto mx-auto border-y-hair border-secondary"
+  class="group-moderators-widget w-full p-card flex-auto mx-auto border-y-hair border-divider"
   :if={not is_nil(@parent) or (@selected_tab != "members" and @moderators != [])}
   widget_title={if @selected_tab != "members" and @moderators != [], do: l("Moderators"), else: nil}
 >
   {!-- Parent group breadcrumb (nested groups only) --}
-  <div :if={@parent} class="flex items-center gap-2 pb-3 mb-3 border-b border-secondary">
-    <#Icon iconify="ph:arrow-bend-up-left-duotone" class="w-4 h-4 text-base-content/40" />
+  <div :if={@parent} class="flex items-center gap-2 pb-3 mb-3 border-b border-divider">
+    <#Icon iconify="ph:arrow-bend-up-left-duotone" class="w-4 h-4 text-subtle" />
     <div class="flex flex-col min-w-0">
-      <span class="text-[11px] uppercase tracking-wider text-base-content/45">{l("Part of")}</span>
+      <span class="text-[11px] uppercase tracking-wider text-subtle">{l("Part of")}</span>
       <LinkLive
         to={@parent_link}
         class="text-sm font-medium text-base-content hover:text-primary hover:underline truncate"
@@ -17,11 +17,11 @@
 
   {!-- Moderators --}
   <div data-role="group-sidebar-moderators" :if={@selected_tab != "members" and @moderators != []}>
-    <div class="flex flex-col divide-hair divide-secondary">
+    <div class="flex flex-col divide-hair divide-divider">
       {#for user <- @moderators}
         <div class="p-1">
           <StatelessComponent
-            wrapper_class="widget-moderator-profile flex items-center bg-base-100 p-1 justify-between gap-1 rounded-field border-hair border-secondary [.sidebar-widgets_&]:px-0 [.sidebar-widgets_&]:border-0 [.sidebar-widgets_&]:rounded-none [.sidebar-widgets_&]:bg-transparent"
+            wrapper_class="widget-moderator-profile flex items-center bg-base-100 p-1 justify-between gap-1 rounded-field border-hair border-divider [.sidebar-widgets_&]:px-0 [.sidebar-widgets_&]:border-0 [.sidebar-widgets_&]:rounded-none [.sidebar-widgets_&]:bg-transparent"
             avatar_class="w-9 h-9 rounded-full"
             fallback_class="w-9 h-9 rounded-full"
             module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}

@@ -14,7 +14,7 @@
                 icon={if @search_term != "",
                   do: "ph:magnifying-glass-duotone",
                   else: "ph:campfire-duotone"}
-                class="size-7 text-base-content/30"
+                class="size-7 text-subtle"
               />
             </div>
 

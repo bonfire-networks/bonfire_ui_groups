@@ -1,7 +1,7 @@
 {#if @showing_within in [:discovery, :joined]}
   <article
     id={"group-preview-#{id(@object)}"}
-    class="flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-base-content/10 bg-base-100"
+    class="flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-divider bg-base-100"
   >
     <div
       class="h-24 shrink-0 overflow-hidden bg-base-300"
@@ -96,7 +96,7 @@
   <article
     id={"group-preview-#{id(@object)}"}
     data-role="group-card-compact"
-    class="flex h-full min-w-0 flex-col gap-2 rounded-box bg-(--stream-surface) p-4"
+    class="flex h-full min-w-0 flex-col gap-2 rounded-box bg-surface p-4"
   >
     <div class="flex min-w-0 items-center gap-3">
       <div
@@ -161,7 +161,7 @@
           {#case Media.avatar_url(@object)}
             {#match "/images/avatar.png"}
               <div class="w-14 h-14 rounded-xl bg-base-100 shadow-lg flex items-center justify-center">
-                <#Icon iconify="ph:users-three-duotone" class="w-7 h-7 text-base-content/40" />
+                <#Icon iconify="ph:users-three-duotone" class="w-7 h-7 text-subtle" />
               </div>
             {#match url}
               <img src={url} class="w-14 h-14 rounded-xl ring-2 ring-base-100 object-cover">
@@ -175,7 +175,7 @@
           <div :if={e(@object, :profile, :summary, "") != ""} class="text-sm text-muted line-clamp-2">{e(@object, :profile, :summary, "")}</div>
           {!-- Meta --}
           <div class="flex items-center gap-3 mt-1">
-            <span class="flex items-center gap-1 text-xs text-base-content/40">
+            <span class="flex items-center gap-1 text-xs text-subtle">
               <#Icon iconify="ph:users-duotone" class="size-4" />
               <!-- FIXME: n+1 -->
               {Categories.members_count(@object)} {l("members")}

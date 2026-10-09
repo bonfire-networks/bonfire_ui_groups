@@ -4,7 +4,7 @@
     "grid items-start grid-cols-1 mt-2 md:mt-4",
     "max-w-[680px] mx-auto": !current_user_id(@__context__)
   }>
-    <div class="p-4 border-b border-secondary">
+    <div class="p-4 border-b border-divider">
       <div class="first-letter:capitalize flex-1 text-base font-medium text-base-content">{l("Group details")}</div>
 
       <div class="max-w-full mt-3 prose prose-sm">
@@ -81,9 +81,9 @@
       module={maybe_component Bonfire.UI.Boundaries.BoundariesPresetNameLive} boundary_preset={@boundary_preset} />
   </div> --}
 
-{!-- <div class="flex items-center gap-4 py-3 mx-3 mt-3 border-t border-secondary">
+{!-- <div class="flex items-center gap-4 py-3 mx-3 mt-3 border-t border-divider">
     <LinkLive :if={@parent} to={@parent_link} class="flex items-center gap-2">
-      <#Icon iconify="mdi:account-group" class="w-5 h-5 text-base-content/100" />
+      <#Icon iconify="mdi:account-group" class="w-5 h-5 text-base-content" />
       <span class="text-xs text-muted link link-hover">{@parent}</span>
     </LinkLive>
     <LinkLive
@@ -92,7 +92,7 @@
         else: "/+#{e(@user, :character, :username, nil)}/followers"}
       class="flex link link-hover items-center gap-3"
     >
-      <div class="text-xs text-muted"><b class="text-base-content/100">{@member_count}</b> {if e(@user, :type, nil) == :group, do: l("Members"), else: l("Followers")}</div>
+      <div class="text-xs text-muted"><b class="text-base-content">{@member_count}</b> {if e(@user, :type, nil) == :group, do: l("Members"), else: l("Followers")}</div>
     </LinkLive>
   </div> --}
 {!-- <div class="flex flex-col gap-3 p-3">
@@ -104,7 +104,7 @@
       object_id={uid(@user)}
       path={path(@user)}
       hide_icon
-      class="w-full normal-case rounded-full btn btn-outline bg-base-content text-base-300 !border-opacity-70"
+      class="w-full normal-case rounded-full btn btn-outline bg-base-content text-base-300"
       verb={if e(@user, :type, nil) == :group,
         do: if(e(@boundary_preset, "open", nil), do: lc("verb: action", "Join", [], :bonfire_classify), else: l("Request to join"))}
       verb_undo={if e(@user, :type, nil) == :group, do: l("Leave")}

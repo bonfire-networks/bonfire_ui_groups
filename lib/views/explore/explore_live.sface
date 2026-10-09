@@ -3,7 +3,7 @@
     :if={@selected_tab == "discover"}
     id="group-discovery-hero"
     aria-labelledby="group-discovery-title"
-    class="border-b-hair border-secondary bg-base-200 px-6 py-8 sm:px-8 sm:py-10"
+    class="border-b-hair border-divider bg-base-200 px-6 py-8 sm:px-8 sm:py-10"
   >
     <h2
       id="group-discovery-title"
@@ -26,7 +26,7 @@
       {#if @categories == []}
         <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
           <div class="mb-4 flex size-14 items-center justify-center rounded-2xl bg-base-content/[0.04]">
-            <#Icon iconify="ph:archive-duotone" class="size-7 text-base-content/30" />
+            <#Icon iconify="ph:archive-duotone" class="size-7 text-subtle" />
           </div>
           <p class="text-base font-medium text-base-content">
             {if @search_term != "" or @join_filter != "all",
@@ -43,7 +43,7 @@
           </p>
         </div>
       {#else}
-        <div class="flex flex-col divide-hair divide-secondary">
+        <div class="flex flex-col divide-hair divide-divider">
           {#for {%{type: :group} = category, _children} <- @categories}
             <div class="flex items-start gap-4 px-4 py-4">
               <Bonfire.UI.Common.LinkLive
@@ -54,8 +54,8 @@
               >
                 {#case Bonfire.Common.Media.avatar_url(category)}
                   {#match "/images/avatar.png"}
-                    <div class="grid size-12 place-items-center rounded-xl bg-base-content/5">
-                      <#Icon iconify="ph:users-three-duotone" class="size-6 text-base-content/40" />
+                    <div class="grid size-12 place-items-center rounded-xl bg-fill">
+                      <#Icon iconify="ph:users-three-duotone" class="size-6 text-subtle" />
                     </div>
                   {#match url}
                     <img src={url} class="size-12 rounded-xl object-cover grayscale-[40%]">
@@ -70,7 +70,7 @@
 
                 <p
                   :if={e(category, :profile, :summary, "") != ""}
-                  class="line-clamp-2 text-sm leading-relaxed text-base-content/65"
+                  class="line-clamp-2 text-sm leading-relaxed text-muted"
                 >{e(category, :profile, :summary, "")}</p>
 
                 <div class="mt-0.5 flex items-center gap-1.5 text-xs">

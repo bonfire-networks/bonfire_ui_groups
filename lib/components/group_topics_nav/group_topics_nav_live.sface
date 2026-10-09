@@ -6,7 +6,7 @@
   {!-- the aside is labelled by `widget_title`, so the nav inside needs no label of its own --}
   <Bonfire.UI.Common.WidgetBlockLive
     widget_title={topics_label(@group)}
-    class="group-topics-widget w-full p-card flex-auto mx-auto border-y-hair border-secondary"
+    class="group-topics-widget w-full p-card flex-auto mx-auto border-y-hair border-divider"
     empty={@topics == []}
     empty_message={l("No topics yet. Topics organise this group's discussions by theme.")}
     empty_icon="ph:hash"
@@ -32,7 +32,7 @@
     <nav data-id="group_topics_nav">
       <.topic_links topics={@topics} group_return_to={@group_return_to} inline={false} />
     </nav>
-    <div :if={@can_create_topic} class="mt-1 border-t border-secondary">
+    <div :if={@can_create_topic} class="mt-1 border-t border-divider">
       <StatelessComponent
         module={maybe_component(Bonfire.UI.Topics.NewTopicLive, @__context__)}
         id="new_topic_widget"

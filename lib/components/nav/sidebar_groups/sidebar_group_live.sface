@@ -4,25 +4,25 @@
       to={Bonfire.Classify.Web.GroupNavigation.link(@group_path, @group_return_to)}
       opts={[id: @row_id <> "-link", title: @group_name, "aria-current": if(@active?, do: "page", else: nil)]}
       class={[
-        "flex w-full min-w-0 items-center gap-2 min-h-9 px-3 pr-10 py-1.5 rounded-selector hover:bg-base-content/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:pr-12",
-        "bg-base-content/10": @active?
+        "flex w-full min-w-0 items-center gap-2 min-h-9 px-3 pr-10 py-1.5 rounded-selector hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:pr-12",
+        "bg-fill-strong": @active?
       ]}
     >
       {#case Media.avatar_url(@category)}
         {#match "/images/avatar.png"}
           <span
             data-role="group_preset_icon"
-            class="w-7 h-7 bg-base-content/10 rounded place-content-center shrink-0 flex items-center justify-center"
+            class="w-7 h-7 bg-fill-strong rounded place-content-center shrink-0 flex items-center justify-center"
           >
             {#case @preset_icon}
               {#match "ph:campfire-duotone"}
-                <#Icon iconify="ph:campfire-fill" class="size-5 text-base-content/70" />
+                <#Icon iconify="ph:campfire-fill" class="size-5 text-muted" />
               {#match "ph:megaphone-duotone"}
-                <#Icon iconify="ph:megaphone-fill" class="size-5 text-base-content/70" />
+                <#Icon iconify="ph:megaphone-fill" class="size-5 text-muted" />
               {#match "ph:lock-duotone"}
-                <#Icon iconify="ph:lock-fill" class="size-5 text-base-content/70" />
+                <#Icon iconify="ph:lock-fill" class="size-5 text-muted" />
               {#match _}
-                <#Icon iconify="ph:users-three-fill" class="size-5 text-base-content/70" />
+                <#Icon iconify="ph:users-three-fill" class="size-5 text-muted" />
             {/case}
           </span>
         {#match url}
@@ -42,7 +42,7 @@
     >
       <summary
         aria-label={l("Topics in %{group}", group: @group_name)}
-        class="absolute right-0 top-0 flex !p-0 !min-h-0 !size-9 items-center justify-center rounded-md cursor-pointer list-none after:!content-none [&::-webkit-details-marker]:hidden hover:bg-base-content/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!size-11"
+        class="absolute right-0 top-0 flex !p-0 !min-h-0 !size-9 items-center justify-center rounded-md cursor-pointer list-none after:!content-none [&::-webkit-details-marker]:hidden hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!size-11"
       >
         <#Icon
           iconify="carbon:chevron-right"
@@ -60,8 +60,8 @@
             ]}
             class={[
               "sidebar-child-link",
-              "bg-base-content/10 text-base-content": topic.active?,
-              "text-base-content/80": not topic.active?
+              "bg-fill-strong text-base-content": topic.active?,
+              "text-muted": not topic.active?
             ]}
           >
             <span class="min-w-0 truncate">{topic.name}</span>

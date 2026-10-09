@@ -17,9 +17,9 @@
           <div
             data-sortable-item
             data-item={id(group)}
-            class="flex items-center gap-2 rounded-lg border border-secondary bg-base-100 px-3 py-2"
+            class="flex items-center gap-2 rounded-lg border border-divider bg-base-100 px-3 py-2"
           >
-            <span data-sortable-handler class="cursor-grab text-base-content/40">
+            <span data-sortable-handler class="cursor-grab text-subtle">
               <#Icon iconify="ph:dots-six-vertical-bold" class="w-5 h-5" />
             </span>
             <span class="flex-1 truncate text-sm font-medium">

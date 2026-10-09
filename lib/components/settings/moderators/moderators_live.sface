@@ -28,7 +28,7 @@
     </div>
   {#else}
     <div class="flow-root">
-      <ul class="divide-hair divide-secondary">
+      <ul class="divide-hair divide-divider">
         {#for mod <- @moderators}
           <li id={"moderator-#{id(mod)}"} class="p-4">
             <StatelessComponent

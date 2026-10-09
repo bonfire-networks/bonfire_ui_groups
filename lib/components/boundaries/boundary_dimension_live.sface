@@ -1,5 +1,5 @@
 <div id={"boundary_dim_#{@dimension}"} class="w-full form-control">
-  <label class="text-md font-medium text-base-content/80 mb-1">{@label}</label>
+  <label class="text-md font-medium text-muted mb-1">{@label}</label>
   {#if @description}
     <p class="text-xs text-muted mb-2">{@description}</p>
   {/if}
@@ -11,7 +11,7 @@
         {#match opt}
           {#if e(opt, :disabled, nil)}
             {#if @show_unavailable}
-              <div class="flex items-center gap-3 p-3 rounded-lg border border-secondary opacity-40 cursor-not-allowed">
+              <div class="flex items-center gap-3 p-3 rounded-lg border border-divider opacity-40 cursor-not-allowed">
                 <div class="flex flex-col min-w-0 flex-1">
                   <span class="text-sm font-medium">{opt[:label]}</span>
                   {#if opt[:description]}
@@ -32,8 +32,8 @@
               phx-target={@target}
               class={
                 "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
-                "ring-2 ring-primary bg-primary/5 border-secondary": @selected == slug,
-                "border-secondary hover:bg-base-content/5": @selected != slug
+                "ring-2 ring-primary bg-primary/5 border-divider": @selected == slug,
+                "border-divider hover:bg-fill": @selected != slug
               }
             >
               <div class="flex flex-col min-w-0 flex-1">
@@ -45,7 +45,7 @@
               <div class={
                 "w-4 h-4 rounded-full border-2 shrink-0 transition-all",
                 "border-primary bg-primary": @selected == slug,
-                "border-secondary": @selected != slug
+                "border-divider": @selected != slug
               } />
             </button>
           {/if}
@@ -66,11 +66,11 @@
           phx-target={@target}
           class={
             "flex items-center gap-3 p-3 rounded-lg border transition-all duration-150 cursor-pointer text-left",
-            "ring-2 ring-primary bg-primary/5 border-secondary": @selected == id(circle),
-            "border-secondary hover:bg-base-content/5": @selected != id(circle)
+            "ring-2 ring-primary bg-primary/5 border-divider": @selected == id(circle),
+            "border-divider hover:bg-fill": @selected != id(circle)
           }
         >
-          <span class="flex items-center justify-center w-8 h-8 rounded-md bg-base-content/5 shrink-0">
+          <span class="flex items-center justify-center w-8 h-8 rounded-md bg-fill shrink-0">
             <#Icon
               iconify="ph:users-three-duotone"
               class={
@@ -87,7 +87,7 @@
           <div class={
             "w-4 h-4 rounded-full border-2 shrink-0 transition-all",
             "border-primary bg-primary": @selected == id(circle),
-            "border-secondary": @selected != id(circle)
+            "border-divider": @selected != id(circle)
           } />
         </button>
       {/for}

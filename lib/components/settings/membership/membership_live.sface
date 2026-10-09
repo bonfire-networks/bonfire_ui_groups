@@ -8,8 +8,8 @@
       {!-- <Bonfire.UI.Common.TabsLive
         :if={!@hide_tabs}
         selected_tab={@selected_tab}
-        class="flex justify-between w-full border-b bg-base-100 tabs border-base-content border-opacity-20"
-        tab_class="flex flex-1 pt-4 text-base capitalize hover:bg-base-content hover:bg-opacity-10 place-content-center lined_tab"
+        class="flex justify-between w-full border-b bg-base-100 tabs border-base-content/20"
+        tab_class="flex flex-1 pt-4 text-base capitalize hover:bg-fill-strong place-content-center lined_tab"
         item_class="text-muted text-sm pb-4 border-b border-transparent font-medium"
         path_prefix={"/@#{e(@user, :character, :username, "")}/"}
         tabs={if current_user_id(@__context__) == id(@user),
@@ -18,7 +18,7 @@
       /> --}
       <div :if={@selected_tab in ["requested", "followed"]}>
         <div class="flow-root">
-          <ul class="divide-hair divide-secondary">
+          <ul class="divide-hair divide-divider">
             {#for follow <- @feed}
               <li class="p-4">
                 <StatelessComponent
@@ -42,7 +42,7 @@
 
       <div :if={@selected_tab in ["requests", "followers"]}>
         <div class="flow-root">
-          <ul class="divide-hair divide-secondary">
+          <ul class="divide-hair divide-divider">
             {#for follow <- @feed}
               <li class="p-4">
                 <StatelessComponent
@@ -77,7 +77,7 @@
                 <span class="text-xs text-muted">{length(@moderators)}</span>
               </header>
               <div class="flow-root">
-                <ul class="divide-hair divide-secondary">
+                <ul class="divide-hair divide-divider">
                   {#for mod <- @moderators}
                     <li class="p-4">
                       <StatelessComponent
@@ -108,7 +108,7 @@
                 </div>
               {#else}
                 <div class="flow-root">
-                  <ul class="divide-hair divide-secondary">
+                  <ul class="divide-hair divide-divider">
                     {#for follow <- other_members}
                       <li class="p-4">
                         <StatelessComponent

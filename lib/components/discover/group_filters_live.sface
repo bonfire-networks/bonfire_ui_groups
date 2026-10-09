@@ -5,10 +5,10 @@
   method="get"
   phx-change="filter_groups"
   phx-submit="filter_groups"
-  class="grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-b-hair border-secondary bg-base-100 p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto]"
+  class="grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-b-hair border-divider bg-base-100 p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto]"
 >
   <label for="group-discovery-search" class="sr-only">{l("Search groups")}</label>
-  <div class="input col-span-2 sm:col-span-1 w-full border-hair border-secondary bg-base-200/45 focus-within:border-base-content/30 focus-within:outline-none">
+  <div class="input col-span-2 sm:col-span-1 w-full border-hair border-divider bg-base-200/45 focus-within:border-base-content/30 focus-within:outline-none">
     <button
       id="group-discovery-submit"
       type="submit"
@@ -32,7 +32,7 @@
   <select
     id="group-view-filter"
     name={@form[:tab].name}
-    class="select w-full border-hair border-secondary bg-base-100 text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:w-36"
+    class="select w-full border-hair border-divider bg-base-100 text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:w-36"
   >
     <option
       class="bg-base-100 text-base-content"
@@ -65,7 +65,7 @@
         aria-label={l("One active filter")}
       />
     </summary>
-    <fieldset class="absolute right-0 z-20 mt-2 w-52 rounded-lg border-hair border-secondary bg-base-100 p-2">
+    <fieldset class="absolute right-0 z-20 mt-2 w-52 rounded-lg border-hair border-divider bg-base-100 p-2">
       <legend class="sr-only">{l("Filter by joining policy")}</legend>
       {#for {value, label} <- [
           {"all", l("Any joining policy")},

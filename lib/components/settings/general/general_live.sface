@@ -3,7 +3,7 @@
   class="bonfire-wrapper mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 pb-12 pt-5 sm:px-8"
 >
   {#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
-    <div class="rounded-lg border border-warning/30 bg-warning/5 p-4 text-sm text-base-content/80">
+    <div class="rounded-lg border border-warning/30 bg-warning/5 p-4 text-sm text-muted">
       {l("You don't have permission to edit this group's settings.")}
     </div>
   {#else}
@@ -40,7 +40,7 @@
           title_text={l("Edit group details")}
           open_btn_text={l("Edit group details")}
           open_btn_opts={[id: "group_settings_identity_open"]}
-          open_btn_wrapper_class="min-h-11 rounded-lg px-4 py-2 text-center font-medium text-primary hover:bg-base-content/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          open_btn_wrapper_class="min-h-11 rounded-lg px-4 py-2 text-center font-medium text-primary hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           without_form
           no_actions
         >
@@ -67,10 +67,10 @@
     <section
       :if={@management_entries != []}
       aria-label={l("Group management")}
-      class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)"
+      class="overflow-hidden rounded-2xl border border-divider bg-surface"
     >
       {#for {entry, index} <- Enum.with_index(@management_entries)}
-        <hr :if={index > 0} class="m-0 h-px border-0 bg-base-content/10">
+        <hr :if={index > 0} class="m-0 h-px border-0 bg-fill-strong">
         <Bonfire.UI.Groups.Settings.RowLive
           id={entry.id}
           to={entry.to}
@@ -91,9 +91,9 @@
         <h2 id="group-settings-instance-heading">{l("Instance administration")}</h2>
         <span>{l("Admins only")}</span>
       </header>
-      <div class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)">
+      <div class="overflow-hidden rounded-2xl border border-divider bg-surface">
         {#for {entry, index} <- Enum.with_index(@admin_entries)}
-          <hr :if={index > 0} class="m-0 h-px border-0 bg-base-content/10">
+          <hr :if={index > 0} class="m-0 h-px border-0 bg-fill-strong">
           <Bonfire.UI.Groups.Settings.RowLive
             id={entry.id}
             to={entry.to}
@@ -108,10 +108,10 @@
 
     <div
       :if={@danger_entries != []}
-      class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)"
+      class="overflow-hidden rounded-2xl border border-divider bg-surface"
     >
       {#for {entry, index} <- Enum.with_index(@danger_entries)}
-        <hr :if={index > 0} class="m-0 h-px border-0 bg-base-content/10">
+        <hr :if={index > 0} class="m-0 h-px border-0 bg-fill-strong">
         <Bonfire.UI.Groups.Settings.RowLive
           id={entry.id}
           to={entry.to}

@@ -1,5 +1,5 @@
 <section id="group-member-directory" class="bg-base-100">
-  <header class="flex items-center justify-between gap-3 border-b-hair border-secondary px-4 py-3">
+  <header class="flex items-center justify-between gap-3 border-b-hair border-divider px-4 py-3">
     <LinkLive
       to={Bonfire.Classify.Web.GroupNavigation.link(path(@category), @group_return_to)}
       opts={[id: "members-parent-link"]}
@@ -49,7 +49,7 @@
       type="search"
       placeholder={l("Search members…")}
       phx-debounce="250"
-      class="input w-full bg-base-200 border-secondary text-base"
+      class="input w-full bg-base-200 border-divider text-base"
     />
     <button
       :if={@member_search != ""}
@@ -63,7 +63,7 @@
     </button>
   </.form>
   <div
-    class="flex gap-2 border-b-hair border-secondary px-4 pb-4 sm:px-6"
+    class="flex gap-2 border-b-hair border-divider px-4 pb-4 sm:px-6"
     role="group"
     aria-label={l("Filter members")}
   >
@@ -78,7 +78,7 @@
       >{label}</button>
     {/for}
   </div>
-  <ul class="divide-hair divide-secondary">
+  <ul class="divide-hair divide-divider">
     {#for entry <- @visible_entries}
       <li id={"directory-member-#{entry.id}"} class="flex items-center gap-3 px-4 py-3 sm:px-6">
         <Bonfire.UI.Common.AvatarLive

@@ -2,7 +2,7 @@
   to={@to}
   opts={[id: @id]}
   class={
-    "flex min-h-11 w-full items-center gap-4 px-4 py-5 text-left hover:bg-base-content/5 focus-visible:outline focus-visible:outline-2 sm:px-5",
+    "flex min-h-11 w-full items-center gap-4 px-4 py-5 text-left hover:bg-fill focus-visible:outline focus-visible:outline-2 sm:px-5",
     "text-error": @danger
   }
 >

@@ -52,11 +52,11 @@
       class="btn btn-ghost min-h-11"
     >{l("Clear search")}</button>
   </.form>
-  <div class="overflow-hidden rounded-2xl border border-base-content/10 bg-(--stream-surface)">
+  <div class="overflow-hidden rounded-2xl border border-divider bg-surface">
     <LinkLive
       to={@permalink <> "/settings/moderators"}
       opts={[id: "group_settings_moderators_link"]}
-      class="flex min-h-11 items-center gap-3 px-4 py-4 text-primary hover:bg-base-content/5 sm:px-5"
+      class="flex min-h-11 items-center gap-3 px-4 py-4 text-primary hover:bg-fill sm:px-5"
     >
       <#Icon iconify="ph:users-three" class="size-5" />
       {l("Manage moderators")}
@@ -92,7 +92,7 @@
       :on-click="Bonfire.UI.Groups:load_settings_people"
       phx-target={@myself}
       phx-disable-with={l("Loading…")}
-      class="flex min-h-11 w-full items-center gap-3 px-4 py-4 text-left hover:bg-base-content/5 sm:px-5"
+      class="flex min-h-11 w-full items-center gap-3 px-4 py-4 text-left hover:bg-fill sm:px-5"
     >
       <#Icon iconify="ph:caret-down" class="size-5" />
       {l("Load more")}
