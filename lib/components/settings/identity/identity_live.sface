@@ -8,17 +8,17 @@
       object={@category}
       set_field={:category}
       set_fn={&Bonfire.Classify.LiveHandler.set_image/5}
-      container_class="relative rounded-box flex justify-center px-6 py-10 bg-center bg-cover h-[140px] overflow-hidden"
+      container_class="relative rounded-box flex justify-center px-6 py-10 bg-center bg-cover h-35 overflow-hidden"
       label_class="absolute inset-0 flex flex-col items-center justify-center w-full h-full text-sm font-medium text-white transition-opacity duration-200 ease-out rounded-box cursor-pointer bg-black/40 opacity-0 hover:opacity-100 focus-within:opacity-100"
     />
 
-    <div class="flex items-end gap-3 px-3 -mt-[40px]">
+    <div class="flex items-end gap-3 px-3 -mt-10">
       <StatefulComponent
         module={maybe_component(Bonfire.Files.Web.UploadIconLive, @__context__)}
         id={:upload_icon}
         src={Bonfire.Common.Media.avatar_url(@category)}
-        container_class="relative bg-base-100 flex-shrink-0 block w-24 h-24 overflow-hidden rounded-full ring-4 ring-base-100"
-        class="inline-block w-24 h-24"
+        container_class="relative bg-base-100 flex-shrink-0 block size-24 overflow-hidden rounded-full ring-4 ring-base-100"
+        class="inline-block size-24"
         object={@category}
         set_field={:category}
         set_fn={&Bonfire.Classify.LiveHandler.set_image/5}

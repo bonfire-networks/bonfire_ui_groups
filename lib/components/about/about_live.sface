@@ -12,21 +12,21 @@
       </div>
 
       <div class="flex items-center gap-4 mt-5">
-        <#Icon iconify="material-symbols:calendar-month" class="w-6 h-6 text-muted" />
+        <#Icon iconify="material-symbols:calendar-month" class="size-6 text-muted" />
         <span class="text-sm text-base-content">Created {@date}</span>
       </div>
 
       <div class="mt-5">
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Boundaries.BoundariesPresetNameLive)}
-          icon_class="w-6 h-6 text-muted"
+          icon_class="size-6 text-muted"
           with_description
           boundary_preset={@boundary_preset}
         />
       </div>
 
       <div class="flex items-center gap-4 mt-5">
-        <#Icon iconify="carbon:user-multiple" class="w-6 h-6 text-muted" />
+        <#Icon iconify="carbon:user-multiple" class="size-6 text-muted" />
         <div class="text-sm text-base-content"><b class="font-bold">{@member_count}</b> {if e(@category, :type, nil) == :group, do: l("Members"), else: l("Followers")}</div>
       </div>
     </div>
@@ -40,7 +40,7 @@
         <div class="mb-3">
           <StatelessComponent
             module={maybe_component(Bonfire.UI.Me.ProfileItemLive, @__context__)}
-            avatar_class="rounded-full w-10 h-10 bg-base-300"
+            avatar_class="rounded-full size-10 bg-base-300"
             show_controls={[]}
             character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
               e(user, :activity, :subject, :character, nil)}
@@ -56,7 +56,7 @@
         <div class="mb-3">
           <StatelessComponent
             module={maybe_component(Bonfire.UI.Me.ProfileItemLive, @__context__)}
-            avatar_class="rounded-full w-10 h-10 bg-base-300"
+            avatar_class="rounded-full size-10 bg-base-300"
             show_controls={[]}
             character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
               e(user, :activity, :subject, :character, nil)}
@@ -72,7 +72,7 @@
 </div>
 
 {!-- <div class="flex items-center gap-2 mx-3 mt-3">
-    <#Icon iconify="material-symbols:calendar-month" class="w-5 h-5 text-muted" />
+    <#Icon iconify="material-symbols:calendar-month" class="size-5 text-muted" />
     <span class="text-xs text-muted">Created {@date}</span>
   </div> --}
 
@@ -83,7 +83,7 @@
 
 {!-- <div class="flex items-center gap-4 py-3 mx-3 mt-3 border-t border-divider">
     <LinkLive :if={@parent} to={@parent_link} class="flex items-center gap-2">
-      <#Icon iconify="mdi:account-group" class="w-5 h-5 text-base-content" />
+      <#Icon iconify="mdi:account-group" class="size-5 text-base-content" />
       <span class="text-xs text-muted link link-hover">{@parent}</span>
     </LinkLive>
     <LinkLive

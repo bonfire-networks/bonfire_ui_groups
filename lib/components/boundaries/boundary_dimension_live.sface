@@ -43,7 +43,7 @@
                 {/if}
               </div>
               <div class={
-                "w-4 h-4 rounded-full border-2 shrink-0 transition-all",
+                "size-4 rounded-full border-2 shrink-0 transition-all",
                 "border-primary bg-primary": @selected == slug,
                 "border-divider": @selected != slug
               } />
@@ -70,11 +70,11 @@
             "border-divider hover:bg-fill": @selected != id(circle)
           }
         >
-          <span class="flex items-center justify-center w-8 h-8 rounded-md bg-fill shrink-0">
+          <span class="flex items-center justify-center size-8 rounded-md bg-fill shrink-0">
             <#Icon
               iconify="ph:users-three-duotone"
               class={
-                "w-4 h-4",
+                "size-4",
                 "text-primary": @selected == id(circle),
                 "text-muted": @selected != id(circle)
               }
@@ -85,7 +85,7 @@
             <span class="text-xs text-muted">{l("Members of this circle")}</span>
           </span>
           <div class={
-            "w-4 h-4 rounded-full border-2 shrink-0 transition-all",
+            "size-4 rounded-full border-2 shrink-0 transition-all",
             "border-primary bg-primary": @selected == id(circle),
             "border-divider": @selected != id(circle)
           } />

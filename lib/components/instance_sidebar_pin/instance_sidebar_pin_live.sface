@@ -10,7 +10,7 @@
       class={@class}
     >
       <span class="text-sm">{l("Unpin from everyone's sidebar")}</span>
-      <#Icon iconify="ph:push-pin-fill" class="w-5 h-5 shrink-0" />
+      <#Icon iconify="ph:push-pin-fill" class="size-5 shrink-0" />
     </button>
   {#else}
     <button
@@ -23,7 +23,7 @@
       class={@class}
     >
       <span class="text-sm">{l("Pin to everyone's sidebar")}</span>
-      <#Icon iconify="ph:push-pin" class="w-5 h-5 shrink-0" />
+      <#Icon iconify="ph:push-pin" class="size-5 shrink-0" />
     </button>
   {/if}
 {/if}

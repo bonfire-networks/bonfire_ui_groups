@@ -24,11 +24,11 @@
                 "border-divider hover:bg-fill hover:border-divider": @preset != slug
               }
             >
-              <span class="flex items-center justify-center w-8 h-8 rounded-md bg-fill shrink-0 mt-0.5">
+              <span class="flex items-center justify-center size-8 rounded-md bg-fill shrink-0 mt-0.5">
                 <Iconify.iconify
                   icon={e(meta, :icon, "ph:users-three-duotone")}
                   class={
-                    "w-4 h-4",
+                    "size-4",
                     "text-primary": @preset == slug,
                     "text-muted": @preset != slug
                   }
@@ -62,8 +62,8 @@
             "border-divider hover:bg-fill hover:border-divider": @preset != "custom"
           }
         >
-          <span class="flex items-center justify-center w-8 h-8 rounded-md bg-fill shrink-0 mt-0.5">
-            <#Icon iconify="ri:settings-4-line" class="w-4 h-4 text-muted" />
+          <span class="flex items-center justify-center size-8 rounded-md bg-fill shrink-0 mt-0.5">
+            <#Icon iconify="ri:settings-4-line" class="size-4 text-muted" />
           </span>
           <span class="flex-1 min-w-0">
             <span class="block text-sm font-medium leading-tight">{l("Custom")}</span>
@@ -77,7 +77,7 @@
   {!-- Override-swap banner --}
   {#if @pending_preset}
     <div class="flex items-start gap-3 p-3 rounded-box bg-warning/10 border border-warning/40">
-      <#Icon iconify="ph:warning-duotone" class="w-4 h-4 text-warning shrink-0 mt-0.5" />
+      <#Icon iconify="ph:warning-duotone" class="size-4 text-warning shrink-0 mt-0.5" />
       <div class="flex-1 text-sm">
         <div class="font-medium text-base-content">
           {l("Apply %{preset}? This will replace your fine-tuning.",
@@ -113,7 +113,7 @@
         <h3 class="text-sm font-medium text-muted">{l("Fine-tune")}</h3>
         {#if @layer2_touched}
           <span class="inline-flex items-center gap-1 text-xs text-muted">
-            <#Icon iconify="ph:pencil-simple-duotone" class="w-3 h-3" />
+            <#Icon iconify="ph:pencil-simple-duotone" class="size-3" />
             {l("Modified")}
           </span>
         {/if}
@@ -128,7 +128,7 @@
                 <div class="text-xs text-muted mt-0.5 leading-snug">{help}</div>
                 {#if locked}
                   <div class="mt-1 inline-flex items-center gap-1 text-xs text-muted">
-                    <#Icon iconify="ph:lock-simple-duotone" class="w-3 h-3" />
+                    <#Icon iconify="ph:lock-simple-duotone" class="size-3" />
                     {layer2_lock_reason(key)}
                   </div>
                 {/if}
@@ -160,8 +160,8 @@
         aria-expanded={if @advanced_open, do: "true", else: "false"}
         class="flex items-center gap-3 w-full p-3 text-left motion-safe:active:scale-[0.995] transition-transform"
       >
-        <span class="shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-warning/20 flex items-center justify-center">
-          <#Icon iconify="ph:sliders-horizontal-duotone" class="w-4 h-4 text-warning" />
+        <span class="shrink-0 size-8 rounded-full bg-gradient-to-br from-primary/20 to-warning/20 flex items-center justify-center">
+          <#Icon iconify="ph:sliders-horizontal-duotone" class="size-4 text-warning" />
         </span>
         <span class="flex-1 min-w-0">
           <span class="block text-sm font-medium leading-tight text-base-content">
@@ -174,7 +174,7 @@
         <#Icon
           iconify="carbon:chevron-down"
           class={
-            "w-4 h-4 text-muted shrink-0 transition-transform duration-150",
+            "size-4 text-muted shrink-0 transition-transform duration-150",
             "rotate-180": @advanced_open
           }
         />

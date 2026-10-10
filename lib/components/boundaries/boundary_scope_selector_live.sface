@@ -16,7 +16,7 @@
             <Iconify.iconify
               :if={e(scope_meta, :icon, nil)}
               icon={scope_meta[:icon]}
-              class="w-4 h-4 shrink-0"
+              class="size-4 shrink-0"
             />
             <span class="text-sm font-medium">{e(scope_meta, :label, scope)}</span>
             <span class="badge badge-xs badge-ghost ml-1">{e(scope_meta, :disabled, nil) || l("Coming soon")}</span>
@@ -39,7 +39,7 @@
           <Iconify.iconify
             :if={e(scope_meta, :icon, nil)}
             icon={scope_meta[:icon]}
-            class="w-4 h-4 shrink-0"
+            class="size-4 shrink-0"
           />
           <span class="text-sm font-medium">{e(scope_meta, :label, scope)}</span>
         </button>
@@ -69,7 +69,7 @@
           <#Icon
             iconify="ph:users-three-duotone"
             class={
-              "w-4 h-4 shrink-0",
+              "size-4 shrink-0",
               "text-primary": @selected == id(circle),
               "text-muted": @selected != id(circle)
             }
@@ -102,7 +102,7 @@
                 <Iconify.iconify
                   :if={e(role_meta, :icon, nil)}
                   icon={role_meta[:icon]}
-                  class="w-4 h-4 shrink-0"
+                  class="size-4 shrink-0"
                 />
                 <span class="font-medium">{e(role_meta, :label, nil) || e(opt, :label, slug)}</span>
                 <span class="badge badge-xs badge-ghost ml-1">{e(opt, :disabled, nil) || l("Coming soon")}</span>
@@ -125,11 +125,11 @@
               <Iconify.iconify
                 :if={e(role_meta, :icon, nil)}
                 icon={role_meta[:icon]}
-                class="w-4 h-4 shrink-0"
+                class="size-4 shrink-0"
               />
               <span class="font-medium">{e(role_meta, :label, nil) || e(opt, :label, slug)}</span>
               <div class={
-                "w-3 h-3 rounded-full border-2 shrink-0 ml-1 transition-all",
+                "size-3 rounded-full border-2 shrink-0 ml-1 transition-all",
                 "border-primary bg-primary": is_selected_access,
                 "border-divider": !is_selected_access
               } />

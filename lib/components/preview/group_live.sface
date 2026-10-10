@@ -146,10 +146,10 @@
     {!-- Banner --}
     {#case Media.banner_url(@object, fallback: false)}
       {#match nil}
-        <div class="h-[160px] w-full bg-primary group-hover:scale-[1.02] transition-transform duration-300" />
+        <div class="h-40 w-full bg-primary group-hover:scale-[1.02] transition-transform duration-300" />
       {#match banner}
         <div
-          class="h-[160px] w-full bg-center bg-cover bg-no-repeat bg-base-300 group-hover:scale-[1.02] transition-transform duration-300"
+          class="h-40 w-full bg-center bg-cover bg-no-repeat bg-base-300 group-hover:scale-[1.02] transition-transform duration-300"
           style={"background-image: url('#{URI.encode(banner)}')"}
         />
     {/case}
@@ -160,11 +160,11 @@
         <div class="shrink-0 -mt-10 relative z-10">
           {#case Media.avatar_url(@object)}
             {#match "/images/avatar.png"}
-              <div class="w-14 h-14 rounded-box bg-base-100 shadow-lg flex items-center justify-center">
-                <#Icon iconify="ph:users-three-duotone" class="w-7 h-7 text-subtle" />
+              <div class="size-14 rounded-box bg-base-100 shadow-lg flex items-center justify-center">
+                <#Icon iconify="ph:users-three-duotone" class="size-7 text-subtle" />
               </div>
             {#match url}
-              <img src={url} class="w-14 h-14 rounded-box ring-2 ring-base-100 object-cover">
+              <img src={url} class="size-14 rounded-box ring-2 ring-base-100 object-cover">
           {/case}
         </div>
 
@@ -202,14 +202,14 @@
         <LinkLive to={@permalink} class="shrink-0 block" tabindex="-1" aria-hidden="true">
           {#case Media.avatar_url(@object)}
             {#match "/images/avatar.png"}
-              <div class="w-[115px] h-[115px] rounded-box bg-primary flex items-center justify-center">
+              <div class="size-28.75 rounded-box bg-primary flex items-center justify-center">
                 <#Icon
                   iconify="ph:users-three-duotone"
-                  class="w-12 h-12 text-primary-content group-hover:text-primary-content"
+                  class="size-12 text-primary-content group-hover:text-primary-content"
                 />
               </div>
             {#match url}
-              <img src={url} class="w-[115px] h-[115px] rounded-box object-cover">
+              <img src={url} class="size-28.75 rounded-box object-cover">
           {/case}
         </LinkLive>
 

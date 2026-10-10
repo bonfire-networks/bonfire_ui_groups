@@ -34,7 +34,7 @@
             <StatelessComponent
               module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}
               lg
-              avatar_class="w-12 h-12 rounded-full bg-base-300"
+              avatar_class="size-12 rounded-full bg-base-300"
               wrapper_class="flex items-center justify-between"
               profile={Bonfire.UI.Groups.Settings.MembershipLive.subject_profile(mod)}
               character={Bonfire.UI.Groups.Settings.MembershipLive.subject_character(mod)}

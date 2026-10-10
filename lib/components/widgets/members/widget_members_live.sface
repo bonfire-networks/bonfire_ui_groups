@@ -8,7 +8,7 @@
       <div class="">
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}
-          avatar_class="rounded-full w-8 h-8 bg-base-300"
+          avatar_class="rounded-full size-8 bg-base-300"
           show_controls={[]}
           character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
             e(user, :activity, :subject, :character, nil)}
@@ -26,7 +26,7 @@
       <div class="">
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}
-          avatar_class="rounded-full w-8 h-8 bg-base-300"
+          avatar_class="rounded-full size-8 bg-base-300"
           show_controls={[]}
           character={e(user, :character, nil) || e(user, :subject, :character, nil) ||
             e(user, :activity, :subject, :character, nil)}

@@ -56,7 +56,7 @@
 
     {!-- Primary action --}
     <button type="submit" class="btn btn-primary w-full normal-case">
-      <#Icon iconify="ph:check" class="w-4 h-4 mr-1" />{l("Create group")}
+      <#Icon iconify="ph:check" class="size-4 mr-1" />{l("Create group")}
     </button>
 
     <input type="hidden" name="context_id" value={id(@parent)}>

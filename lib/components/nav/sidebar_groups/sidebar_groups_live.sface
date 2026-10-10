@@ -25,7 +25,7 @@
               open_btn_wrapper_class=""
             >
               <:open_btn>
-                <span class="[@media(hover:hover)]:opacity-0 group-hover/sidebar-summary:opacity-100 group-focus-within/sidebar-summary:opacity-100 btn btn-circle btn-outline btn-xs border-divider"><#Icon iconify="ph:plus" class="w-4 h-4 text-primary" /></span>
+                <span class="[@media(hover:hover)]:opacity-0 group-hover/sidebar-summary:opacity-100 group-focus-within/sidebar-summary:opacity-100 btn btn-circle btn-outline btn-xs border-divider"><#Icon iconify="ph:plus" class="size-4 text-primary" /></span>
               </:open_btn>
             </Bonfire.UI.Groups.NewGroupLive>
           </div>
@@ -42,7 +42,7 @@
             group_return_to={@group_return_to}
           />
           {!-- <li>
-            <LinkLive to="/groups" class="flex items-center !gap-2 !px-3 py-[6px] text-muted">
+            <LinkLive to="/groups" class="flex items-center !gap-2 !px-3 py-1.5 text-muted">
               <#Icon iconify="ph:compass" class="size-5 shrink-0 text-muted" />
               <span class="text-base font-normal">{l("All groups")}</span>
             </LinkLive>
