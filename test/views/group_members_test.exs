@@ -37,12 +37,12 @@ defmodule Bonfire.UI.Groups.GroupMembersTest do
     |> visit("/group/#{group.character.username}/members")
     |> refute_has("[data-role=group-sidebar-moderators]")
     |> assert_has("#members-directory-count", text: "2")
-    |> assert_has("#group-member-directory li", count: 2)
+    |> assert_has("#group-member-directory li[id^=directory-member-]", count: 2)
     |> assert_has("#directory-member-#{me.id}", text: "Moderator")
     |> assert_has("#directory-member-#{me.id}", text: "You")
     |> assert_has("#directory-member-#{member.id}", text: "Member")
     |> click_button("Moderators")
-    |> assert_has("#group-member-directory li", count: 1)
+    |> assert_has("#group-member-directory li[id^=directory-member-]", count: 1)
     |> refute_has("#directory-member-#{member.id}")
     |> assert_has("#members-directory-count", text: "2")
     |> click_button("Everyone")
@@ -80,7 +80,7 @@ defmodule Bonfire.UI.Groups.GroupMembersTest do
     |> click_button("Clear search")
     |> refute_has("#member-directory-empty")
     |> click_button("[data-id=load_more]", "Load more")
-    |> assert_has("#group-member-directory li", count: 4)
+    |> assert_has("#group-member-directory li[id^=directory-member-]", count: 4)
     |> assert_has("#members-directory-count", text: "4")
   end
 end

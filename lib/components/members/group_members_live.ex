@@ -44,6 +44,8 @@ defmodule Bonfire.UI.Groups.GroupMembersLive do
       entries: entries,
       visible_entries: visible,
       more?: not is_nil(Bonfire.UI.Common.LoadMoreLive.end_cursor(assigns.page_info)),
+      # once per page rather than per member: whether the viewer may block members from the group, the check `Blocks.block/3` makes for `on_behalf_of:`
+      may_moderate?: Bonfire.Boundaries.can?(assigns[:__context__], :mediate, assigns.category),
       form: to_form(%{"search" => assigns.member_search}, as: :members)
     )
     |> render_sface()

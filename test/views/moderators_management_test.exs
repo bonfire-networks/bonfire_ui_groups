@@ -148,6 +148,37 @@ defmodule Bonfire.UI.Groups.ModeratorsManagementTest do
            end)
   end
 
+  # Someone on another instance can only be promoted once they are a member (`Categories.add_moderator/4`), so the search doesn't offer them until then, while anyone local is offered (and made a member when promoted)
+  # TODO: the search still offers everyone (Mayel, 13 October: "leave the autocomplete as todo"); `add_moderator/4` refuses a remote non-member meanwhile
+  @tag :todo
+  test "the moderator search offers local users, and someone on another instance only once a member",
+       %{conn: conn, group: group, admin: admin, account: account} do
+    local = fake_user!(account, %{name: "findmelocalmod"})
+
+    # the remote actor is fetched in this process, so a process-local mock serves it (this module may run async)
+    Tesla.Mock.mock(fn env -> ActivityPub.Test.HttpRequestMock.request(env) end)
+    remote = Bonfire.Social.Fake.fake_remote_user!()
+    remote_name = e(remote, :profile, :name, nil)
+
+    {:ok, view, _html} = live(conn, settings_path(group))
+    ls_id = live_select_simulate_search(view, "#group-moderators", "findmelocalmod")
+
+    assert has_element?(view, "##{ls_id} li", local.profile.name),
+           "control: a local user is offered"
+
+    ls_id = live_select_simulate_search(view, "#group-moderators", remote_name)
+
+    refute has_element?(view, "##{ls_id} li", remote_name),
+           "someone on another instance who isn't a member isn't offered"
+
+    {:ok, _} = Categories.add_member(admin, group, id(remote))
+    assert Categories.member?(remote, group)
+
+    {:ok, view, _html} = live(conn, settings_path(group))
+    ls_id = live_select_simulate_search(view, "#group-moderators", remote_name)
+    assert has_element?(view, "##{ls_id} li", remote_name), "once a member, they are offered"
+  end
+
   test "the moderator live_select search sends options to the dropdown", %{
     conn: conn,
     group: group,

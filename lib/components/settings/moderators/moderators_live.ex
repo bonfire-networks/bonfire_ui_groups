@@ -41,6 +41,7 @@ defmodule Bonfire.UI.Groups.Settings.ModeratorsLive do
   end
 
   # LiveSelect autocomplete search
+  # TODO: offer only who `Categories.add_moderator/4` would promote (anyone local, someone on another instance only once a member), with that rule in the context rather than here; it offers everyone meanwhile, and a remote non-member is refused on selection
   def handle_event("live_select_change", %{"id" => live_select_id, "text" => search}, socket)
       when is_binary(search) and byte_size(search) >= 2 do
     results =
