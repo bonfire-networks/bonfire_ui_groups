@@ -56,7 +56,7 @@
     <summary
       aria-label={l("Filters")}
       data-tip={l("Filters")}
-      class="tooltip tooltip-left btn btn-ghost min-w-11 px-3 font-normal"
+      class="tooltip tooltip-left btn btn-ghost px-3 font-normal"
     >
       <#Icon iconify="ph:sliders-horizontal" class="size-5" />
       <span

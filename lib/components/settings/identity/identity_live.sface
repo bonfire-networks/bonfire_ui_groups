@@ -71,13 +71,13 @@
       <button
         type="reset"
         id="group_settings_identity_reset"
-        class="btn btn-ghost min-h-11 normal-case"
+        class="btn btn-ghost normal-case"
       >{l("Reset text fields")}</button>
       <button
         id="group_settings_identity_save"
         type="submit"
         phx-disable-with={l("Saving…")}
-        class="btn btn-primary min-h-11 normal-case"
+        class="btn btn-primary normal-case"
       >
         {l("Save changes")}
       </button>

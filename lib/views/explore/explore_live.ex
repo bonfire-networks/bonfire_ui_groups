@@ -235,13 +235,15 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   @doc """
   Lists the groups `current_user` may see (boundary-checked, so for guests only the ones visible to guests), with the same card preview data the directory uses. Returns `{[{group, topics}], previews_by_group_id}`.
 
-  Pass `topics: false` to skip loading each group's topics (one query) when the cards won't show them; other opts go to `Categories.list_tree/2` (eg. `limit:`).
+  Pass `topics: false` to skip loading each group's topics (one query) when the cards won't show them, and `local: true` to leave out groups federated from other instances; other opts go to `Categories.list_tree/2` (eg. `limit:`).
   """
   def list_groups_with_previews(current_user, opts \\ []) do
     {topics?, opts} = Keyword.pop(opts, :topics, true)
+    {local?, opts} = Keyword.pop(opts, :local, false)
 
     case Categories.list_tree(
-           [:default, type: :group, tree_max_depth: 1, preload: :follow_count],
+           [:default, type: :group, tree_max_depth: 1, preload: :follow_count] ++
+             if(local?, do: [:local], else: []),
            Keyword.merge([current_user: current_user], opts)
          ) do
       %{edges: [_ | _] = list} -> hydrate_group_previews(list, current_user, topics?)

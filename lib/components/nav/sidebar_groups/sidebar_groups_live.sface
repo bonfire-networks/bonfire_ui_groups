@@ -1,7 +1,7 @@
 <div>
   <Bonfire.UI.Common.SidebarSectionDividerLive />
 
-  <ul class="menu relative p-0 w-full mt-4 px-0 lg:px-card gap-0">
+  <ul class="menu relative p-0 w-full mt-4 px-0 lg:px-5.5 gap-0">
     <li class="w-full min-w-0">
       <details
         data-role="sidebar-groups"
@@ -15,7 +15,7 @@
       >
         <summary
           phx-click={if !@disable_collapsible, do: "Bonfire.UI.Groups:toggle_groups_nav_visibility"}
-          class="group/sidebar-summary relative min-h-8 !py-1 font-medium uppercase pl-4 text-xs text-muted list-none after:content-none [&::-webkit-details-marker]:hidden flex"
+          class="group/sidebar-summary relative min-h-8 !py-1 !pl-2 font-semibold uppercase tracking-[0.04em] text-xs leading-4 text-muted list-none after:content-none [&::-webkit-details-marker]:hidden flex"
         >
           <LinkLive to="/groups" class="flex-1">{l("Groups")}</LinkLive>
           <div class="pointer-events-auto normal-case font-normal absolute right-0 inset-y-0 flex items-center">

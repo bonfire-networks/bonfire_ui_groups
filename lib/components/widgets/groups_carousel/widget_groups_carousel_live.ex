@@ -1,6 +1,6 @@
 defmodule Bonfire.UI.Groups.WidgetGroupsCarouselLive do
   @moduledoc """
-  A horizontal carousel of compact group cards, showcasing the groups guests can see on the guest homepage board. Lists them via the same boundary-checked query as the groups directory, and renders nothing when there are none.
+  A horizontal carousel of compact group cards, showcasing this instance's own groups that guests can see on the guest homepage board (federated groups are left out). Lists them via the same boundary-checked query as the groups directory, and renders nothing when there are none.
   """
   use Bonfire.UI.Common.Web, :stateful_component
 
@@ -22,11 +22,11 @@ defmodule Bonfire.UI.Groups.WidgetGroupsCarouselLive do
 
   defp list_groups(nil), do: list_guest_groups()
 
-  @doc "The groups guests can see, with card previews, cached for all guests. Pass the standard `:cache` opt (`cache: :reset`) to bust it."
+  @doc "The local groups guests can see, with card previews, cached for all guests. Pass the standard `:cache` opt (`cache: :reset`) to bust it."
   def list_guest_groups(opts \\ []) do
     Cache.maybe_apply_cached(
       &Bonfire.UI.Groups.ExploreLive.list_groups_with_previews/2,
-      [nil, [limit: @limit, topics: false]],
+      [nil, [limit: @limit, topics: false, local: true]],
       Keyword.put_new(opts, :expire, @guest_cache_ttl)
     )
   end
@@ -35,6 +35,7 @@ defmodule Bonfire.UI.Groups.WidgetGroupsCarouselLive do
     do:
       Bonfire.UI.Groups.ExploreLive.list_groups_with_previews(current_user,
         limit: @limit,
-        topics: false
+        topics: false,
+        local: true
       )
 end

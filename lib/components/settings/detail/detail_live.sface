@@ -46,7 +46,7 @@
         id="group_settings_archive_button"
         :on-click="Bonfire.Classify:archive"
         data-confirm={l("Archive this group? You can restore it later.")}
-        class="btn btn-error btn-outline min-h-11 normal-case"
+        class="btn btn-error btn-outline normal-case"
       >
         {l("Archive group")}
       </button>

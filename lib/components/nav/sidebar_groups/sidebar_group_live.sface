@@ -1,10 +1,10 @@
 <li id={@row_id} data-role="sidebar-group" class="!block w-full min-w-0">
-  <div class="relative !block !p-0 !rounded-none hover:!bg-transparent">
+  <div class="group/row relative !block !p-0 !rounded-none hover:!bg-transparent">
     <LinkLive
       to={Bonfire.Classify.Web.GroupNavigation.link(@group_path, @group_return_to)}
       opts={[id: @row_id <> "-link", title: @group_name, "aria-current": if(@active?, do: "page", else: nil)]}
       class={[
-        "flex w-full min-w-0 items-center gap-2 min-h-9 px-3 pr-10 py-1.5 rounded-selector hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:pr-12",
+        "nav-row !pr-10 hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!pr-12",
         "bg-fill-strong": @active?
       ]}
     >
@@ -12,7 +12,7 @@
         {#match "/images/avatar.png"}
           <span
             data-role="group_preset_icon"
-            class="size-7 bg-fill-strong rounded place-content-center shrink-0 flex items-center justify-center"
+            class="size-5 shrink-0 flex items-center justify-center"
           >
             {#case @preset_icon}
               {#match "ph:campfire-duotone"}
@@ -27,12 +27,12 @@
           </span>
         {#match url}
           <div
-            class="size-7 rounded bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 ring-[0.7px] ring-primary"
+            class="size-5 rounded-[5px] bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 outline outline-1 -outline-offset-1 outline-base-content/10"
             style={"background-image: url('#{URI.encode(url)}');"}
             aria-hidden="true"
           />
       {/case}
-      <span class={["truncate min-w-0 text-base", Bonfire.UI.Common.LinkWidgetLive.active_label_class(@active?)]}>{@group_name}</span>
+      <span class={["truncate min-w-0 text-sm", Bonfire.UI.Common.LinkWidgetLive.active_label_class(@active?)]}>{@group_name}</span>
     </LinkLive>
     <details
       :if={@topics != []}
@@ -42,10 +42,10 @@
     >
       <summary
         aria-label={l("Topics in %{group}", group: @group_name)}
-        class="absolute right-0 top-0 flex !p-0 !min-h-0 !size-9 items-center justify-center rounded-selector cursor-pointer list-none after:!content-none [&::-webkit-details-marker]:hidden hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!size-11"
+        class="absolute right-0 top-0 flex !p-0 !min-h-0 !size-8 [@media(hover:hover)]:opacity-0 group-hover/row:opacity-100 group-open/sidebar-group:opacity-100 focus-visible:opacity-100 items-center justify-center rounded-selector cursor-pointer list-none after:!content-none [&::-webkit-details-marker]:hidden hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!size-11"
       >
         <#Icon
-          iconify="carbon:chevron-right"
+          iconify="ph:caret-right"
           class="size-3.5 text-muted group-open/sidebar-group:rotate-90"
         />
       </summary>
