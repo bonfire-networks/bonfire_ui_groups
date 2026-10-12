@@ -99,11 +99,7 @@
           {#if e(opt, :disabled, nil)}
             {#if @show_unavailable}
               <div class="flex items-center gap-2 px-3 py-2 rounded-box border border-divider opacity-40 cursor-not-allowed text-sm">
-                <Iconify.iconify
-                  :if={e(role_meta, :icon, nil)}
-                  icon={role_meta[:icon]}
-                  class="size-4 shrink-0"
-                />
+                <Iconify.iconify :if={e(role_meta, :icon, nil)} icon={role_meta[:icon]} class="size-4 shrink-0" />
                 <span class="font-medium">{e(role_meta, :label, nil) || e(opt, :label, slug)}</span>
                 <span class="badge badge-xs badge-ghost ml-1">{e(opt, :disabled, nil) || l("Coming soon")}</span>
               </div>
@@ -122,11 +118,7 @@
                 "border-divider hover:bg-fill": !is_selected_access
               }
             >
-              <Iconify.iconify
-                :if={e(role_meta, :icon, nil)}
-                icon={role_meta[:icon]}
-                class="size-4 shrink-0"
-              />
+              <Iconify.iconify :if={e(role_meta, :icon, nil)} icon={role_meta[:icon]} class="size-4 shrink-0" />
               <span class="font-medium">{e(role_meta, :label, nil) || e(opt, :label, slug)}</span>
               <div class={
                 "size-3 rounded-full border-2 shrink-0 ml-1 transition-all",
