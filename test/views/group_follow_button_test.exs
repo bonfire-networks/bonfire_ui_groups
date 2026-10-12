@@ -112,6 +112,30 @@ defmodule Bonfire.UI.Groups.GroupFollowButtonTest do
     end
   end
 
+  # A guest has no account here, so following or joining is a remote interaction: they enter their own fediverse handle and act from their instance. Sending them to log in instead is a dead end
+  describe "a guest on a local group" do
+    @remote_interaction "Are you a fediverse user?"
+
+    test "the round Follow leads to remote interaction, not to the login page", context do
+      conn()
+      |> visit(Bonfire.Common.URIs.path(context.group))
+      |> wait_async()
+      |> click_link("a#{@round_not_following}", "")
+      |> refute_path("/login")
+      |> assert_has("*", text: @remote_interaction)
+    end
+
+    test "Join leads to remote interaction, not to the login page", context do
+      conn()
+      |> visit(Bonfire.Common.URIs.path(context.group))
+      |> wait_async()
+      # by id: `:on-click` renders `phx-click` as a JS push command, not the event's name
+      |> click_button("button[id^=join_btn_]", "Join")
+      |> refute_path("/login")
+      |> assert_has("*", text: @remote_interaction)
+    end
+  end
+
   # the group's CREATOR is a member from creation, not through `join_and_follow_group/2`
   test "the group's creator sees its round Follow as it is, and clicking it gives no error",
        context do

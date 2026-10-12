@@ -68,11 +68,7 @@
     </div>
 
     <div class="flex justify-end gap-3 pt-3">
-      <button
-        type="reset"
-        id="group_settings_identity_reset"
-        class="btn btn-ghost normal-case"
-      >{l("Reset text fields")}</button>
+      <button type="reset" id="group_settings_identity_reset" class="btn btn-ghost normal-case">{l("Reset text fields")}</button>
       <button
         id="group_settings_identity_save"
         type="submit"
