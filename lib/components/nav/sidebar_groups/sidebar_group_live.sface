@@ -14,7 +14,7 @@
           <span data-role="group_tile" class="nav-tile" style={"--tile-hue: #{@tile_hue}"} aria-hidden="true">{@initial}</span>
         {#match url}
           <div
-            class="size-4.5 rounded-[5px] bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 outline outline-1 -outline-offset-1 outline-base-content/10"
+            class="size-5 rounded-[5px] bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 outline outline-1 -outline-offset-1 outline-base-content/10"
             style={"background-image: url('#{URI.encode(url)}');"}
             aria-hidden="true"
           />
