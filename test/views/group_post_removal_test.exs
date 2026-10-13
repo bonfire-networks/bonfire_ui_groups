@@ -68,13 +68,19 @@ defmodule Bonfire.UI.Groups.GroupPostRemovalTest do
 
   # the post's own menu, beside delete, for whoever may remove it: the flagged-items menu is only reached once someone reports the post, and an author never reaches it
   describe "the post's menu" do
-    # the menu is the "Advanced" modal, whose content only mounts once it opens, so each test opens it as a user would. On the post's own page, where it's rendered up front (in a feed it isn't), as `change_object_boundary_test.exs` does
+    # on the post's own page, where the main object is outside any stream, so the menu's rows reach the test DOM once loaded
     defp open_post_menu(user, account, post) do
       conn(user: user, account: account)
       |> visit("/post/#{id(post)}")
       |> wait_async()
       |> assert_has("article", text: "Removable")
-      |> click_button("Advanced")
+      |> open_more_menu()
+    end
+
+    defp confirm_removal(session) do
+      session
+      |> click_button("[data-role=remove_from_group] [data-role=open_modal]", "Remove from group")
+      |> click_button("[data-role=remove_from_group_confirm]", "Remove from group")
     end
 
     test "offers the author \"Remove from group\", which takes the post out", %{
@@ -84,7 +90,7 @@ defmodule Bonfire.UI.Groups.GroupPostRemovalTest do
       post: post
     } do
       open_post_menu(author, author_account, post)
-      |> click_button("[data-role=remove_from_group_confirm]", "Remove from group")
+      |> confirm_removal()
 
       refute Bonfire.Social.Boosts.boosted?(group, post)
     end
@@ -96,7 +102,7 @@ defmodule Bonfire.UI.Groups.GroupPostRemovalTest do
       post: post
     } do
       open_post_menu(moderator, account, post)
-      |> click_button("[data-role=remove_from_group_confirm]", "Remove from group")
+      |> confirm_removal()
 
       refute Bonfire.Social.Boosts.boosted?(group, post)
     end
@@ -106,9 +112,53 @@ defmodule Bonfire.UI.Groups.GroupPostRemovalTest do
       stranger = fake_user!(stranger_account)
 
       open_post_menu(stranger, stranger_account, post)
-      # the control: the menu did open, so the button's absence is the permission, not an unmounted modal
-      |> assert_has("h3", text: "Boundary")
-      |> refute_has("[data-role=remove_from_group_confirm]")
+      # the control: the menu's permission rows did load, so the row's absence is the permission
+      |> assert_has("[data-id=boundary_details]")
+      |> refute_has("[data-role=remove_from_group]")
+    end
+
+    # not per post when a page renders (an N+1 on group feeds); the post's own page renders its menu as a feed row does
+    test "isn't worked out when the post renders", %{
+      account: account,
+      moderator: moderator,
+      post: post
+    } do
+      test_pid = self()
+      stub_removal_check(test_pid)
+
+      conn(user: moderator, account: account)
+      |> visit("/post/#{id(post)}")
+      |> wait_async()
+      |> assert_has("[data-id=more_menu]")
+
+      refute_receive :removal_checked
+    end
+
+    # the control for the test above
+    test "is worked out when the post's menu is opened", %{
+      account: account,
+      moderator: moderator,
+      post: post
+    } do
+      test_pid = self()
+      stub_removal_check(test_pid)
+
+      open_post_menu(moderator, account, post)
+
+      assert_receive :removal_checked
+    end
+
+    # `mode: :shared` because the check runs in the LiveView process, not the test's
+    defp stub_removal_check(test_pid) do
+      Repatch.patch(
+        Bonfire.Classify.Categories,
+        :can_remove_post_from_group?,
+        [mode: :shared],
+        fn _user, _group, _post ->
+          send(test_pid, :removal_checked)
+          false
+        end
+      )
     end
   end
 end
