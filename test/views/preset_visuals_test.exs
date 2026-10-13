@@ -36,20 +36,19 @@ defmodule Bonfire.UI.Groups.PresetVisualsTest do
   end
 
   describe "sidebar group icon" do
-    test "renders the preset's iconify slug for a group with no avatar" do
+    test "shows a letter tile and a lock for a private group with no avatar" do
       account = fake_account!()
       me = fake_user!(account)
       _group = create_group_with_preset(me, "private_club", name: "Sidebar Lock Group")
 
       {:ok, _view, html} = live(conn(user: me, account: account), "/groups")
 
-      # data-role marker only renders on the no-avatar branch
-      assert html =~ "data-role=\"group_preset_icon\""
-      # The sidebar maps the stored ph:lock-duotone slug to its -fill variant
-      assert html =~ "lock-fill"
+      # the tile only renders on the no-avatar branch; privacy is shown as a lock after the name
+      assert html =~ "data-role=\"group_tile\""
+      assert html =~ "data-role=\"group_private\""
     end
 
-    test "falls back to users-three icon when the dimensions match no preset" do
+    test "shows a letter tile without a lock when the dimensions match no preset" do
       account = fake_account!()
       me = fake_user!(account)
 
@@ -65,8 +64,8 @@ defmodule Bonfire.UI.Groups.PresetVisualsTest do
 
       {:ok, _view, html} = live(conn(user: me, account: account), "/groups")
 
-      assert html =~ "data-role=\"group_preset_icon\""
-      assert html =~ "users-three-duotone"
+      assert html =~ "data-role=\"group_tile\""
+      refute html =~ "data-role=\"group_private\""
     end
   end
 

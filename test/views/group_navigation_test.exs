@@ -36,7 +36,7 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
         # the section's heading is the link to all groups (it replaced an "All groups" item)
         # |> assert_has("#{section} a[href='/groups']", text: "All groups", count: 1)
         |> assert_has("#{section} > summary a[href='/groups']", text: "Groups", count: 1)
-        |> assert_has("#{section} [data-role='group_preset_icon'] [iconify='ph:campfire-fill']")
+        |> assert_has("#{section} [data-role='group_tile']")
 
       if unquote(fixed? or saved_open?) do
         assert_has(session, "#{section}[open]")

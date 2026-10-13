@@ -35,16 +35,32 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
     active? =
       SidebarGroupsLive.active_link?(assigns.current_path, group_path) and not active_topic?
 
+    group_name = Bonfire.Classify.Web.Preview.CategoryLive.name(assigns.category, l("Group"))
+
     assigns
     |> assign(:group_path, group_path)
-    |> assign(
-      :group_name,
-      Bonfire.Classify.Web.Preview.CategoryLive.name(assigns.category, l("Group"))
-    )
+    |> assign(:group_name, group_name)
+    |> assign(:initial, initial(group_name))
+    |> assign(:tile_hue, :erlang.phash2(assigns.category.id, 360))
     |> assign(:topics, topics)
     |> assign(:active?, active?)
     |> assign(:expanded?, active? or active_topic?)
     |> assign(:row_id, "#{assigns.parent_id}-group-#{assigns.category.id}")
     |> render_sface()
+  end
+
+  @doc """
+  The first letter of a group's name, for its sidebar tile.
+
+      iex> Bonfire.UI.Groups.SidebarGroupLive.initial("  fedi pub")
+      "F"
+      iex> Bonfire.UI.Groups.SidebarGroupLive.initial("")
+      "#"
+  """
+  def initial(name) do
+    case name |> to_string() |> String.trim() |> String.first() do
+      nil -> "#"
+      letter -> String.upcase(letter)
+    end
   end
 end

@@ -10,26 +10,20 @@
     >
       {#case Media.avatar_url(@category)}
         {#match "/images/avatar.png"}
-          <span data-role="group_preset_icon" class="size-5 shrink-0 flex items-center justify-center">
-            {#case @preset_icon}
-              {#match "ph:campfire-duotone"}
-                <#Icon iconify="ph:campfire-fill" class="size-5 text-muted" />
-              {#match "ph:megaphone-duotone"}
-                <#Icon iconify="ph:megaphone-fill" class="size-5 text-muted" />
-              {#match "ph:lock-duotone"}
-                <#Icon iconify="ph:lock-fill" class="size-5 text-muted" />
-              {#match _}
-                <#Icon iconify="ph:users-three-fill" class="size-5 text-muted" />
-            {/case}
-          </span>
+          {!-- identity, not policy: a letter tile tells groups apart at a glance; privacy is the lock after the name --}
+          <span data-role="group_tile" class="nav-tile" style={"--tile-hue: #{@tile_hue}"} aria-hidden="true">{@initial}</span>
         {#match url}
           <div
-            class="size-5 rounded-[5px] bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 outline outline-1 -outline-offset-1 outline-base-content/10"
+            class="size-4.5 rounded-[5px] bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 outline outline-1 -outline-offset-1 outline-base-content/10"
             style={"background-image: url('#{URI.encode(url)}');"}
             aria-hidden="true"
           />
       {/case}
       <span class={["truncate min-w-0 text-sm", Bonfire.UI.Common.LinkWidgetLive.active_label_class(@active?)]}>{@group_name}</span>
+      <span :if={@preset_icon == "ph:lock-duotone"} data-role="group_private" class="-ml-1.5 shrink-0 flex items-center" title={l("Private group")}>
+        <#Icon iconify="ph:lock-simple-fill" class="size-3 text-subtle" />
+        <span class="sr-only">{l("Private group")}</span>
+      </span>
     </LinkLive>
     <details
       :if={@topics != []}
