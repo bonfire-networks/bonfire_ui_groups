@@ -50,7 +50,7 @@
       </div>
 
       <div class="flex flex-1 flex-col gap-1">
-        <p class="min-h-10 line-clamp-3 text-sm leading-5 text-muted">{e(@object, :profile, :summary, "")}</p>
+        <p class="min-h-10 line-clamp-3 text-sm leading-5 text-muted">{rich e(@object, :profile, :summary, "")}</p>
 
         <div
           :if={e(@preview, :topics, []) != []}
