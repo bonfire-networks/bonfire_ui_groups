@@ -1,93 +1,113 @@
 {#if @showing_within in [:discovery, :joined]}
+  {!-- the whole card opens the group (the name link stretches over it), so the few things inside that link elsewhere sit above that overlay with `relative z-10` --}
   <article
     id={"group-preview-#{id(@object)}"}
-    class="flex h-full min-w-0 flex-col overflow-hidden rounded-box border border-divider bg-base-100"
+    class="relative flex h-full min-w-0 flex-col overflow-hidden rounded-box border-hair border-divider bg-base-100 transition-colors hover:border-base-content/20 has-[a:focus-visible]:outline has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2"
   >
     <div
-      class="h-24 shrink-0 overflow-hidden bg-base-300"
+      class="relative h-20 shrink-0 overflow-hidden bg-fill"
       aria-hidden="true"
       data-role="group-card-cover"
     >
       {#case Media.banner_url(@object, fallback: false)}
         {#match nil}
+          {#case Media.avatar_url(@object)}
+            {#match "/images/avatar.png"}
+            {#match avatar}
+              {!-- no banner: the avatar, blurred, gives each card its own colour instead of an empty slab --}
+              <img
+                src={avatar}
+                alt=""
+                class="size-full scale-150 object-cover opacity-60 blur-2xl saturate-150"
+                loading="lazy"
+              />
+          {/case}
         {#match banner}
           <img src={banner} alt="" class="size-full object-cover" loading="lazy">
       {/case}
     </div>
 
-    <div class="flex flex-1 flex-col gap-3 p-4">
-      <div class="flex min-w-0 flex-col gap-2">
-        <div
-          class="relative -mt-8 grid size-12 shrink-0 place-items-center overflow-hidden rounded-box border-4 border-base-100 bg-base-200 text-base-content"
-          aria-hidden="true"
-        >
-          {#case Media.avatar_url(@object)}
-            {#match "/images/avatar.png"}
-              <#Icon iconify="ph:users-three-duotone" class="size-6" />
-            {#match url}
-              <img
-                src={url}
-                alt=""
-                width="40"
-                height="40"
-                class="absolute inset-0 h-full w-full object-cover"
-                loading="lazy"
-              />
-          {/case}
-        </div>
-        <div class="w-full min-w-0">
-          <LinkLive
-            opts={[id: "group-preview-link-#{id(@object)}", title: handle(@object)]}
-            to={@permalink}
-            class="min-h-12 line-clamp-2 break-words type-heading leading-6 text-base-content underline-offset-2 hover:underline focus-visible:rounded-selector focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-          >{name(@object)}</LinkLive>
-          <p
-            :if={remote?(@object) and handle(@object)}
-            class="mt-0.5 truncate text-xs leading-5 text-muted"
-            title={handle(@object)}
-          >{handle(@object)}</p>
-        </div>
+    <span
+      :if={not is_nil(current_user_id(@__context__)) and e(@preview, :joined?, false)}
+      id={"group-membership-#{id(@object)}"}
+      class="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-base-100/90 px-2 py-0.5 text-xs font-medium leading-5 text-base-content backdrop-blur-sm"
+    >
+      <#Icon iconify="ph:check-bold" class="size-3" />
+      {l("Joined")}
+    </span>
+
+    <div class="flex flex-1 flex-col px-4 pb-4">
+      <div
+        class="relative -mt-7 mb-3 grid size-14 shrink-0 place-items-center overflow-hidden rounded-box bg-fill text-subtle ring-4 ring-base-100"
+        aria-hidden="true"
+      >
+        {#case Media.avatar_url(@object)}
+          {#match "/images/avatar.png"}
+            <#Icon iconify="ph:users-three" class="size-6" />
+          {#match url}
+            <img
+              src={url}
+              alt=""
+              width="56"
+              height="56"
+              class="absolute inset-0 size-full object-cover"
+              loading="lazy"
+            />
+        {/case}
       </div>
 
-      <div class="flex flex-1 flex-col gap-1">
-        <p class="min-h-10 line-clamp-3 text-sm leading-5 text-muted">{rich e(@object, :profile, :summary, "")}</p>
+      <LinkLive
+        opts={[id: "group-preview-link-#{id(@object)}", title: handle(@object)]}
+        to={@permalink}
+        class="block truncate text-base font-bold leading-6 text-base-content after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
+      >{name(@object)}</LinkLive>
 
-        <div
-          :if={e(@preview, :topics, []) != []}
-          class="flex flex-wrap gap-x-3 gap-y-1"
-          aria-label={l("Topics")}
-        >
-          {#for topic <- Enum.take(e(@preview, :topics, []), 2)}
-            <LinkLive
-              :if={topic_name(topic)}
-              to={path(topic)}
-              class="inline-flex min-h-11 max-w-full items-center truncate text-xs text-primary underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 pb-0"
-            >{topic_name(topic)}</LinkLive>
-          {/for}
-        </div>
-      </div>
-
-      <div class="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs leading-5 text-muted">
-        <span class="tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
+      <p class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs leading-5 text-muted">
+        <span class="shrink-0 tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
         {#case Bonfire.Boundaries.Presets.dimension_meta(:membership, e(@preview, :membership, nil))}
           {#match %{} = meta}
-            <span class="inline-flex items-center gap-1" data-role="group-card-membership-policy">
-              <Iconify.iconify icon={e(meta, :icon, "ph:users")} class="size-3.5" />
-              {e(meta, :label, nil)}
+            <span aria-hidden="true" class="text-subtle">·</span>
+            <span class="inline-flex min-w-0 items-center gap-1" data-role="group-card-membership-policy">
+              <Iconify.iconify icon={e(meta, :icon, "ph:users")} class="size-3.5 shrink-0" />
+              <span class="truncate">{e(meta, :label, nil)}</span>
             </span>
           {#match _}
         {/case}
+      </p>
+
+      {!-- a div, not a p: the summary is rich text with its own paragraphs, and a p inside a p makes the browser close the outer one, so the clamp lost hold of it --}
+      <div class="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-muted">{rich e(@object, :profile, :summary, "")}</div>
+
+      <div
+        :if={remote?(@object) or e(@preview, :topics, []) != []}
+        class="mt-auto flex min-w-0 items-center gap-3 pt-3 text-xs leading-5 text-muted"
+      >
         <span
-          :if={not is_nil(current_user_id(@__context__)) and e(@preview, :joined?, false)}
-          id={"group-membership-#{id(@object)}"}
-          class={
-            "ml-auto inline-flex items-center gap-1",
-            "font-medium text-base-content": e(@preview, :joined?, false)
-          }
+          :if={remote?(@object) and instance_host(@object)}
+          data-role="group-card-origin"
+          class="inline-flex min-w-0 shrink items-center gap-1"
+          title={handle(@object)}
         >
-          <#Icon :if={e(@preview, :joined?, false)} iconify="ph:check" class="size-3.5" />
-          {l("Joined")}
+          <#Icon iconify="ph:globe-hemisphere-west" class="size-3.5 shrink-0" />
+          <span class="truncate">{instance_host(@object)}</span>
         </span>
+        <div
+          :if={e(@preview, :topics, []) != []}
+          class="flex min-w-0 items-center gap-3"
+          aria-label={l("Topics")}
+        >
+          {#for topic <- Enum.take(e(@preview, :topics, []), 2)}
+            {!-- small to look at, 44px to tap: the padding grows the target, the negative margin keeps the line where it was --}
+            <LinkLive
+              :if={topic_name(topic)}
+              to={path(topic)}
+              class="relative z-10 -my-3 inline-flex min-w-0 items-center gap-0.5 py-3 text-primary underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2"
+            >
+              <#Icon iconify="ph:hash" class="size-3.5 shrink-0" />
+              <span class="truncate">{topic_name(topic)}</span>
+            </LinkLive>
+          {/for}
+        </div>
       </div>
     </div>
   </article>

@@ -3,15 +3,15 @@
     :if={@selected_tab == "discover"}
     id="group-discovery-hero"
     aria-labelledby="group-discovery-title"
-    class="border-b-hair border-divider bg-base-200 px-6 py-8 sm:px-8 sm:py-10"
+    class="px-4 pt-8 sm:px-6 sm:pt-10"
   >
     <h2
       id="group-discovery-title"
-      class="max-w-2xl text-3xl font-bold tracking-tight text-base-content sm:text-3xl"
+      class="text-balance text-2xl font-bold tracking-tight text-base-content sm:text-[1.75rem] sm:leading-tight"
     >
       {l("Find your community")}
     </h2>
-    <p class="mt-3 max-w-xl text-base leading-relaxed text-muted">
+    <p class="mt-2 max-w-lg text-pretty text-sm leading-relaxed text-muted sm:text-base">
       {l("Discover groups around your interests. Meet people, share ideas and join the conversation.")}
     </p>
   </section>
@@ -19,6 +19,7 @@
     selected_tab={@selected_tab}
     search_term={@search_term}
     join_filter={@join_filter}
+    origin={@origin}
   />
 
   {#if @selected_tab == "archived"}
@@ -29,12 +30,12 @@
             <#Icon iconify="ph:archive-duotone" class="size-7 text-subtle" />
           </div>
           <p class="text-base font-medium text-base-content">
-            {if @search_term != "" or @join_filter != "all",
+            {if @search_term != "" or @join_filter != "all" or @origin != "all",
               do: l("No archived groups match your filters"),
               else: l("No archived groups")}
           </p>
           <LinkLive
-            :if={@search_term != "" or @join_filter != "all"}
+            :if={@search_term != "" or @join_filter != "all" or @origin != "all"}
             to="/groups?tab=archived"
             class="btn btn-ghost mt-3"
           >{l("Clear filters")}</LinkLive>
@@ -104,6 +105,7 @@
       page_info={@page_info}
       search_term={@search_term}
       join_filter={@join_filter}
+      origin={@origin}
     />
   {/if}
 </div>

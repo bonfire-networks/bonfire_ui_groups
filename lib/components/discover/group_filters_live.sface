@@ -5,17 +5,17 @@
   method="get"
   phx-change="filter_groups"
   phx-submit="filter_groups"
-  class="grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-b-hair border-divider bg-base-100 p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto]"
+  class="flex flex-col gap-3 border-b-hair border-divider px-4 pb-4 pt-4 sm:px-6"
 >
   <label for="group-discovery-search" class="sr-only">{l("Search groups")}</label>
-  <div class="input col-span-2 sm:col-span-1 w-full border-hair border-divider bg-base-200/45 focus-within:border-base-content/30 focus-within:outline-none">
+  <div class="input h-11 w-full gap-1 rounded-field border-hair border-divider bg-fill pl-1 transition-colors focus-within:border-base-content/30 focus-within:bg-base-100 focus-within:outline-none">
     <button
       id="group-discovery-submit"
       type="submit"
-      class="grid size-11 shrink-0 place-items-center rounded-box text-muted hover:text-base-content focus-visible:outline focus-visible:outline-2"
+      class="grid size-9 shrink-0 place-items-center rounded-field text-subtle hover:text-base-content focus-visible:outline focus-visible:outline-2"
       aria-label={l("Search groups")}
     >
-      <#Icon iconify="ph:magnifying-glass" class="size-5" />
+      <#Icon iconify="ph:magnifying-glass" class="size-4.5" />
     </button>
     <input
       id="group-discovery-search"
@@ -24,70 +24,86 @@
       value={@form[:search_term].value}
       placeholder={l("Search groups…")}
       phx-debounce="300"
+      autocomplete="off"
       class="min-w-0 grow bg-transparent text-base sm:text-sm"
     />
   </div>
 
-  <label for="group-view-filter" class="sr-only">{l("Group view")}</label>
-  <select
-    id="group-view-filter"
-    name={@form[:tab].name}
-    class="select w-full border-hair border-divider bg-base-100 text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:w-36"
-  >
-    <option
-      class="bg-base-100 text-base-content"
-      value="discover"
-      selected={@selected_tab == "discover"}
-    >{l("All groups")}</option>
-    <option
+  <div class="flex flex-wrap items-center gap-2">
+    {!-- a guest only has one view, so there is nothing to switch between --}
+    <div
       :if={current_user_id(@__context__)}
-      class="bg-base-100 text-base-content"
-      value="joined"
-      selected={@selected_tab == "joined"}
-    >{l("Joined")}</option>
-    <option
-      :if={current_user_id(@__context__)}
-      class="bg-base-100 text-base-content"
-      value="archived"
-      selected={@selected_tab == "archived"}
-    >{l("Archived")}</option>
-  </select>
-  <details id="group-policy-filters" class="relative" open={@join_filter != "all"}>
-    <summary
-      aria-label={l("Filters")}
-      data-tip={l("Filters")}
-      class="tooltip tooltip-left btn btn-ghost px-3 font-normal"
+      id="group-view-filter"
+      role="radiogroup"
+      aria-label={l("Group view")}
+      class="inline-flex rounded-field bg-fill p-0.5"
     >
-      <#Icon iconify="ph:sliders-horizontal" class="size-5" />
-      <span
-        :if={@join_filter != "all"}
-        class="badge badge-primary badge-xs"
-        aria-label={l("One active filter")}
-      />
-    </summary>
-    <fieldset class="absolute right-0 z-20 mt-2 w-52 rounded-box border-hair border-divider bg-base-100 p-2">
-      <legend class="sr-only">{l("Filter by joining policy")}</legend>
-      {#for {value, label} <- [
-          {"all", l("Any joining policy")},
-          {"open", l("Open to join")},
-          {"request", l("By request")},
-          {"invite", l("Invite only")}
-        ]}
+      {#for {value, label} <- views()}
         <label
-          for={"group-policy-#{value}"}
-          class="flex cursor-pointer items-center gap-3 rounded-selector px-2 py-2 text-sm hover:bg-base-200"
+          for={"group-view-#{value}"}
+          class="flex min-h-8 cursor-pointer items-center rounded-[calc(var(--radius-field)-0.125rem)] px-3 text-sm text-muted transition-colors hover:text-base-content has-[:checked]:bg-base-100 has-[:checked]:text-base-content has-[:checked]:shadow-xs has-[:focus-visible]:outline has-[:focus-visible]:outline-2"
         >
           <input
-            id={"group-policy-#{value}"}
+            id={"group-view-#{value}"}
             type="radio"
-            name={@form[:join_filter].name}
+            name={@form[:tab].name}
             value={value}
-            checked={@join_filter == value}
-            class="radio radio-primary radio-sm"
+            checked={@selected_tab == value}
+            class="sr-only"
           />
-          <span>{label}</span>
+          {label}
         </label>
       {/for}
-    </fieldset>
-  </details>
+    </div>
+
+    <div class="ml-auto flex items-center gap-2">
+      {#for {field, id, icon, options, value, legend} <- [
+          {:origin, "group-origin-filters", "ph:globe-hemisphere-west", origins(), @origin,
+           l("Filter by where groups are hosted")},
+          {:join_filter, "group-policy-filters", "ph:door-open", join_policies(), @join_filter,
+           l("Filter by joining policy")}
+        ]}
+        <Dropdown
+          id={id}
+          position="bottom-end"
+          menu={false}
+          close_on_select
+          label={legend}
+          panel_class="!w-56"
+          trigger_class={
+            "btn btn-sm h-8 min-h-8 gap-1.5 rounded-field border-hair px-2.5 font-normal shadow-none",
+            "btn-ghost border-divider text-muted hover:text-base-content": value == "all",
+            "border-base-content/25 bg-fill text-base-content": value != "all"
+          }
+        >
+          <:trigger>
+            <Iconify.iconify icon={icon} class="size-4" />
+            <span>{selected_label(options, value)}</span>
+            <#Icon iconify="ph:caret-down" class="size-3 opacity-60" />
+          </:trigger>
+
+          <fieldset class="flex flex-col">
+            <legend class="sr-only">{legend}</legend>
+            {#for {option, label} <- options}
+              <label
+                for={"#{id}-#{option}"}
+                class="flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-selector px-2.5 text-sm text-base-content hover:bg-fill has-[:focus-visible]:bg-fill"
+              >
+                <input
+                  id={"#{id}-#{option}"}
+                  type="radio"
+                  name={@form[field].name}
+                  value={option}
+                  checked={value == option}
+                  class="sr-only"
+                />
+                <span>{label}</span>
+                <#Icon :if={value == option} iconify="ph:check" class="size-4 text-primary" />
+              </label>
+            {/for}
+          </fieldset>
+        </Dropdown>
+      {/for}
+    </div>
+  </div>
 </.form>

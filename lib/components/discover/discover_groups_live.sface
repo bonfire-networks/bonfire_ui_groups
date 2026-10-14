@@ -1,5 +1,5 @@
-<div class="flex flex-col bg-base-200/25">
-  <div class="p-4">
+<div class="flex flex-col">
+  <div class="p-4 sm:p-6">
     {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
       {#match nil}
       {#match component}
@@ -31,6 +31,12 @@
             {#elseif @join_filter != "all"}
               <p class="text-base font-medium text-base-content">{l("No groups match this joining policy")}</p>
               <p class="mt-1 max-w-sm text-sm text-muted">{l("Choose another joining policy, or clear your filters.")}</p>
+            {#elseif @origin == "local"}
+              <p class="text-base font-medium text-base-content">{l("No groups on this instance yet")}</p>
+              <p class="mt-1 max-w-sm text-sm text-muted">{l("Start one, or look at groups on other instances.")}</p>
+            {#elseif @origin == "remote"}
+              <p class="text-base font-medium text-base-content">{l("No groups from other instances yet")}</p>
+              <p class="mt-1 max-w-sm text-sm text-muted">{l("Groups from across the fediverse show up here once people on this instance discover them.")}</p>
             {#elseif @selected_tab == "joined"}
               <p class="text-base font-medium text-base-content">{l("You haven't joined any groups yet")}</p>
               <p class="mt-1 max-w-sm text-sm text-muted">{l("Choose All groups to find a group to join.")}</p>
@@ -41,7 +47,7 @@
               </p>
             {/if}
             <LinkLive
-              :if={@search_term != "" or @join_filter != "all"}
+              :if={@search_term != "" or @join_filter != "all" or @origin != "all"}
               opts={[id: "group-discovery-clear-filters"]}
               to={"/groups?tab=#{@selected_tab}"}
               class="btn btn-sm btn-ghost mt-3"
@@ -50,7 +56,7 @@
         {#else}
           <div
             id={if @selected_tab == "joined", do: "group-joined-grid", else: "group-discovery-grid"}
-            class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] items-stretch gap-4"
+            class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,16rem),1fr))] items-stretch gap-3 sm:gap-4"
           >
             {#for {%{type: :group} = category, _children} <- @categories}
               <StatelessComponent
@@ -66,7 +72,10 @@
     {/case}
 
     {#if Bonfire.UI.Common.LoadMoreLive.end_cursor(@page_info)}
-      <p :if={@search_term != "" or @join_filter != "all"} class="mt-4 text-center text-sm text-muted">
+      <p
+        :if={@search_term != "" or @join_filter != "all" or (@origin != "all" and @selected_tab == "joined")}
+        class="mt-4 text-center text-sm text-muted"
+      >
         {l("Filters apply to the groups loaded so far. Load more to keep looking.")}
       </p>
       <Bonfire.UI.Common.LoadMoreLive

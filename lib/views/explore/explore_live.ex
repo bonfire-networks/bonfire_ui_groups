@@ -21,14 +21,10 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     icon_active: "ph:users-three-fill"
   )
 
-  def mount(_params, _session, socket) do
-    with %{edges: list, page_info: page_info} <-
-           Categories.list_tree(
-             [:default, type: :group, tree_max_depth: 1, preload: :follow_count],
-             current_user: current_user(socket)
-           ) do
-      {categories, group_previews} = hydrate_group_previews(list, current_user(socket))
+  @origins ~w(all local remote)
 
+  def mount(_params, _session, socket) do
+    with {categories, group_previews, page_info} <- discover_page(current_user(socket), "all") do
       {:ok,
        assign(socket,
          page: "groups",
@@ -41,6 +37,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
          group_previews: group_previews,
          search_term: "",
          join_filter: "all",
+         origin: "all",
          page_info: page_info,
          page_header_aside: [
            {Bonfire.UI.Groups.NewGroupLive,
@@ -58,7 +55,8 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   def handle_params(params, _uri, socket) do
     params = Map.get(params, "group_filters", params)
     tab = Map.get(params, "tab", "discover")
-    socket = load_group_view(socket, tab)
+    origin = valid_origin(Map.get(params, "origin"))
+    socket = load_group_view(socket, tab, origin)
 
     filter_groups(
       socket,
@@ -67,7 +65,10 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     )
   end
 
-  defp load_group_view(socket, tab) do
+  defp valid_origin(origin) when origin in @origins, do: origin
+  defp valid_origin(_), do: "all"
+
+  defp load_group_view(socket, tab, origin) do
     tab = if current_user(socket) && tab in ["joined", "archived"], do: tab, else: "discover"
 
     {categories, previews, page_info} =
@@ -81,23 +82,17 @@ defmodule Bonfire.UI.Groups.ExploreLive do
           {categories, previews, nil}
 
         "discover" ->
-          if socket.assigns.selected_tab == "discover" do
+          if socket.assigns.selected_tab == "discover" and socket.assigns.origin == origin do
             {socket.assigns.all_categories, socket.assigns.group_previews,
              socket.assigns.page_info}
           else
-            %{edges: groups, page_info: page_info} =
-              Categories.list_tree(
-                [:default, type: :group, tree_max_depth: 1, preload: :follow_count],
-                current_user: current_user(socket)
-              )
-
-            {categories, previews} = hydrate_group_previews(groups, current_user(socket))
-            {categories, previews, page_info}
+            discover_page(current_user(socket), origin)
           end
       end
 
     assign(socket,
       selected_tab: tab,
+      origin: origin,
       all_categories: categories,
       group_previews: previews,
       page_info: page_info
@@ -110,7 +105,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     with {:ok, _category} <- Categories.unarchive(id, user) do
       socket
       |> assign_flash(:info, l("Group restored"))
-      |> load_group_view("archived")
+      |> load_group_view("archived", socket.assigns.origin)
       |> filter_groups(socket.assigns.search_term, socket.assigns.join_filter)
     else
       _ ->
@@ -124,13 +119,16 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     join_filter = Map.get(params, "join_filter", socket.assigns.join_filter)
 
     tab = Map.get(params, "tab", socket.assigns.selected_tab)
+    origin = valid_origin(Map.get(params, "origin", socket.assigns.origin))
 
-    if tab != socket.assigns.selected_tab do
+    # tab and origin change which groups are loaded, so they go through the URL (and `handle_params`) to stay shareable
+    if tab != socket.assigns.selected_tab or origin != socket.assigns.origin do
       query =
         URI.encode_query(%{
           "tab" => tab,
           "search_term" => search_term,
-          "join_filter" => join_filter
+          "join_filter" => join_filter,
+          "origin" => origin
         })
 
       {:noreply, push_patch(socket, to: "/groups?#{query}")}
@@ -153,14 +151,10 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   end
 
   def handle_event("load_more", attrs, socket) do
-    with %{edges: list, page_info: page_info} <-
-           Categories.list_tree(
-             [:default, type: :group, tree_max_depth: 1, preload: :follow_count],
-             current_user: current_user(socket),
+    with {new_categories, new_previews, page_info} <-
+           discover_page(current_user(socket), socket.assigns.origin,
              after: e(attrs, "after", nil)
            ) do
-      {new_categories, new_previews} = hydrate_group_previews(list, current_user(socket))
-
       socket
       |> assign(
         all_categories: socket.assigns.all_categories ++ new_categories,
@@ -179,6 +173,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
         socket.assigns.all_categories,
         search_term,
         join_filter,
+        socket.assigns.origin,
         socket.assigns.group_previews
       )
 
@@ -190,16 +185,22 @@ defmodule Bonfire.UI.Groups.ExploreLive do
      )}
   end
 
-  defp filter_categories(categories, search_term, join_filter, previews) do
+  defp filter_categories(categories, search_term, join_filter, origin, previews) do
     search_term = search_term |> String.trim() |> String.downcase()
 
     Enum.filter(categories, fn {category, children} ->
       preview = Map.get(previews, id(category), %{})
 
       matches_search?(category, children, search_term) and
-        matches_join_filter?(preview, join_filter)
+        matches_join_filter?(preview, join_filter) and
+        matches_origin?(category, origin)
     end)
   end
+
+  # Discover already asked the database for this origin (see `discover_page/3`), this is for Joined and Archived, which list the user's own groups. `peered` comes preloaded with the character, so it costs nothing per row.
+  defp matches_origin?(_category, "all"), do: true
+  defp matches_origin?(category, "local"), do: Bonfire.Me.Integration.is_local?(category)
+  defp matches_origin?(category, "remote"), do: !Bonfire.Me.Integration.is_local?(category)
 
   defp matches_search?(_category, _children, ""), do: true
 
@@ -298,6 +299,22 @@ defmodule Bonfire.UI.Groups.ExploreLive do
 
     {categories, previews}
   end
+
+  defp discover_page(user, origin, opts \\ []) do
+    %{edges: groups, page_info: page_info} =
+      Categories.list_tree(
+        [:default, type: :group, tree_max_depth: 1, preload: :follow_count] ++
+          origin_filters(origin),
+        Keyword.merge([current_user: user], opts)
+      )
+
+    {categories, previews} = hydrate_group_previews(groups, user)
+    {categories, previews, page_info}
+  end
+
+  defp origin_filters("local"), do: [:local]
+  defp origin_filters("remote"), do: [:remote]
+  defp origin_filters(_), do: []
 
   defp joined_groups_page(user, opts) do
     %{edges: groups, page_info: page_info} = Categories.list_joined_groups(user, opts)

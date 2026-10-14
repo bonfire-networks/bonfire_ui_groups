@@ -175,6 +175,35 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_has("#group-preview-#{id(group)}")
   end
 
+  test "origin filter separates groups on this instance from federated ones", %{
+    account: account,
+    me: me
+  } do
+    group = create_group(me, "Hometown bakers", "local:members")
+    card = "#group-preview-#{id(group)}"
+
+    conn(user: me, account: account)
+    |> visit("/groups")
+    |> choose("This instance")
+    |> assert_has(card)
+    |> refute_has("#{card} [data-role=group-card-origin]")
+    |> choose("Other instances")
+    |> refute_has(card)
+    |> assert_has("#group-discovery-empty", text: "No groups from other instances yet")
+    |> click_link("Clear filters")
+    |> assert_has("#group-preview-#{id(group)}")
+  end
+
+  test "origin filter can be submitted through URL parameters", %{account: account, me: me} do
+    group = create_group(me, "Linked local group", "local:members")
+
+    conn(user: me, account: account)
+    |> visit("/groups?origin=remote")
+    |> refute_has("#group-preview-#{id(group)}")
+    |> visit("/groups?origin=local")
+    |> assert_has("#group-preview-#{id(group)}")
+  end
+
   test "nonmember cards omit redundant status and keep the joining policy", %{
     account: account,
     me: me
@@ -239,21 +268,21 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> visit("/groups")
     |> refute_has("#group-preview-#{id(archived)}")
     |> fill_in("Search groups", with: "garden")
-    |> PhoenixTest.select("Group view", option: "Joined")
+    |> choose("Joined")
     |> assert_has("#group-joined-grid #group-preview-#{id(joined)}")
     |> fill_in("Search groups", with: "missing")
     |> fill_in("Search groups", with: "")
-    |> assert_has("#group-view-filter option[selected]", text: "Joined")
+    |> assert_has("#group-view-joined[checked]")
     |> assert_has("#group-preview-#{id(joined)}")
-    |> PhoenixTest.select("Group view", option: "Archived")
+    |> choose("Archived")
     |> assert_has("a", text: "Archived garden")
     |> refute_has("#group-preview-#{id(joined)}")
     |> fill_in("Search groups", with: "missing")
     |> refute_has("a", text: "Archived garden")
     |> fill_in("Search groups", with: "")
     |> assert_has("a", text: "Archived garden")
-    |> assert_has("#group-view-filter option[selected]", text: "Archived")
-    |> PhoenixTest.select("Group view", option: "All groups")
+    |> assert_has("#group-view-archived[checked]")
+    |> choose("All groups")
     |> assert_has("#group-preview-#{id(joined)}")
     |> refute_has("#group-preview-#{id(archived)}")
   end
@@ -265,7 +294,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> visit("/groups?tab=joined")
     |> fill_in("Search groups", with: "missing")
     |> click_link("Clear filters")
-    |> assert_has("#group-view-filter option[selected]", text: "Joined")
+    |> assert_has("#group-view-joined[checked]")
     |> assert_has("#group-discovery-search:not([value]), #group-discovery-search[value='']")
     |> assert_has("#group-preview-#{id(group)}")
   end

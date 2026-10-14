@@ -6,6 +6,7 @@ defmodule Bonfire.UI.Groups.DiscoverGroupsLive do
   prop page_info, :any, default: nil
   prop search_term, :string, default: ""
   prop join_filter, :string, default: "all"
+  prop origin, :string, default: "all"
 
   prop selected_tab, :string, default: "discover"
 end

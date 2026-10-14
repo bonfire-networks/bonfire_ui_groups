@@ -45,4 +45,18 @@ defmodule Bonfire.UI.Groups.Preview.GroupLive do
 
   @doc "Whether the group is hosted on another instance."
   def remote?(object), do: !Bonfire.Me.Integration.is_local?(object)
+
+  @doc "The instance a remote group is hosted on (eg. `events.graz.social`), or nil when it can't tell."
+  def instance_host(object) do
+    with uri when is_binary(uri) <- e(object, :character, :peered, :canonical_uri, nil),
+         %URI{host: host} when is_binary(host) <- URI.parse(uri) do
+      host
+    else
+      _ ->
+        case handle(object) && String.split(handle(object), "@", trim: true) do
+          [_name, host | _] -> host
+          _ -> nil
+        end
+    end
+  end
 end
