@@ -7,37 +7,41 @@
       {l("You don't have permission to edit this group's settings.")}
     </div>
   {#else}
-    <section aria-labelledby="settings-group-name" class="flex flex-col items-center text-center">
-      <div class="h-28 w-full overflow-hidden rounded-box bg-base-200 sm:h-36" aria-hidden="true">
-        {#case Media.banner_url(@category, fallback: false)}
-          {#match nil}
-          {#match banner}
-            <img src={banner} alt="" class="h-full w-full object-cover">
-        {/case}
-      </div>
-      <img
-        src={Media.avatar_url(@category)}
-        alt=""
-        width="80"
-        height="80"
-        class="relative -mt-9 size-20 rounded-full border-4 border-base-100 bg-base-200 object-cover"
-      />
-      <h1 id="settings-group-name" class="mt-3 max-w-full break-words type-title leading-tight">
-        {e(@category, :profile, :name, nil) || e(@category, :character, :username, nil)}
-      </h1>
-      <p
-        :if={e(@category, :profile, :summary, nil)}
-        class="mt-2 max-w-lg break-words whitespace-pre-line text-sm text-muted"
-      >
-        {e(@category, :profile, :summary, nil)}
-      </p>
-      <div class="mt-3">
+    <section
+      aria-labelledby="settings-group-name"
+      class="overflow-hidden rounded-box border border-divider bg-surface"
+    >
+      {#case Media.banner_url(@category, fallback: false)}
+        {#match nil}
+        {#match banner}
+          <img src={banner} alt="" aria-hidden="true" class="h-20 w-full object-cover sm:h-24">
+      {/case}
+      <div class="flex items-center gap-4 px-4 py-4 sm:px-5">
+        <img
+          src={Media.avatar_url(@category)}
+          alt=""
+          width="56"
+          height="56"
+          class="size-14 shrink-0 rounded-full bg-base-200 object-cover"
+        />
+        <div class="min-w-0 flex-1">
+          <h1 id="settings-group-name" class="break-words text-lg font-bold leading-snug">
+            {e(@category, :profile, :name, nil) || e(@category, :character, :username, nil)}
+          </h1>
+          <p
+            :if={e(@category, :profile, :summary, nil)}
+            class="mt-0.5 line-clamp-2 break-words text-sm text-muted"
+          >
+            {e(@category, :profile, :summary, nil)}
+          </p>
+        </div>
         <Bonfire.UI.Common.OpenModalLive
           id="group_settings_identity"
           title_text={l("Edit group details")}
-          open_btn_text={l("Edit group details")}
+          open_btn_text={l("Edit")}
           open_btn_opts={[id: "group_settings_identity_open"]}
-          open_btn_wrapper_class="min-h-11 rounded-selector px-4 py-2 text-center font-medium text-primary hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          open_modal_wrapper_class="shrink-0"
+          open_btn_wrapper_class="btn btn-sm btn-outline border-divider"
           without_form
           no_actions
         >

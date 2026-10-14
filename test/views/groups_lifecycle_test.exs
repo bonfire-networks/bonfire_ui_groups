@@ -360,7 +360,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
       conn
       |> visit("/&#{group.character.username}/settings")
-      |> click_button("Edit group details")
+      |> click_button("#group_settings_identity_open", "Edit")
       |> fill_in("Group name", with: "New Name")
       |> fill_in("Description", with: "New description")
       |> click_button("#group_settings_identity_save", "Save changes")

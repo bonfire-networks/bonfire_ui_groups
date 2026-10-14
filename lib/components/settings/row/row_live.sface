@@ -2,15 +2,15 @@
   to={@to}
   opts={[id: @id]}
   class={
-    "flex min-h-11 w-full items-center gap-4 px-4 py-5 text-left hover:bg-fill focus-visible:outline focus-visible:outline-2 sm:px-5",
+    "flex min-h-11 w-full items-center gap-4 px-4 py-3.5 text-left hover:bg-fill focus-visible:outline focus-visible:outline-2 sm:px-5",
     "text-error": @danger
   }
 >
-  <Iconify.iconify icon={@icon} class="size-5 shrink-0" aria-hidden="true" />
+  <Iconify.iconify icon={@icon} class={"size-5 shrink-0", "text-muted": !@danger} aria-hidden="true" />
   <span class="min-w-0 flex-1">
     <span class="block font-medium">{@title}</span>
-    <span :if={@description} class="mt-1 block text-sm leading-snug text-muted">{@description}</span>
+    {!-- one summary line: the value reads as part of the description rather than a second, right-aligned column --}
+    <span :if={@description || @value} class="mt-0.5 block text-sm leading-snug text-muted">{[@description, @value] |> Enum.reject(&is_nil/1) |> Enum.join(" · ")}</span>
   </span>
-  <span :if={@value} class="max-w-[40%] text-right text-sm text-muted">{@value}</span>
   <#Icon iconify="ph:caret-right" class="size-4 shrink-0 text-muted" />
 </LinkLive>

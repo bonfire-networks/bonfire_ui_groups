@@ -33,12 +33,13 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     |> assert_has("#group_settings_access_link", text: "On request")
     |> refute_has("#group_settings_identity_form")
     |> refute_has("#group-settings-overview dialog")
-    |> click_button("Edit group details")
+    |> click_button("#group_settings_identity_open", "Edit")
     |> assert_has("#modal [role=dialog] #group_settings_identity_form")
     |> refute_has("#group_settings_boundaries_form")
     |> refute_has("#add_moderator_form")
-    |> assert_has("[data-two-columns]")
-    |> refute_has("label[for=widgets-drawer]")
+    # settings keep the group's right sidebar, like its other tabs
+    |> refute_has("[data-two-columns]")
+    |> assert_has("[data-id=secondary_sidebar_widgets]")
   end
 
   test "settings pages have working links back to the overview", %{conn: conn, group: group} do
@@ -102,7 +103,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
 
     conn
     |> visit("/&#{group.character.username}/settings")
-    |> click_button("Edit group details")
+    |> click_button("#group_settings_identity_open", "Edit")
     |> fill_in("Group name", with: updated_name)
     |> fill_in("Description", with: "Readers sharing ideas together.")
     |> click_button("#group_settings_identity_save", "Save changes")
@@ -110,7 +111,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     |> assert_has("#modal [role=status]", text: "Category updated!")
     |> assert_has("#group-settings-overview p", text: "Readers sharing ideas together.")
     |> click_button("#modal [data-role=close-modal]", "Close")
-    |> click_button("Edit group details")
+    |> click_button("#group_settings_identity_open", "Edit")
     # double quotes, since company names can have an apostrophe (eg. "Ziemann-O'Hara")
     |> assert_has(~s(#group_settings_name[value="#{updated_name}"]))
     |> assert_has("#group_settings_summary", text: "Readers sharing ideas together.")
@@ -190,7 +191,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     session =
       conn
       |> visit("/&#{group.character.username}/settings")
-      |> click_button("Edit group details")
+      |> click_button("#group_settings_identity_open", "Edit")
 
     media = Bonfire.Social.Fake.upload_media(:images, owner)
 
@@ -216,7 +217,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
   test "invalid identity keeps the modal and submitted description", %{conn: conn, group: group} do
     conn
     |> visit("/&#{group.character.username}/settings")
-    |> click_button("Edit group details")
+    |> click_button("#group_settings_identity_open", "Edit")
     |> unwrap(fn view ->
       view
       |> Phoenix.LiveViewTest.element("#group_settings_identity_form")

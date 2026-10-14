@@ -49,7 +49,6 @@ defmodule Bonfire.UI.Groups.GroupLive do
       socket
       |> assign(:tab_id, params["tab_id"])
       |> assign(:no_header, socket.assigns.selected_tab == "members")
-      |> assign(:without_secondary_widgets, socket.assigns.selected_tab == "settings")
       |> assign_new(:member_search, fn -> "" end)
       |> assign_new(:member_role, fn -> "all" end)
 
