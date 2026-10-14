@@ -59,7 +59,7 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
           # replies keep their thread: no title, destination picker or topic choice
           refute has_element?(composer, "#smart_input_post_title")
           refute has_element?(composer, "#composer_audience_picker")
-          refute has_element?(composer, "#composer_topic_controls")
+          refute has_element?(composer, "[data-role=destination_topics]")
           assert has_element?(composer, "input[name=context_id][value='#{context.post.id}']")
           render(view)
         end)

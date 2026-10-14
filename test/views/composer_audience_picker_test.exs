@@ -80,7 +80,7 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       composer |> element("[data-audience-group='#{group.id}']") |> render_click()
       assert has_element?(composer, "input[name=context_id][value='#{group.id}']")
       assert has_element?(composer, "[data-role=group-composer-audience]", "Group members only")
-      refute has_element?(composer, "#composer_topic_controls")
+      refute has_element?(composer, "[data-role=destination_topics]")
       # minimising and resuming keeps the group destination
       composer |> element("#minimize_composer_button") |> render_click()
       composer |> element("#composer_draft_bar") |> render_click()
@@ -268,24 +268,24 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       composer = composer_view(view)
       open_menu(composer, "composer_audience_picker")
       composer |> element("[data-audience-group='#{group.id}']") |> render_click()
-      assert has_element?(composer, "#composer_destination_trigger", "Whole group")
-      composer |> element("#composer_destination [phx-value-id='#{topic.id}']") |> render_click()
+      assert has_element?(composer, "[data-role=post_in_whole_group][aria-pressed=true]")
+      composer |> element("[data-audience-topic='#{topic.id}']") |> render_click()
       assert has_element?(composer, "input[name=context_id][value='#{topic.id}']")
       assert has_element?(composer, "#composer_audience_picker_trigger", "First topic collective")
 
       composer |> element("[data-audience-group='#{other_group.id}']") |> render_click()
       assert has_element?(composer, "input[name=context_id][value='#{other_group.id}']")
-      assert has_element?(composer, "#composer_destination_trigger", "Whole group")
-      refute has_element?(composer, "#composer_destination [phx-value-id='#{topic.id}']")
+      assert has_element?(composer, "[data-role=post_in_whole_group][aria-pressed=true]")
+      refute has_element?(composer, "[data-audience-topic='#{topic.id}']")
 
       composer
-      |> element("#composer_destination [phx-value-id='#{other_topic.id}']")
+      |> element("[data-audience-topic='#{other_topic.id}']")
       |> render_click()
 
       assert has_element?(composer, "input[name=context_id][value='#{other_topic.id}']")
 
       composer |> element("[data-role=post_in_profile]") |> render_click()
-      refute has_element?(composer, "#composer_topic_controls")
+      refute has_element?(composer, "[data-role=destination_topics]")
       refute has_element?(composer, "input[name=context_id][value='#{other_topic.id}']")
       assert has_element?(composer, "#composer_audience_picker_trigger", "Your profile")
       render(view)

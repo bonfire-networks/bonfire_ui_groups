@@ -33,7 +33,7 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
       composer |> element("[data-group-audience=moderators]") |> render_click()
       assert has_element?(composer, "#composer_group_visibility_trigger", "Group moderators only")
       assert has_element?(composer, "input[name='to_boundaries[]'][value=moderators]")
-      composer |> element("#composer_destination [phx-value-id='#{topic.id}']") |> render_click()
+      composer |> element("[data-audience-topic='#{topic.id}']") |> render_click()
       assert has_element?(composer, "input[name=context_id][value='#{topic.id}']")
       assert has_element?(composer, "input[name='to_boundaries[]'][value=moderators]")
 
@@ -119,27 +119,26 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
       refute has_element?(composer, "#composer_publish_controls #composer_type_chooser")
       assert has_element?(composer, "header #composer_close")
 
-      assert has_element?(
-               composer,
-               "#composer_topic_controls #composer_destination_trigger",
-               "Whole group"
-             )
+      # no topic yet: the place chip names just the group
+      refute has_element?(composer, "#composer_audience_picker_trigger [data-role=destination_topic]")
+      assert has_element?(composer, "[data-role=post_in_whole_group][aria-pressed=true]")
 
       composer
-      |> element("#composer_destination [phx-value-id='#{topic.id}']", "Design feedback")
+      |> element("[data-audience-topic='#{topic.id}']", "Design feedback")
       |> render_click()
 
       assert has_element?(composer, "input[name=context_id][value='#{topic.id}']")
       assert has_element?(composer, "#composer_audience_picker_trigger", "Private audience check")
-      assert has_element?(composer, "#composer_destination_trigger", "Design feedback")
-
       assert has_element?(
                composer,
-               "#composer_destination [phx-value-id='#{topic.id}'][aria-pressed=true]"
+               "#composer_audience_picker_trigger [data-role=destination_topic]",
+               "Design feedback"
              )
 
+      assert has_element?(composer, "[data-audience-topic='#{topic.id}'][aria-pressed=true]")
+
       composer
-      |> element("#composer_destination [phx-value-id='#{group.id}']")
+      |> element("[data-role=post_in_whole_group]")
       |> render_click()
 
       composer
