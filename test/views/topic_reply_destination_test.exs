@@ -52,11 +52,9 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
           # the preview omits the author, already named in the header
           refute has_element?(composer, "#reply_peek [data-role=subject]")
 
-          assert has_element?(
-                   composer,
-                   "#toggle_reply_preview[aria-controls=reply_peek][aria-expanded=false]",
-                   "Show original post"
-                 )
+          # the original post is always shown, above the reply, not behind a toggle
+          refute has_element?(composer, "#reply_peek[hidden]")
+          refute has_element?(composer, "#toggle_reply_preview")
 
           # replies keep their thread: no title, destination picker or topic choice
           refute has_element?(composer, "#smart_input_post_title")
@@ -106,7 +104,7 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
 
         composer |> element("#minimize_composer_button") |> render_click()
         assert has_element?(composer, "#smart_input_container[data-hidden]")
-        assert has_element?(composer, "#composer_draft_bar", "Draft in progress")
+        assert has_element?(composer, "#composer_draft_bar", "Continue writing")
 
         composer |> element("#composer_draft_bar") |> render_click()
         refute has_element?(composer, "#smart_input_container[data-hidden]")

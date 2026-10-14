@@ -29,8 +29,9 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
       refute has_element?(composer, "#smart_input_post_title")
       refute has_element?(composer, "#title_btn")
       assert has_element?(composer, "#composer_publish_controls #language_dropdown")
-      assert has_element?(composer, "#smart_input_more_options #discard_composer")
-      refute has_element?(composer, "header #discard_composer")
+      # closing lives in the header; an empty composer closes without asking
+      assert has_element?(composer, "header #composer_close #close_composer_button")
+      refute has_element?(composer, "#smart_input_more_options #discard_composer")
       refute has_element?(composer, "#composer_publish_controls #composer_type_chooser")
       assert has_element?(composer, "#composer_header_actions > #composer_author:first-child")
       assert has_element?(composer, "#expand_composer_button[aria-label='Expand composer']")
@@ -40,7 +41,6 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
                "#minimize_composer_button[aria-label='Minimise composer, keep draft']"
              )
 
-      refute has_element?(composer, "#close_composer_button")
       render(view)
     end)
   end
@@ -193,7 +193,56 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
       assert has_element?(composer, "#submit_btn", "Send")
       refute has_element?(composer, "#composer_type_chooser")
       refute has_element?(composer, "#scheduled_at_btn")
-      assert has_element?(composer, "#discard_composer")
+      assert has_element?(composer, "header #composer_close")
+      render(view)
+    end)
+  end
+
+  test "closing asks before discarding only when there is something to lose", %{conn: conn} do
+    conn
+    |> visit("/feed/local")
+    |> PhoenixTest.unwrap(fn view ->
+      composer = composer_view(view)
+      assert has_element?(composer, "header #composer_close #close_composer_button")
+      refute has_element?(composer, "#discard_composer")
+
+      composer
+      |> element("#smart_input_form")
+      |> render_change(%{
+        "_target" => ["post", "post_content", "html_body"],
+        "post" => %{"post_content" => %{"html_body" => "A half-written thought"}}
+      })
+
+      assert has_element?(
+               composer,
+               "header #composer_close #discard_composer button[aria-label='Close and discard draft']"
+             )
+
+      refute has_element?(composer, "#close_composer_button")
+      render(view)
+    end)
+  end
+
+  test "articles show only the title by default and offer the summary from the more menu", %{
+    conn: conn
+  } do
+    conn
+    |> visit("/feed/local")
+    |> PhoenixTest.unwrap(fn view ->
+      composer = composer_view(view)
+
+      render_click(composer, "Bonfire.UI.Common.SmartInput:select_smart_input", %{
+        "opts" => Jason.encode!(%{create_object_type: :article, open: true})
+      })
+
+      assert has_element?(composer, "#smart_input_post_title:not(.hidden) #composer_post_title")
+      assert has_element?(composer, "#smart_input_summary.hidden")
+
+      composer |> element("#summary_btn") |> render_click()
+
+      refute has_element?(composer, "#smart_input_summary.hidden")
+      assert has_element?(composer, "#smart_input_summary", "Summary")
+      refute has_element?(composer, "#summary_btn")
       render(view)
     end)
   end

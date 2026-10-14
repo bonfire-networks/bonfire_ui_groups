@@ -122,9 +122,7 @@
               (@type == :topic or @selected_tab != "settings")}
             module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
             selected_tab={@selected_tab}
-            prompt={l("Start a discussion in %{name}…",
-              name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("group"))
-            )}
+            prompt={l("Start a discussion…")}
             smart_input_opts={%{
               context_id: id(@category),
               mentions: [id(@category)],

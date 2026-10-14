@@ -3,59 +3,28 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
   @moduletag :ui
   doctest Bonfire.Classify.Web.GroupNavigation
 
-  for {mode, fixed?, saved_open?} <- [
-        {"fixed", true, false},
-        {"expanded", false, true},
-        {"collapsed", false, false}
-      ] do
-    test "#{mode} sidebar preserves its section preference and group links" do
-      Process.put([:bonfire, :ui, :sidebar, :disable_collapsible], unquote(fixed?))
+  test "sidebar always shows the groups section and its group links" do
+    account = fake_account!()
+    me = fake_user!(account)
 
-      Process.put(
-        [:bonfire_ui_groups, Bonfire.UI.Groups.SidebarGroupsLive, :show_groups_nav_open],
-        unquote(saved_open?)
-      )
+    group =
+      Bonfire.Classify.Simulate.fake_group!(me, %{
+        membership: "local:members",
+        visibility: "nonfederated",
+        participation: "local:contributors"
+      })
 
-      account = fake_account!()
-      me = fake_user!(account)
+    {:ok, _} = Bonfire.Social.Pins.pin(me, group, nil, to_feeds: [])
+    section = "[data-role='sidebar-groups']"
 
-      group =
-        Bonfire.Classify.Simulate.fake_group!(me, %{
-          membership: "local:members",
-          visibility: "nonfederated",
-          participation: "local:contributors"
-        })
-
-      {:ok, _} = Bonfire.Social.Pins.pin(me, group, nil, to_feeds: [])
-      section = "[data-role='sidebar-groups']"
-
-      session =
-        conn(user: me, account: account)
-        |> visit("/group/#{group.character.username}")
-        |> assert_has("#{section} [data-role='sidebar-group']", timeout: 1_000)
-        # the section's heading is the link to all groups (it replaced an "All groups" item)
-        # |> assert_has("#{section} a[href='/groups']", text: "All groups", count: 1)
-        |> assert_has("#{section} > summary a[href='/groups']", text: "Groups", count: 1)
-        |> assert_has("#{section} [data-role='group_tile']")
-
-      if unquote(fixed? or saved_open?) do
-        assert_has(session, "#{section}[open]")
-      else
-        refute_has(session, "#{section}[open]")
-      end
-
-      toggle = "#{section} > summary[phx-click='Bonfire.UI.Groups:toggle_groups_nav_visibility']"
-
-      if unquote(fixed?) do
-        session
-        |> assert_has("#{section}.details-static > .pointer-events-auto")
-        |> refute_has(toggle)
-      else
-        session
-        |> refute_has("#{section}.details-static")
-        |> assert_has(toggle)
-      end
-    end
+    conn(user: me, account: account)
+    |> visit("/group/#{group.character.username}")
+    |> assert_has("#{section} [data-role='sidebar-group']", timeout: 1_000)
+    # the section's heading is the link to all groups (it replaced an "All groups" item)
+    |> assert_has("#{section} a[href='/groups']", text: "Groups", count: 1)
+    |> assert_has("#{section} [data-role='group_tile']")
+    # no collapse toggle: the group rows aren't inside a <details>
+    |> refute_has("details [data-role='sidebar-group']")
   end
 
   test "a pinned sidebar topic opens its group and retains the entry page" do

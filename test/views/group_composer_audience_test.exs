@@ -110,14 +110,14 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
     |> wait_async()
     |> click_button(
       "#inline_composer_placeholder_open",
-      "Start a discussion in Private audience check…"
+      "Start a discussion…"
     )
     |> PhoenixTest.unwrap(fn view ->
       composer = composer_view(view)
       assert has_element?(composer, "[data-role=group-composer-audience]", "Group members only")
       assert has_element?(composer, "header #composer_type_chooser")
       refute has_element?(composer, "#composer_publish_controls #composer_type_chooser")
-      assert has_element?(composer, "#smart_input_more_options #discard_composer")
+      assert has_element?(composer, "header #composer_close")
 
       assert has_element?(
                composer,

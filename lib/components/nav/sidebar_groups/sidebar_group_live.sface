@@ -15,7 +15,6 @@
       ]}>
       {#case Media.avatar_url(@category)}
         {#match "/images/avatar.png"}
-          {!-- identity, not policy: a letter tile tells groups apart at a glance; privacy is the lock after the name --}
           <span data-role="group_tile" class="nav-tile" style={"--tile-hue: #{@tile_hue}"} aria-hidden="true">{@initial}</span>
         {#match url}
           <div

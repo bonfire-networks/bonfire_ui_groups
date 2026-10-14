@@ -19,7 +19,7 @@ defmodule Bonfire.UI.Groups.GroupHeroToolbarTest do
 
     assert has_element?(
              view,
-             "#group-access-details-#{group.id}:not([open]) summary[aria-label='Group access details']"
+             "#group-access-details-#{group.id}:not([open]) summary[title='Group access details']"
            )
 
     for label <- ["Joining ·", "Visibility ·", "Posting ·"] do
