@@ -9,6 +9,7 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
 
   # resolved by `SidebarGroupsLive` for the whole list at once, since deriving it here would be one query per row
   prop preset_icon, :string, default: nil
+  prop instance_pinned, :boolean, default: false
   prop current_path, :string, default: ""
   prop group_return_to, :string, default: "/groups"
 

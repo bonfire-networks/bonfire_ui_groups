@@ -64,6 +64,38 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
     assert [] == Floki.find(render.([]), "details")
   end
 
+  test "row menu offers removing the group from the sidebar", %{group: group} do
+    document =
+      render_component(&SidebarGroupLive.render/1,
+        category: group,
+        parent_id: "sidebar",
+        current_path: "/feed"
+      )
+      |> Floki.parse_document!()
+
+    assert [_] = Floki.find(document, "#sidebar-group-#{group.id}-menu_trigger")
+
+    unpin = Floki.find(document, "[data-role=sidebar_group_unpin]")
+    assert Floki.attribute(unpin, "phx-click") == ["Bonfire.Social.Pins:pin"]
+    assert Floki.attribute(unpin, "phx-value-direction") == ["down"]
+    assert Floki.attribute(unpin, "phx-value-id") == [group.id]
+    assert Floki.attribute(unpin, "phx-value-scope") == ["sidebar"]
+  end
+
+  test "admin-pinned groups say so instead of offering a no-op unpin", %{group: group} do
+    document =
+      render_component(&SidebarGroupLive.render/1,
+        category: group,
+        parent_id: "sidebar",
+        current_path: "/feed",
+        instance_pinned: true
+      )
+      |> Floki.parse_document!()
+
+    assert [] == Floki.find(document, "[data-role=sidebar_group_unpin]")
+    assert [_] = Floki.find(document, "[data-role=sidebar_group_admin_pinned]")
+  end
+
   test "pinned groups include only visible direct topics", %{
     user: user,
     group: group,

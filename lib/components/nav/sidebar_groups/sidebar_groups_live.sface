@@ -38,6 +38,7 @@
             children={children}
             parent_id={@id}
             preset_icon={e(@group_icons, id(category), nil)}
+            instance_pinned={MapSet.member?(@instance_pinned_ids, id(category))}
             current_path={@current_path}
             group_return_to={@group_return_to}
           />

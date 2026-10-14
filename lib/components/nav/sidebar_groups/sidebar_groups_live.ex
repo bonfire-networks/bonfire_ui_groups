@@ -36,6 +36,16 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
     assign(socket, :group_icons, Bonfire.Boundaries.Presets.group_icons(groups))
   end
 
+  # Admin-pinned groups can't be removed from a personal sidebar, so their row menu says so instead
+  # of offering an unpin that would silently no-op. One query for the whole list.
+  defp assign_instance_pins(socket) do
+    assign(
+      socket,
+      :instance_pinned_ids,
+      MapSet.new(Bonfire.Social.Pins.instance_pinned_object_ids())
+    )
+  end
+
   # Pulls the path once (avoids a per-link URI.parse on every render).
   defp assign_current_path(socket) do
     url = current_url(socket)
@@ -52,7 +62,8 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
     {:ok,
      socket
      |> assign(categories: pinned_tree(current_user(socket)))
-     |> assign_group_icons()}
+     |> assign_group_icons()
+     |> assign_instance_pins()}
   end
 
   def update(assigns, %{assigns: %{categories: _}} = socket) do
@@ -65,6 +76,7 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
      |> assign(assigns)
      |> assign(categories: pinned_tree(current_user(assigns) || current_user(socket)))
      |> assign_group_icons()
+     |> assign_instance_pins()
      |> register_for_pin_updates()
      |> assign_current_path()}
   end
