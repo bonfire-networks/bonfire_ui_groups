@@ -31,13 +31,13 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
       |> visit(path)
       |> assert_has("#join_btn_#{group.id}", text: "Joined")
       |> assert_has(
-        "button.tooltip[data-tip='Unfollow group']#follow_feed_#{group.id}[class~='bg-[var(--stream-surface,var(--color-base-200))]'].text-primary[aria-label='Unfollow group'][aria-pressed='true']"
+        "button.tooltip[data-tip='Unfollow group']#follow_feed_#{group.id}.text-primary[aria-label='Unfollow group'][aria-pressed='true']"
       )
       |> assert_has("#follow_feed_#{group.id} [iconify='ph:rss']")
       |> click_button("button#follow_feed_#{group.id}[data-id=unfollow]", "")
       |> assert_has("#join_btn_#{group.id}", text: "Joined")
       |> assert_has(
-        "button.tooltip[data-tip='Follow group']#follow_feed_#{group.id}[class~='bg-[var(--stream-surface,var(--color-base-200))]'].text-muted[aria-label='Follow group'][aria-pressed='false']"
+        "button.tooltip[data-tip='Follow group']#follow_feed_#{group.id}.text-muted[aria-label='Follow group'][aria-pressed='false']"
       )
 
     refute Follows.following?(user, group)
@@ -49,7 +49,7 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
       |> assert_has("#join_btn_#{group.id}", text: "Join")
       |> click_button("button#follow_feed_#{group.id}[data-id=follow]", "")
       |> assert_has(
-        "button.tooltip[data-tip='Unfollow group']#follow_feed_#{group.id}[class~='bg-[var(--stream-surface,var(--color-base-200))]'].text-primary[aria-label='Unfollow group'][aria-pressed='true']"
+        "button.tooltip[data-tip='Unfollow group']#follow_feed_#{group.id}.text-primary[aria-label='Unfollow group'][aria-pressed='true']"
       )
 
     assert Follows.following?(user, group)
