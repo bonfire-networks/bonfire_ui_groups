@@ -12,14 +12,24 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
 
   def active_link?(_, _), do: false
 
-  # Resolved for the whole list in ONE query and handed to each row, since a group's preset icon is
-  # derived from its boundary dimensions and asking per row is a query per row.
-  defp assign_group_icons(socket) do
-    groups =
-      for {%{type: :group} = category, _children} <- e(socket.assigns, :categories, []),
-          do: category
+  defp groups(socket) do
+    for {%{type: :group} = category, _children} <- e(socket.assigns, :categories, []),
+        do: category
+  end
 
-    assign(socket, :group_icons, Bonfire.Boundaries.Presets.group_icons(groups))
+  # one query for the whole list, shared by icons and join modes
+  defp assign_group_dimensions(socket) do
+    dims = Bonfire.Boundaries.Presets.group_listing_dimension_slugs(groups(socket))
+
+    socket
+    |> assign(
+      :group_icons,
+      Map.new(dims, fn {id, d} -> {id, Bonfire.Boundaries.Presets.icon_from_dims(d)} end)
+    )
+    |> assign(
+      :join_modes,
+      Map.new(dims, fn {id, d} -> {id, Bonfire.Classify.Categories.join_mode(d.membership)} end)
+    )
   end
 
   # Admin-pinned groups can't be removed from a personal sidebar, so their row menu says so instead
@@ -29,6 +39,32 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
       socket,
       :instance_pinned_ids,
       MapSet.new(Bonfire.Social.Pins.instance_pinned_object_ids())
+    )
+  end
+
+  # Follow state isn't batched here: passing it down would overwrite each `FollowButtonLive`'s toggled state on re-render, and its `update_many` already batches.
+  defp assign_memberships(socket) do
+    assign(
+      socket,
+      :my_memberships,
+      Bonfire.Classify.Categories.my_membership_states(
+        current_user(socket),
+        Enum.map(groups(socket), &id/1)
+      )
+    )
+  end
+
+  # otherwise an admin-pinned private group would offer a follow toggle that fails
+  defp assign_followable(socket) do
+    assign(
+      socket,
+      :followable_ids,
+      Bonfire.Boundaries.load_pointers(Enum.map(groups(socket), &id/1),
+        current_user: current_user(socket),
+        verbs: [:follow],
+        ids_only: true
+      )
+      |> MapSet.new(&id/1)
     )
   end
 
@@ -43,13 +79,15 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
     |> assign(:group_return_to, Bonfire.Classify.Web.GroupNavigation.return_to(params, url))
   end
 
-  # a pin changed elsewhere → recompute reactively (routed via PersistentLive, see after_pin)
+  # a pin or membership changed elsewhere (routed via PersistentLive)
   def update(%{reload_pins: true}, socket) do
     {:ok,
      socket
      |> assign(categories: pinned_tree(current_user(socket)))
-     |> assign_group_icons()
-     |> assign_instance_pins()}
+     |> assign_group_dimensions()
+     |> assign_instance_pins()
+     |> assign_memberships()
+     |> assign_followable()}
   end
 
   def update(assigns, %{assigns: %{categories: _}} = socket) do
@@ -61,8 +99,10 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
      socket
      |> assign(assigns)
      |> assign(categories: pinned_tree(current_user(assigns) || current_user(socket)))
-     |> assign_group_icons()
+     |> assign_group_dimensions()
      |> assign_instance_pins()
+     |> assign_memberships()
+     |> assign_followable()
      |> register_for_pin_updates()
      |> assign_current_path()}
   end

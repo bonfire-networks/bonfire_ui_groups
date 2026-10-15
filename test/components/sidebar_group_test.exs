@@ -82,6 +82,106 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
     assert Floki.attribute(unpin, "phx-value-scope") == ["sidebar"]
   end
 
+  test "row menu offers copying the group link, and joining to a non-member", %{group: group} do
+    document =
+      render_component(&SidebarGroupLive.render/1,
+        category: group,
+        parent_id: "sidebar",
+        current_path: "/feed",
+        join_mode: "free"
+      )
+      |> Floki.parse_document!()
+
+    copy = Floki.find(document, "[data-role=sidebar_group_copy_link]")
+    assert Floki.attribute(copy, "phx-hook") == ["Copy"]
+    assert [href] = Floki.attribute(copy, "href")
+    assert String.starts_with?(href, "http")
+    assert String.ends_with?(href, Bonfire.Common.URIs.path(group))
+
+    join = Floki.find(document, "[data-role=sidebar_group_join]")
+    assert Floki.attribute(join, "phx-click") == ["Bonfire.UI.Groups:join_group"]
+    assert Floki.attribute(join, "phx-value-id") == [group.id]
+    assert Floki.text(join) =~ "Join group"
+    assert [] == Floki.find(document, "[data-role=sidebar_group_leave]")
+  end
+
+  test "the Join item follows the group's join mode and a pending request", %{group: group} do
+    render = fn assigns ->
+      render_component(
+        &SidebarGroupLive.render/1,
+        [category: group, parent_id: "sidebar", current_path: "/feed"] ++ assigns
+      )
+      |> Floki.parse_document!()
+    end
+
+    assert render.(join_mode: "request")
+           |> Floki.find("[data-role=sidebar_group_join]")
+           |> Floki.text() =~ "Request to join"
+
+    invite = render.(join_mode: "invite")
+    assert [] == Floki.find(invite, "[data-role=sidebar_group_join]")
+    assert [] == Floki.find(invite, "[data-role=sidebar_group_leave]")
+
+    pending = render.(join_mode: "request", my_membership: :requested)
+    assert [_] = Floki.find(pending, "[data-role=sidebar_group_pending]")
+    assert [] == Floki.find(pending, "[data-role=sidebar_group_join]")
+  end
+
+  test "members are offered leaving, which opens a confirmation rather than leaving", %{
+    group: group
+  } do
+    document =
+      render_component(&SidebarGroupLive.render/1,
+        category: group,
+        parent_id: "sidebar",
+        current_path: "/feed",
+        my_membership: true,
+        join_mode: "invite"
+      )
+      |> Floki.parse_document!()
+
+    leave = Floki.find(document, "[data-role=sidebar_group_leave]")
+    assert Floki.attribute(leave, "phx-click") == ["Bonfire.UI.Groups:open_leave_confirm"]
+    assert Floki.attribute(leave, "phx-value-id") == [group.id]
+    assert Floki.attribute(leave, "aria-haspopup") == ["dialog"]
+    assert Floki.attribute(leave, "phx-value-join-mode") == ["invite"]
+    assert [] == Floki.find(document, "[data-role=sidebar_group_join]")
+  end
+
+  test "row has an rss toggle for following the group's posts", %{group: group} do
+    document =
+      render_component(&SidebarGroupLive.render/1,
+        category: group,
+        parent_id: "sidebar",
+        current_path: "/feed",
+        followable: true
+      )
+      |> Floki.parse_document!()
+
+    assert [_] = Floki.find(document, "#sidebar-group-#{group.id}-follow[data-id=follow]")
+    assert [_] = Floki.find(document, "#sidebar-group-#{group.id}-follow [iconify='ph:rss']")
+  end
+
+  test "the rss toggle is left out where following isn't permitted, except for members", %{
+    group: group
+  } do
+    render = fn assigns ->
+      render_component(
+        &SidebarGroupLive.render/1,
+        [category: group, parent_id: "sidebar", current_path: "/feed"] ++ assigns
+      )
+      |> Floki.parse_document!()
+    end
+
+    assert [] == Floki.find(render.(followable: false), "#sidebar-group-#{group.id}-follow")
+
+    assert [_] =
+             Floki.find(
+               render.(followable: false, my_membership: true),
+               "#sidebar-group-#{group.id}-follow"
+             )
+  end
+
   test "admin-pinned groups say so instead of offering a no-op unpin", %{group: group} do
     document =
       render_component(&SidebarGroupLive.render/1,

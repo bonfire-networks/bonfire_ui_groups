@@ -620,6 +620,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> wait_async()
       |> assert_has("[phx-value-id='#{group.id}']", text: "Joined")
       |> click_button("[phx-value-id='#{group.id}']", "Joined")
+      |> click_button("#join_btn_#{group.id}-leave", "Leave group")
       |> wait_async()
       |> assert_has("[phx-value-id='#{group.id}']", text: "Join")
     end

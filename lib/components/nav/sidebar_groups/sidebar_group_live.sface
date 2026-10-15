@@ -4,7 +4,9 @@
       to={Bonfire.Classify.Web.GroupNavigation.link(@group_path, @group_return_to)}
       opts={[id: @row_id <> "-link", title: @group_name, "aria-current": if(@active?, do: "page", else: nil)]}
       class={[
-        "nav-row !pr-10 hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!pr-12",
+        "nav-row hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
+        "!pr-[4.5rem] [@media(pointer:coarse)]:!pr-[5.5rem]": @show_follow?,
+        "!pr-10 [@media(pointer:coarse)]:!pr-12": not @show_follow?,
         "bg-fill-strong": @active?
       ]}
     >
@@ -65,17 +67,95 @@
         </li>
       </ul>
     </details>
+    <StatefulComponent
+      :if={@show_follow?}
+      module={maybe_component(Bonfire.UI.Social.Graph.FollowButtonLive, @__context__)}
+      id={@row_id <> "-follow"}
+      object_id={@category.id}
+      object={@category}
+      path={@group_path}
+      verb={l("Follow posts from %{group}", group: @group_name)}
+      verb_undo={l("Unfollow posts from %{group}", group: @group_name)}
+      icon="ph:rss"
+      icon_already="ph:rss"
+      icon_class="size-4"
+      hide_text
+      with_bell={false}
+      container_class="!absolute right-8 top-0 flex [@media(pointer:coarse)]:right-10"
+      loading_class="size-8 [@media(pointer:coarse)]:size-10"
+      class={@row_action_class <> " text-muted"}
+      class_already={@row_action_class <> " text-primary"}
+    />
     <Dropdown
       id={@row_id <> "-menu"}
       position="bottom-start"
       strategy="fixed"
       wrapper_class="!absolute right-0 top-0"
-      trigger_class="flex !size-8 items-center justify-center rounded-selector cursor-pointer hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(hover:hover)]:opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 aria-expanded:opacity-100 [@media(pointer:coarse)]:!size-10"
+      trigger_class={@row_action_class <> " aria-expanded:opacity-100"}
       label={l("Options for %{group}", group: @group_name)}
     >
       <:trigger>
         <#Icon iconify="ph:dots-three-vertical-bold" class="size-4 text-muted" />
       </:trigger>
+      <li>
+        <a
+          phx-hook="Copy"
+          id={@row_id <> "-copy-link"}
+          data-role="sidebar_group_copy_link"
+          href={Bonfire.Common.URIs.based_url(@group_path)}
+          target="_top"
+          class="flex items-center gap-3 w-full text-sm"
+        >
+          <#Icon iconify="ph:link" class="size-4 shrink-0" />
+          <span class="flex-1 truncate" data-role="label">{l("Copy group link")}</span>
+        </a>
+      </li>
+      {#case {@my_membership, @join_mode}}
+        {#match {true, _}}
+          <li>
+            <button
+              type="button"
+              data-role="sidebar_group_leave"
+              phx-click="Bonfire.UI.Groups:open_leave_confirm"
+              phx-value-id={@category.id}
+              phx-value-group-name={@group_name}
+              phx-value-join-mode={@join_mode}
+              aria-haspopup="dialog"
+              aria-controls="modal_box"
+              class="flex items-center gap-3 w-full text-sm text-error"
+            >
+              <#Icon iconify="ph:sign-out" class="size-4 shrink-0" />
+              <span class="flex-1 truncate text-left">{l("Leave group")}</span>
+            </button>
+          </li>
+        {#match {:requested, _}}
+          <li>
+            <div data-role="sidebar_group_pending" class="flex items-center gap-3 w-full text-sm text-muted pointer-events-none">
+              <#Icon iconify="ph:clock" class="size-4 shrink-0" />
+              <span class="flex-1 truncate">{l("Join request pending")}</span>
+            </div>
+          </li>
+        {#match {_, join_mode}}
+          {!-- invite-only: moderators add members --}
+          <li :if={join_mode in ["free", "request"]}>
+            <button
+              type="button"
+              data-role="sidebar_group_join"
+              phx-click="Bonfire.UI.Groups:join_group"
+              phx-value-id={@category.id}
+              class="flex items-center gap-3 w-full text-sm"
+            >
+              {!-- `#Icon` resolves its icon at compile time, so it takes a literal, not `join_mode` --}
+              {#if join_mode == "request"}
+                <#Icon iconify="ph:hand-waving" class="size-4 shrink-0" />
+              {#else}
+                <#Icon iconify="ph:sign-in" class="size-4 shrink-0" />
+              {/if}
+              <span class="flex-1 truncate text-left">{if join_mode == "request", do: l("Request to join"), else: l("Join group")}</span>
+            </button>
+          </li>
+      {/case}
+      <li role="separator" class="-mx-2 my-1 border-t border-divider" />
       <li>
         {#if @instance_pinned}
           {!-- instance-pinned groups stay in everyone's sidebar; a personal unpin can't remove them --}

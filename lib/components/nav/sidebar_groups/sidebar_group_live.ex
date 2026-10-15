@@ -10,8 +10,17 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
   # resolved by `SidebarGroupsLive` for the whole list at once, since deriving it here would be one query per row
   prop preset_icon, :string, default: nil
   prop instance_pinned, :boolean, default: false
+  # false, :requested or true
+  prop my_membership, :any, default: false
+  # see `Bonfire.Classify.Categories.join_mode/1`
+  prop join_mode, :string, default: nil
+  # members keep the toggle regardless, so they can always unfollow
+  prop followable, :boolean, default: false
   prop current_path, :string, default: ""
   prop group_return_to, :string, default: "/groups"
+
+  # shared by the follow toggle and menu trigger so they reveal and align together
+  @row_action_class "flex !size-8 items-center justify-center rounded-selector cursor-pointer hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(hover:hover)]:opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 [@media(pointer:coarse)]:!size-10"
 
   @doc "Renders one pinned group and its visible topics, opening the current group automatically."
   def render(assigns) do
@@ -47,6 +56,8 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
     |> assign(:active?, active?)
     |> assign(:expanded?, active? or active_topic?)
     |> assign(:row_id, "#{assigns.parent_id}-group-#{assigns.category.id}")
+    |> assign(:row_action_class, @row_action_class)
+    |> assign(:show_follow?, assigns.followable or assigns.my_membership == true)
     |> render_sface()
   end
 
