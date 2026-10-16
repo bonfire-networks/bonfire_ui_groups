@@ -78,6 +78,8 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
     |> assert_has("#inline_composer_placeholder")
     |> assert_has("[data-id=group]", text: "2 members")
     |> click_button("#join_btn_#{group.id}", "Joined")
+    # "Joined" opens a confirmation dialog, and leaving happens there
+    |> click_button("#join_btn_#{group.id}-leave", "Leave group")
     |> wait_async()
     |> assert_has("#group_access_gate")
     |> refute_has("[data-id=feed]")
