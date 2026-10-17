@@ -168,6 +168,37 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     |> assert_has("#settings-group-name", text: updated_name)
   end
 
+  # the setup's group is nonfederated, which rightly stays silent, so this one federates
+  if Bonfire.Common.Extend.extension_enabled?(:bonfire_federate_activitypub) do
+    test "renaming a federated group from its settings tells other instances", %{
+      conn: conn,
+      owner: owner
+    } do
+      group =
+        Simulate.fake_group!(owner, %{
+          membership: "open",
+          visibility: "global",
+          participation: "anyone",
+          default_content_visibility: "public"
+        })
+
+      updated_name = Faker.Company.name()
+
+      conn
+      |> visit("/&#{group.character.username}/settings")
+      |> click_button("#group_settings_identity_open", "Edit")
+      |> fill_in("Group name", with: updated_name)
+      |> click_button("#group_settings_identity_save", "Save changes")
+      |> assert_has("#modal [role=status]", text: "Category updated!")
+
+      assert {:ok, actor} = ActivityPub.Actor.get_cached(pointer: group)
+
+      assert %{data: %{"object" => %{"name" => ^updated_name}}} =
+               ActivityPub.Object.get_activity_for_object_ap_id(actor.ap_id, "Update"),
+             "the group's followers elsewhere keep its old name"
+    end
+  end
+
   test "People search finds members beyond the preview and clears inline", %{
     conn: conn,
     group: group,
