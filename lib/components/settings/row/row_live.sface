@@ -6,7 +6,11 @@
     "text-error": @danger
   }
 >
-  <Iconify.iconify icon={@icon} class={"size-5 shrink-0", "text-muted": !@danger} aria-hidden="true" />
+  <Iconify.iconify
+    icon={@icon}
+    class={"size-5 shrink-0", "text-muted": !@danger}
+    aria-hidden="true"
+  />
   <span class="min-w-0 flex-1">
     <span class="block font-medium">{@title}</span>
     {!-- one summary line: the value reads as part of the description rather than a second, right-aligned column --}

@@ -60,7 +60,11 @@ defmodule Bonfire.UI.Groups.GroupPreviewPostTest do
   describe "opening it, for a non-member" do
     setup do
       previous =
-        Bonfire.Common.Config.get([Bonfire.UI.Social.RestrictedContentLive], nil, :bonfire_ui_social)
+        Bonfire.Common.Config.get(
+          [Bonfire.UI.Social.RestrictedContentLive],
+          nil,
+          :bonfire_ui_social
+        )
 
       on_exit(fn ->
         Bonfire.Common.Config.put(
@@ -111,7 +115,8 @@ defmodule Bonfire.UI.Groups.GroupPreviewPostTest do
     member = fake_user!(account)
     {:ok, _} = Bonfire.Classify.Categories.add_member(creator, group, id(member))
 
-    assert Boundaries.can?(member, :read, post), "members may read what the group shows them a preview of"
+    assert Boundaries.can?(member, :read, post),
+           "members may read what the group shows them a preview of"
 
     group_feed(member, account, group)
     |> assert_has("[data-object_id='#{id(post)}']", text: @body)

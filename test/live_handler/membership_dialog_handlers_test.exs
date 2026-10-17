@@ -75,7 +75,9 @@ defmodule Bonfire.UI.Groups.MembershipDialogHandlersTest do
                       %{my_membership: false}}}
 
     assert_received {{Bonfire.Classify.LiveHandler, :refresh_membership}, ^group_id}
-    assert_received {:phoenix, :send_update, {{ReusableModalLive, "persistent_modal"}, %{show: false}}}
+
+    assert_received {:phoenix, :send_update,
+                     {{ReusableModalLive, "persistent_modal"}, %{show: false}}}
   end
 
   defp socket(user, context \\ []) do
