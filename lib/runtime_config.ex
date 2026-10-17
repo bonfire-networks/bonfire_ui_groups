@@ -75,7 +75,11 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
             nil: %{title: l("Group settings")},
             members: %{title: l("Members")},
             # invites: %{title: l("Invites")},
-            people: %{group: :people, component: Bonfire.UI.Groups.Settings.PeopleLive},
+            people: %{
+              title: l("Members"),
+              group: :people,
+              component: Bonfire.UI.Groups.Settings.PeopleLive
+            },
             boundaries: %{
               title: l("Access & participation"),
               group: :management,
@@ -83,6 +87,13 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
               icon: "ph:shield-check",
               description: &Bonfire.UI.Groups.Settings.GeneralLive.membership_label/1,
               value: &Bonfire.UI.Groups.Settings.GeneralLive.visibility_label/1
+            },
+            moderators: %{
+              title: l("Manage moderators"),
+              group: :management,
+              id: "group_settings_moderators_link",
+              icon: "ph:users-three",
+              description: l("Add or remove moderators for this group")
             },
             rules: %{
               title: l("Community rules"),
@@ -115,8 +126,8 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
               id: "group_settings_archive_link",
               icon: "ph:archive",
               description: l("You can restore the group later")
-            },
-            moderators: %{title: l("Manage moderators")}
+            }
+            # people: %{title: l("Members")}
             # submitted: %{title: l("Mentions")}
           ]
         ]

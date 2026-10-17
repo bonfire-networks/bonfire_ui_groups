@@ -25,7 +25,12 @@ defmodule Bonfire.UI.Groups.GroupPreviewPostTest do
       })
 
     author = fake_user!(fake_account!())
-    {:ok, _} = Bonfire.Classify.Categories.add_member(creator, group, id(author))
+
+    {:ok, _} =
+      Bonfire.Classify.Categories.add_member(creator, group, id(author),
+        skip_boundary_check: true
+      )
+
     post = Simulate.fake_post_in_group!(author, group, "<p>#{@body}</p>")
 
     {:ok, creator: creator, group: group, author: author, post: post}
@@ -113,7 +118,11 @@ defmodule Bonfire.UI.Groups.GroupPreviewPostTest do
   test "a member reads it", %{creator: creator, group: group, post: post} do
     account = fake_account!()
     member = fake_user!(account)
-    {:ok, _} = Bonfire.Classify.Categories.add_member(creator, group, id(member))
+
+    {:ok, _} =
+      Bonfire.Classify.Categories.add_member(creator, group, id(member),
+        skip_boundary_check: true
+      )
 
     assert Boundaries.can?(member, :read, post),
            "members may read what the group shows them a preview of"

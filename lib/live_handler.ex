@@ -36,6 +36,9 @@ defmodule Bonfire.UI.Groups.LiveHandler do
   def handle_event("open_settings_people_search", _, socket),
     do: {:noreply, assign(socket, :search_open?, true)}
 
+  def handle_event("toggle_settings_people_add", _, socket),
+    do: {:noreply, assign(socket, :add_open?, !socket.assigns[:add_open?])}
+
   def handle_event("search_settings_people", %{"members" => %{"search" => search}}, socket),
     do: {:noreply, Bonfire.UI.Groups.Settings.PeopleLive.search(socket, search)}
 

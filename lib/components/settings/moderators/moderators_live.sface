@@ -5,21 +5,14 @@
   </header>
 
   <div :if={@can_manage} class="px-4 pb-3">
-    <form id="add_moderator_form" phx-change="change" phx-target={@myself} class="w-full">
-      <label for={"multi_select_#{__MODULE__}_text_input"} class="sr-only">{l("Search for a user to add as moderator")}</label>
-      <div class="relative">
-        <Bonfire.UI.Common.MultiselectLive
-          implementation={:live_select}
-          mode={:single}
-          form_input_name="moderator_select"
-          field={:add_moderator}
-          show_search
-          debounce={300}
-          event_target={@myself}
-          label={l("Search for a user to add as moderator")}
-        />
-      </div>
-    </form>
+    {!-- the add form shared with the People card's Add (`AddPersonLive`), which tells this component once someone is added --}
+    <StatefulComponent
+      module={Bonfire.UI.Groups.Settings.AddPersonLive}
+      id={"add_moderator_#{id(@category)}"}
+      category={@category}
+      role={:moderator}
+      parent={{__MODULE__, @id}}
+    />
   </div>
 
   {#if @moderators == []}

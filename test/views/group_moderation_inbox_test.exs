@@ -34,7 +34,7 @@ defmodule Bonfire.UI.Groups.GroupModerationInboxTest do
 
     # a promoted moderator, not the creator, who could pass on being the group's creator alone
     {:ok, _} = Categories.add_moderator(creator, group, id(moderator))
-    {:ok, _} = Categories.add_member(creator, group, id(member))
+    {:ok, _} = Categories.add_member(creator, group, id(member), skip_boundary_check: true)
 
     post = Simulate.fake_post_in_group!(member, group, "<p>Reported post</p>")
 

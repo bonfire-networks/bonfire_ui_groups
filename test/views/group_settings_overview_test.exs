@@ -73,7 +73,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     members =
       for _ <- 1..6 do
         member = fake_user!(fake_account!())
-        {:ok, _} = Categories.add_member(owner, group, id(member))
+        {:ok, _} = Categories.add_member(owner, group, id(member), skip_boundary_check: true)
         member
       end
 
@@ -83,7 +83,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     session =
       conn
       |> visit("/&#{group.character.username}/settings")
-      |> assert_has("#settings-people-heading", text: "7 people")
+      |> assert_has("#settings-people-heading", text: "7 members")
       |> assert_has("[data-role=settings-person]", count: 5)
       |> click_button("#group_settings_people_more", "Load more")
       |> assert_has("#group-settings-overview")
@@ -93,6 +93,53 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     for member <- [owner | members] do
       assert_has(session, "#settings-person-#{id(member)}", count: 1)
     end
+  end
+
+  # adding someone directly is for a moderator of the group who also moderates the instance, and only for someone on this instance (`Categories.add_member/4`)
+  test "an instance moderator who moderates the group adds a local user from People", %{
+    conn: conn,
+    owner: owner,
+    group: group
+  } do
+    Bonfire.Me.Fake.instance_moderator!(owner)
+    member = fake_user!(fake_account!(), %{name: "zqaddmember"})
+    {:ok, _} = Categories.add_member(owner, group, id(member), skip_boundary_check: true)
+    candidate = fake_user!(fake_account!(), %{name: "zqaddcandidate"})
+
+    Tesla.Mock.mock(fn env -> ActivityPub.Test.HttpRequestMock.request(env) end)
+    remote = Bonfire.Social.Fake.fake_remote_user!()
+    remote_name = e(remote, :profile, :name, nil)
+
+    {:ok, view, _html} = live(conn, "/&#{group.character.username}/settings")
+    view |> element("#group_settings_people_add_open") |> render_click()
+    assert has_element?(view, "#add_member_form")
+
+    ls_id = live_select_simulate_search(view, "#add_member_form", "zqadd")
+    assert has_element?(view, "##{ls_id} li", candidate.profile.name), "control: offered"
+    refute has_element?(view, "##{ls_id} li", member.profile.name), "already a member"
+
+    ls_id = live_select_simulate_search(view, "#add_member_form", remote_name, ls_id)
+    refute has_element?(view, "##{ls_id} li", remote_name), "someone on another instance"
+
+    view
+    |> element("#add_member_form")
+    |> render_change(%{
+      "_target" => ["multi_select", "member_select"],
+      "multi_select" => %{"member_select" => Jason.encode!(%{"id" => id(candidate)})}
+    })
+
+    assert Categories.member?(candidate, group)
+    assert has_element?(view, "#settings-person-#{id(candidate)}"), "shown in People"
+  end
+
+  test "a group moderator who doesn't moderate the instance isn't offered Add", %{
+    conn: conn,
+    group: group
+  } do
+    conn
+    |> visit("/&#{group.character.username}/settings")
+    |> assert_has("#group-settings-people")
+    |> refute_has("#group_settings_people_add_open")
   end
 
   test "saving identity updates the overview and the persisted profile", %{
@@ -129,7 +176,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     members =
       for _ <- 1..6 do
         member = fake_user!(fake_account!())
-        {:ok, _} = Categories.add_member(owner, group, id(member))
+        {:ok, _} = Categories.add_member(owner, group, id(member), skip_boundary_check: true)
         member
       end
 
@@ -163,7 +210,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     members =
       for n <- 1..6 do
         member = fake_user!(fake_account!(), %{name: "#{prefix} member #{n}"})
-        {:ok, _} = Categories.add_member(owner, group, id(member))
+        {:ok, _} = Categories.add_member(owner, group, id(member), skip_boundary_check: true)
         member
       end
 
@@ -249,7 +296,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     group: group
   } do
     member = fake_user!(account)
-    {:ok, _} = Categories.add_member(owner, group, id(member))
+    {:ok, _} = Categories.add_member(owner, group, id(member), skip_boundary_check: true)
 
     conn(user: member, account: account)
     |> visit("/&#{group.character.username}/settings")

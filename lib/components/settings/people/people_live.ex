@@ -11,6 +11,10 @@ defmodule Bonfire.UI.Groups.Settings.PeopleLive do
   data search_open?, :boolean, default: false
   data search, :string, default: ""
 
+  @doc "Whether the viewer may add members directly (`Categories.can_add_members?/2`), worked out once per group"
+  data can_add?, :boolean, default: false
+  data add_open?, :boolean, default: false
+
   data people, :list, default: []
   data cursor, :any, default: nil
   data loaded_group_id, :string, default: nil
@@ -20,12 +24,24 @@ defmodule Bonfire.UI.Groups.Settings.PeopleLive do
     socket = assign(socket, assigns)
 
     socket =
-      if socket.assigns.loaded_group_id != id(socket.assigns.category) do
-        socket
-        |> assign(people: [], loaded_group_id: id(socket.assigns.category))
-        |> load_page(nil)
-      else
-        socket
+      cond do
+        socket.assigns.loaded_group_id != id(socket.assigns.category) ->
+          socket
+          |> assign(
+            people: [],
+            loaded_group_id: id(socket.assigns.category),
+            can_add?: Categories.can_add_members?(current_user(socket), socket.assigns.category)
+          )
+          |> load_page(nil)
+
+        # someone was just added by the shared add form (`AddPersonLive`)
+        assigns[:added] ->
+          socket
+          |> assign(people: [], cursor: nil)
+          |> load_page(nil)
+
+        true ->
+          socket
       end
 
     {:ok, socket}

@@ -77,7 +77,21 @@ defmodule Bonfire.UI.Groups.GroupLive do
         )
       end
 
-    {:noreply, maybe_patch_to_canonical_topic_url(socket, uri)}
+    {:noreply,
+     socket
+     |> maybe_patch_to_canonical_topic_url(uri)
+     |> maybe_patch_remote_settings_to_moderation()}
+  end
+
+  # A group hosted on another instance is managed there, so its settings here open on Moderation, the one page that works across instances: its reports, and the removals, locks and bans its moderators here send to the group. `replace: true` for the same back-button reason as below
+  defp maybe_patch_remote_settings_to_moderation(socket) do
+    category = e(assigns(socket), :category, nil)
+
+    if e(assigns(socket), :selected_tab, nil) == "settings" and
+         e(assigns(socket), :tab_id, nil) != "moderation" and not is_nil(category) and
+         not Bonfire.Social.is_local?(category),
+       do: push_patch(socket, to: path(category) <> "/settings/moderation", replace: true),
+       else: socket
   end
 
   # A topic reached via a non-canonical URL (e.g. the feed's `/&<topic_id>` group link) is

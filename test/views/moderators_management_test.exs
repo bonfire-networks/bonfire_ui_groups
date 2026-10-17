@@ -102,7 +102,7 @@ defmodule Bonfire.UI.Groups.ModeratorsManagementTest do
     member: member
   } do
     # make member a plain member (in the members circle) but not a moderator
-    {:ok, _} = Categories.add_member(admin, group, id(member))
+    {:ok, _} = Categories.add_member(admin, group, id(member), skip_boundary_check: true)
 
     member_conn = conn(user: member, account: account)
 
@@ -149,10 +149,8 @@ defmodule Bonfire.UI.Groups.ModeratorsManagementTest do
   end
 
   # Someone on another instance can only be promoted once they are a member (`Categories.add_moderator/4`), so the search doesn't offer them until then, while anyone local is offered (and made a member when promoted)
-  # TODO: the search still offers everyone (Mayel, 13 October: "leave the autocomplete as todo"); `add_moderator/4` refuses a remote non-member meanwhile
-  @tag :todo
   test "the moderator search offers local users, and someone on another instance only once a member",
-       %{conn: conn, group: group, admin: admin, account: account} do
+       %{conn: conn, group: group, account: account} do
     local = fake_user!(account, %{name: "findmelocalmod"})
 
     # the remote actor is fetched in this process, so a process-local mock serves it (this module may run async)
@@ -161,22 +159,42 @@ defmodule Bonfire.UI.Groups.ModeratorsManagementTest do
     remote_name = e(remote, :profile, :name, nil)
 
     {:ok, view, _html} = live(conn, settings_path(group))
-    ls_id = live_select_simulate_search(view, "#group-moderators", "findmelocalmod")
+    ls_id = live_select_simulate_search(view, "#add_moderator_form", "findmelocalmod")
 
     assert has_element?(view, "##{ls_id} li", local.profile.name),
            "control: a local user is offered"
 
-    ls_id = live_select_simulate_search(view, "#group-moderators", remote_name)
+    ls_id = live_select_simulate_search(view, "#add_moderator_form", remote_name)
 
     refute has_element?(view, "##{ls_id} li", remote_name),
            "someone on another instance who isn't a member isn't offered"
 
-    {:ok, _} = Categories.add_member(admin, group, id(remote))
+    # by their own join, since a moderator can't add someone on another instance (`add_member/4`)
+    {:ok, _} = Categories.join_group(remote, group, skip_boundary_check: true)
     assert Categories.member?(remote, group)
 
     {:ok, view, _html} = live(conn, settings_path(group))
-    ls_id = live_select_simulate_search(view, "#group-moderators", remote_name)
+    ls_id = live_select_simulate_search(view, "#add_moderator_form", remote_name)
     assert has_element?(view, "##{ls_id} li", remote_name), "once a member, they are offered"
+  end
+
+  test "the moderator search leaves out who is already a moderator", %{
+    conn: conn,
+    group: group,
+    admin: admin,
+    account: account
+  } do
+    moderator = fake_user!(account, %{name: "alreadyamodx"})
+    other = fake_user!(account, %{name: "alreadyamody"})
+    {:ok, _} = Categories.add_moderator(admin, group, id(moderator))
+
+    {:ok, view, _html} = live(conn, settings_path(group))
+    ls_id = live_select_simulate_search(view, "#add_moderator_form", "alreadyamod")
+
+    assert has_element?(view, "##{ls_id} li", other.profile.name),
+           "control: the search finds someone who isn't a moderator yet"
+
+    refute has_element?(view, "##{ls_id} li", moderator.profile.name)
   end
 
   test "the moderator live_select search sends options to the dropdown", %{
@@ -188,7 +206,7 @@ defmodule Bonfire.UI.Groups.ModeratorsManagementTest do
 
     {:ok, view, _html} = live(conn, settings_path(group))
 
-    ls_id = live_select_simulate_search(view, "#group-moderators", "findmemoderator")
+    ls_id = live_select_simulate_search(view, "#add_moderator_form", "findmemoderator")
 
     assert has_element?(view, "##{ls_id} li", findable.profile.name)
   end

@@ -3,27 +3,6 @@
   aria-labelledby="settings-people-heading"
   class="flex flex-col gap-3"
 >
-  <header class="flex min-h-11 items-center justify-between gap-3 px-1">
-    <h2 id="settings-people-heading" class="text-sm font-medium text-muted">
-      {if is_integer(@member_count),
-        do: lp("%{count} person", "%{count} people", @member_count, count: @member_count),
-        else: l("People")}
-    </h2>
-    {!-- with only one page of members there's nothing to search for --}
-    <button
-      :if={is_nil(@member_count) or @member_count > 5 or @search_open?}
-      id="group_settings_members_search_open"
-      type="button"
-      :on-click="Bonfire.UI.Groups:open_settings_people_search"
-      phx-target={@myself}
-      aria-expanded={@search_open?}
-      aria-controls="settings-people-search-form"
-      class="btn btn-ghost btn-circle btn-sm text-muted"
-    >
-      <#Icon iconify="ph:magnifying-glass" class="size-5" />
-      <span class="sr-only">{l("Search members")}</span>
-    </button>
-  </header>
   <.form
     :if={@search_open?}
     for={@form}
@@ -55,17 +34,49 @@
     >{l("Clear search")}</button>
   </.form>
   <div class="overflow-hidden rounded-box border border-divider bg-surface">
-    <LinkLive
-      to={@permalink <> "/settings/moderators"}
-      opts={[id: "group_settings_moderators_link"]}
-      class="flex min-h-11 items-center gap-3 px-4 py-3 font-medium hover:bg-fill sm:px-5"
-    >
-      <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-fill">
-        <#Icon iconify="ph:users-three" class="size-5" />
-      </span>
-      <span class="flex-1">{l("Manage moderators")}</span>
-      <#Icon iconify="ph:caret-right" class="size-4 shrink-0 text-muted" />
-    </LinkLive>
+    {!-- a heading row, not a link, so no hover --}
+    <div class="flex min-h-11 items-center gap-3 px-4 py-3 font-medium sm:px-5">
+      <span id="settings-people-heading" class="flex-1">{if is_integer(@member_count),
+          do: lp("%{count} member", "%{count} members", @member_count, count: @member_count),
+          else: l("Members")}</span>
+      {!-- with only one page of members there's nothing to search for --}
+      <button
+        :if={is_nil(@member_count) or @member_count > 5 or @search_open?}
+        id="group_settings_members_search_open"
+        type="button"
+        :on-click="Bonfire.UI.Groups:open_settings_people_search"
+        phx-target={@myself}
+        aria-expanded={@search_open?}
+        aria-controls="settings-people-search-form"
+        class="btn btn-ghost btn-circle btn-sm text-muted"
+      >
+        <#Icon iconify="ph:magnifying-glass" class="size-5" />
+        <span class="sr-only">{l("Search members")}</span>
+      </button>
+      {!-- adding someone directly, for a moderator of the group who also moderates the instance (`Categories.can_add_members?/2`) --}
+      <button
+        :if={@can_add?}
+        id="group_settings_people_add_open"
+        type="button"
+        :on-click="Bonfire.UI.Groups:toggle_settings_people_add"
+        phx-target={@myself}
+        aria-expanded={@add_open?}
+        aria-controls="add_member_form"
+        class="btn btn-ghost btn-circle btn-sm text-muted"
+      >
+        <#Icon iconify="ph:user-plus" class="size-5" />
+        <span class="sr-only">{l("Add member")}</span>
+      </button>
+    </div>
+    <div :if={@can_add? and @add_open?} class="px-4 pb-3 sm:px-5">
+      <StatefulComponent
+        module={Bonfire.UI.Groups.Settings.AddPersonLive}
+        id={"add_member_#{id(@category)}"}
+        category={@category}
+        role={:member}
+        parent={{__MODULE__, @id}}
+      />
+    </div>
     <ul>
       {#for person <- @people}
         <li
