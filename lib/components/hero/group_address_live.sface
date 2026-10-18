@@ -1,0 +1,16 @@
+<span
+  data-role="group-address"
+  phx-hook="Copy"
+  id={"#{@id_prefix}-#{id(@group)}"}
+  data-clipboard-text={@address}
+  title={l("Click to copy the address")}
+  class={@class, "cursor-copy [overflow-wrap:anywhere]"}
+>
+  {!-- a line break, when one is needed, goes before the host rather than mid-word --}
+  {#case String.split(@address, "@", parts: 2)}
+    {#match [handle, host]}
+      {handle}<wbr />@{host}
+    {#match _}
+      {@address}
+  {/case}
+</span>
