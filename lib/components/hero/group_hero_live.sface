@@ -1,0 +1,103 @@
+<header data-id="group_hero" data-variant={@variant} class="border-b border-divider bg-base-100">
+  {!-- 3:1, the ratio `Bonfire.Files.BannerUploader` stores; `refetch_key` refetches a remote group whose banner 404s --}
+  <div
+    :if={is_binary(@banner_url)}
+    data-role="group-hero-banner"
+    class="aspect-[3/1] w-full overflow-hidden bg-base-200"
+  >
+    <Bonfire.UI.Common.LazyImage
+      parent_id={"group-hero-banner-#{id(@group)}"}
+      src={@banner_url}
+      alt={l("Group banner")}
+      class="h-full w-full object-cover"
+      refetch_key={"Bonfire.Federate.ActivityPub:refetch_profile:#{id(@group)}"}
+      disable_lazy
+    />
+  </div>
+
+  <div class="px-4 pb-5 lg:px-6">
+    <div class={"flex", if(is_binary(@banner_url), do: "-mt-9", else: "mt-4")}>
+      {#if @avatar_url == "/images/avatar.png"}
+        <Bonfire.UI.Common.NavTileLive
+          object={@group}
+          name={e(@group, :profile, :name, nil)}
+          class="!size-18 !rounded-box !text-3xl ring-4 ring-base-100"
+        />
+      {#else}
+        <Bonfire.UI.Common.AvatarLive
+          parent_id="group-hero"
+          wrapper_class="border-0 avatar !flex shrink-0"
+          title={e(@group, :profile, :name, nil)}
+          class="size-18 inline-block object-cover rounded-box ring-4 ring-base-100"
+          user_id={id(@group)}
+          fallback_class="size-18"
+          src={@avatar_url}
+        />
+      {/if}
+    </div>
+    <h1 class="mt-3 text-2xl lg:text-[1.75rem] font-bold tracking-tight leading-tight text-balance">{e(@group, :profile, :name, l("Untitled group"))}</h1>
+    <StatelessComponent
+      module={Bonfire.UI.Groups.GroupAddressLive}
+      group={@group}
+      id_prefix="group-hero-address"
+      class="mt-0.5 block text-sm text-muted"
+    />
+    <div
+      :if={e(@group, :profile, :summary, nil)}
+      class="mt-2.5 prose !text-[0.9375rem] max-w-none [&>p:first-child]:mt-0 [&>p:last-child]:mb-0"
+    >
+      {rich(e(@group, :profile, :summary, nil))}
+    </div>
+
+    <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div data-role="group-hero-info" class="min-w-0 flex-1 text-sm text-muted">
+        <div class="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0">
+          <div :if={@members != []} data-role="group-hero-facepile" class="mr-1 flex -space-x-2">
+            {#for member <- @members}
+              <Bonfire.UI.Common.AvatarLive
+                parent_id={"group-hero-face-#{id(member)}"}
+                wrapper_class="border-0 avatar !flex shrink-0"
+                title={e(member, :profile, :name, nil) || e(member, :character, :username, nil)}
+                class="size-7 rounded-full ring-2 ring-base-100"
+                user_id={id(member)}
+                fallback_class="size-7"
+                src={Media.avatar_url(member)}
+              />
+            {/for}
+          </div>
+          <LinkLive
+            to={Bonfire.Classify.Web.GroupNavigation.link("#{path(@group)}/members", @group_return_to)}
+            class="shrink-0 tabular-nums hover:underline"
+            opts={["data-role": "group-hero-members"]}
+          >{lp("%{count} member", "%{count} members", @member_count, count: @member_count)}</LinkLive>
+          {!-- visitors only: how to join, which decides what they do next; the rest is in the group widget --}
+          {#case @variant == "visitor" && Bonfire.Boundaries.Presets.dimension_meta(:membership, @membership_slug)}
+            {#match %{} = meta}
+              <span aria-hidden="true">·</span>
+              <span data-role="group-hero-membership">{hero_dimension_label(:membership, @membership_slug, meta)}</span>
+            {#match _}
+          {/case}
+        </div>
+      </div>
+      <Bonfire.UI.Groups.GroupHeroActionsLive
+        group={@group}
+        permalink={@permalink}
+        moderators={@moderators}
+        my_membership={@my_membership}
+        membership_slug={@membership_slug}
+        group_return_to={@group_return_to}
+        pins={@pins}
+      />
+    </div>
+  </div>
+
+  {!-- not a slot: the page mounts this header through a dynamic `StatelessComponent`, which renders slot content to HTML, and the chips' New topic modal is stateful --}
+  <StatelessComponent
+    module={maybe_component(Bonfire.UI.Groups.GroupTopicsNavLive, @__context__)}
+    group={@group}
+    topics={@subcategories}
+    group_return_to={@group_return_to}
+    selected_topic_id={@selected_topic_id}
+    can_create_topic={@can_create_topic}
+  />
+</header>
