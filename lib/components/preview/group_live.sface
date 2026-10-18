@@ -76,7 +76,7 @@
       </div>
 
       {!-- a div, not a p: the summary is rich text with its own paragraphs, and a p inside a p makes the browser close the outer one, so the clamp lost hold of it --}
-      <div class="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-muted">{rich e(@object, :profile, :summary, "")}</div>
+      <div class="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-muted">{rich(e(@object, :profile, :summary, ""))}</div>
 
       <div
         :if={remote?(@object) or e(@preview, :topics, []) != []}

@@ -1,7 +1,10 @@
 <div>
   <Bonfire.UI.Common.SidebarSectionDividerLive />
 
-  <div data-role="sidebar-groups" class="relative w-full min-w-0 overflow-hidden mt-3 px-0 lg:px-5.5">
+  <div
+    data-role="sidebar-groups"
+    class="relative w-full min-w-0 overflow-hidden mt-3 px-0 lg:px-5.5"
+  >
     <div class="group/sidebar-summary relative min-h-7 py-1 pl-2 font-bold text-xs leading-4 text-muted flex">
       <LinkLive to="/groups" class="flex-1">{l("Groups")}</LinkLive>
       <div class="font-normal absolute right-0 inset-y-0 flex items-center">

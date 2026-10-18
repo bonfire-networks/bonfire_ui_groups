@@ -1,0 +1,15 @@
+<form id={form_id(@role)} phx-change="change" phx-target={@myself} class="w-full">
+  <label for={"multi_select_#{__MODULE__}_text_input"} class="sr-only">{search_label(@role)}</label>
+  <div class="relative">
+    <Bonfire.UI.Common.MultiselectLive
+      implementation={:live_select}
+      mode={:single}
+      form_input_name={field_name(@role)}
+      field={:"add_#{@role}"}
+      show_search
+      debounce={300}
+      event_target={@myself}
+      label={search_label(@role)}
+    />
+  </div>
+</form>

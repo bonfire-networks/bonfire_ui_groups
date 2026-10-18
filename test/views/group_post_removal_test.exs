@@ -134,8 +134,8 @@ defmodule Bonfire.UI.Groups.GroupPostRemovalTest do
       refute_receive :removal_checked
     end
 
-    # the control for the test above
-    test "is worked out when the post's menu is opened", %{
+    # the control for the test above: the moderator is still offered it, from the post's loaded boundary (its moderators may `:mediate` what is published in the group), so the per-group check never runs at all
+    test "is decided from the post's loaded boundary, and offered to its moderator", %{
       account: account,
       moderator: moderator,
       post: post
@@ -144,8 +144,9 @@ defmodule Bonfire.UI.Groups.GroupPostRemovalTest do
       stub_removal_check(test_pid)
 
       open_post_menu(moderator, account, post)
+      |> assert_has("[data-role=remove_from_group]")
 
-      assert_receive :removal_checked
+      refute_receive :removal_checked
     end
 
     # `mode: :shared` because the check runs in the LiveView process, not the test's

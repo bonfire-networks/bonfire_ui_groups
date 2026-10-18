@@ -13,21 +13,32 @@
       {!-- with topics, the avatar makes way for the expand caret on hover/focus (the caret sits on top of it) --}
       <span class={[
         "shrink-0 flex",
-        "[@media(hover:hover)]:group-hover/row:opacity-0 group-has-[summary:focus-visible]/row:opacity-0": @topics != []
+        "[@media(hover:hover)]:group-hover/row:opacity-0 group-has-[summary:focus-visible]/row:opacity-0":
+          @topics != []
       ]}>
-      {#case Media.avatar_url(@category)}
-        {#match "/images/avatar.png"}
-          <span data-role="group_tile" class="nav-tile" style={"--tile-hue: #{@tile_hue}"} aria-hidden="true">{@initial}</span>
-        {#match url}
-          <div
-            class="size-5 rounded-[5px] bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 outline outline-1 -outline-offset-1 outline-base-content/10"
-            style={"background-image: url('#{URI.encode(url)}');"}
-            aria-hidden="true"
-          />
-      {/case}
+        {#case Media.avatar_url(@category)}
+          {#match "/images/avatar.png"}
+            <span
+              data-role="group_tile"
+              class="nav-tile"
+              style={"--tile-hue: #{@tile_hue}"}
+              aria-hidden="true"
+            >{@initial}</span>
+          {#match url}
+            <div
+              class="size-5 rounded-[5px] bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 outline outline-1 -outline-offset-1 outline-base-content/10"
+              style={"background-image: url('#{URI.encode(url)}');"}
+              aria-hidden="true"
+            />
+        {/case}
       </span>
       <span class={["truncate min-w-0 text-sm", Bonfire.UI.Common.LinkWidgetLive.active_label_class(@active?)]}>{@group_name}</span>
-      <span :if={@preset_icon == "ph:lock-duotone"} data-role="group_private" class="-ml-1.5 shrink-0 flex items-center" title={l("Private group")}>
+      <span
+        :if={@preset_icon == "ph:lock-duotone"}
+        data-role="group_private"
+        class="-ml-1.5 shrink-0 flex items-center"
+        title={l("Private group")}
+      >
         <#Icon iconify="ph:lock-simple-fill" class="size-3 text-subtle" />
         <span class="sr-only">{l("Private group")}</span>
       </span>
@@ -44,7 +55,10 @@
       >
         {!-- the summary stays a 36px hit area; only the visible chip matches the 20px avatar it replaces --}
         <span class="flex size-5 items-center justify-center rounded-[5px] bg-fill group-hover/caret:bg-fill-strong group-focus-visible/caret:outline group-focus-visible/caret:outline-2 group-focus-visible/caret:outline-primary">
-          <#Icon iconify="ph:caret-down-bold" class="size-3 text-muted transition-transform group-open/sidebar-group:rotate-180" />
+          <#Icon
+            iconify="ph:caret-down-bold"
+            class="size-3 text-muted transition-transform group-open/sidebar-group:rotate-180"
+          />
         </span>
       </summary>
       <ul data-role="sidebar-topics" class="sidebar-child-list">
@@ -130,7 +144,10 @@
           </li>
         {#match {:requested, _}}
           <li>
-            <div data-role="sidebar_group_pending" class="flex items-center gap-3 w-full text-sm text-muted pointer-events-none">
+            <div
+              data-role="sidebar_group_pending"
+              class="flex items-center gap-3 w-full text-sm text-muted pointer-events-none"
+            >
               <#Icon iconify="ph:clock" class="size-4 shrink-0" />
               <span class="flex-1 truncate">{l("Join request pending")}</span>
             </div>

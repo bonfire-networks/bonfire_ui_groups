@@ -120,7 +120,11 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
       assert has_element?(composer, "header #composer_close")
 
       # no topic yet: the place chip names just the group
-      refute has_element?(composer, "#composer_audience_picker_trigger [data-role=destination_topic]")
+      refute has_element?(
+               composer,
+               "#composer_audience_picker_trigger [data-role=destination_topic]"
+             )
+
       assert has_element?(composer, "[data-role=post_in_whole_group][aria-pressed=true]")
 
       composer
@@ -129,6 +133,7 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
 
       assert has_element?(composer, "input[name=context_id][value='#{topic.id}']")
       assert has_element?(composer, "#composer_audience_picker_trigger", "Private audience check")
+
       assert has_element?(
                composer,
                "#composer_audience_picker_trigger [data-role=destination_topic]",
