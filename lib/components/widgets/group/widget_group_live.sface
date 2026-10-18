@@ -1,0 +1,90 @@
+<Bonfire.UI.Common.WidgetBlockLive class="w-full flex-auto mx-auto border-y-hair border-divider">
+  <div data-id="group_widget" class="flex flex-col divide-y divide-divider text-sm">
+    <section class="pb-3">
+      <h3 class="mb-2 type-overline text-subtle">{l("About")}</h3>
+      <ul class="flex flex-col gap-2">
+        <li :if={@parent} data-role="group-widget-parent" class="flex items-center gap-2.5">
+          <#Icon iconify="ph:arrow-bend-up-left" class="size-4 shrink-0 text-muted" />
+          <span class="min-w-0 truncate">
+            <span class="text-muted">{l("Part of")}</span>
+            <LinkLive to={path(@parent)} class="font-medium hover:underline">{e(@parent, :profile, :name, nil)}</LinkLive>
+          </span>
+        </li>
+        {!-- the short label tells rows apart when their values read the same (posting and new posts are often both "Group members only") --}
+        {#for {dimension, slug, icon, label, _, meta} <- @access_rows}
+          <li data-role={"group-widget-#{dimension}"} class="flex items-start gap-2.5">
+            <Iconify.iconify icon={icon} class="mt-0.5 size-4 shrink-0 text-muted" />
+            <span class="min-w-0"><span class="text-muted">{label}</span> {Bonfire.UI.Groups.GroupHeroLive.hero_dimension_label(dimension, slug, meta)}</span>
+          </li>
+        {/for}
+        <li :if={@created} data-role="group-widget-created" class="flex items-center gap-2.5 text-muted">
+          <#Icon iconify="ph:calendar-blank" class="size-4 shrink-0" />
+          <span>{l("Created %{date}", date: @created)}</span>
+        </li>
+      </ul>
+      <details class="group/access mt-2.5">
+        <summary class="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-muted hover:text-base-content [&::-webkit-details-marker]:hidden">
+          {l("How access works")}
+          <#Icon iconify="ph:caret-down" class="size-3 transition-transform group-open/access:rotate-180" />
+        </summary>
+        <dl data-role="group-access-details-content" class="mt-2 flex flex-col gap-3 text-xs">
+          {#for {dimension, slug, _, _, label, meta} <- @access_rows}
+            <div>
+              <dt class="font-medium">
+                {l("%{action} · %{audience}", action: label, audience: audience_label(dimension, slug, meta))}
+              </dt>
+              <dd :if={e(meta, :description, nil)} class="text-muted leading-relaxed">{e(meta, :description, nil)}</dd>
+            </div>
+          {/for}
+        </dl>
+      </details>
+    </section>
+
+    <section
+      :if={maybe_apply(Bonfire.CommunityRules, :any_rules?, [@rules_sections], fallback_return: false)}
+      data-role="group-widget-rules"
+      class="py-3"
+    >
+      <h3 class="mb-2 type-overline text-subtle">{l("Rules")}</h3>
+      <StatelessComponent
+        module={maybe_component(Bonfire.CommunityRules.Web.RulesDisplayBodyLive, @__context__)}
+        sections={@rules_sections}
+        classes={%{list: "list-none flex flex-col gap-2.5"}}
+      />
+    </section>
+
+    <section
+      :if={@selected_tab != "members" and @moderators != []}
+      data-role="group-sidebar-moderators"
+      class="py-3"
+    >
+      <h3 class="mb-2 type-overline text-subtle">{l("Moderators")}</h3>
+      <div class="flex flex-col">
+        {#for user <- @moderators}
+          <StatelessComponent
+            module={maybe_component(Bonfire.UI.Me.ProfileItemLive)}
+            wrapper_class="flex items-center justify-between gap-1 py-1"
+            avatar_class="size-8 rounded-full"
+            fallback_class="size-8 rounded-full"
+            show_controls={[]}
+            character={e(user, :character, nil)}
+            profile={e(user, :profile, nil)}
+            class="btn btn-circle btn-ghost btn-sm"
+            parent_id={"group-widget-moderator-#{id(user)}"}
+          />
+        {/for}
+      </div>
+    </section>
+
+    <section :if={Bonfire.Classify.Boundaries.federated_scope?(@visibility_slug)} data-role="group-widget-fediverse" class="pt-3">
+      <h3 class="mb-2 type-overline text-subtle">{l("On the fediverse")}</h3>
+      <div class="mb-1 text-muted">{l("Follow or join from Mastodon, Lemmy or any fediverse app by searching for")}</div>
+      <StatelessComponent
+        module={Bonfire.UI.Groups.GroupAddressLive}
+        group={@group}
+        id_prefix="group-widget-address"
+        class="font-medium"
+      />
+    </section>
+  </div>
+</Bonfire.UI.Common.WidgetBlockLive>
