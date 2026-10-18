@@ -45,7 +45,7 @@
         </div>
       {#else}
         <div class="flex flex-col divide-hair divide-divider">
-          {#for {%{type: :group} = category, _children} <- @categories}
+          {#for {category, _children} <- @categories}
             <div class="flex items-start gap-4 px-4 py-4">
               <Bonfire.UI.Common.LinkLive
                 to={path(category)}
