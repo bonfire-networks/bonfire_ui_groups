@@ -1,29 +1,17 @@
-{#if Bonfire.Boundaries.can?(@__context__, :mediate, :instance)}
-  {#if Bonfire.Social.Pins.pinned?(:instance, @group)}
-    <button
-      type="button"
-      data-role="instance_pin_toggle"
-      phx-click="Bonfire.Social.Pins:pin"
-      phx-value-direction="down"
-      phx-value-scope="instance"
-      phx-value-id={id(@group)}
-      class={@class}
-    >
-      <#Icon iconify="ph:push-pin-fill" class="size-4 shrink-0 text-muted" />
-      <span class="flex-1 text-left text-sm truncate">{l("Unpin from everyone's sidebar")}</span>
-    </button>
+<button
+  type="button"
+  data-role="instance_pin_toggle"
+  phx-click="Bonfire.Social.Pins:pin"
+  phx-value-direction={if @pinned?, do: "down", else: "up"}
+  phx-value-scope="instance"
+  phx-value-id={id(@group)}
+  class={@class}
+>
+  {!-- two literal icons: `#Icon` collects its icons at compile time --}
+  {#if @pinned?}
+    <#Icon iconify="ph:push-pin-fill" class="size-4 shrink-0 text-muted" />
   {#else}
-    <button
-      type="button"
-      data-role="instance_pin_toggle"
-      phx-click="Bonfire.Social.Pins:pin"
-      phx-value-direction="up"
-      phx-value-scope="instance"
-      phx-value-id={id(@group)}
-      class={@class}
-    >
-      <#Icon iconify="ph:push-pin" class="size-4 shrink-0 text-muted" />
-      <span class="flex-1 text-left text-sm truncate">{l("Pin to everyone's sidebar")}</span>
-    </button>
+    <#Icon iconify="ph:push-pin" class="size-4 shrink-0 text-muted" />
   {/if}
-{/if}
+  <span class="flex-1 text-left text-sm truncate">{if @pinned?, do: l("Unpin from everyone's sidebar"), else: l("Pin to everyone's sidebar")}</span>
+</button>
