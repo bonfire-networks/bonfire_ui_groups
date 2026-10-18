@@ -16,19 +16,7 @@ defmodule Bonfire.UI.Groups.GroupLive do
         category ->
           # emit social-card metadata (name/description/image) for the group/topic profile,
           # via the Category `SEO.*.Build` impls in group_seo.ex (no-op on non-guest/connected renders)
-          socket = Bonfire.UI.Common.SEO.maybe_assign_seo(socket, category)
-
-          if e(assigns(socket), :type, nil) == :topic do
-            {:ok, assign(socket, page: "topic", showing_within: :topic)}
-          else
-            {:ok,
-             assign(socket,
-               page: "group",
-               showing_within: :group,
-               content_visibility_slug:
-                 Bonfire.Classify.Boundaries.read_default_content_visibility(category)
-             )}
-          end
+          {:ok, Bonfire.UI.Common.SEO.maybe_assign_seo(socket, category)}
       end
     end
   end
@@ -43,11 +31,29 @@ defmodule Bonfire.UI.Groups.GroupLive do
     leaving_settings? =
       e(socket.assigns, :selected_tab, nil) == "settings" and params["tab"] != "settings"
 
+    # the topic chips patch between the group and its topics, all served by this view
+    case Bonfire.Classify.LiveHandler.maybe_switch_category(params, socket) do
+      {:ok, socket} ->
+        socket
+        |> assign_page()
+        |> handle_category_params(params, uri, leaving_settings?)
+
+      # a stale link or Back to a topic since removed: stay on what was showing, at its own URL
+      {:error, _} ->
+        {:noreply,
+         socket
+         |> assign_flash(:error, l("That topic isn't available."))
+         |> push_patch(to: canonical_path(socket), replace: true)}
+    end
+  end
+
+  defp handle_category_params(socket, params, uri, leaving_settings?) do
     {:noreply, socket} = Bonfire.Classify.LiveHandler.handle_params(params, uri, socket)
 
     socket =
       socket
       |> assign(:tab_id, params["tab_id"])
+      |> assign(:composer_opts, composer_opts(socket.assigns.category))
       |> assign(:no_header, socket.assigns.selected_tab == "members")
       |> assign_new(:member_search, fn -> "" end)
       |> assign_new(:member_role, fn -> "all" end)
@@ -83,6 +89,33 @@ defmodule Bonfire.UI.Groups.GroupLive do
      |> maybe_patch_remote_settings_to_moderation()}
   end
 
+  defp canonical_path(socket) do
+    if in_group_topic?(socket),
+      do: Bonfire.Classify.Web.GroupNavigation.topic_path(socket.assigns.frame_group, socket.assigns.category),
+      else: path(socket.assigns.category)
+  end
+
+  defp in_group_topic?(socket),
+    do: e(assigns(socket), :type, nil) == :topic and not is_nil(e(assigns(socket), :frame_group, nil))
+
+  @doc """
+  Whether the page is a group's settings, where the header and the composer step aside. A topic's settings open in a modal from its bar instead.
+
+      iex> Bonfire.UI.Groups.GroupLive.group_settings?(:group, "settings")
+      true
+      iex> Bonfire.UI.Groups.GroupLive.group_settings?(:topic, "settings")
+      false
+      iex> Bonfire.UI.Groups.GroupLive.group_settings?(:group, "discussions")
+      false
+  """
+  def group_settings?(type, selected_tab), do: type != :topic and selected_tab == "settings"
+
+  defp assign_page(socket) do
+    if e(assigns(socket), :type, nil) == :topic,
+      do: assign(socket, page: "topic", showing_within: :topic),
+      else: assign(socket, page: "group", showing_within: :group)
+  end
+
   # A group hosted on another instance is managed there, so its settings here open on Moderation, the one page that works across instances: its reports, and the removals, locks and bans its moderators here send to the group. `replace: true` for the same back-button reason as below
   defp maybe_patch_remote_settings_to_moderation(socket) do
     category = e(assigns(socket), :category, nil)
@@ -94,19 +127,10 @@ defmodule Bonfire.UI.Groups.GroupLive do
        else: socket
   end
 
-  # A topic reached via a non-canonical URL (e.g. the feed's `/&<topic_id>` group link) is
-  # normalised in place to `/<group>/topic/<topic>` — same LiveView, so `push_patch` reuses the
-  # already-loaded data (no remount). Usernames are preferred over ids when available.
-  # `replace: true` so the non-canonical URL doesn't linger in the history stack, where
-  # going back to it would just re-patch forward (back button trap).
+  # A topic reached by another URL (eg. the feed's `/&<topic_id>` link) is patched in place to its canonical one. `replace: true`, or Back would land on the old URL and patch forward again.
   defp maybe_patch_to_canonical_topic_url(socket, uri) do
-    category = e(assigns(socket), :category, nil)
-    group = e(category, :parent_category, nil)
-
-    # `:type` is the assign (defaults to `:topic` when the field is nil), matching the template
-    if e(assigns(socket), :type, nil) == :topic and not is_nil(group) do
-      topic_slug = e(category, :character, :username, nil) || id(category)
-      canonical = path(group) <> "/topic/" <> topic_slug
+    if in_group_topic?(socket) do
+      canonical = canonical_path(socket)
 
       if URI.parse(uri).path != canonical,
         do:
@@ -118,6 +142,16 @@ defmodule Bonfire.UI.Groups.GroupLive do
     else
       socket
     end
+  end
+
+  @doc "The inline composer's options, built once per category by `handle_category_params/4`, as `read_default_content_visibility/1` is a query. The post's audience and ACLs come from the group it is published in (`Bonfire.Classify.Boundaries.post_boundary_options/3`); `to_circles` is for feed targeting."
+  def composer_opts(category) do
+    %{
+      context_id: id(category),
+      mentions: [id(category)],
+      to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(category),
+      to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(category))
+    }
   end
 
   def tab(selected_tab) do

@@ -27,7 +27,7 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
     |> refute_has("details [data-role='sidebar-group']")
   end
 
-  test "a pinned sidebar topic opens its group and retains the entry page" do
+  test "a pinned sidebar topic opens in its group and retains the entry page" do
     account = fake_account!()
     me = fake_user!(account)
     group = Bonfire.Classify.Simulate.fake_group!(me)
@@ -49,10 +49,12 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
       text: topic.profile.name,
       timeout: 1_000
     )
-    |> assert_has("#topic-parent-link[href*='group_from=%2Ffeed%3Fsort%3Dlatest']")
+    |> assert_has("[data-id=topic_subheader][data-variant=compact]", text: topic.profile.name)
+    |> assert_has("#group-topic-all[href*='group_from=%2Ffeed%3Fsort%3Dlatest']")
+    |> assert_has("a[href='/feed?sort=latest'][aria-label='Go back to the previous page']")
   end
 
-  test "a feed entry survives the topic and parent links" do
+  test "a feed entry survives the topic chips and the /+topic redirect" do
     account = fake_account!()
     me = fake_user!(account)
     group = Bonfire.Classify.Simulate.fake_group!(me)
@@ -80,14 +82,12 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
              "#group-topic-link-#{topic.id}[href*='group_from=%2Ffeed%3Fsort%3Dlatest']"
            )
 
-    assert has_element?(
-             view,
-             "#group-topic-mobile-#{topic.id}[href*='group_from=%2Ffeed%3Fsort%3Dlatest']"
-           )
-
+    # `/+topic` redirects into the group, carrying the entry page, and All patches back to the group
     conn(user: me, account: account)
     |> visit(Bonfire.Classify.Web.GroupNavigation.link(Bonfire.Common.URIs.path(topic), entry))
-    |> click_link("#topic-parent-link", group.profile.name)
+    |> assert_path(Bonfire.Classify.Web.GroupNavigation.topic_path(group, topic))
+    |> click_link("#group-topic-all", "All")
+    |> assert_path(Bonfire.Common.URIs.path(group))
     |> assert_has("a[href='/feed?sort=latest'][aria-label='Go back to the previous page']")
   end
 

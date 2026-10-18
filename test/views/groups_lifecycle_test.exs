@@ -8,6 +8,20 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
   defp post_in_group(session, content, _group_id),
     do: submit_composer(session, content, %{}, open: "#inline_composer_placeholder_open")
 
+  # what `user` just created, rather than a match on the stored body, which the composer may reshape
+  defp last_post_id(user) do
+    Bonfire.Common.Repo.one(
+      Ecto.Query.from(c in Bonfire.Data.Social.Created,
+        join: p in Bonfire.Data.Social.Post,
+        on: p.id == c.id,
+        where: c.creator_id == ^id(user),
+        order_by: [desc: c.id],
+        limit: 1,
+        select: c.id
+      )
+    )
+  end
+
   defp create_group(creator, attrs \\ %{}) do
     name = attrs[:name] || "Test Group #{System.unique_integer([:positive])}"
 
@@ -86,6 +100,33 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
   end
 
   describe "group page" do
+    # a topic's posts take their audience from the group it belongs to (`Bonfire.Classify.Boundaries.post_boundary_options/3` resolves a topic to its parent), which is what keeps them in a members-only group
+    test "a post written from a topic page in a members-only group stays inside the group" do
+      account = fake_account!()
+      me = fake_user!(account)
+      member = fake_user!()
+      outsider = fake_user!()
+      group = create_group(me, name: "Closed Circle", visibility: "members:private")
+
+      {:ok, _} = Categories.add_member(me, group, id(member), skip_boundary_check: true)
+
+      topic =
+        Bonfire.Classify.Simulate.fake_category!(me, group, %{type: :topic, name: "Plans"})
+
+      content = "written in the topic #{System.unique_integer([:positive])}"
+
+      conn(user: me, account: account)
+      |> visit(Bonfire.Classify.Web.GroupNavigation.topic_path(group, topic))
+      |> submit_composer(content, %{}, open: "#inline_composer_placeholder_open")
+      |> wait_async()
+
+      post_id = last_post_id(me)
+      assert post_id, "the post was created"
+
+      assert Bonfire.Boundaries.can?(member, :read, post_id), "a member reads it"
+      refute Bonfire.Boundaries.can?(outsider, :read, post_id), "an outsider doesn't"
+    end
+
     # through the page's own "Write in …" button, so the post carries what the page gives the composer and nothing a test adds. A shared per-group ACL is what a group post should get, not an ACL of its own, which would mean a new ACL and grant rows for every post
     test "a post written from the group page lands in the group, with no ACL of its own" do
       account = fake_account!()
@@ -604,7 +645,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
                )
     end
 
-    test "non-member sees 'Join' button on open group about page, and after joining, user sees 'Joined' button, and after leaving, user sees 'Join' button again" do
+    test "non-member sees 'Join' button on open group about page, and after joining, user sees 'Joined' status, and after leaving, user sees 'Join' button again" do
       account = fake_account!()
       me = fake_user!(account)
       alice = fake_user!(account)
@@ -618,8 +659,8 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> assert_has("[phx-value-id='#{group.id}']", text: "Join")
       |> click_button("[phx-value-id='#{group.id}']", "Join")
       |> wait_async()
-      |> assert_has("[phx-value-id='#{group.id}']", text: "Joined")
-      |> click_button("[phx-value-id='#{group.id}']", "Joined")
+      |> assert_has("[data-id=group_hero] [data-role=group-hero-status]", text: "Joined")
+      |> click_button("#group_hero_leave_#{group.id}", "Leave group")
       |> click_button("#join_btn_#{group.id}-leave", "Leave group")
       |> wait_async()
       |> assert_has("[phx-value-id='#{group.id}']", text: "Join")

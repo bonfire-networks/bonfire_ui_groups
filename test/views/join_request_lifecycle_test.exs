@@ -151,7 +151,7 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
 
     ctx.as_requester.()
     |> visit_fresh(ctx.group_path)
-    |> assert_has(ctx.join_btn, text: "Joined")
+    |> assert_has("[data-id=group_hero] [data-role=group-hero-status]", text: "Joined")
     |> refute_has("#group_access_gate")
     |> assert_has("#inline_composer_placeholder_open", text: "Start a discussion")
   end

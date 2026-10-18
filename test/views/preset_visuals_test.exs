@@ -69,29 +69,6 @@ defmodule Bonfire.UI.Groups.PresetVisualsTest do
     end
   end
 
-  describe "profile hero icon" do
-    test "renders the preset icon in the hero avatar slot when no avatar is uploaded" do
-      account = fake_account!()
-      me = fake_user!(account)
-      group = create_group_with_preset(me, "public_local_community", name: "Hero Campfire Group")
-
-      {:ok, _view, html} = live(conn(user: me, account: account), "/&#{group.character.username}")
-
-      assert html =~ "data-role=\"group_preset_icon\""
-      assert html =~ "campfire-duotone"
-    end
-
-    test "uses AvatarLive (no preset-icon tile) for non-group character types" do
-      # User profile pages are :user, not :group → preset-icon branch must not fire.
-      account = fake_account!()
-      me = fake_user!(account)
-
-      {:ok, _view, html} = live(conn(user: me, account: account), "/@#{me.character.username}")
-
-      refute html =~ "data-role=\"group_preset_icon\""
-    end
-  end
-
   # The badge on `ProfileHeroFullLive` is gated on `preset_slug_from_dims/1` matching
   # the group's actual stored dims to a configured preset. This locks in the matcher
   # so refactors of `:group_presets` config don't silently break the badge.

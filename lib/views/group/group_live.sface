@@ -80,55 +80,50 @@
         custom_actions={Bonfire.UI.Social.Activity.DiscussionPreviewActionsLive}
       >
         <:header>
-          {#if @type == :topic}
+          {!-- `frame_group`, `members`, `subcategories` and the slugs are assigned by `Bonfire.Classify.LiveHandler.mounted/4` --}
+          {#if not (group_settings?(@type, @selected_tab) and @view_mode == :full)}
+            {!-- a group, or a topic inside one: the group's header and topic chips, with the topic's chip selected --}
             <StatelessComponent
+              :if={@frame_group}
+              module={Config.get(
+                [:ui, :group, :hero_component],
+                Bonfire.UI.Groups.GroupHeroLive
+              )}
+              group={@frame_group}
+              permalink={path(@frame_group)}
+              moderators={@moderators}
+              members={@members}
+              my_membership={@my_group_membership}
+              group_return_to={@group_return_to}
+              membership_slug={@group_membership_slug}
+              member_count={@group_member_count}
+              pins={@group_pins}
+              subcategories={@subcategories}
+              selected_topic_id={if @type == :topic, do: id(@category)}
+              can_create_topic={@can_create_topic}
+            />
+            <StatelessComponent
+              :if={@type == :topic}
               module={maybe_component(Bonfire.UI.Topics.TopicHeroLive, @__context__)}
               category={@category}
               permalink={@permalink}
               object_boundary={@object_boundary}
               boundary_preset={@boundary_preset}
               user={e(@category, :parent_category, nil)}
-            />
-          {#elseif @selected_tab == "settings" and e(assigns, :view_mode, :full) == :full}
-          {#else}
-            <StatefulComponent
-              module={Config.get(
-                [:ui, :group, :hero_component],
-                Bonfire.UI.Me.ProfileHeroFullLive
-              )}
-              id={deterministic_dom_id("profile_hero", id(@category), @selected_tab, @character_type)}
-              user={@category}
-              path={@path}
-              character_type={:group}
-              boundary_preset={@boundary_preset}
-              object_boundary={@object_boundary}
-              permalink={@permalink}
-              follows_me={false}
-              selected_tab={@selected_tab}
-              members={@members}
-              moderators={@moderators}
-              subcategories={e(assigns, :subcategories, [])}
-              can_create_topic={e(assigns, :can_create_topic, false)}
-              group_return_to={e(assigns, :group_return_to, "/groups")}
-              membership_slug={e(assigns, :group_membership_slug, nil)}
-              visibility_slug={e(assigns, :group_visibility_slug, nil)}
-              participation_slug={e(assigns, :group_participation_slug, nil)}
-              content_visibility_slug={e(assigns, :content_visibility_slug, nil)}
-              member_count={e(assigns, :group_member_count, nil)}
+              compact={not is_nil(@frame_group)}
             />
           {/if}
           <StatelessComponent
-            :if={e(assigns, :view_mode, :full) == :full and @can_create_in_category and
-              (@type == :topic or @selected_tab != "settings")}
+            :if={@view_mode == :full and @can_create_in_category and not group_settings?(@type, @selected_tab)}
             module={maybe_component(Bonfire.UI.Common.InlineComposerPlaceholderLive, @__context__)}
             selected_tab={@selected_tab}
-            prompt={l("Start a discussion…")}
-            smart_input_opts={%{
-              context_id: id(@category),
-              mentions: [id(@category)],
-              to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(@category),
-              to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(@category))
-            }}
+            prompt={if @type == :topic,
+              do:
+                l("Start a discussion in %{name}…",
+                  name: Bonfire.Classify.Web.Preview.CategoryLive.name(@category, l("topic"))
+                ),
+              else: l("Start a discussion…")}
+            smart_input_opts={@composer_opts}
           />
         </:header>
       </StatelessComponent>
