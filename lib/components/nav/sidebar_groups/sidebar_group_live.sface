@@ -18,12 +18,7 @@
       ]}>
         {#case Media.avatar_url(@category)}
           {#match "/images/avatar.png"}
-            <span
-              data-role="group_tile"
-              class="nav-tile"
-              style={"--tile-hue: #{@tile_hue}"}
-              aria-hidden="true"
-            >{@initial}</span>
+            <Bonfire.UI.Common.NavTileLive object={@category} name={@group_name} />
           {#match url}
             <div
               class="size-5 rounded-[5px] bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 outline outline-1 -outline-offset-1 outline-base-content/10"
