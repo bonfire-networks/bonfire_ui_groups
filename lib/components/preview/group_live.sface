@@ -62,7 +62,7 @@
         class="block truncate text-base font-bold leading-6 text-base-content after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
       >{name(@object)}</LinkLive>
 
-      <p class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs leading-5 text-muted">
+      <div class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs leading-5 text-muted">
         <span class="shrink-0 tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
         {#case Bonfire.Boundaries.Presets.dimension_meta(:membership, e(@preview, :membership, nil))}
           {#match %{} = meta}
@@ -73,7 +73,7 @@
             </span>
           {#match _}
         {/case}
-      </p>
+      </div>
 
       {!-- a div, not a p: the summary is rich text with its own paragraphs, and a p inside a p makes the browser close the outer one, so the clamp lost hold of it --}
       <div class="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-muted">{rich e(@object, :profile, :summary, "")}</div>
