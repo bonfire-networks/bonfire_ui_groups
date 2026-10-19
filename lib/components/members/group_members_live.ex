@@ -10,6 +10,9 @@ defmodule Bonfire.UI.Groups.GroupMembersLive do
   prop member_search, :string, default: ""
   prop member_role, :string, default: "all"
 
+  @doc "Set when the viewer may not see the list: the visibility slug that says who can (`Categories.roster_visibility_slug/1`)"
+  prop roster_visibility_slug, :string, default: nil
+
   @doc "Combines the loaded members and moderators into one directory, with moderators first."
   def directory_entries(feed, moderators) do
     moderator_ids = moderators |> Enum.map(&id/1) |> MapSet.new()

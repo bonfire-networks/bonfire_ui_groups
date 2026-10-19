@@ -416,6 +416,58 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     end
   end
 
+  # The announcement channel federates: public to the fediverse, followed rather than joined, only moderators post
+  describe "the announcement channel preset" do
+    test "picking its card sets a federated, moderators-only, invite-only group", %{conn: conn} do
+      preset = Bonfire.Boundaries.Presets.group_preset_meta("announcement_channel")
+
+      conn
+      |> visit("/groups")
+      |> click_button("[data-role=open_modal]", "Create group")
+      |> click_button("[data-preset=announcement_channel]", "Announcement channel")
+      |> assert_has(~s|input[type="hidden"][name="membership"][value="#{preset[:membership]}"]|)
+      |> assert_has(~s|input[type="hidden"][name="visibility"][value="#{preset[:visibility]}"]|)
+      |> assert_has(
+        ~s|input[type="hidden"][name="participation"][value="#{preset[:participation]}"]|
+      )
+
+      assert preset[:visibility] == "global", "the announcement channel federates"
+    end
+
+    test "creating a group from it makes one the fediverse can see", %{conn: conn} do
+      preset = Bonfire.Boundaries.Presets.group_preset_meta("announcement_channel")
+      name = "Announcements #{System.unique_integer([:positive])}"
+
+      conn
+      |> visit("/groups")
+      |> click_button("[data-role=open_modal]", "Create group")
+      |> click_button("[data-preset=announcement_channel]", "Announcement channel")
+      |> submit_new_group_form(%{
+        "name" => name,
+        "summary" => "A channel for announcements",
+        "preset_slug" => "announcement_channel",
+        "membership" => preset[:membership],
+        "visibility" => preset[:visibility],
+        "participation" => preset[:participation],
+        "default_content_visibility" => preset[:default_content_visibility]
+      })
+
+      group =
+        from(c in Category,
+          join: p in assoc(c, :profile),
+          where: p.name == ^name,
+          preload: [:settings, :character]
+        )
+        |> Repo.one!()
+
+      assert %{visibility: "global", membership: "invite_only"} =
+               Bonfire.Boundaries.Presets.group_dimension_slugs(group)
+
+      assert Bonfire.Boundaries.can?(:activity_pub, :see, group) == true,
+             "served to the fediverse, not gated as a local group is"
+    end
+  end
+
   describe "Custom preset submit path" do
     # Custom is the escape-hatch preset: Advanced auto-opens and `preset_slug` is
     # NOT emitted to the form payload (the dimension components emit their own

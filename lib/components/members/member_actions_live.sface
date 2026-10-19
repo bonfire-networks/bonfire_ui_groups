@@ -1,0 +1,34 @@
+<Dropdown
+  id={"#{@parent_id}-actions"}
+  position="bottom-end"
+  trigger_class="btn btn-ghost btn-xs shrink-0"
+  label={l("Moderate %{name}", name: name(@person))}
+>
+  <:trigger>
+    <#Icon iconify="ph:shield-duotone" class="size-4" />
+  </:trigger>
+  <StatelessComponent
+    module={maybe_component(Bonfire.UI.Boundaries.BlockMenuButtonsLive, @__context__)}
+    object={@person}
+    parent_id={@parent_id}
+    scope={@category}
+    with_icon
+  />
+  <li role="separator" class="-mx-2 my-1 border-t border-divider" />
+  <li data-role="remove_from_group_item">
+    <button
+      type="button"
+      data-role="remove_from_group"
+      :on-click={@event}
+      phx-value-id={id(@person)}
+      phx-target={@target}
+      data-confirm={l("Remove %{name} from the group? They stop being a member and a follower, and can ask to join again.",
+        name: name(@person)
+      )}
+      class="flex items-center w-full gap-3 text-sm text-error"
+    >
+      <#Icon iconify="ph:user-minus-duotone" class="size-4 shrink-0" />
+      <span class="flex-1 truncate text-left">{l("Remove from the group")}</span>
+    </button>
+  </li>
+</Dropdown>
