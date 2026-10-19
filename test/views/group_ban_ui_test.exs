@@ -75,11 +75,12 @@ defmodule Bonfire.UI.Groups.GroupBanUITest do
   end
 
   # The box does two things: it removes the person from the group's followers (a ghost; a silence keeps the follow) and it sends the ban to other instances. A peer can only act on a ban as a silence (Lemmy, PieFed and Mbin read it so), and a ghost alone keeps someone from SEEING the group, which a peer holding a public copy can't enforce, so a ghost sends nothing: its box is only the follower removal, and says so
-  test "the Ghost form in the group offers the box and says nothing is sent to other instances", %{
-    moderator: moderator,
-    moderator_account: moderator_account,
-    group: group
-  } do
+  test "the Ghost form in the group offers the box and says nothing is sent to other instances",
+       %{
+         moderator: moderator,
+         moderator_account: moderator_account,
+         group: group
+       } do
     conn(user: moderator, account: moderator_account)
     |> visit("/group/#{group.character.username}/settings/moderation")
     |> wait_async()

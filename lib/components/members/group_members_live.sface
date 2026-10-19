@@ -32,7 +32,8 @@
       </span>
     </h1>
     <p class="mt-2 text-sm text-muted">{l("People in %{group}", group: e(@category, :profile, :name, l("this group")))}</p>
-    {#case @roster_visibility_slug && Bonfire.Boundaries.Presets.dimension_meta(:visibility, @roster_visibility_slug)}
+    {#case @roster_visibility_slug &&
+        Bonfire.Boundaries.Presets.dimension_meta(:visibility, @roster_visibility_slug)}
       {#match nil}
       {#match false}
       {#match who}

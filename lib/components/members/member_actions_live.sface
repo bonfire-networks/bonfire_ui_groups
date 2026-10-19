@@ -22,7 +22,8 @@
       :on-click={@event}
       phx-value-id={id(@person)}
       phx-target={@target}
-      data-confirm={l("Remove %{name} from the group? They stop being a member and a follower, and can ask to join again.",
+      data-confirm={l(
+        "Remove %{name} from the group? They stop being a member and a follower, and can ask to join again.",
         name: name(@person)
       )}
       class="flex items-center w-full gap-3 text-sm text-error"

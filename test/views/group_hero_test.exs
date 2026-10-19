@@ -47,7 +47,9 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       |> assert_has("#{@hero} h1", text: "Reading together")
       |> assert_has("#{@hero} [data-role=group-hero-members]", text: "1 member")
       |> assert_has("#{@hero} [data-role=group-hero-actions]", text: "Join")
-      |> assert_has("#{@hero} [data-role=group-hero-actions] [aria-label='Follow without joining']")
+      |> assert_has(
+        "#{@hero} [data-role=group-hero-actions] [aria-label='Follow without joining']"
+      )
       |> refute_has(@member)
     end
 
@@ -68,7 +70,8 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       # the visible text may break before the host (`<wbr>`), so the handle and the host are checked apart; the copied value is the whole address
       conn()
       |> visit(group_path(group))
-      |> assert_has("#{@hero} [data-role=group-address][phx-hook=Copy][data-clipboard-text='#{address}']",
+      |> assert_has(
+        "#{@hero} [data-role=group-address][phx-hook=Copy][data-clipboard-text='#{address}']",
         text: handle
       )
       |> assert_has("#{@hero} [data-role=group-address]", text: "@#{host}")
@@ -219,7 +222,10 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
 
       conn
       |> visit(group_path(group))
-      |> click_button("#{@hero} [data-role=group-hero-more] [data-role=open_modal]", "Unpin from sidebar")
+      |> click_button(
+        "#{@hero} [data-role=group-hero-more] [data-role=open_modal]",
+        "Unpin from sidebar"
+      )
       |> click_button("#modal button[phx-value-direction=down]", "Unpin from sidebar")
       |> assert_has("#{@hero} [data-role=group-hero-more]", text: "Pin to sidebar")
 
@@ -233,7 +239,9 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       conn(user: admin, account: account)
       |> visit(group_path(group))
       |> click_button("#{@hero} [data-role=instance_pin_toggle]", "Pin to everyone's sidebar")
-      |> assert_has("#{@hero} [data-role=instance_pin_toggle]", text: "Unpin from everyone's sidebar")
+      |> assert_has("#{@hero} [data-role=instance_pin_toggle]",
+        text: "Unpin from everyone's sidebar"
+      )
       |> assert_has("#{@hero} [data-role=group-hero-more]", text: "Pinned by admins")
 
       assert Bonfire.Social.Pins.pinned?(:instance, group)

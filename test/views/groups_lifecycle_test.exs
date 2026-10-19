@@ -484,7 +484,8 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
             membership: "invite_only",
             visibility: unquote(visibility),
             participation: "moderators",
-            default_content_visibility: if(unquote(visibility) == "global", do: "public", else: "nonfederated")
+            default_content_visibility:
+              if(unquote(visibility) == "global", do: "public", else: "nonfederated")
           )
 
         conn = conn(user: me, account: account)

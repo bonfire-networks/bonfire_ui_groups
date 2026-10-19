@@ -91,12 +91,18 @@ defmodule Bonfire.UI.Groups.GroupLive do
 
   defp canonical_path(socket) do
     if in_group_topic?(socket),
-      do: Bonfire.Classify.Web.GroupNavigation.topic_path(socket.assigns.frame_group, socket.assigns.category),
+      do:
+        Bonfire.Classify.Web.GroupNavigation.topic_path(
+          socket.assigns.frame_group,
+          socket.assigns.category
+        ),
       else: path(socket.assigns.category)
   end
 
   defp in_group_topic?(socket),
-    do: e(assigns(socket), :type, nil) == :topic and not is_nil(e(assigns(socket), :frame_group, nil))
+    do:
+      e(assigns(socket), :type, nil) == :topic and
+        not is_nil(e(assigns(socket), :frame_group, nil))
 
   @doc """
   Whether the page is a group's settings, where the header and the composer step aside. A topic's settings open in a modal from its bar instead.
@@ -150,7 +156,8 @@ defmodule Bonfire.UI.Groups.GroupLive do
       context_id: id(category),
       mentions: [id(category)],
       to_circles: Bonfire.Classify.Boundaries.post_circles_for_group(category),
-      to_boundaries: List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(category))
+      to_boundaries:
+        List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(category))
     }
   end
 

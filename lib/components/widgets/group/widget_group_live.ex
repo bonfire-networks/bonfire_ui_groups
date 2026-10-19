@@ -72,6 +72,9 @@ defmodule Bonfire.UI.Groups.WidgetGroupLive do
       "Everyone"
   """
   def audience_label(:membership, "local:members", _meta), do: l("Anyone on this instance")
-  def audience_label(:participation, "local:contributors", _meta), do: l("Anyone on this instance")
+
+  def audience_label(:participation, "local:contributors", _meta),
+    do: l("Anyone on this instance")
+
   def audience_label(_dimension, _slug, meta), do: e(meta, :label, nil)
 end

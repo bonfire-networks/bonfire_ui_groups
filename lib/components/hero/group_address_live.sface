@@ -9,7 +9,7 @@
   {!-- a line break, when one is needed, goes before the host rather than mid-word --}
   {#case String.split(@address, "@", parts: 2)}
     {#match [handle, host]}
-      {handle}<wbr />@{host}
+      {handle}<wbr>@{host}
     {#match _}
       {@address}
   {/case}
