@@ -30,7 +30,6 @@
         instance_pinned={MapSet.member?(@instance_pinned_ids, id(category))}
         my_membership={Map.get(@my_memberships, id(category), false)}
         join_mode={Map.get(@join_modes, id(category))}
-        followable={MapSet.member?(@followable_ids, id(category))}
         current_path={@current_path}
         group_return_to={@group_return_to}
       />

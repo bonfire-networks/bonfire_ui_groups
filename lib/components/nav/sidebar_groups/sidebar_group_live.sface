@@ -4,9 +4,7 @@
       to={Bonfire.Classify.Web.GroupNavigation.link(@group_path, @group_return_to)}
       opts={[id: @row_id <> "-link", title: @group_name, "aria-current": if(@active?, do: "page", else: nil)]}
       class={[
-        "nav-row hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
-        "!pr-[4.5rem] [@media(pointer:coarse)]:!pr-[5.5rem]": @show_follow?,
-        "!pr-10 [@media(pointer:coarse)]:!pr-12": not @show_follow?,
+        "nav-row !pr-10 hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:!pr-12",
         "bg-fill-strong": @active?
       ]}
     >
@@ -76,32 +74,15 @@
         </li>
       </ul>
     </details>
-    <StatefulComponent
-      :if={@show_follow?}
-      module={maybe_component(Bonfire.UI.Social.Graph.FollowButtonLive, @__context__)}
-      id={@row_id <> "-follow"}
-      object_id={@category.id}
-      object={@category}
-      path={@group_path}
-      verb={l("Follow posts from %{group}", group: @group_name)}
-      verb_undo={l("Unfollow posts from %{group}", group: @group_name)}
-      icon="ph:rss"
-      icon_already="ph:rss"
-      icon_class="size-4"
-      hide_text
-      with_bell={false}
-      container_class="!absolute right-8 top-0 flex [@media(pointer:coarse)]:right-10"
-      loading_class="size-8 [@media(pointer:coarse)]:size-10"
-      class={@row_action_class <> " text-muted"}
-      class_already={@row_action_class <> " text-primary"}
-    />
+    {!-- the trigger hides until the row is hovered so a long list stays quiet, but stays shown on touch screens, which can't hover --}
     <Dropdown
       id={@row_id <> "-menu"}
       position="bottom-start"
       strategy="fixed"
       wrapper_class="!absolute right-0 top-0"
-      trigger_class={@row_action_class <> " aria-expanded:opacity-100"}
+      trigger_class="flex !size-8 items-center justify-center rounded-selector cursor-pointer hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(hover:hover)]:opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 aria-expanded:opacity-100 [@media(pointer:coarse)]:!size-10"
       label={l("Options for %{group}", group: @group_name)}
+      trigger_opts={@trigger_opts}
     >
       <:trigger>
         <#Icon iconify="ph:dots-three-vertical-bold" class="size-4 text-muted" />
@@ -118,6 +99,16 @@
           <#Icon iconify="ph:link" class="size-4 shrink-0" />
           <span class="flex-1 truncate" data-role="label">{l("Copy group link")}</span>
         </a>
+      </li>
+      {!-- asked only when this menu opens (its trigger pushes `load`), so the sidebar asks nothing per group up front --}
+      <li :if={@show_bell?}>
+        <StatefulComponent
+          module={maybe_component(Bonfire.Notify.Web.BellButtonLive, @__context__)}
+          id={@row_id <> "-bell"}
+          object={@category}
+          lazy
+          menu_item
+        />
       </li>
       {#case {@my_membership, @join_mode}}
         {#match {true, _}}

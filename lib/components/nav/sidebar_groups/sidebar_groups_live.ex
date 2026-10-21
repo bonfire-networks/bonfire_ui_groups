@@ -42,7 +42,6 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
     )
   end
 
-  # Follow state isn't batched here: passing it down would overwrite each `FollowButtonLive`'s toggled state on re-render, and its `update_many` already batches.
   defp assign_memberships(socket) do
     assign(
       socket,
@@ -51,20 +50,6 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
         current_user(socket),
         Enum.map(groups(socket), &id/1)
       )
-    )
-  end
-
-  # otherwise an admin-pinned private group would offer a follow toggle that fails
-  defp assign_followable(socket) do
-    assign(
-      socket,
-      :followable_ids,
-      Bonfire.Boundaries.load_pointers(Enum.map(groups(socket), &id/1),
-        current_user: current_user(socket),
-        verbs: [:follow],
-        ids_only: true
-      )
-      |> MapSet.new(&id/1)
     )
   end
 
@@ -79,15 +64,14 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
     |> assign(:group_return_to, Bonfire.Classify.Web.GroupNavigation.return_to(params, url))
   end
 
-  # a pin or membership changed elsewhere (routed via PersistentLive)
+  # a pin changed (`Pins.LiveHandler.handle_info/2`), or a membership (routed via PersistentLive)
   def update(%{reload_pins: true}, socket) do
     {:ok,
      socket
      |> assign(categories: pinned_tree(current_user(socket)))
      |> assign_group_dimensions()
      |> assign_instance_pins()
-     |> assign_memberships()
-     |> assign_followable()}
+     |> assign_memberships()}
   end
 
   def update(assigns, %{assigns: %{categories: _}} = socket) do
@@ -102,18 +86,26 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
      |> assign_group_dimensions()
      |> assign_instance_pins()
      |> assign_memberships()
-     |> assign_followable()
      |> register_for_pin_updates()
+     |> subscribe_to_pins()
      |> assign_current_path()}
   end
 
-  # register this component's nav-generated id under the user id so after_pin can reach it via
-  # send_updates from within this same (PersistentLive) process (idempotent)
+  # register this component's nav-generated id under the user id, so `Pins.LiveHandler.handle_info/2` can reach it via send_updates from within this same (PersistentLive) process (idempotent)
   defp register_for_pin_updates(socket) do
     with user_id when is_binary(user_id) <- current_user_id(socket),
          id when not is_nil(id) <- e(socket.assigns, :id, nil) do
       Bonfire.UI.Common.ComponentID.register_alias(__MODULE__, user_id, id)
     end
+
+    socket
+  end
+
+  # the groups pinned to everyone's sidebar, and the user's own, however they change (another tab, an API client); only on the first load, as later updates would subscribe again
+  defp subscribe_to_pins(socket) do
+    if user_id = current_user_id(socket),
+      do:
+        PubSub.subscribe(Bonfire.Social.Pins.group_pins_topics(user_id), socket)
 
     socket
   end

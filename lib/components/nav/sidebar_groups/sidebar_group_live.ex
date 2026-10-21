@@ -14,13 +14,8 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
   prop my_membership, :any, default: false
   # see `Bonfire.Classify.Categories.join_mode/1`
   prop join_mode, :string, default: nil
-  # members keep the toggle regardless, so they can always unfollow
-  prop followable, :boolean, default: false
   prop current_path, :string, default: ""
   prop group_return_to, :string, default: "/groups"
-
-  # shared by the follow toggle and menu trigger so they reveal and align together
-  @row_action_class "flex !size-8 items-center justify-center rounded-selector cursor-pointer hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(hover:hover)]:opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 [@media(pointer:coarse)]:!size-10"
 
   @doc "Renders one pinned group and its visible topics, opening the current group automatically."
   def render(assigns) do
@@ -46,6 +41,12 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
       SidebarGroupsLive.active_link?(assigns.current_path, group_path) and not active_topic?
 
     group_name = Bonfire.Classify.Web.Preview.CategoryLive.name(assigns.category, l("Group"))
+    row_id = "#{assigns.parent_id}-group-#{assigns.category.id}"
+
+    # members only, as in the group hero
+    show_bell? =
+      assigns.my_membership == true and
+        module_enabled?(Bonfire.Notify.Web.BellButtonLive, assigns[:__context__])
 
     assigns
     |> assign(:group_path, group_path)
@@ -53,9 +54,18 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
     |> assign(:topics, topics)
     |> assign(:active?, active?)
     |> assign(:expanded?, active? or active_topic?)
-    |> assign(:row_id, "#{assigns.parent_id}-group-#{assigns.category.id}")
-    |> assign(:row_action_class, @row_action_class)
-    |> assign(:show_follow?, assigns.followable or assigns.my_membership == true)
+    |> assign(:row_id, row_id)
+    |> assign(:show_bell?, show_bell?)
+    |> assign(:trigger_opts, if(show_bell?, do: load_bell_once(row_id), else: []))
     |> render_sface()
+  end
+
+  # the bell only needs asking once, so the trigger drops its own `phx-click` after the first open (LiveView keeps that removal across server patches)
+  defp load_bell_once(row_id) do
+    [
+      "phx-click":
+        JS.push("load", target: "##{row_id}-bell")
+        |> JS.remove_attribute("phx-click", to: "##{row_id}-menu_trigger")
+    ]
   end
 end
