@@ -1,6 +1,6 @@
 defmodule Bonfire.UI.Groups.GroupWidgetTest do
   @moduledoc """
-  The group widget (`Bonfire.UI.Groups.WidgetGroupLive`): one card replacing the About, Rules and Moderators widgets, with About (the access details, moved out of the header), Rules, Moderators and On the fediverse.
+  The group widget (`Bonfire.UI.Groups.WidgetGroupLive`): one card replacing the About, Rules and Moderators widgets, with About (the access details, moved out of the header), Rules and Moderators.
 
   It is in the right rail (the drawer on a phone) for everyone. Visitors also get the short access line in the header, which is what decides whether they can join.
   """
@@ -9,7 +9,6 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
   @moduletag :ui
 
   doctest Bonfire.UI.Groups.WidgetGroupLive
-  doctest Bonfire.Classify.Boundaries, only: [federated_scope?: 1]
 
   alias Bonfire.Classify.Simulate
   alias Bonfire.Classify.Categories
@@ -197,33 +196,6 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
       |> visit(group_path(ctx.group) <> "/topic/" <> topic.character.username)
       |> assert_has("#{@widget} [data-role=group-sidebar-moderators]", text: "Carla Creator")
       |> refute_has("#{@widget} [data-role=group-sidebar-moderators]", text: "Mo Member")
-    end
-  end
-
-  describe "On the fediverse" do
-    test "shows the address of a group that federates, with its own id", ctx do
-      as_creator(ctx)
-      |> visit(group_path(ctx.group))
-      |> assert_has(
-        "#{@widget} [data-role=group-widget-fediverse] #group-widget-address-#{id(ctx.group)}[data-role=group-address]"
-      )
-      |> assert_has("[data-id=group_hero] #group-hero-address-#{id(ctx.group)}")
-    end
-
-    test "is left out for a group that doesn't federate", ctx do
-      group =
-        Simulate.fake_group!(ctx.creator, %{
-          name: "Local walkers",
-          membership: "open",
-          visibility: "nonfederated",
-          participation: "group_members",
-          default_content_visibility: "local"
-        })
-
-      as_creator(ctx)
-      |> visit(group_path(group))
-      |> assert_has(@widget)
-      |> refute_has("#{@widget} [data-role=group-widget-fediverse]")
     end
   end
 end

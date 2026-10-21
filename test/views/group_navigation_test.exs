@@ -27,6 +27,30 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
     |> refute_has("details [data-role='sidebar-group']")
   end
 
+  # the sidebar lives in PersistentLive, not the page, and hears of pins from `Pins`
+  test "the sidebar shows a group an admin pins to everyone's sidebar while it's open" do
+    account = fake_account!()
+    me = fake_user!(account)
+    admin = fake_admin!(fake_account!())
+
+    group =
+      Bonfire.Classify.Simulate.fake_group!(admin, %{
+        name: "Pinned for everyone",
+        membership: "open",
+        visibility: "global",
+        participation: "group_members"
+      })
+
+    session =
+      conn(user: me, account: account)
+      |> visit("/dashboard")
+      |> refute_has("[data-role='sidebar-group']", text: "Pinned for everyone")
+
+    {:ok, _} = Bonfire.Social.Pins.pin(admin, group, :instance)
+
+    assert_has(session, "[data-role='sidebar-group']", text: "Pinned for everyone", timeout: 1_000)
+  end
+
   test "a pinned sidebar topic opens in its group and retains the entry page" do
     account = fake_account!()
     me = fake_user!(account)

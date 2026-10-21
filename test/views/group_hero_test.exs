@@ -239,6 +239,25 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       assert Bonfire.Social.Pins.pinned?(:instance, group)
     end
 
+    # another admin, another tab or an API client: the page hears of it from `Pins`
+    test "⋯ shows an instance pin made elsewhere on an open page", %{group: group} do
+      {user, conn} = signed_in()
+      {:ok, _} = Categories.join_group(user, group)
+      admin = fake_admin!(fake_account!())
+
+      session =
+        conn
+        |> visit(group_path(group))
+        |> refute_has("#{@hero} [data-role=group-hero-more]", text: "Pinned by admins")
+
+      {:ok, _} = Bonfire.Social.Pins.pin(admin, group, :instance)
+
+      assert_has(session, "#{@hero} [data-role=group-hero-more]",
+        text: "Pinned by admins",
+        timeout: 1_000
+      )
+    end
+
     test "the group's settings replace the header", %{
       group: group,
       creator: creator,

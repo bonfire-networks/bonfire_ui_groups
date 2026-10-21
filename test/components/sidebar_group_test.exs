@@ -148,38 +148,41 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
     assert [] == Floki.find(document, "[data-role=sidebar_group_join]")
   end
 
-  test "row has an rss toggle for following the group's posts", %{group: group} do
+  test "members get a bell in the row menu, loaded when the menu opens", %{group: group} do
     document =
       render_component(&SidebarGroupLive.render/1,
         category: group,
         parent_id: "sidebar",
         current_path: "/feed",
-        followable: true
+        my_membership: true
       )
       |> Floki.parse_document!()
 
-    assert [_] = Floki.find(document, "#sidebar-group-#{group.id}-follow[data-id=follow]")
-    assert [_] = Floki.find(document, "#sidebar-group-#{group.id}-follow [iconify='ph:rss']")
+    bell_id = "sidebar-group-#{group.id}-bell"
+    assert [_] = Floki.find(document, "##{bell_id}[data-role=bell_menu_item]")
+
+    assert [load] =
+             Floki.attribute(document, "#sidebar-group-#{group.id}-menu_trigger", "phx-click")
+
+    assert load =~ "##{bell_id}"
+    # asked once: the trigger then drops its own phx-click
+    assert load =~ ~s("remove_attr")
+    assert load =~ "#sidebar-group-#{group.id}-menu_trigger"
+    assert [] == Floki.find(document, "#sidebar-group-#{group.id}-follow")
   end
 
-  test "the rss toggle is left out where following isn't permitted, except for members", %{
-    group: group
-  } do
-    render = fn assigns ->
-      render_component(
-        &SidebarGroupLive.render/1,
-        [category: group, parent_id: "sidebar", current_path: "/feed"] ++ assigns
+  test "non-members get no bell and the menu loads nothing on open", %{group: group} do
+    document =
+      render_component(&SidebarGroupLive.render/1,
+        category: group,
+        parent_id: "sidebar",
+        current_path: "/feed",
+        join_mode: "free"
       )
       |> Floki.parse_document!()
-    end
 
-    assert [] == Floki.find(render.(followable: false), "#sidebar-group-#{group.id}-follow")
-
-    assert [_] =
-             Floki.find(
-               render.(followable: false, my_membership: true),
-               "#sidebar-group-#{group.id}-follow"
-             )
+    assert [] == Floki.find(document, "[data-role=bell_menu_item]")
+    assert [] == Floki.attribute(document, "#sidebar-group-#{group.id}-menu_trigger", "phx-click")
   end
 
   test "admin-pinned groups say so instead of offering a no-op unpin", %{group: group} do
