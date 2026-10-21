@@ -15,7 +15,7 @@
     />
   </div>
 
-  <div class="px-4 pb-5 lg:px-6">
+  <div class="px-4 pb-4">
     <div class={"flex", if(is_binary(@banner_url), do: "-mt-9", else: "mt-4")}>
       {#if @avatar_url == "/images/avatar.png"}
         <Bonfire.UI.Common.NavTileLive

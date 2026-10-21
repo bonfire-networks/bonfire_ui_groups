@@ -18,6 +18,7 @@
         path={path(@group)}
         showing_within={:list}
         combined
+        hide_follow
         class="btn btn-primary h-10 min-h-0 rounded-full px-5"
       />
     </div>
@@ -107,7 +108,6 @@
             module={maybe_component(Bonfire.UI.Reactions.PinActionLive, @__context__)}
             object={@group}
             parent_id={"group-hero-sidebar-pin-#{id(@group)}"}
-            class="flex items-center gap-2 justify-between"
             scope={:sidebar}
             pinned?={@pins.sidebar}
           />
