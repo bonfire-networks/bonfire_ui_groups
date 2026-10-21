@@ -1,6 +1,6 @@
 defmodule Bonfire.UI.Groups.WidgetGroupLive do
   @moduledoc """
-  The group's reference card in the right rail (the drawer on a phone): About (access details, creation date, parent group), Rules, Moderators and On the fediverse. Everything it shows is loaded by the page, so it runs no queries.
+  The group's reference card in the right rail (the drawer on a phone): About (access details, creation date, parent group), Rules and Moderators. Everything it shows is loaded by the page, so it runs no queries.
   """
   use Bonfire.UI.Common.Web, :stateless_component
 

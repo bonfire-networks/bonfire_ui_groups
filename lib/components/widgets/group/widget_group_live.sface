@@ -67,6 +67,7 @@
             avatar_class="size-8 rounded-full"
             fallback_class="size-8 rounded-full"
             show_controls={[]}
+            compact
             character={e(user, :character, nil)}
             profile={e(user, :profile, nil)}
             class="btn btn-circle btn-ghost btn-sm"
@@ -74,17 +75,6 @@
           />
         {/for}
       </div>
-    </section>
-
-    <section :if={Bonfire.Classify.Boundaries.federated_scope?(@visibility_slug)} data-role="group-widget-fediverse" class="pt-3">
-      <h3 class="mb-2 type-overline text-subtle">{l("On the fediverse")}</h3>
-      <div class="mb-1 text-muted">{l("Follow or join from Mastodon, Lemmy or any fediverse app by searching for")}</div>
-      <StatelessComponent
-        module={Bonfire.UI.Groups.GroupAddressLive}
-        group={@group}
-        id_prefix="group-widget-address"
-        class="font-medium"
-      />
     </section>
   </div>
 </Bonfire.UI.Common.WidgetBlockLive>
