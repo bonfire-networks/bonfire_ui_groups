@@ -9,45 +9,24 @@
     subtitle_class="mt-1 text-sm text-muted theme-light:text-sm"
   >
     <:action>
-      {!-- data attributes handled by the delegated listener in scroll.js, so they also work on static guest pages --}
-      <div :if={length(@groups) > 1} class="flex items-center gap-1.5">
-        <.icon_button
-          icon="carbon:chevron-left"
-          aria_label={l("Scroll left")}
-          variant="outline"
-          size="sm"
-          class="border-transparent bg-transparent text-muted hover:text-base-content"
-          data-carousel-scroll="previous"
-          aria-controls={"#{@id}-carousel"}
-        />
-        <.icon_button
-          icon="carbon:chevron-right"
-          aria_label={l("Scroll right")}
-          variant="outline"
-          size="sm"
-          class="border-transparent bg-transparent text-muted hover:text-base-content"
-          data-carousel-scroll="next"
-          aria-controls={"#{@id}-carousel"}
-        />
-      </div>
+      <Bonfire.UI.Common.CarouselArrowsLive track={"#{@id}-carousel"} count={length(@groups)} />
     </:action>
-    <div class="grid grid-cols-1 overflow-hidden">
-      <div
-        id={"#{@id}-carousel"}
-        class="carousel-scroll items-stretch px-5 scroll-px-5 sm:px-6 sm:scroll-px-6"
-        phx-hook="CarouselScroll"
-      >
-        <div :for={{%{type: :group} = group, _topics} <- @groups} class="w-5/6 sm:w-2/5">
-          <StatelessComponent
-            module={maybe_component(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
-            object={group}
-            preview={Map.get(@previews, id(group), %{})}
-            permalink={path(group)}
-            showing_within={:compact}
-          />
-        </div>
-      </div>
-    </div>
+    <Bonfire.UI.Common.CarouselLive
+      id={"#{@id}-carousel"}
+      items={@groups}
+      visible_items={2}
+      class="px-5 scroll-px-5 sm:px-6 sm:scroll-px-6"
+    >
+      <:card :let={item: {group, _topics}}>
+        <StatelessComponent
+          module={maybe_component(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
+          object={group}
+          preview={Map.get(@previews, id(group), %{})}
+          permalink={path(group)}
+          showing_within={:compact}
+        />
+      </:card>
+    </Bonfire.UI.Common.CarouselLive>
     <div class="px-5 pt-3 sm:px-6">
       <LinkLive
         to="/groups"

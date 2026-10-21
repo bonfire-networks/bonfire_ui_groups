@@ -125,6 +125,18 @@
               else: l("Start a discussion…")}
             smart_input_opts={@composer_opts}
           />
+          {!-- the feed's own gutter (wrapper_class) lines the pins up with the posts below --}
+          <StatefulComponent
+            module={maybe_component(Bonfire.UI.Reactions.PinnedCarouselLive, @__context__)}
+            id="group_pinned_carousel"
+            scope={if @type == :topic, do: :topic, else: :group}
+            scope_object={@category}
+            class="border-b border-divider pt-3.5 pb-4"
+            wrapper_class="w-full relative bg-transparent px-(--stream-content-padding)"
+            title_class="pb-2.5"
+            heading_class="text-[13px] font-medium text-base-content/58"
+            hide_empty
+          />
         </:header>
       </StatelessComponent>
   {/case}
