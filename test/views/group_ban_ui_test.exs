@@ -74,6 +74,45 @@ defmodule Bonfire.UI.Groups.GroupBanUITest do
            "the group's block, not the moderator's"
   end
 
+  # The box does two things: it removes the person from the group's followers (a ghost; a silence keeps the follow) and it sends the ban to other instances. A peer can only act on a ban as a silence (Lemmy, PieFed and Mbin read it so), and a ghost alone keeps someone from SEEING the group, which a peer holding a public copy can't enforce, so a ghost sends nothing: its box is only the follower removal, and says so
+  test "the Ghost form in the group offers the box and says nothing is sent to other instances",
+       %{
+         moderator: moderator,
+         moderator_account: moderator_account,
+         group: group
+       } do
+    conn(user: moderator, account: moderator_account)
+    |> visit("/group/#{group.character.username}/settings/moderation")
+    |> wait_async()
+    |> click_button("[data-role=open_modal]", "Ghost Troublesome Author")
+    |> assert_has("[data-role=group_block] [data-role=also_unfollow_and_notify]")
+    |> assert_has("[data-role=group_block]", text: "Nothing is sent to other instances")
+    |> assert_has("[data-role=group_block]", text: "stops sending them its posts")
+    |> refute_has("[data-role=group_block]", text: "Tell other instances too")
+  end
+
+  # A block includes a ghost, so its box also removes the person from the group's followers and says so. A silence keeps the follow, so its box must not
+  for {type, ghosts?} <- [{"Silence", false}, {"Block", true}] do
+    test "the #{type} form in the group offers to tell other instances, and #{if ghosts?, do: "says it removes them from the followers", else: "does not mention ghosting"}",
+         %{moderator: moderator, moderator_account: moderator_account, group: group} do
+      session =
+        conn(user: moderator, account: moderator_account)
+        |> visit("/group/#{group.character.username}/settings/moderation")
+        |> wait_async()
+        |> click_button("[data-role=open_modal]", "#{unquote(type)} Troublesome Author")
+        |> assert_has("[data-role=group_block] [data-role=also_unfollow_and_notify]")
+        |> assert_has("[data-role=group_block]", text: "Tell other instances too")
+        |> refute_has("[data-role=group_block]", text: "Nothing is sent to other instances")
+
+      if unquote(ghosts?) do
+        assert_has(session, "[data-role=group_block]", text: "Ghosting also removes")
+      else
+        refute_has(session, "[data-role=group_block]", text: "Ghosting also removes")
+        refute_has(session, "[data-role=group_block]", text: "a follow the ghost removed")
+      end
+    end
+  end
+
   test "from the members list, a moderator can lift a block from the group", %{
     moderator: moderator,
     moderator_account: moderator_account,
@@ -123,5 +162,74 @@ defmodule Bonfire.UI.Groups.GroupBanUITest do
     |> within("#directory-member-#{author.id}", fn session ->
       refute_has(session, "[data-role=open_modal]", text: "Silence Troublesome Author")
     end)
+  end
+
+  describe "removing someone from the group" do
+    test "from the members list, a moderator can remove a member", %{
+      moderator: moderator,
+      moderator_account: moderator_account,
+      author: author,
+      group: group
+    } do
+      assert Categories.member?(author, group), "control: a member"
+      assert Bonfire.Social.Graph.Follows.following?(author, group), "control: following"
+
+      conn(user: moderator, account: moderator_account)
+      |> visit("/group/#{group.character.username}/members")
+      |> wait_async()
+      |> within("#directory-member-#{author.id}", fn session ->
+        click_button(session, "[data-role=remove_from_group]", "Remove from the group")
+      end)
+      |> refute_has("#directory-member-#{author.id}")
+
+      refute Categories.member?(author, group)
+      refute Bonfire.Social.Graph.Follows.following?(author, group)
+    end
+
+    test "from the members list in the group's settings, a moderator can remove a member", %{
+      moderator: moderator,
+      moderator_account: moderator_account,
+      author: author,
+      group: group
+    } do
+      assert Categories.member?(author, group), "control: a member"
+
+      conn(user: moderator, account: moderator_account)
+      |> visit("/&#{group.character.username}/settings")
+      |> wait_async()
+      |> within("#settings-person-#{author.id}", fn session ->
+        click_button(session, "[data-role=remove_from_group]", "Remove from the group")
+      end)
+      |> refute_has("#settings-person-#{author.id}")
+
+      refute Categories.member?(author, group)
+      refute Bonfire.Social.Graph.Follows.following?(author, group)
+    end
+
+    test "is not offered to a member, nor on a moderator's own row", %{
+      moderator: moderator,
+      moderator_account: moderator_account,
+      author: author,
+      member: member,
+      member_account: member_account,
+      group: group
+    } do
+      conn(user: moderator, account: moderator_account)
+      |> visit("/group/#{group.character.username}/members")
+      |> wait_async()
+      |> within("#directory-member-#{author.id}", fn session ->
+        assert_has(session, "[data-role=remove_from_group]")
+      end)
+      |> within("#directory-member-#{moderator.id}", fn session ->
+        refute_has(session, "[data-role=remove_from_group]")
+      end)
+
+      conn(user: member, account: member_account)
+      |> visit("/group/#{group.character.username}/members")
+      |> wait_async()
+      |> within("#directory-member-#{author.id}", fn session ->
+        refute_has(session, "[data-role=remove_from_group]")
+      end)
+    end
   end
 end

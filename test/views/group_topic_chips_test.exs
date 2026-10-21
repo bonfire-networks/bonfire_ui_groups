@@ -30,7 +30,11 @@ defmodule Bonfire.UI.Groups.GroupTopicChipsTest do
   defp group_path(group), do: "/group/#{group.character.username}"
 
   describe "for someone who can create topics" do
-    test "an empty group shows just the New topic button", %{account: account, creator: creator, group: group} do
+    test "an empty group shows just the New topic button", %{
+      account: account,
+      creator: creator,
+      group: group
+    } do
       conn(user: creator, account: account)
       |> visit(group_path(group))
       |> assert_has(@new_topic, text: "New topic")
@@ -44,7 +48,9 @@ defmodule Bonfire.UI.Groups.GroupTopicChipsTest do
       conn(user: creator, account: account)
       |> visit(group_path(group))
       |> assert_has("#{@row} #group-topic-all[aria-current=page]", text: "All")
-      |> assert_has("#{@row} [data-role=group-topics-list] #group-topic-link-#{id(topic)}", text: "Seed swap")
+      |> assert_has("#{@row} [data-role=group-topics-list] #group-topic-link-#{id(topic)}",
+        text: "Seed swap"
+      )
       |> assert_has(@new_topic, text: "New topic")
       |> refute_has("#{@row} [data-role=group-topics-list] [data-role=open_modal]")
     end
@@ -119,7 +125,9 @@ defmodule Bonfire.UI.Groups.GroupTopicChipsTest do
       |> assert_has("[data-id=topic_subheader] #topic-title", text: "Harvest calendar")
 
       assert ["Harvest calendar", "Seed swap"] ==
-               group_topics(group, creator) |> Enum.map(&e(&1, :profile, :name, nil)) |> Enum.sort()
+               group_topics(group, creator)
+               |> Enum.map(&e(&1, :profile, :name, nil))
+               |> Enum.sort()
     end
 
     test "a member gets no New topic button there", %{

@@ -42,7 +42,11 @@
   {/if}
 
   {!-- pinned, outside the scroll, so whoever may create a topic always has a clear way to --}
-  <div :if={@can_create_topic} data-role="group-topics-new" class={"shrink-0", "py-3", "pl-4 lg:pl-6": @topics == []}>
+  <div
+    :if={@can_create_topic}
+    data-role="group-topics-new"
+    class={"shrink-0", "py-3", "pl-4 lg:pl-6": @topics == []}
+  >
     <StatelessComponent
       module={maybe_component(Bonfire.UI.Topics.NewTopicLive, @__context__)}
       id="new_topic_chips"

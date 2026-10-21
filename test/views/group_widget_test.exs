@@ -72,7 +72,9 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
 
       session
       |> assert_has("#{@widget} [data-role=group-widget-membership]", text: "Joining")
-      |> assert_has("#{@widget} [data-role=group-widget-default_content_visibility]", text: "New posts")
+      |> assert_has("#{@widget} [data-role=group-widget-default_content_visibility]",
+        text: "New posts"
+      )
       |> refute_has("[data-id=group_hero] [data-role=group-access-details-content]")
       |> assert_has("#{@widget} [data-role=group-widget-created]")
     end
@@ -169,7 +171,9 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
       )
 
       {:ok, _} =
-        Bonfire.CommunityRules.save_rules(id(ctx.group), %{"civility" => %{"be_respectful" => %{}}})
+        Bonfire.CommunityRules.save_rules(id(ctx.group), %{
+          "civility" => %{"be_respectful" => %{}}
+        })
 
       as_creator(ctx)
       |> visit(group_path(ctx.group))

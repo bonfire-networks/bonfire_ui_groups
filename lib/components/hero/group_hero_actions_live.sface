@@ -84,6 +84,19 @@
           <span class="flex-1 truncate" data-role="label">{l("Copy link")}</span>
         </a>
       </li>
+      {!-- a group hosted elsewhere: fetches what its origin has posted that we have not met, into the group's feed here --}
+      <li :if={not is_nil(e(@group, :character, :peered, nil))}>
+        <button
+          type="button"
+          phx-click="Bonfire.Me.Users:fetch_outbox"
+          phx-value-id={id(@group)}
+          phx-value-canonical_uri={@permalink}
+          class="flex items-center gap-3 w-full text-sm text-base-content"
+        >
+          <#Icon iconify="ph:sort-ascending-duotone" class="size-4 shrink-0 text-muted" />
+          <span class="flex-1 truncate">{l("Get latest activities")}</span>
+        </button>
+      </li>
       <li>
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Social.SubscribeFeedLive, @__context__)}
@@ -96,13 +109,13 @@
       <li>
         {#if @pins.instance}
           {!-- instance-pinned groups stay in everyone's sidebar; personal pin/unpin can't remove them --}
-          <div
+          {!-- <div
             class="flex items-center gap-3 w-full text-sm text-muted"
             title={l("This group is pinned to everyone's sidebar by the admins")}
           >
             <#Icon iconify="ph:push-pin-duotone" class="size-4 shrink-0 text-muted" />
             <span class="flex-1 truncate">{l("Pinned by admins")}</span>
-          </div>
+          </div> --}
         {#else}
           <StatelessComponent
             module={maybe_component(Bonfire.UI.Reactions.PinActionLive, @__context__)}

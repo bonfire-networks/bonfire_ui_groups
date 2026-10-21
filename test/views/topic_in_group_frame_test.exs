@@ -47,17 +47,24 @@ defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
       as_creator(ctx)
       |> visit(topic_path(ctx.group, ctx.topic))
       |> assert_has("[data-id=group_hero] h1", text: "Reading together")
-      |> assert_has("[data-id=group_topics] #group-topic-link-#{id(ctx.topic)}[aria-current=page]")
+      |> assert_has(
+        "[data-id=group_topics] #group-topic-link-#{id(ctx.topic)}[aria-current=page]"
+      )
       |> refute_has("[data-id=group_topics] #group-topic-all[aria-current=page]")
       # and its sibling topics
-      |> assert_has("[data-id=group_topics] #group-topic-link-#{id(ctx.sibling)}", text: "Book club")
+      |> assert_has("[data-id=group_topics] #group-topic-link-#{id(ctx.sibling)}",
+        text: "Book club"
+      )
     end
 
-    test "the topic bar is the compact topic header: name, description and follow, no banner", ctx do
+    test "the topic bar is the compact topic header: name, description and follow, no banner",
+         ctx do
       as_creator(ctx)
       |> visit(topic_path(ctx.group, ctx.topic))
       |> assert_has("[data-id=topic_subheader][data-variant=compact]", text: "Reading notes")
-      |> assert_has("[data-id=topic_subheader][data-variant=compact]", text: "Passages worth discussing.")
+      |> assert_has("[data-id=topic_subheader][data-variant=compact]",
+        text: "Passages worth discussing."
+      )
       |> assert_has("[data-id=topic_subheader] [data-id=unfollow][aria-label='Unfollow topic']")
       |> refute_has("#topic-parent-banner")
     end

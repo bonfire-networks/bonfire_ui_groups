@@ -32,6 +32,13 @@
       </span>
     </h1>
     <p class="mt-2 text-sm text-muted">{l("People in %{group}", group: e(@category, :profile, :name, l("this group")))}</p>
+    {#case @roster_visibility_slug &&
+        Bonfire.Boundaries.Presets.dimension_meta(:visibility, @roster_visibility_slug)}
+      {#match nil}
+      {#match false}
+      {#match who}
+        <p id="members-roster-audience" class="mt-2 text-sm text-muted">{l("Who can see this list: %{who}", who: e(who, :label, ""))}</p>
+    {/case}
   </div>
   <.form
     :if={length(@entries) > 10 or @more? or @member_search != ""}
@@ -97,24 +104,12 @@
         </div>
         <span class={"text-xs shrink-0", "text-primary": entry.moderator?, "text-muted": !entry.moderator?}>{if entry.moderator?, do: l("Moderator"), else: l("Member")}</span>
         {!-- ghost, silence and block, each also on behalf of the group for its moderators --}
-        <Dropdown
+        <Bonfire.UI.Groups.MemberActionsLive
           :if={@may_moderate? and entry.id != current_user_id(@__context__)}
-          id={"member-directory-#{entry.id}-actions"}
-          position="bottom-end"
-          trigger_class="btn btn-ghost btn-xs shrink-0"
-          label={l("Moderate %{name}", name: entry.name)}
-        >
-          <:trigger>
-            <#Icon iconify="ph:shield-duotone" class="size-4" />
-          </:trigger>
-          <StatelessComponent
-            module={maybe_component(Bonfire.UI.Boundaries.BlockMenuButtonsLive, @__context__)}
-            object={entry.person}
-            parent_id={"member-directory-#{entry.id}"}
-            scope={@category}
-            with_icon
-          />
-        </Dropdown>
+          category={@category}
+          person={entry.person}
+          parent_id={"member-directory-#{entry.id}"}
+        />
       </li>
     {/for}
   </ul>

@@ -469,6 +469,37 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
                ~r/data-preset="private_club"[^>]*aria-checked="true"|aria-checked="true"[^>]*data-preset="private_club"/
     end
 
+    # The announcement channel federates now, and a channel made before that keeps its local dimensions. Its tab still shows the preset, and the editor carries the group's own visibility rather than the preset's, so saving it unchanged leaves it local
+    for {label, visibility} <- [
+          {"made before the preset federated", "nonfederated"},
+          {"made since", "global"}
+        ] do
+      test "boundaries tab preselects the announcement channel for a group #{label}" do
+        account = fake_account!()
+        me = fake_user!(account)
+
+        group =
+          create_group(me,
+            name: "Announcements #{System.unique_integer([:positive])}",
+            membership: "invite_only",
+            visibility: unquote(visibility),
+            participation: "moderators",
+            default_content_visibility:
+              if(unquote(visibility) == "global", do: "public", else: "nonfederated")
+          )
+
+        conn = conn(user: me, account: account)
+        {:ok, _view, html} = live(conn, "/&#{group.character.username}/settings/boundaries")
+
+        assert html =~
+                 ~r/data-preset="announcement_channel"[^>]*aria-checked="true"|aria-checked="true"[^>]*data-preset="announcement_channel"/
+
+        assert html =~
+                 ~r/name="visibility"[^>]*value="#{unquote(visibility)}"|value="#{unquote(visibility)}"[^>]*name="visibility"/,
+               "the editor holds the group's own visibility, #{unquote(visibility)}"
+      end
+    end
+
     test "boundaries tab falls back to Custom when group dims don't match any preset" do
       account = fake_account!()
       me = fake_user!(account)

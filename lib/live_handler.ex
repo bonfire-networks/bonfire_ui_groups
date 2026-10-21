@@ -55,6 +55,40 @@ defmodule Bonfire.UI.Groups.LiveHandler do
       when role in ["all", "moderators"],
       do: {:noreply, assign(socket, :member_role, role)}
 
+  # from the members page: the list is the page's own, so it is taken off here
+  def handle_event("remove_member", %{"id" => user_id}, socket) when is_binary(user_id) do
+    case Categories.remove_member(
+           current_user_required!(socket),
+           e(assigns(socket), :category, nil),
+           user_id
+         ) do
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> assign(
+           feed: Enum.reject(e(assigns(socket), :feed, []) || [], &(id(&1) == user_id)),
+           moderators: Enum.reject(e(assigns(socket), :moderators, []), &(id(&1) == user_id)),
+           member_count: max((e(assigns(socket), :member_count, 1) || 1) - 1, 0)
+         )
+         |> assign_flash(:info, l("Removed from the group"))}
+
+      error ->
+        {:noreply, assign_flash(socket, :error, remove_member_error(error))}
+    end
+  end
+
+  # from the members list in the group's settings, which keeps its own list
+  def handle_event("remove_settings_member", %{"id" => user_id}, socket)
+      when is_binary(user_id) do
+    case Bonfire.UI.Groups.Settings.PeopleLive.remove(socket, user_id) do
+      {:ok, socket} ->
+        {:noreply, assign_flash(socket, :info, l("Removed from the group"))}
+
+      {:error, error} ->
+        {:noreply, assign_flash(socket, :error, remove_member_error(error))}
+    end
+  end
+
   def handle_event("join_group", %{"id" => id} = params, socket) do
     with {:ok, current_user} <- current_user_or_remote_interaction(socket, "join", id),
          {:ok, result} <- Categories.join_and_follow_group(current_user, id) do
@@ -240,6 +274,17 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
   # the sidebar (PersistentLive) has its own modal
   defp modal_id(socket), do: Bonfire.UI.Common.ReusableModalLive.modal_id(assigns(socket))
+
+  defp remove_member_error({:error, :last_moderator}),
+    do: l("A group needs at least one moderator. Make someone else a moderator first.")
+
+  defp remove_member_error({:error, :hosted_elsewhere}),
+    do: l("This group is run on another instance, so its members are managed there.")
+
+  defp remove_member_error(error) do
+    error(error)
+    l("Could not remove them from the group")
+  end
 
   # joining pins and leaving unpins
   defp reload_sidebar(socket) do

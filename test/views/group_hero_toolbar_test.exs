@@ -29,7 +29,9 @@ defmodule Bonfire.UI.Groups.GroupHeroToolbarTest do
     |> assert_has("[data-id=group_topics] #group-topic-all", text: "All")
     |> click_link("#group-topic-link-#{id(topic)}", "Reading notes")
     |> assert_has("h1", text: "Reading together", count: 1)
-    |> assert_has("[data-id=topic_subheader][data-variant=compact] #topic-title", text: "Reading notes")
+    |> assert_has("[data-id=topic_subheader][data-variant=compact] #topic-title",
+      text: "Reading notes"
+    )
     |> click_link("#group-topic-all", "All")
     |> refute_has("[data-id=topic_subheader]")
     |> assert_has("a[href='/groups'][aria-label='Go back to the previous page']")

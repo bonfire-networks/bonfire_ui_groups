@@ -42,6 +42,33 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     |> assert_has("[data-id=secondary_sidebar_widgets]")
   end
 
+  # The line above the members list says who can see it, in the words the group's visibility already has (`Categories.roster_visibility_slug/1`): the group's own where anyone can join and outsiders can read it, "Group members only" otherwise
+  for {membership, visibility, shown_as} <- [
+        {"on_request", "nonfederated", "members:private"},
+        {"open", "global", "global"},
+        {"open", "nonfederated", "nonfederated"},
+        {"open", "local", "local"},
+        {"open", "nonfederated:preview", "members:private"}
+      ] do
+    test "the members list says who can see it, for a #{membership} group of #{visibility} visibility",
+         %{conn: conn, owner: owner} do
+      group =
+        Simulate.fake_group!(owner, %{
+          name: Faker.Company.name(),
+          membership: unquote(membership),
+          visibility: unquote(visibility)
+        })
+
+      label = Bonfire.Boundaries.Presets.dimension_meta(:visibility, unquote(shown_as))[:label]
+
+      assert is_binary(label), "control: #{unquote(shown_as)} has a label"
+
+      conn
+      |> visit("/&#{group.character.username}/settings")
+      |> assert_has("#settings-people-audience", text: "Members visible to: #{label}")
+    end
+  end
+
   test "settings pages have working links back to the overview", %{conn: conn, group: group} do
     for {link, label, content} <- [
           {"access", "Access & participation", "#group_settings_boundaries_form"},

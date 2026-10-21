@@ -15,6 +15,12 @@ defmodule Bonfire.UI.Groups.Settings.PeopleLive do
   data can_add?, :boolean, default: false
   data add_open?, :boolean, default: false
 
+  @doc "Whether the viewer may ghost, silence, block or remove members of the group (`:mediate`), worked out once per group"
+  data may_moderate?, :boolean, default: false
+
+  @doc "The visibility slug that says who can see the list (`Categories.roster_visibility_slug/1`), worked out once per group"
+  data roster_visibility_slug, :string, default: nil
+
   data people, :list, default: []
   data cursor, :any, default: nil
   data loaded_group_id, :string, default: nil
@@ -30,7 +36,10 @@ defmodule Bonfire.UI.Groups.Settings.PeopleLive do
           |> assign(
             people: [],
             loaded_group_id: id(socket.assigns.category),
-            can_add?: Categories.can_add_members?(current_user(socket), socket.assigns.category)
+            can_add?: Categories.can_add_members?(current_user(socket), socket.assigns.category),
+            may_moderate?:
+              Bonfire.Boundaries.can?(current_user(socket), :mediate, socket.assigns.category),
+            roster_visibility_slug: Categories.roster_visibility_slug(socket.assigns.category)
           )
           |> load_page(nil)
 
@@ -53,6 +62,31 @@ defmodule Bonfire.UI.Groups.Settings.PeopleLive do
       load_page(socket, socket.assigns.cursor)
     else
       socket
+    end
+  end
+
+  @doc "Takes someone out of the group (`Categories.remove_member/4`) and off this list, answering whether it worked."
+  def remove(socket, user_id) do
+    case Categories.remove_member(
+           current_user_required!(socket),
+           socket.assigns.category,
+           user_id
+         ) do
+      {:ok, _} ->
+        {:ok,
+         assign(socket,
+           people: Enum.reject(socket.assigns.people, &(id(&1) == user_id)),
+           moderators: Enum.reject(socket.assigns.moderators, &(id(&1) == user_id)),
+           member_count:
+             if(is_integer(socket.assigns.member_count),
+               do: max(socket.assigns.member_count - 1, 0),
+               else: nil
+             )
+         )}
+
+      error ->
+        error(error)
+        {:error, error}
     end
   end
 
