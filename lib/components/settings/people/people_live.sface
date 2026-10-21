@@ -128,7 +128,7 @@
       class="flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-muted hover:bg-fill sm:px-5"
     >
       <span class="flex size-10 shrink-0 items-center justify-center">
-        <#Icon iconify="ph:caret-down" class="size-4" />
+        <#Icon iconify="carbon:chevron-down" class="size-4" />
       </span>
       {l("Load more")}
     </button>

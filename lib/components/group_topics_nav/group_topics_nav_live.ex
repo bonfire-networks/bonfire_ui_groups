@@ -55,7 +55,7 @@ defmodule Bonfire.UI.Groups.GroupTopicsNavLive do
     do: l("Topics in %{name}", name: e(group, :profile, :name, l("this group")))
 
   @doc """
-  The list's classes: a horizontally scrolling row that fades at whichever edge has more chips, or, with no topics, a padded box for the New topic bar.
+  The list's classes: a horizontally scrolling row that fades at whichever edge has more chips, or, with no topics, a padded box for the New topic bar. The row's bottom padding holds the chips' `::before` touch targets, since `overflow-x-auto` makes `overflow-y` auto too and they'd otherwise scroll it vertically.
 
       iex> Bonfire.UI.Groups.GroupTopicsNavLive.list_class([]) =~ "overflow-x-auto"
       false
@@ -64,7 +64,7 @@ defmodule Bonfire.UI.Groups.GroupTopicsNavLive do
 
   def list_class(_topics),
     do:
-      "flex min-w-0 flex-1 list-none gap-1.5 overflow-x-auto pt-3 pl-4 [scrollbar-width:none] data-[fade-end]:[mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)] data-[fade-start]:[mask-image:linear-gradient(to_right,transparent,black_3rem)] data-[fade-start]:data-[fade-end]:[mask-image:linear-gradient(to_right,transparent,black_3rem,black_calc(100%-3rem),transparent)] [&::-webkit-scrollbar]:hidden"
+      "flex min-w-0 flex-1 list-none gap-1.5 overflow-x-auto pt-3 pb-1.5 pl-4 [scrollbar-width:none] data-[fade-end]:[mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)] data-[fade-start]:[mask-image:linear-gradient(to_right,transparent,black_3rem)] data-[fade-start]:data-[fade-end]:[mask-image:linear-gradient(to_right,transparent,black_3rem,black_calc(100%-3rem),transparent)] [&::-webkit-scrollbar]:hidden"
 
   # the `::before` stretches the 32px pill's touch target to 44px without making it look chunky
   @chip_base "relative flex h-8 items-center gap-1 whitespace-nowrap rounded-full px-3.5 text-sm font-medium transition-colors before:absolute before:inset-x-0 before:-inset-y-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary "

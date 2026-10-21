@@ -34,7 +34,7 @@
             <:trigger>
               <span class="opacity-70" aria-hidden="true">#</span>
               <span class="max-w-[14rem] truncate">{topic_name(topic)}</span>
-              <#Icon iconify="ph:caret-down-bold" class="size-3 shrink-0 opacity-70" />
+              <#Icon iconify="carbon:chevron-down" class="size-3 shrink-0 opacity-70" />
             </:trigger>
             <li :if={not is_nil(e(@selected_topic, :character, nil)) and current_user_id(@__context__)}>
               <StatefulComponent

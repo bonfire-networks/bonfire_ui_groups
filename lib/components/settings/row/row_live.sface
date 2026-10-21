@@ -16,5 +16,5 @@
     {!-- one summary line: the value reads as part of the description rather than a second, right-aligned column --}
     <span :if={@description || @value} class="mt-0.5 block text-sm leading-snug text-muted">{[@description, @value] |> Enum.reject(&is_nil/1) |> Enum.join(" · ")}</span>
   </span>
-  <#Icon iconify="ph:caret-right" class="size-4 shrink-0 text-muted" />
+  <#Icon iconify="carbon:chevron-right" class="size-4 shrink-0 text-muted" />
 </LinkLive>

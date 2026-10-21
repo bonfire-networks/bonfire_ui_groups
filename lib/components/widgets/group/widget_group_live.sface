@@ -25,7 +25,7 @@
       <details class="group/access mt-2.5">
         <summary class="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-muted hover:text-base-content [&::-webkit-details-marker]:hidden">
           {l("How access works")}
-          <#Icon iconify="ph:caret-down" class="size-3 transition-transform group-open/access:rotate-180" />
+          <#Icon iconify="carbon:chevron-down" class="size-3 transition-transform group-open/access:rotate-180" />
         </summary>
         <dl data-role="group-access-details-content" class="mt-2 flex flex-col gap-3 text-xs">
           {#for {dimension, slug, _, _, label, meta} <- @access_rows}

@@ -49,7 +49,7 @@
         {!-- the summary stays a 36px hit area; only the visible chip matches the 20px avatar it replaces --}
         <span class="flex size-5 items-center justify-center rounded-[5px] bg-fill group-hover/caret:bg-fill-strong group-focus-visible/caret:outline group-focus-visible/caret:outline-2 group-focus-visible/caret:outline-primary">
           <#Icon
-            iconify="ph:caret-down-bold"
+            iconify="carbon:chevron-down"
             class="size-3 text-muted transition-transform group-open/sidebar-group:rotate-180"
           />
         </span>

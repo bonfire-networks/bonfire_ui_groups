@@ -79,7 +79,7 @@
           <:trigger>
             <Iconify.iconify icon={icon} class="size-4" />
             <span>{selected_label(options, value)}</span>
-            <#Icon iconify="ph:caret-down" class="size-3 opacity-60" />
+            <#Icon iconify="carbon:chevron-down" class="size-3 opacity-60" />
           </:trigger>
 
           <fieldset class="flex flex-col">
