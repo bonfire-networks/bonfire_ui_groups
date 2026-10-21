@@ -1,4 +1,5 @@
-<header data-id="group_hero" data-variant={@variant} class="border-b border-divider bg-base-100">
+{!-- no rule of its own: the page draws the single line between the header (with the composer under it) and the feed --}
+<header data-id="group_hero" data-variant={@variant} class="bg-base-100">
   {!-- 3:1, the ratio `Bonfire.Files.BannerUploader` stores; `refetch_key` refetches a remote group whose banner 404s --}
   <div
     :if={is_binary(@banner_url)}
@@ -15,7 +16,14 @@
     />
   </div>
 
-  <div class="px-4 pb-4">
+  {!-- the chips row brings its own top padding, so the gap above it matches the gap under it --}
+  <div class={
+    "px-4",
+    if(Bonfire.UI.Groups.GroupTopicsNavLive.show?(@subcategories, @can_create_topic),
+      do: "pb-2",
+      else: "pb-4"
+    )
+  }>
     <div class={"flex", if(is_binary(@banner_url), do: "-mt-9", else: "mt-4")}>
       {#if @avatar_url == "/images/avatar.png"}
         <Bonfire.UI.Common.NavTileLive
@@ -97,7 +105,8 @@
     group={@group}
     topics={@subcategories}
     group_return_to={@group_return_to}
-    selected_topic_id={@selected_topic_id}
+    selected_topic={@selected_topic}
     can_create_topic={@can_create_topic}
+    can_edit_topic={@can_edit_topic}
   />
 </header>

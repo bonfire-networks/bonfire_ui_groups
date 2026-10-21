@@ -73,7 +73,7 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
       text: topic.profile.name,
       timeout: 1_000
     )
-    |> assert_has("[data-id=topic_subheader][data-variant=compact]", text: topic.profile.name)
+    |> assert_has("[data-id=group_topics] [data-role=group-topic-current]", text: topic.profile.name)
     |> assert_has("#group-topic-all[href*='group_from=%2Ffeed%3Fsort%3Dlatest']")
     |> assert_has("a[href='/feed?sort=latest'][aria-label='Go back to the previous page']")
   end

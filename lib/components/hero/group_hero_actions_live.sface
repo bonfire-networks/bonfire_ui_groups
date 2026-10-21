@@ -106,25 +106,15 @@
           parent_id={"group-hero-#{id(@group)}"}
         />
       </li>
-      <li>
-        {#if @pins.instance}
-          {!-- instance-pinned groups stay in everyone's sidebar; personal pin/unpin can't remove them --}
-          {!-- <div
-            class="flex items-center gap-3 w-full text-sm text-muted"
-            title={l("This group is pinned to everyone's sidebar by the admins")}
-          >
-            <#Icon iconify="ph:push-pin-duotone" class="size-4 shrink-0 text-muted" />
-            <span class="flex-1 truncate">{l("Pinned by admins")}</span>
-          </div> --}
-        {#else}
-          <StatelessComponent
-            module={maybe_component(Bonfire.UI.Reactions.PinActionLive, @__context__)}
-            object={@group}
-            parent_id={"group-hero-sidebar-pin-#{id(@group)}"}
-            scope={:sidebar}
-            pinned?={@pins.sidebar}
-          />
-        {/if}
+      {!-- instance-pinned groups stay in everyone's sidebar, and personal pin/unpin can't remove them, so the row goes rather than offering a toggle that does nothing --}
+      <li :if={not @pins.instance} data-role="group-hero-sidebar-pin">
+        <StatelessComponent
+          module={maybe_component(Bonfire.UI.Reactions.PinActionLive, @__context__)}
+          object={@group}
+          parent_id={"group-hero-sidebar-pin-#{id(@group)}"}
+          scope={:sidebar}
+          pinned?={@pins.sidebar}
+        />
       </li>
       {!-- instance admins, whether or not they moderate this group --}
       <li :if={@pins.can_pin_instance}>

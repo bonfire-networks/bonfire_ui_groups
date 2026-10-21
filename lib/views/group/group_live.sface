@@ -81,6 +81,12 @@
       >
         <:header>
           {!-- `frame_group`, `members`, `subcategories` and the slugs are assigned by `Bonfire.Classify.LiveHandler.mounted/4` --}
+          {!-- in a group, the header and composer read as one block over a single rule; drawn here because either may be absent (visitors get no composer) --}
+          <div
+            data-role="group-header-block"
+            class={"border-b-(length:--divider-width) border-divider":
+              @frame_group && not group_settings?(@type, @selected_tab)}
+          >
           {#if not (group_settings?(@type, @selected_tab) and @view_mode == :full)}
             {!-- a group, or a topic inside one: the group's header and topic chips, with the topic's chip selected --}
             <StatelessComponent
@@ -99,18 +105,19 @@
               member_count={@group_member_count}
               pins={@group_pins}
               subcategories={@subcategories}
-              selected_topic_id={if @type == :topic, do: id(@category)}
+              selected_topic={if @type == :topic, do: @category}
               can_create_topic={@can_create_topic}
+              can_edit_topic={@can_edit_topic}
             />
+            {!-- inside a group the topic's chip carries its name and actions, so only a standalone topic gets its own header --}
             <StatelessComponent
-              :if={@type == :topic}
+              :if={@type == :topic and is_nil(@frame_group)}
               module={maybe_component(Bonfire.UI.Topics.TopicHeroLive, @__context__)}
               category={@category}
               permalink={@permalink}
               object_boundary={@object_boundary}
               boundary_preset={@boundary_preset}
               user={e(@category, :parent_category, nil)}
-              compact={not is_nil(@frame_group)}
             />
           {/if}
           <StatelessComponent
@@ -124,7 +131,9 @@
                 ),
               else: l("Start a discussion…")}
             smart_input_opts={@composer_opts}
+            divider={is_nil(@frame_group)}
           />
+          </div>
           {!-- the feed's own gutter (wrapper_class) lines the pins up with the posts below --}
           <StatefulComponent
             module={maybe_component(Bonfire.UI.Reactions.PinnedCarouselLive, @__context__)}

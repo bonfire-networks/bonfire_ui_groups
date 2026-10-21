@@ -197,22 +197,6 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       end
     end
 
-    # # the ⋯ menu's pin state is read by the page, not the menu: an instance pin can't be undone from a personal one
-    # test "⋯ says when the admins pinned the group to everyone's sidebar", %{group: group} do
-    #   {:ok, _} =
-    #     Bonfire.Social.Pins.pin(Bonfire.Social.Pins.instance_scope_id(), group, nil,
-    #       skip_boundary_check: true,
-    #       to_feeds: []
-    #     )
-
-    #   {user, conn} = signed_in()
-    #   {:ok, _} = Categories.join_group(user, group)
-
-    #   conn
-    #   |> visit(group_path(group))
-    #   |> assert_has("#{@hero} [data-role=group-hero-more]", text: "Pinned by admins")
-    # end
-
     # the page reads the pin state once, so a toggle has to flip its own label, without a reload
     # joining pins the group to the member's sidebar, so the toggle starts from pinned
     test "unpinning from my sidebar in ⋯ flips the menu's label", %{group: group} do
@@ -242,8 +226,8 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       |> assert_has("#{@hero} [data-role=instance_pin_toggle]",
         text: "Unpin from everyone's sidebar"
       )
-      # the "Pinned by admins" line is commented out in the template, so an instance-pinned group shows no personal pin row at all
-      # |> assert_has("#{@hero} [data-role=group-hero-more]", text: "Pinned by admins")
+      # an instance-pinned group shows no personal pin row at all
+      |> refute_has("#{@hero} [data-role=group-hero-sidebar-pin]")
       |> refute_has("#{@hero} [data-role=group-hero-more]", text: "Pin to sidebar")
       |> refute_has("#{@hero} [data-role=group-hero-more]", text: "Unpin from sidebar")
 
@@ -251,7 +235,9 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
     end
 
     # another admin, another tab or an API client: the page hears of it from `Pins`
-    test "⋯ shows an instance pin made elsewhere on an open page", %{group: group} do
+    test "⋯ drops the personal pin row when an instance pin is made elsewhere on an open page", %{
+      group: group
+    } do
       {user, conn} = signed_in()
       {:ok, _} = Categories.join_group(user, group)
       admin = fake_admin!(fake_account!())
@@ -259,14 +245,11 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       session =
         conn
         |> visit(group_path(group))
-        |> refute_has("#{@hero} [data-role=group-hero-more]", text: "Pinned by admins")
+        |> assert_has("#{@hero} [data-role=group-hero-sidebar-pin]", text: "Unpin from sidebar")
 
       {:ok, _} = Bonfire.Social.Pins.pin(admin, group, :instance)
 
-      assert_has(session, "#{@hero} [data-role=group-hero-more]",
-        text: "Pinned by admins",
-        timeout: 1_000
-      )
+      refute_has(session, "#{@hero} [data-role=group-hero-sidebar-pin]", timeout: 1_000)
     end
 
     test "the group's settings replace the header", %{

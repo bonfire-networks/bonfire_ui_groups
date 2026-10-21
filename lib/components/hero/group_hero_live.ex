@@ -22,11 +22,14 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
   prop subcategories, :list, default: []
   prop group_return_to, :string, default: "/groups"
 
-  @doc "On a topic page inside the group, that topic, whose chip is current."
-  prop selected_topic_id, :string, default: nil
+  @doc "On a topic page inside the group, that topic, whose chip is current and opens its actions."
+  prop selected_topic, :any, default: nil
 
   @doc "Offer New topic in the topic row, see `Bonfire.Classify.can_create_topic?/2`."
   prop can_create_topic, :boolean, default: false
+
+  @doc "Offer Topic settings in the selected chip's menu, decided by the page."
+  prop can_edit_topic, :boolean, default: false
 
   @doc "The viewer's pin state for the ⋯ menu, see `Bonfire.UI.Groups.GroupHeroActionsLive`."
   prop pins, :map, default: %{instance: false, sidebar: false, can_pin_instance: false}

@@ -1,6 +1,6 @@
 defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
   @moduledoc """
-  A topic inside a group keeps its own URL (`/<group>/topic/<topic>`) but opens inside the group frame: the group header, the topic chips with that topic selected, and `Bonfire.UI.Topics.TopicHeroLive` in its compact mode (name, description, follow, settings) instead of the full topic header. The chips switch by live patch within `GroupLive`, so only what is under them changes, and they behave like a filter on the group.
+  A topic inside a group keeps its own URL (`/<group>/topic/<topic>`) but opens inside the group frame: the group header, and the topic chips with that topic selected; the selected chip opens the topic's actions (follow, notifications, settings), so there's no separate topic header. The chips switch by live patch within `GroupLive`, so only what is under them changes, and they behave like a filter on the group.
 
   `/+<topic>` (`CategoryLive`) for a topic that belongs to a group redirects to the in-group URL, so a topic has one page. A top-level topic, with no group, keeps the full topic header.
   """
@@ -8,6 +8,9 @@ defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
   @moduletag :ui
 
   alias Bonfire.Classify.Simulate
+
+  @current_chip "[data-id=group_topics] [data-role=group-topic-current]"
+  @topic_menu "[data-id=group_topics] [id^=group-topic-menu-][id$=_panel]"
 
   doctest Bonfire.UI.Groups.GroupLive, only: [group_settings?: 2]
 
@@ -47,9 +50,7 @@ defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
       as_creator(ctx)
       |> visit(topic_path(ctx.group, ctx.topic))
       |> assert_has("[data-id=group_hero] h1", text: "Reading together")
-      |> assert_has(
-        "[data-id=group_topics] #group-topic-link-#{id(ctx.topic)}[aria-current=page]"
-      )
+      |> assert_has("#{@current_chip}[aria-current=page]", text: "Reading notes")
       |> refute_has("[data-id=group_topics] #group-topic-all[aria-current=page]")
       # and its sibling topics
       |> assert_has("[data-id=group_topics] #group-topic-link-#{id(ctx.sibling)}",
@@ -57,22 +58,20 @@ defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
       )
     end
 
-    test "the topic bar is the compact topic header: name, description and follow, no banner",
+    test "the selected chip names the topic and opens its follow action, with no separate topic header",
          ctx do
       as_creator(ctx)
       |> visit(topic_path(ctx.group, ctx.topic))
-      |> assert_has("[data-id=topic_subheader][data-variant=compact]", text: "Reading notes")
-      |> assert_has("[data-id=topic_subheader][data-variant=compact]",
-        text: "Passages worth discussing."
-      )
-      |> assert_has("[data-id=topic_subheader] [data-id=unfollow][aria-label='Unfollow topic']")
+      |> assert_has("#{@current_chip}[aria-current=page]", text: "Reading notes")
+      |> assert_has("#{@topic_menu} [data-id=unfollow]", text: "Unfollow topic")
+      |> refute_has("[data-id=topic_subheader]")
       |> refute_has("#topic-parent-banner")
     end
 
-    test "moderators get the topic's settings in the bar; members don't", ctx do
+    test "moderators get the topic's settings in the chip menu; members don't", ctx do
       as_creator(ctx)
       |> visit(topic_path(ctx.group, ctx.topic))
-      |> assert_has("[data-id=topic_subheader] [aria-label='Edit topic']")
+      |> assert_has("#{@topic_menu} [aria-label='Edit topic']")
 
       member_account = fake_account!()
       member = fake_user!(member_account)
@@ -80,8 +79,8 @@ defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
 
       conn(user: member, account: member_account)
       |> visit(topic_path(ctx.group, ctx.topic))
-      |> assert_has("[data-id=topic_subheader][data-variant=compact]")
-      |> refute_has("[data-id=topic_subheader] [aria-label='Edit topic']")
+      |> assert_has(@current_chip, text: "Reading notes")
+      |> refute_has("#{@topic_menu} [aria-label='Edit topic']")
     end
   end
 
@@ -94,7 +93,7 @@ defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
       |> render_click()
 
       assert assert_patch(view) =~ topic_path(ctx.group, ctx.topic)
-      assert has_element?(view, "#group-topic-link-#{id(ctx.topic)}[aria-current=page]")
+      assert has_element?(view, "#{@current_chip}[aria-current=page]", "Reading notes")
       assert has_element?(view, "[data-id=group_hero]")
     end
 
@@ -106,8 +105,7 @@ defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
       |> render_click()
 
       assert assert_patch(view) =~ topic_path(ctx.group, ctx.sibling)
-      assert has_element?(view, "#group-topic-link-#{id(ctx.sibling)}[aria-current=page]")
-      assert has_element?(view, "[data-id=topic_subheader] #topic-title", "Book club")
+      assert has_element?(view, "#{@current_chip}[aria-current=page]", "Book club")
     end
 
     test "All patches back to the group", ctx do

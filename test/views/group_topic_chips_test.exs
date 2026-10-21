@@ -41,7 +41,7 @@ defmodule Bonfire.UI.Groups.GroupTopicChipsTest do
       |> refute_has("#{@row} #group-topic-all")
     end
 
-    test "a group with topics shows All, the topics, and New topic pinned outside the scrolling chips",
+    test "a group with topics shows All, the topics, and New topic as the last chip",
          %{account: account, creator: creator, group: group} do
       topic = Simulate.fake_category!(creator, group, %{name: "Seed swap", type: :topic})
 
@@ -51,8 +51,10 @@ defmodule Bonfire.UI.Groups.GroupTopicChipsTest do
       |> assert_has("#{@row} [data-role=group-topics-list] #group-topic-link-#{id(topic)}",
         text: "Seed swap"
       )
-      |> assert_has(@new_topic, text: "New topic")
-      |> refute_has("#{@row} [data-role=group-topics-list] [data-role=open_modal]")
+      |> assert_has(
+        "#{@row} [data-role=group-topics-list] > li:last-child[data-role=group-topics-new] [data-role=open_modal]",
+        text: "New topic"
+      )
     end
 
     test "New topic opens the topic form and creates a topic in the group", %{
@@ -66,7 +68,7 @@ defmodule Bonfire.UI.Groups.GroupTopicChipsTest do
       |> assert_has("#modal [role=dialog]", text: "Create a new topic")
       |> fill_in("Topic name", with: "Harvest calendar")
       |> click_button("[data-role=new_topic_submit]", "Create")
-      |> assert_has("[data-id=topic_subheader] #topic-title", text: "Harvest calendar")
+      |> assert_has("[data-id=group_topics] [data-role=group-topic-current]", text: "Harvest calendar")
 
       assert [%{profile: %{name: "Harvest calendar"}}] = group_topics(group, creator)
     end
@@ -122,7 +124,7 @@ defmodule Bonfire.UI.Groups.GroupTopicChipsTest do
       |> click_button(@new_topic, "New topic")
       |> fill_in("Topic name", with: "Harvest calendar")
       |> click_button("[data-role=new_topic_submit]", "Create")
-      |> assert_has("[data-id=topic_subheader] #topic-title", text: "Harvest calendar")
+      |> assert_has("[data-id=group_topics] [data-role=group-topic-current]", text: "Harvest calendar")
 
       assert ["Harvest calendar", "Seed swap"] ==
                group_topics(group, creator)
@@ -141,7 +143,7 @@ defmodule Bonfire.UI.Groups.GroupTopicChipsTest do
 
       conn(user: member, account: account)
       |> visit(group_path(group) <> "/topic/" <> topic.character.username)
-      |> assert_has("#{@row} #group-topic-link-#{id(topic)}[aria-current=page]")
+      |> assert_has("#{@row} [data-role=group-topic-current][aria-current=page]", text: "Seed swap")
       |> refute_has("#new_topic_chips")
     end
   end
