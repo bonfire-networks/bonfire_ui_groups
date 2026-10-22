@@ -33,6 +33,8 @@ defmodule Bonfire.UI.Groups.GroupFollowButtonTest do
   # the ROUND Follow in the group's hero (icon only, `JoinButtonLive`'s combined mode), told apart from any other follow toggle on the page by its tooltip
   @round_following "button[data-id=unfollow][data-tip='Unfollow group']"
   @round_not_following "[data-id=follow][data-tip='Follow group']"
+  # the same button for someone who has not joined (a guest, or a signed-in non-member): the hero words it "Follow without joining" there, since Join is the other button beside it
+  @visitor_round_follow "[data-id=follow][data-tip='Follow without joining']"
 
   test "a member sees the group's round Follow as following", context do
     conn(user: context.member, account: context.account)
@@ -120,7 +122,7 @@ defmodule Bonfire.UI.Groups.GroupFollowButtonTest do
       conn()
       |> visit(Bonfire.Common.URIs.path(context.group))
       |> wait_async()
-      |> click_link("a#{@round_not_following}", "")
+      |> click_link("a#{@visitor_round_follow}", "")
       |> refute_path("/login")
       |> assert_has("*", text: @remote_interaction)
     end

@@ -215,7 +215,8 @@ defmodule Bonfire.UI.Groups.GroupPinsTest do
   end
 
   describe "the carousel" do
-    test "pinning shows the post above the feed without a reload, and unpinning removes it", ctx do
+    test "pinning shows the post above the feed without a reload, and unpinning removes it",
+         ctx do
       as_moderator(ctx)
       |> visit(group_path(ctx.group))
       |> refute_has("#group_pinned_carousel aside")

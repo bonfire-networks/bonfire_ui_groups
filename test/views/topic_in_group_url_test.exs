@@ -21,7 +21,9 @@ defmodule Bonfire.UI.Groups.TopicInGroupUrlTest do
     |> visit("/&#{topic.id}")
     |> wait_async()
     |> assert_has_or_open_browser("[data-id=group_hero]")
-    |> assert_has_or_open_browser("[data-id=group_topics] [data-role=group-topic-current]", text: "Nested Topic")
+    |> assert_has_or_open_browser("[data-id=group_topics] [data-role=group-topic-current]",
+      text: "Nested Topic"
+    )
     # URL normalised in place (push_patch) to the nested topic-in-group path
     |> assert_path(expected_path)
   end

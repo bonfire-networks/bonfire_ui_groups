@@ -28,6 +28,15 @@
       id={"group_hero_follow_#{id(@group)}"}
       {...follow_button_props(@group, @variant)}
     />
+    {!-- the bell does not need membership: anyone signed in can ask to be told of a group's new posts --}
+    <StatefulComponent
+      :if={current_user_id(@__context__)}
+      module={maybe_component(Bonfire.Notify.Web.BellButtonLive, @__context__)}
+      id={"group_hero_bell_#{id(@group)}"}
+      object={@group}
+      button_class={round_button_class()}
+      button_class_enabled={round_button_class(true)}
+    />
   {#else}
     <span
       data-role="group-hero-status"

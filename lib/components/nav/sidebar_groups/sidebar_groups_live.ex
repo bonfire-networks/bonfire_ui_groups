@@ -104,8 +104,7 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
   # the groups pinned to everyone's sidebar, and the user's own, however they change (another tab, an API client); only on the first load, as later updates would subscribe again
   defp subscribe_to_pins(socket) do
     if user_id = current_user_id(socket),
-      do:
-        PubSub.subscribe(Bonfire.Social.Pins.group_pins_topics(user_id), socket)
+      do: PubSub.subscribe(Bonfire.Social.Pins.group_pins_topics(user_id), socket)
 
     socket
   end

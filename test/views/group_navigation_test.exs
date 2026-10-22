@@ -48,7 +48,10 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
 
     {:ok, _} = Bonfire.Social.Pins.pin(admin, group, :instance)
 
-    assert_has(session, "[data-role='sidebar-group']", text: "Pinned for everyone", timeout: 1_000)
+    assert_has(session, "[data-role='sidebar-group']",
+      text: "Pinned for everyone",
+      timeout: 1_000
+    )
   end
 
   test "a pinned sidebar topic opens in its group and retains the entry page" do
@@ -73,7 +76,9 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
       text: topic.profile.name,
       timeout: 1_000
     )
-    |> assert_has("[data-id=group_topics] [data-role=group-topic-current]", text: topic.profile.name)
+    |> assert_has("[data-id=group_topics] [data-role=group-topic-current]",
+      text: topic.profile.name
+    )
     |> assert_has("#group-topic-all[href*='group_from=%2Ffeed%3Fsort%3Dlatest']")
     |> assert_has("a[href='/feed?sort=latest'][aria-label='Go back to the previous page']")
   end
