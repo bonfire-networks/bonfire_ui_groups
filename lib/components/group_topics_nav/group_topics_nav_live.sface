@@ -2,7 +2,7 @@
   :if={show?(@topics, @can_create_topic)}
   data-id="group_topics"
   aria-label={topics_label(@group)}
-  class={"flex min-w-0 items-center gap-1", "pr-4 lg:pr-6": @topics != []}
+  class={"relative flex min-w-0 items-center gap-1", "pr-4 lg:pr-6": @topics != []}
 >
   {!-- with no topics the list holds only New topic, as a full-width bar: a lone chip at the edge of an empty row reads as unbalanced --}
   <ul
@@ -133,4 +133,15 @@
       </StatelessComponent>
     </li>
   </ul>
+  {!-- edge fades as overlays, not a `mask-image` on the list: a mask clips every descendant, including the current chip's `fixed` menu --}
+  <span
+    :if={@topics != []}
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-y-0 left-0 w-12 bg-linear-to-r from-base-100 opacity-0 transition-opacity peer-data-[fade-start]:opacity-100"
+  />
+  <span
+    :if={@topics != []}
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-y-0 right-4 w-12 bg-linear-to-l from-base-100 opacity-0 transition-opacity peer-data-[fade-end]:opacity-100 lg:right-6"
+  />
 </nav>
