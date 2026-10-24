@@ -61,7 +61,7 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
 
     topic =
       Bonfire.Classify.Simulate.fake_category!(me, group, %{
-        name: Faker.Lorem.word(),
+        name: Bonfire.Common.Simulation.word(),
         type: :topic
       })
 
