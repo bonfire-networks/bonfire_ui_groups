@@ -40,7 +40,7 @@
   {#else}
     <span
       data-role="group-hero-status"
-      class="order-first flex-1 sm:order-last sm:flex-none inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-divider px-4 text-sm font-semibold"
+      class="order-first flex-1 sm:order-last sm:flex-none inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-divider px-4 text-sm font-medium"
     >
       {if @moderator, do: l("Moderator"), else: l("Joined")}
     </span>

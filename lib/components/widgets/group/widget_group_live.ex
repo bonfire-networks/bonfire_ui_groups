@@ -28,6 +28,16 @@ defmodule Bonfire.UI.Groups.WidgetGroupLive do
   def render(assigns) do
     assigns
     |> assign(
+      :preset,
+      %{
+        membership: assigns.membership_slug,
+        visibility: assigns.visibility_slug,
+        participation: assigns.participation_slug
+      }
+      |> Bonfire.Boundaries.Presets.preset_slug_from_dims()
+      |> Bonfire.Boundaries.Presets.group_preset_meta()
+    )
+    |> assign(
       :access_rows,
       access_rows(
         assigns.membership_slug,
@@ -40,7 +50,7 @@ defmodule Bonfire.UI.Groups.WidgetGroupLive do
   end
 
   @doc """
-  The access dimensions, in reading order, for both the About rows and "How access works": each with its slug, an icon, the row's short label, the details' longer one (the rows sit beside their values, the details stand alone) and the preset's metadata. A dimension whose slug has no preset is left out.
+  The access dimensions, in reading order, for the "Who can" list: each with its slug, the row's label and the preset's metadata. A dimension whose slug has no preset is left out.
 
       iex> Bonfire.UI.Groups.WidgetGroupLive.access_rows("open", "global", "group_members", "public") |> Enum.map(&elem(&1, 0))
       [:membership, :visibility, :participation, :default_content_visibility]
@@ -49,32 +59,17 @@ defmodule Bonfire.UI.Groups.WidgetGroupLive do
   """
   def access_rows(membership_slug, visibility_slug, participation_slug, content_visibility_slug) do
     [
-      {:membership, membership_slug, "ph:door-open", l("Joining"), l("Joining")},
-      {:visibility, visibility_slug, "ph:eye", l("Visible"), l("Visibility")},
-      {:participation, participation_slug, "ph:pencil-simple-line", l("Posting"), l("Posting")},
-      {:default_content_visibility, content_visibility_slug, "ph:lock-simple", l("New posts"),
-       l("Default post visibility")}
+      {:membership, membership_slug, l("Join")},
+      {:visibility, visibility_slug, l("See")},
+      {:participation, participation_slug, l("Post")},
+      {:default_content_visibility, content_visibility_slug, l("New posts")}
     ]
-    |> Enum.flat_map(fn {dimension, slug, icon, label, details} ->
+    |> Enum.flat_map(fn {dimension, slug, label} ->
       case Bonfire.Boundaries.Presets.dimension_meta(dimension, slug) do
-        %{} = meta -> [{dimension, slug, icon, label, details, meta}]
+        %{} = meta -> [{dimension, slug, label, meta}]
         _ -> []
       end
     end)
   end
 
-  @doc """
-  Who a dimension's preset admits, for "How access works". Two presets name their audience by what they check rather than who it is, so they read as "Anyone on this instance".
-
-      iex> Bonfire.UI.Groups.WidgetGroupLive.audience_label(:membership, "local:members", %{label: "Local users"})
-      "Anyone on this instance"
-      iex> Bonfire.UI.Groups.WidgetGroupLive.audience_label(:visibility, "global", %{label: "Everyone"})
-      "Everyone"
-  """
-  def audience_label(:membership, "local:members", _meta), do: l("Anyone on this instance")
-
-  def audience_label(:participation, "local:contributors", _meta),
-    do: l("Anyone on this instance")
-
-  def audience_label(_dimension, _slug, meta), do: e(meta, :label, nil)
 end

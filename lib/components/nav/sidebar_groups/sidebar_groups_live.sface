@@ -5,19 +5,27 @@
     data-role="sidebar-groups"
     class="relative w-full min-w-0 overflow-hidden mt-3 px-0 lg:px-5.5"
   >
-    <div class="group/sidebar-summary relative min-h-7 py-1 pl-2 font-bold text-xs leading-4 text-muted flex">
-      <LinkLive to="/groups" class="flex-1">{l("Groups")}</LinkLive>
-      <div class="font-normal absolute right-0 inset-y-0 flex items-center">
-        <Bonfire.UI.Groups.NewGroupLive
-          id="sidebar_new_group"
-          parent_id="sidebar"
-          open_btn_wrapper_class=""
-        >
-          <:open_btn>
-            <span class="[@media(hover:hover)]:opacity-0 group-hover/sidebar-summary:opacity-100 group-focus-within/sidebar-summary:opacity-100 btn btn-circle btn-outline btn-xs border-divider"><#Icon iconify="ph:plus" class="size-4 text-primary" /></span>
-          </:open_btn>
-        </Bonfire.UI.Groups.NewGroupLive>
-      </div>
+    <div class="flex items-center justify-between min-h-8 pl-2 [@media(pointer:coarse)]:min-h-9">
+      {!-- the label is the link to all groups; the chevron says so without a second icon competing with "+" --}
+      <LinkLive
+        to="/groups"
+        label={l("All groups")}
+        class="inline-flex items-center gap-0.5 -ml-1 px-1 min-h-8 rounded-selector text-sm font-bold text-muted hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:min-h-9"
+      >
+        {l("Groups")}
+        <#Icon iconify="carbon:chevron-right" class="size-3.5 ml-[2px] mt-[2px]" />
+      </LinkLive>
+      <Bonfire.UI.Groups.NewGroupLive
+        id="sidebar_new_group"
+        parent_id="sidebar"
+        open_btn_wrapper_class="flex"
+      >
+        <:open_btn>
+          <span class="flex size-8 items-center justify-center rounded-selector text-muted hover:bg-fill hover:text-base-content [@media(pointer:coarse)]:size-9">
+            <#Icon iconify="ph:plus-bold" class="size-3.5" />
+          </span>
+        </:open_btn>
+      </Bonfire.UI.Groups.NewGroupLive>
     </div>
 
     <ul class="menu p-0 w-full gap-0">
