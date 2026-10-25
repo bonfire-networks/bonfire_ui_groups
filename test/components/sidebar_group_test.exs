@@ -209,7 +209,7 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
 
     descendant =
       Bonfire.Classify.Simulate.fake_category!(user, topic, %{
-        name: Faker.Lorem.word(),
+        name: Bonfire.Common.Simulation.word(),
         type: :topic
       })
 
