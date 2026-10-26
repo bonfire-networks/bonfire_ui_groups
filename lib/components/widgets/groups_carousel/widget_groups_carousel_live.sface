@@ -1,7 +1,7 @@
 <div data-id="groups_carousel_widget">
   <Bonfire.UI.Common.WidgetBlockLive
     :if={@groups != []}
-    class="w-full border-t border-divider py-5 sm:py-6"
+    class="board-card w-full py-5 sm:py-6"
     widget_title={@title}
     widget_subtitle={@subtitle}
     title_class="gap-3 px-5 pb-4 sm:px-6"
