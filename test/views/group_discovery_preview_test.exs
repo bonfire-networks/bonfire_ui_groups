@@ -16,8 +16,8 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> click_link("#group-preview-link-#{id(group)}", "Preview readers")
     |> assert_has("[data-role=group-widget-visibility]", text: "Discoverable group preview")
     |> assert_has("[data-role=group-hero-membership]", text: "On request")
-    |> assert_has("[data-role=group-access-details-content]",
-      text: "Access to discussions depends on membership"
+    |> assert_has(
+      "[data-role=group-widget-visibility] dd[title*='Access to discussions depends on membership']"
     )
   end
 

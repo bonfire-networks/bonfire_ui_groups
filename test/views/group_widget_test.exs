@@ -66,16 +66,16 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
         as_creator(ctx)
         |> visit(group_path(ctx.group))
 
-      for label <- ["Joining ·", "Visibility ·", "Posting ·", "Default post visibility ·"] do
-        assert_has(session, "#{@widget} [data-role=group-access-details-content] dt", text: label)
+      for label <- ["Join", "See", "Post", "New posts"] do
+        assert_has(session, "#{@widget} [data-role=group-access-list] dt", text: label, exact: true)
       end
 
       session
-      |> assert_has("#{@widget} [data-role=group-widget-membership]", text: "Joining")
+      |> assert_has("#{@widget} [data-role=group-widget-membership]", text: "Join")
       |> assert_has("#{@widget} [data-role=group-widget-default_content_visibility]",
         text: "New posts"
       )
-      |> refute_has("[data-id=group_hero] [data-role=group-access-details-content]")
+      |> refute_has("[data-id=group_hero] [data-role=group-access-list]")
       |> assert_has("#{@widget} [data-role=group-widget-created]")
     end
 
@@ -122,14 +122,14 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
 
       assert has_element?(
                view,
-               "[data-id=group_widget] [data-role=group-access-details-content] dt",
-               "Default post visibility · Users of this instance"
+               "[data-id=group_widget] [data-role=group-widget-default_content_visibility] dd",
+               "Users of this instance"
              )
 
+      # the description is the value's tooltip
       assert has_element?(
                view,
-               "[data-id=group_widget] [data-role=group-access-details-content] dd",
-               "Posts visible to logged-in users on this instance"
+               "[data-id=group_widget] [data-role=group-widget-default_content_visibility] dd[title*='Posts visible to logged-in users on this instance']"
              )
     end
 
@@ -144,14 +144,13 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
 
       assert has_element?(
                view,
-               "[data-id=group_widget] [data-role=group-access-details-content] dt",
-               "Default post visibility ·"
+               "[data-id=group_widget] [data-role=group-widget-default_content_visibility] dt",
+               "New posts"
              )
 
       assert has_element?(
                view,
-               "[data-id=group_widget] [data-role=group-access-details-content] dd",
-               "Posts visible to"
+               "[data-id=group_widget] [data-role=group-widget-default_content_visibility] dd[title^='Posts visible to']"
              )
     end
   end

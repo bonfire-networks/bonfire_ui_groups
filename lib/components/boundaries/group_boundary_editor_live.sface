@@ -19,7 +19,7 @@
               phx-value-preset={slug}
               phx-target={@myself}
               class={
-                "flex items-start gap-3 cursor-pointer p-3 rounded-selector border text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.99]",
+                "flex items-start gap-3 cursor-pointer p-3 rounded-selector border text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01]",
                 "ring-2 ring-primary bg-primary/5 border-divider shadow-sm": @preset == slug,
                 "border-divider hover:bg-fill hover:border-divider": @preset != slug
               }
@@ -57,7 +57,7 @@
           phx-value-preset="custom"
           phx-target={@myself}
           class={
-            "flex items-start gap-3 p-3 rounded-box border border-dashed text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01] motion-safe:active:scale-[0.99]",
+            "flex items-start gap-3 p-3 rounded-box border border-dashed text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01]",
             "ring-2 ring-primary bg-primary/5 border-divider": @preset == "custom",
             "border-divider hover:bg-fill hover:border-divider": @preset != "custom"
           }

@@ -65,7 +65,9 @@ defmodule Bonfire.UI.Groups.GroupTopicsNavLive do
 
   @doc "A chip's classes; `current` for the chip of the page being shown."
   def chip_class(current) do
+    # `tap-feedback` here, not in `@chip_base`: New topic shares the base and can be a full-width bar, which mustn't scale
     @chip_base <>
+      "tap-feedback " <>
       if(current,
         do: "bg-base-content text-base-100",
         else: "bg-fill text-base-content hover:bg-fill-strong"
