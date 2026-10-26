@@ -97,6 +97,34 @@ defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
       assert has_element?(view, "[data-id=group_hero]")
     end
 
+    # the tests above only check the URL and the chip; this one checks the feed under them follows
+    test "a topic chip filters the feed to that topic's posts", ctx do
+      Simulate.fake_post_in_topic!(ctx.creator, ctx.topic, "<p>topic entry</p>")
+      Simulate.fake_post_in_topic!(ctx.creator, ctx.sibling, "<p>sibling entry</p>")
+      Simulate.fake_post_in_group!(ctx.creator, ctx.group, "<p>group entry</p>")
+
+      as_creator(ctx)
+      |> visit(group_path(ctx.group))
+      |> wait_async()
+      |> assert_has("[data-id=feed]", text: "sibling entry")
+      |> click_link("#group-topic-link-#{id(ctx.topic)}", "Reading notes")
+      |> wait_async()
+      |> assert_has("[data-id=feed]", text: "topic entry")
+      |> refute_has("[data-id=feed]", text: "sibling entry")
+      |> refute_has("[data-id=feed]", text: "group entry")
+    end
+
+    test "opening a topic's in-group URL shows only that topic's posts", ctx do
+      Simulate.fake_post_in_topic!(ctx.creator, ctx.topic, "<p>topic entry</p>")
+      Simulate.fake_post_in_topic!(ctx.creator, ctx.sibling, "<p>sibling entry</p>")
+
+      as_creator(ctx)
+      |> visit(topic_path(ctx.group, ctx.topic))
+      |> wait_async()
+      |> assert_has("[data-id=feed]", text: "topic entry")
+      |> refute_has("[data-id=feed]", text: "sibling entry")
+    end
+
     test "a sibling's chip patches from one topic to the other", ctx do
       {:ok, view, _html} = live(as_creator(ctx), topic_path(ctx.group, ctx.topic))
 
