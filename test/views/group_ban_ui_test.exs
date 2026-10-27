@@ -60,7 +60,7 @@ defmodule Bonfire.UI.Groups.GroupBanUITest do
     |> visit("/group/#{group.character.username}/settings/moderation")
     |> wait_async()
     |> click_button("[data-role=open_modal]", "Silence Troublesome Author")
-    |> open_browser()
+    # |> open_browser()
     |> click_button("[data-role=block_from_group]", "Silence in the group")
 
     # silenced: can't reply in the group
