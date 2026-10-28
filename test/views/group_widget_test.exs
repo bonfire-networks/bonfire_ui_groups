@@ -67,7 +67,10 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
         |> visit(group_path(ctx.group))
 
       for label <- ["Join", "See", "Post", "New posts"] do
-        assert_has(session, "#{@widget} [data-role=group-access-list] dt", text: label, exact: true)
+        assert_has(session, "#{@widget} [data-role=group-access-list] dt",
+          text: label,
+          exact: true
+        )
       end
 
       session

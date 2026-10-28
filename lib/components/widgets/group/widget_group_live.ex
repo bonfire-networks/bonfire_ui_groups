@@ -71,5 +71,4 @@ defmodule Bonfire.UI.Groups.WidgetGroupLive do
       end
     end)
   end
-
 end

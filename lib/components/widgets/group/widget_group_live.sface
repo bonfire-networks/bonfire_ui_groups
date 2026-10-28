@@ -31,7 +31,10 @@
             class="size-3 transition-transform group-open/access:rotate-180"
           />
         </summary>
-        <dl data-role="group-access-list" class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-xs">
+        <dl
+          data-role="group-access-list"
+          class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-xs"
+        >
           {#for {dimension, slug, label, meta} <- @access_rows}
             <div data-role={"group-widget-#{dimension}"} class="contents">
               <dt class="text-muted">{label}</dt>
