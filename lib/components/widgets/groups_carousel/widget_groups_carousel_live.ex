@@ -9,7 +9,7 @@ defmodule Bonfire.UI.Groups.WidgetGroupsCarouselLive do
   prop title, :string, default: nil
   prop subtitle, :string, default: nil
 
-  @doc "Classes of the widget, its header and the carousel track, so a page can set its own surface and gutter (the defaults are the guest board's card), as `PinnedCarouselLive` takes them."
+  @doc "Classes of the widget, header and track, so a page can set its own surface and gutter."
   prop wrapper_class, :css_class, default: "board-card w-full py-5 sm:py-6"
   prop title_class, :css_class, default: "gap-3 px-5 pb-4 sm:px-6"
   prop carousel_class, :css_class, default: "px-5 scroll-px-5 sm:px-6 sm:scroll-px-6"

@@ -17,7 +17,7 @@
       visible_items={2}
       class={@carousel_class}
     >
-      {!-- the same card as the /groups directory (cover, avatar, summary, topics), so a group looks the same wherever a guest meets it --}
+      {!-- the /groups directory card, so a group looks the same wherever a guest meets it --}
       <:card :let={item: {group, _topics}}>
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
