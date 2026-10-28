@@ -1,10 +1,10 @@
 <div data-id="groups_carousel_widget">
   <Bonfire.UI.Common.WidgetBlockLive
     :if={@groups != []}
-    class="board-card w-full py-5 sm:py-6"
+    class={@wrapper_class}
     widget_title={@title}
     widget_subtitle={@subtitle}
-    title_class="gap-3 px-5 pb-4 sm:px-6"
+    title_class={@title_class}
     heading_class="text-lg font-bold leading-snug tracking-[-0.01em] theme-light:text-lg theme-light:font-bold"
     subtitle_class="mt-1 text-sm text-muted theme-light:text-sm"
   >
@@ -15,19 +15,20 @@
       id={"#{@id}-carousel"}
       items={@groups}
       visible_items={2}
-      class="px-5 scroll-px-5 sm:px-6 sm:scroll-px-6"
+      class={@carousel_class}
     >
+      {!-- the same card as the /groups directory (cover, avatar, summary, topics), so a group looks the same wherever a guest meets it --}
       <:card :let={item: {group, _topics}}>
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
           object={group}
           preview={Map.get(@previews, id(group), %{})}
           permalink={path(group)}
-          showing_within={:compact}
+          showing_within={:discovery}
         />
       </:card>
     </Bonfire.UI.Common.CarouselLive>
-    <div class="px-5 pt-3 sm:px-6">
+    <div class={@footer_class}>
       <LinkLive
         to="/groups"
         class="inline-flex min-h-11 items-center text-sm font-medium text-primary underline-offset-3 hover:underline"
