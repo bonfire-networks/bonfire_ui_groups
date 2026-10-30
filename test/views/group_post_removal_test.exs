@@ -107,6 +107,38 @@ defmodule Bonfire.UI.Groups.GroupPostRemovalTest do
       refute Bonfire.Social.Boosts.boosted?(group, post)
     end
 
+    # instance-wide rights (lock, pin to the instance) are in the same menu: they must not take the group's row away
+    test "offers it to a group moderator who is also an instance admin", %{
+      account: account,
+      moderator: moderator,
+      group: group,
+      post: post
+    } do
+      {:ok, admin} = Bonfire.Me.Users.make_admin(moderator)
+
+      open_post_menu(admin, account, post)
+      |> assert_has("[data-role=remove_from_group]")
+      |> confirm_removal()
+
+      refute Bonfire.Social.Boosts.boosted?(group, post)
+    end
+
+    # the same menu opened from a feed card, where the group the post sits in comes with the activity
+    test "offers a moderator \"Remove from group\" on the post's card in a feed", %{
+      account: account,
+      moderator: moderator,
+      post: post
+    } do
+      conn(user: moderator, account: account)
+      |> visit("/feed/local")
+      |> wait_async()
+      |> assert_has("article", text: "Removable")
+      |> open_more_menu()
+      # the control: the menu's permission rows did load, so a missing row is the permission
+      |> assert_has("[data-id=boundary_details]")
+      |> assert_has("[data-role=remove_from_group]")
+    end
+
     test "doesn't offer it to someone who may not remove the post", %{post: post} do
       stranger_account = fake_account!()
       stranger = fake_user!(stranger_account)
