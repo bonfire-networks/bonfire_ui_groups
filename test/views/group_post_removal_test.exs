@@ -66,6 +66,45 @@ defmodule Bonfire.UI.Groups.GroupPostRemovalTest do
            "a non-moderator took a post out of someone else's group"
   end
 
+  # the event names the group (`context`) as well as the post, so moderating the named group is not enough: the post has to be in it, or a record is written in that group's log for a post it never had
+  test "a moderator can't remove a post in another group by naming their own", %{
+    account: account,
+    moderator: moderator,
+    author: author,
+    group: group,
+    post: post
+  } do
+    other = Simulate.fake_group!(fake_user!(fake_account!()), %{membership: "open"})
+    assert {:ok, _} = Bonfire.Classify.Categories.join_group(author, other)
+    elsewhere = Simulate.fake_post_in_group!(author, other, "<p>Elsewhere</p>")
+
+    hide_verb = Bonfire.Boundaries.Verbs.get_id!(:hide)
+
+    hides = fn object ->
+      import Ecto.Query, only: [from: 2]
+
+      from(a in Bonfire.Data.Social.Activity,
+        where: a.object_id == ^id(object) and a.verb_id == ^hide_verb
+      )
+      |> repo().all()
+    end
+
+    assert Bonfire.Social.Boosts.boosted?(other, elsewhere), "control: in the other group"
+
+    refute Bonfire.Boundaries.can?(moderator, :mediate, other),
+           "control: not a moderator there"
+
+    remove_from_group(moderator, account, group, elsewhere)
+
+    assert Bonfire.Social.Boosts.boosted?(other, elsewhere)
+    assert [] = hides.(elsewhere), "a removal was recorded in a group the post is not in"
+
+    # control: the same moderator, their group's post
+    remove_from_group(moderator, account, group, post)
+    refute Bonfire.Social.Boosts.boosted?(group, post)
+    assert [_] = hides.(post)
+  end
+
   # the post's own menu, beside delete, for whoever may remove it: the flagged-items menu is only reached once someone reports the post, and an author never reaches it
   describe "the post's menu" do
     # on the post's own page, where the main object is outside any stream, so the menu's rows reach the test DOM once loaded

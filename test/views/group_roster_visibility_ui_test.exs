@@ -125,6 +125,48 @@ defmodule Bonfire.UI.Groups.GroupRosterVisibilityUITest do
     |> refute_has("main", text: "Distant")
   end
 
+  test "on a group joined by request, a load more of members sent by hand returns none", %{
+    moderator: moderator,
+    member: member,
+    stranger: stranger,
+    stranger_account: stranger_account
+  } do
+    group = group_with(moderator, member, "on_request")
+
+    conn(user: stranger, account: stranger_account)
+    |> visit("/group/#{group.character.username}/members")
+    |> wait_async()
+    |> PhoenixTest.unwrap(fn view ->
+      Phoenix.LiveViewTest.render_hook(view, "Bonfire.Classify:load_more", %{
+        "context" => "members"
+      })
+    end)
+    |> refute_has("main", text: "Quiet Member")
+  end
+
+  # the faces at the top of the group's page are the first few members, so they follow the same rule as the list
+  test "on a group joined by request, a stranger sees no members' faces at the top of the page",
+       %{
+         moderator: moderator,
+         member: member,
+         member_account: member_account,
+         stranger: stranger,
+         stranger_account: stranger_account
+       } do
+    group = group_with(moderator, member, "on_request")
+
+    conn(user: member, account: member_account)
+    |> visit("/group/#{group.character.username}")
+    |> wait_async()
+    |> assert_has("[data-role=group-hero-facepile]")
+
+    conn(user: stranger, account: stranger_account)
+    |> visit("/group/#{group.character.username}")
+    |> wait_async()
+    |> refute_has("[data-role=group-hero-facepile]")
+    |> assert_has("[data-role=group-hero-members]")
+  end
+
   # found on prod: the followers page of a group listed its followers, but "Load more" answered "User not found", since the load-more handler looks for the profile's `user` and a group page has its `category`
   test "on a group anyone can join, the followers page loads more", %{
     moderator: moderator,

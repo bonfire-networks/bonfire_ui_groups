@@ -204,4 +204,46 @@ defmodule Bonfire.UI.Groups.GroupModerationEventsTest do
       assert name_of(group) == "Renamed by moderator", "control: the moderator's rename applies"
     end
   end
+
+  # The `unflag` event names whose report to remove (`subject`) and where (`context`), and the handler took the context's moderation as the right to remove anyone's report. Any signed-in user can make a group, which they then moderate, so naming their own group let them delete anyone's report on anything
+  describe "unflag" do
+    test "a member can't remove someone's report by naming a group of their own, and the post's group moderator can",
+         %{
+           moderator: moderator,
+           moderator_account: moderator_account,
+           member: member,
+           member_account: member_account,
+           group: group,
+           post: post
+         } do
+      reporter = fake_user!(fake_account!())
+      assert {:ok, _} = Bonfire.Social.Flags.flag(reporter, post)
+      assert Bonfire.Social.Flags.flagged?(reporter, post), "control: reported"
+
+      own_group = Simulate.fake_group!(member)
+      assert Bonfire.Boundaries.can?(member, :mediate, own_group), "control: they moderate it"
+
+      event = "Bonfire.Social.Flags:unflag"
+
+      for context <- [id(own_group), id(member)] do
+        send_event(member, member_account, group, event, %{
+          "id" => id(post),
+          "subject" => id(reporter),
+          "context" => context
+        })
+
+        assert Bonfire.Social.Flags.flagged?(reporter, post),
+               "a member removed someone's report, naming #{if context == id(member), do: "themself", else: "a group of their own"}"
+      end
+
+      send_event(moderator, moderator_account, group, event, %{
+        "id" => id(post),
+        "subject" => id(reporter),
+        "context" => id(group)
+      })
+
+      refute Bonfire.Social.Flags.flagged?(reporter, post),
+             "control: the post's group moderator dismisses it"
+    end
+  end
 end
