@@ -1,114 +1,89 @@
 {#if @showing_within in [:discovery, :joined]}
-  {!-- the whole card opens the group (the name link stretches over it), so the few things inside that link elsewhere sit above that overlay with `relative z-10` --}
+  {!-- the whole row opens the group (the name link stretches over it), so the few things inside that link elsewhere sit above that overlay with `relative z-10` --}
   <article
     id={"group-preview-#{id(@object)}"}
-    class="relative flex h-full min-w-0 flex-col overflow-hidden rounded-box border-hair border-divider bg-base-100 transition-colors hover:border-base-content/20 has-[a:focus-visible]:outline has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2"
+    class="relative grid min-w-0 grid-cols-[2.75rem_minmax(0,1fr)] items-start sm:grid-cols-[2.75rem_minmax(0,1fr)_auto] gap-x-4 rounded-box px-2 py-4 transition-colors hover:bg-fill sm:px-4 has-[a:focus-visible]:outline has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2"
   >
-    <div
-      class="relative h-20 shrink-0 overflow-hidden bg-fill"
-      aria-hidden="true"
-      data-role="group-card-cover"
-    >
-      {#case Media.banner_url(@object, fallback: false)}
-        {#match nil}
-          {#case Media.avatar_url(@object)}
-            {#match "/images/avatar.png"}
-            {#match avatar}
-              {!-- no banner: the avatar, blurred, gives each card its own colour instead of an empty slab --}
-              <img
-                src={avatar}
-                alt=""
-                class="size-full scale-150 object-cover opacity-60 blur-2xl saturate-150"
-                loading="lazy"
-              />
-          {/case}
-        {#match banner}
-          <img src={banner} alt="" class="size-full object-cover" loading="lazy">
-      {/case}
-    </div>
+    {#case Media.avatar_url(@object)}
+      {#match "/images/avatar.png"}
+        <Bonfire.UI.Common.NavTileLive
+          object={@object}
+          name={name(@object)}
+          class="!size-11 !rounded-box !text-base"
+        />
+      {#match url}
+        <img
+          src={url}
+          alt=""
+          width="44"
+          height="44"
+          class="size-11 rounded-box bg-fill object-cover"
+          loading="lazy"
+          aria-hidden="true"
+        />
+    {/case}
 
-    <span
-      :if={not is_nil(current_user_id(@__context__)) and e(@preview, :joined?, false)}
-      id={"group-membership-#{id(@object)}"}
-      class="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-base-100/90 px-2 py-0.5 text-xs font-medium leading-5 text-base-content backdrop-blur-sm"
-    >
-      <#Icon iconify="ph:check-bold" class="size-3" />
-      {l("Joined")}
-    </span>
-
-    <div class="flex flex-1 flex-col px-4 pb-4">
-      <div
-        class="relative -mt-7 mb-3 grid size-14 shrink-0 place-items-center overflow-hidden rounded-box bg-fill text-subtle ring-4 ring-base-100"
-        aria-hidden="true"
-      >
-        {#case Media.avatar_url(@object)}
-          {#match "/images/avatar.png"}
-            <#Icon iconify="ph:users-three" class="size-6" />
-          {#match url}
-            <img
-              src={url}
-              alt=""
-              width="56"
-              height="56"
-              class="absolute inset-0 size-full object-cover"
-              loading="lazy"
-            />
-        {/case}
-      </div>
-
+    <div class="flex min-w-0 flex-col gap-0.5">
       <LinkLive
         opts={[id: "group-preview-link-#{id(@object)}", title: handle(@object)]}
         to={@permalink}
-        class="block truncate text-base font-bold leading-6 text-base-content after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
+        class="block truncate text-[0.9375rem] font-semibold leading-5 text-base-content after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
       >{name(@object)}</LinkLive>
 
-      <div class="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs leading-5 text-muted">
+      <div class="flex min-w-0 items-center gap-1.5 text-[0.8125rem] leading-5 text-subtle">
         <span class="shrink-0 tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
-        {#case Bonfire.Boundaries.Presets.dimension_meta(:membership, e(@preview, :membership, nil))}
-          {#match %{} = meta}
-            <span aria-hidden="true" class="text-subtle">·</span>
-            <span class="inline-flex min-w-0 items-center gap-1" data-role="group-card-membership-policy">
-              <Iconify.iconify icon={e(meta, :icon, "ph:users")} class="size-3.5 shrink-0" />
-              <span class="truncate">{e(meta, :label, nil)}</span>
-            </span>
-          {#match _}
-        {/case}
-      </div>
-
-      {!-- a div, not a p: the summary is rich text with its own paragraphs, and a p inside a p makes the browser close the outer one, so the clamp lost hold of it --}
-      <div class="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-muted">{rich(e(@object, :profile, :summary, ""))}</div>
-
-      <div
-        :if={remote?(@object) or e(@preview, :topics, []) != []}
-        class="mt-auto flex min-w-0 items-center gap-3 pt-3 text-xs leading-5 text-muted"
-      >
         <span
           :if={remote?(@object) and instance_host(@object)}
           data-role="group-card-origin"
-          class="inline-flex min-w-0 shrink items-center gap-1"
+          class="inline-flex min-w-0 shrink items-center gap-1.5"
           title={handle(@object)}
         >
-          <#Icon iconify="ph:globe-hemisphere-west" class="size-3.5 shrink-0" />
+          <span aria-hidden="true">·</span>
           <span class="truncate">{instance_host(@object)}</span>
         </span>
-        <div
-          :if={e(@preview, :topics, []) != []}
-          class="flex min-w-0 items-center gap-3"
-          aria-label={l("Topics")}
-        >
-          {#for topic <- Enum.take(e(@preview, :topics, []), 2)}
-            {!-- small to look at, 44px to tap: the padding grows the target, the negative margin keeps the line where it was --}
+        {#for topic <- Enum.take(e(@preview, :topics, []), 2)}
+          {!-- small to look at, 44px to tap: the padding grows the target, the negative margin keeps the line where it was --}
+          <span :if={topic_name(topic)} class="inline-flex min-w-0 items-center gap-1.5">
+            <span aria-hidden="true">·</span>
             <LinkLive
-              :if={topic_name(topic)}
               to={path(topic)}
-              class="relative z-10 -my-3 inline-flex min-w-0 items-center gap-0.5 py-3 text-primary underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2"
-            >
-              <#Icon iconify="ph:hash" class="size-3.5 shrink-0" />
-              <span class="truncate">{topic_name(topic)}</span>
-            </LinkLive>
-          {/for}
-        </div>
+              class="relative z-10 -my-3 truncate py-3 hover:text-base-content hover:underline underline-offset-2 focus-visible:outline focus-visible:outline-2"
+            >#{topic_name(topic)}</LinkLive>
+          </span>
+        {/for}
       </div>
+
+      {!-- a div, not a p: the summary is rich text with its own paragraphs, and a p inside a p makes the browser close the outer one, so the clamp lost hold of it --}
+      <div
+        :if={e(@object, :profile, :summary, "") != ""}
+        class="mt-1 line-clamp-2 max-w-prose text-sm leading-5 text-muted"
+      >{rich(e(@object, :profile, :summary, ""))}</div>
+    </div>
+
+    {!-- the joining policy is the action: Join, Request to join, or nothing to press for an invite-only group. On a phone it sits under the text, so "Request to join" doesn't squeeze the name --}
+    <div
+      class="relative z-10 col-start-2 mt-3 justify-self-start sm:col-start-3 sm:row-start-1 sm:mt-0 sm:self-center"
+      data-role="group-card-action"
+    >
+      {#if e(@preview, :membership, nil) == "invite_only" and not e(@preview, :joined?, false)}
+        <span class="inline-flex h-8 items-center text-[0.8125rem] text-subtle">{l("Invite only")}</span>
+      {#else}
+        <StatefulComponent
+          id={"join_btn_#{id(@object)}"}
+          module={maybe_component(Bonfire.Classify.Web.JoinButtonLive, @__context__)}
+          object_id={id(@object)}
+          object={@object}
+          object_name={name(@object)}
+          membership={e(@preview, :membership, nil)}
+          my_membership={if e(@preview, :joined?, false), do: true}
+          path={@permalink}
+          showing_within={:list}
+          combined
+          hide_follow
+          class="btn btn-sm h-8 min-h-8 rounded-full border-0 bg-fill px-3.5 font-medium text-base-content shadow-none hover:bg-fill-strong"
+          class_joined="btn btn-sm btn-ghost h-8 min-h-8 rounded-full px-3 font-medium text-subtle shadow-none max-sm:-ml-3"
+        />
+      {/if}
     </div>
   </article>
 {#elseif @showing_within == :compact}

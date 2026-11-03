@@ -6,10 +6,11 @@
       mode={:single}
       form_input_name={field_name(@role)}
       field={:"add_#{@role}"}
-      show_search
       debounce={300}
       event_target={@myself}
       label={search_label(@role)}
+      text_input_class="input w-full liveselect border-base-content/20 bg-base-200 text-base"
     />
+    {!-- no `show_search`: its icon dispatches to the composer's form; styled like the card's "Search members…" field --}
   </div>
 </form>

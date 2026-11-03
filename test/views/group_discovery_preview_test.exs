@@ -12,7 +12,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
 
     conn(user: context.me, account: context.account)
     |> visit("/groups")
-    |> assert_has("#{card} [data-role=group-card-membership-policy]", text: "On request")
+    |> assert_has("#join_btn_#{id(group)}", text: "Request to join")
     |> click_link("#group-preview-link-#{id(group)}", "Preview readers")
     |> assert_has("[data-role=group-widget-visibility]", text: "Discoverable group preview")
     |> assert_has("[data-role=group-hero-membership]", text: "On request")
@@ -31,7 +31,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     %{account: account, me: me}
   end
 
-  test "discovery cards show topics and membership without conversation previews or actions", %{
+  test "discovery rows show topics and membership without conversation previews", %{
     account: account,
     me: me
   } do
@@ -44,13 +44,10 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> visit("/groups")
     |> assert_has("[data-two-columns]")
     |> refute_has("#widgets-drawer")
-    |> assert_has("#group-discovery-hero", text: "Find your community")
-    |> assert_has("#{card} [data-role=group-card-cover]")
     |> assert_has(card, text: "Accessible systems guild")
     |> assert_has(card, text: "Accessibility")
     |> assert_has(card, text: "1 member")
-    |> assert_has("#group-membership-#{id(group)}", text: "Joined")
-    |> refute_has("#{card} button")
+    |> assert_has("#{card} #join_btn_#{id(group)}", text: "Joined")
     |> refute_has(card, text: "What belongs in a shared design token?")
     |> refute_has(card, text: "Recent conversation")
     |> refute_has(card, text: "No topics yet")
@@ -112,9 +109,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_has(card, text: "Joined makers")
     |> assert_has(card, text: "Craft")
     |> assert_has(card, text: "1 member")
-    |> assert_has("#{card} [data-role=group-card-cover]")
-    |> assert_has("#{card} #group-membership-#{id(group)}", text: "Joined")
-    |> refute_has("#{card} button")
+    |> assert_has("#{card} #join_btn_#{id(group)}", text: "Joined")
     |> click_link("#group-preview-link-#{id(group)}", "Joined makers")
     |> assert_path("/group/#{group.character.username}")
   end
@@ -133,7 +128,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
 
     conn(user: context.me, account: context.account)
     |> visit("/groups?tab=joined")
-    |> assert_has("#group-membership-#{id(member_group)}", text: "Joined")
+    |> assert_has("#join_btn_#{id(member_group)}", text: "Joined")
     |> refute_has("#group-preview-#{id(followed_group)}")
   end
 
@@ -158,9 +153,8 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> refute_has("#group-preview-#{id(followed_only)}")
     |> click_button("#load_more_joined", "Load more")
     |> assert_has("#group-joined-grid article", count: 3)
-    |> assert_has("#group-membership-#{id(oldest)}", text: "Joined")
+    |> assert_has("#join_btn_#{id(oldest)}", text: "Joined")
     |> assert_has("#group-preview-#{id(oldest)}", text: "1 member")
-    |> refute_has("#group-joined-grid article button")
   end
 
   test "empty policy results explain the filter and can be cleared", %{account: account, me: me} do
@@ -204,19 +198,22 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_has("#group-preview-#{id(group)}")
   end
 
-  test "nonmember cards omit redundant status and keep the joining policy", %{
+  test "nonmember rows offer the join action their joining policy allows", %{
     account: account,
     me: me
   } do
     owner = fake_user!(fake_account!())
     group = create_group(owner, "Reading circle", "local:members")
+    invite_only = create_group(owner, "Closed circle", "invite_only")
     card = "#group-preview-#{id(group)}"
+    invite_card = "#group-preview-#{id(invite_only)}"
 
     conn(user: me, account: account)
     |> visit("/groups")
-    |> refute_has("#group-membership-#{id(group)}")
-    |> assert_has("#{card} [data-role=group-card-membership-policy]")
-    |> refute_has("#{card} button")
+    |> assert_has("#{card} #join_btn_#{id(group)}", text: "Join")
+    |> refute_has("#{card} #join_btn_#{id(group)}", text: "Joined")
+    |> assert_has("#{invite_card} [data-role=group-card-action]", text: "Invite only")
+    |> refute_has("#{invite_card} button")
   end
 
   test "search can be submitted through URL parameters", %{account: account, me: me} do

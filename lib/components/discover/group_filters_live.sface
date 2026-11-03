@@ -5,58 +5,58 @@
   method="get"
   phx-change="filter_groups"
   phx-submit="filter_groups"
-  class="flex flex-col gap-3 border-b-hair border-divider px-4 pb-4 pt-4 sm:px-6"
+  class="flex flex-col gap-4 px-4 pt-4 sm:px-6"
 >
-  <label for="group-discovery-search" class="sr-only">{l("Search groups")}</label>
-  <div class="input h-11 w-full gap-1 rounded-field border-hair border-divider bg-fill pl-1 transition-colors focus-within:border-base-content/30 focus-within:bg-base-100 focus-within:outline-none">
-    <button
-      id="group-discovery-submit"
-      type="submit"
-      class="grid size-9 shrink-0 place-items-center rounded-field text-subtle hover:text-base-content focus-visible:outline focus-visible:outline-2"
-      aria-label={l("Search groups")}
-    >
-      <#Icon iconify="ph:magnifying-glass" class="size-4.5" />
-    </button>
-    <input
-      id="group-discovery-search"
-      type="search"
-      name={@form[:search_term].name}
-      value={@form[:search_term].value}
-      placeholder={l("Search groups…")}
-      phx-debounce="300"
-      autocomplete="off"
-      class="min-w-0 grow bg-transparent text-base sm:text-sm"
-    />
+  {!-- a guest only has one view, so there is nothing to switch between --}
+  <div
+    :if={current_user_id(@__context__)}
+    id="group-view-filter"
+    role="radiogroup"
+    aria-label={l("Group view")}
+    class="flex gap-6 border-b-hair border-divider"
+  >
+    {#for {value, label} <- views()}
+      <label
+        for={"group-view-#{value}"}
+        class="-mb-px flex min-h-11 cursor-pointer items-center border-b-2 border-transparent text-sm font-medium text-subtle transition-colors hover:text-base-content has-[:checked]:border-base-content has-[:checked]:text-base-content has-[:focus-visible]:outline has-[:focus-visible]:outline-2"
+      >
+        <input
+          id={"group-view-#{value}"}
+          type="radio"
+          name={@form[:tab].name}
+          value={value}
+          checked={@selected_tab == value}
+          class="sr-only"
+        />
+        {label}
+      </label>
+    {/for}
   </div>
 
   <div class="flex flex-wrap items-center gap-2">
-    {!-- a guest only has one view, so there is nothing to switch between --}
-    <div
-      :if={current_user_id(@__context__)}
-      id="group-view-filter"
-      role="radiogroup"
-      aria-label={l("Group view")}
-      class="inline-flex rounded-field bg-fill p-0.5"
-    >
-      {#for {value, label} <- views()}
-        <label
-          for={"group-view-#{value}"}
-          class="flex min-h-8 cursor-pointer items-center rounded-[calc(var(--radius-field)-0.125rem)] px-3 text-sm text-muted transition-colors hover:text-base-content has-[:checked]:bg-base-100 has-[:checked]:text-base-content has-[:checked]:shadow-xs has-[:focus-visible]:outline has-[:focus-visible]:outline-2"
-        >
-          <input
-            id={"group-view-#{value}"}
-            type="radio"
-            name={@form[:tab].name}
-            value={value}
-            checked={@selected_tab == value}
-            class="sr-only"
-          />
-          {label}
-        </label>
-      {/for}
+    <label for="group-discovery-search" class="sr-only">{l("Search groups")}</label>
+    <div class="input h-10 min-w-0 flex-1 basis-full gap-1 rounded-field border-0 bg-fill pl-1 transition-colors focus-within:bg-fill-strong focus-within:outline-none sm:basis-auto">
+      <button
+        id="group-discovery-submit"
+        type="submit"
+        class="grid size-9 shrink-0 place-items-center rounded-field text-subtle hover:text-base-content focus-visible:outline focus-visible:outline-2"
+        aria-label={l("Search groups")}
+      >
+        <#Icon iconify="ph:magnifying-glass" class="size-4.5" />
+      </button>
+      <input
+        id="group-discovery-search"
+        type="search"
+        name={@form[:search_term].name}
+        value={@form[:search_term].value}
+        placeholder={l("Search groups…")}
+        phx-debounce="300"
+        autocomplete="off"
+        class="min-w-0 grow bg-transparent text-base sm:text-sm"
+      />
     </div>
 
-    <div class="ml-auto flex items-center gap-2">
+    <div class="flex items-center gap-1">
       {#for {field, id, icon, options, value, legend} <- [
           {:origin, "group-origin-filters", "ph:globe-hemisphere-west", origins(), @origin,
            l("Filter by where groups are hosted")},
@@ -71,9 +71,9 @@
           label={legend}
           panel_class="!w-56"
           trigger_class={
-            "btn btn-sm h-8 min-h-8 gap-1.5 rounded-field border-hair px-2.5 font-normal shadow-none",
-            "btn-ghost border-divider text-muted hover:text-base-content": value == "all",
-            "border-base-content/25 bg-fill text-base-content": value != "all"
+            "btn btn-sm h-10 min-h-10 gap-1.5 rounded-field border-0 px-3 font-normal shadow-none",
+            "btn-ghost text-muted hover:text-base-content": value == "all",
+            "bg-fill text-base-content": value != "all"
           }
         >
           <:trigger>
