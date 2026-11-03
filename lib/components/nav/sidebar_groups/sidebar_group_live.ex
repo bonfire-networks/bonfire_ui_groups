@@ -56,16 +56,13 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
     |> assign(:expanded?, active? or active_topic?)
     |> assign(:row_id, row_id)
     |> assign(:show_bell?, show_bell?)
-    |> assign(:trigger_opts, if(show_bell?, do: load_bell_once(row_id), else: []))
+    |> assign(
+      :trigger_opts,
+      if(show_bell?,
+        do: Bonfire.UI.Common.DropdownLive.load_on_first_open("#{row_id}-menu", "#{row_id}-bell"),
+        else: []
+      )
+    )
     |> render_sface()
-  end
-
-  # the bell only needs asking once, so the trigger drops its own `phx-click` after the first open (LiveView keeps that removal across server patches)
-  defp load_bell_once(row_id) do
-    [
-      "phx-click":
-        JS.push("load", target: "##{row_id}-bell")
-        |> JS.remove_attribute("phx-click", to: "##{row_id}-menu_trigger")
-    ]
   end
 end

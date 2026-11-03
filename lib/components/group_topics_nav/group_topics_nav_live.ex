@@ -34,11 +34,12 @@ defmodule Bonfire.UI.Groups.GroupTopicsNavLive do
   def menu_trigger_opts(topic_id) do
     [
       "aria-current": "page",
-      "data-role": "group-topic-current",
-      "phx-click":
-        JS.push("load", target: "#group_topic_bell_#{topic_id}")
-        |> JS.remove_attribute("phx-click", to: "#group-topic-menu-#{topic_id}_trigger")
-    ]
+      "data-role": "group-topic-current"
+    ] ++
+      Bonfire.UI.Common.DropdownLive.load_on_first_open(
+        "group-topic-menu-#{topic_id}",
+        "group_topic_bell_#{topic_id}"
+      )
   end
 
   @doc """
