@@ -3,6 +3,22 @@
     {#case maybe_module(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
       {#match nil}
       {#match component}
+        {#case @group_lookup}
+          {#match %{status: :searching, q: q}}
+            <p data-role="group-lookup-status" role="status" class="mb-4 flex items-center gap-2 text-sm text-muted">
+              <span class="loading loading-spinner loading-xs" />
+              {l("Looking up %{address} on the fediverse…", address: q)}
+            </p>
+          {#match %{status: :not_group, q: q}}
+            <p data-role="group-lookup-status" role="status" class="mb-4 text-sm text-muted">
+              {l("%{address} isn't a group", address: q)}
+            </p>
+          {#match %{status: :not_found, q: q}}
+            <p data-role="group-lookup-status" role="status" class="mb-4 text-sm text-muted">
+              {l("No group found at %{address}", address: q)}
+            </p>
+          {#match _}
+        {/case}
         {#if @categories == []}
           <div
             id="group-discovery-empty"

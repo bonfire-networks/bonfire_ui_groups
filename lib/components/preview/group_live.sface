@@ -190,7 +190,7 @@
     </div>
   </div>
 {#else}
-  <article class="group">
+  <article class="group" data-role="group_preview">
     <div class="flex flex-col gap-card bg-base-100 p-card">
       <div class="flex items-start gap-card">
         {!-- Avatar --}
