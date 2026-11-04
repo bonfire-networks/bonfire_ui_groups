@@ -30,7 +30,7 @@
 </div> --}
 
 <div class="mb-4 ml-11 text-sm">
-  {e(@category, :profile, :summary, nil)}
+  {rich(e(@category, :profile, :summary, nil))}
 
   {#case maybe_module(Bonfire.UI.Topics.TopicsLive, @__context__)}
     {#match nil}

@@ -94,7 +94,8 @@
           phx-hook="Copy"
           id={@row_id <> "-copy-link"}
           data-role="sidebar_group_copy_link"
-          href={Bonfire.Common.URIs.based_url(@group_path)}
+          href={Bonfire.Common.URIs.canonical_url(@category) ||
+            Bonfire.Common.URIs.based_url(@group_path)}
           target="_top"
           class="flex items-center gap-3 w-full text-sm"
         >

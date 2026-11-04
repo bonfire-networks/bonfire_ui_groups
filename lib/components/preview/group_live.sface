@@ -134,7 +134,7 @@
     <p
       :if={e(@object, :profile, :summary, "") not in [nil, ""]}
       class="line-clamp-2 text-sm leading-5 text-muted"
-    >{e(@object, :profile, :summary, "")}</p>
+    >{Bonfire.Common.Text.markdown_to_text(e(@object, :profile, :summary, ""))}</p>
   </article>
 {#elseif @showing_within == :feed}
   <div class="group block rounded-box overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all">
@@ -167,7 +167,7 @@
           <div class="font-bold text-base text-base-content">
             {rich(name(@object))}
           </div>
-          <div :if={e(@object, :profile, :summary, "") != ""} class="text-sm text-muted line-clamp-2">{e(@object, :profile, :summary, "")}</div>
+          <div :if={e(@object, :profile, :summary, "") != ""} class="text-sm text-muted line-clamp-2">{Bonfire.Common.Text.markdown_to_text(e(@object, :profile, :summary, ""))}</div>
           {!-- Meta --}
           <div class="flex items-center gap-3 mt-1">
             <span class="flex items-center gap-1 text-xs text-subtle">
@@ -225,7 +225,7 @@
           <p
             :if={e(@object, :profile, :summary, "") != ""}
             class="text-base text-base-content line-clamp-4"
-          >{e(@object, :profile, :summary, "")}</p>
+          >{Bonfire.Common.Text.markdown_to_text(e(@object, :profile, :summary, ""))}</p>
 
           {!-- Meta line: governance chip + members count --}
         </div>

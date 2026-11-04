@@ -8,7 +8,7 @@
       <div class="first-letter:capitalize flex-1 text-base font-medium text-base-content">{l("Group details")}</div>
 
       <div class="max-w-full mt-3 prose prose-sm">
-        {e(@category, :profile, :summary, nil)}
+        {rich(e(@category, :profile, :summary, nil))}
       </div>
 
       <div class="flex items-center gap-4 mt-5">

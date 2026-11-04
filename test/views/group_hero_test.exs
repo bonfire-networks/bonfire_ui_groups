@@ -77,6 +77,36 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       |> assert_has("#{@hero} [data-role=group-address]", text: "@#{host}")
     end
 
+    test "Copy link copies the group's ActivityPub id", %{group: group} do
+      ap_id = Bonfire.Common.URIs.canonical_url(group, preload_if_needed: true)
+      # the positive first: a local group's id is its actor URL here, not its page
+      assert ap_id =~ Bonfire.Common.URIs.base_url() <> "/pub/"
+      # the ⋯ menu is for someone signed in
+      {_user, conn} = signed_in()
+
+      conn
+      |> visit(group_path(group))
+      |> assert_has("#{@hero} #group-hero-copy-url-#{group.id}[href='#{ap_id}']")
+    end
+
+    test "Copy link on a group mirrored from elsewhere copies its id there", %{creator: creator} do
+      mirrored = Simulate.fake_group!(creator, %{name: "Mirrored", visibility: "global"})
+
+      assert {:ok, _} =
+               Bonfire.Federate.ActivityPub.Peered.save_canonical_uri(
+                 mirrored,
+                 "https://elsewhere.local/c/mirrored"
+               )
+
+      {_user, conn} = signed_in()
+
+      conn
+      |> visit("/group/#{mirrored.id}")
+      |> assert_has(
+        "#{@hero} #group-hero-copy-url-#{mirrored.id}[href='https://elsewhere.local/c/mirrored']"
+      )
+    end
+
     # the same tile as the sidebar's, so a group looks the same in both
     test "a group without an avatar shows its initial", %{group: group} do
       conn()

@@ -57,6 +57,35 @@ defmodule Bonfire.UI.Groups.GroupTopicChipsTest do
       )
     end
 
+    test "the selected topic's Copy link copies its ActivityPub id",
+         %{account: account, creator: creator, group: group} do
+      topic = Simulate.fake_category!(creator, group, %{name: "Seed swap", type: :topic})
+      ap_id = Bonfire.Common.URIs.canonical_url(topic, preload_if_needed: true)
+      # the positive first: a topic's id is its actor URL here, not its page
+      assert ap_id =~ Bonfire.Common.URIs.base_url() <> "/pub/"
+
+      conn(user: creator, account: account)
+      |> visit(Bonfire.Classify.Web.GroupNavigation.topic_path(group, topic))
+      |> assert_has("#{@row} #group-topic-copy-url-#{id(topic)}[href='#{ap_id}']")
+    end
+
+    test "a topic mirrored from elsewhere copies its id there",
+         %{account: account, creator: creator, group: group} do
+      topic = Simulate.fake_category!(creator, group, %{name: "Seed swap", type: :topic})
+
+      assert {:ok, _} =
+               Bonfire.Federate.ActivityPub.Peered.save_canonical_uri(
+                 topic,
+                 "https://elsewhere.local/c/seed_swap"
+               )
+
+      conn(user: creator, account: account)
+      |> visit(Bonfire.Classify.Web.GroupNavigation.topic_path(group, topic))
+      |> assert_has(
+        "#{@row} #group-topic-copy-url-#{id(topic)}[href='https://elsewhere.local/c/seed_swap']"
+      )
+    end
+
     test "New topic opens the topic form and creates a topic in the group", %{
       account: account,
       creator: creator,

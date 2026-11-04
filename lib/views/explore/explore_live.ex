@@ -36,6 +36,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
          categories: categories,
          group_previews: group_previews,
          search_term: "",
+         group_lookup: nil,
          join_filter: "all",
          origin: "all",
          page_info: page_info,
@@ -177,12 +178,93 @@ defmodule Bonfire.UI.Groups.ExploreLive do
         socket.assigns.group_previews
       )
 
+    socket = maybe_look_up_group(socket, search_term)
+
     {:noreply,
-     assign(socket,
-       categories: categories,
-       search_term: search_term,
-       join_filter: join_filter
-     )}
+     socket
+     |> assign(search_term: search_term, join_filter: join_filter)
+     |> assign_with_looked_up_group(categories)}
+  end
+
+  # A handle or URL typed on Discover is also looked up on the fediverse, as the main search does, in the background so typing doesn't wait for a remote server. The same query isn't looked up again when only the other filters change.
+  defp maybe_look_up_group(socket, search_term) do
+    cond do
+      socket.assigns.selected_tab != "discover" or
+          not Bonfire.Common.URIs.handle_or_url?(search_term) ->
+        assign(socket, group_lookup: nil)
+
+      e(socket.assigns, :group_lookup, :q, nil) == search_term ->
+        socket
+
+      socket_connected?(socket) ->
+        current_user = current_user(socket)
+
+        socket
+        |> assign(group_lookup: %{q: search_term, status: :searching})
+        |> start_async(:group_lookup, fn -> look_up_group(search_term, current_user) end)
+
+      true ->
+        assign(socket, group_lookup: nil)
+    end
+  end
+
+  # The lookup returns whatever the handle or URL names, so anything but a group is reported as such. A group is then loaded as the list loads its groups, boundary-checked for `current_user`, so it gets the same card and preview data. Federation is an optional extension, so without it the lookup finds nothing rather than breaking the page.
+  defp look_up_group(q, current_user) do
+    with {:ok, found} <-
+           maybe_apply(
+             Bonfire.Federate.ActivityPub.AdapterUtils,
+             :get_by_url_ap_id_or_username,
+             [q, [user_id: id(current_user)]],
+             fallback_return: nil
+           ),
+         {:group, %Bonfire.Classify.Category{type: :group} = found} <- {:group, found},
+         {:ok, group} <-
+           Categories.one([:default, preload: :follow_count, id: id(found)],
+             current_user: current_user
+           ) do
+      {categories, previews} = hydrate_group_previews([group], current_user)
+      %{q: q, status: :found, categories: categories, previews: previews}
+    else
+      {:group, _not_a_group} -> %{q: q, status: :not_group}
+      _ -> %{q: q, status: :not_found}
+    end
+  end
+
+  # A query typed since then that isn't looked up doesn't start a new lookup, so its result is dropped here rather than by LiveView
+  def handle_async(:group_lookup, {:ok, %{q: q} = lookup}, socket) do
+    if e(socket.assigns, :group_lookup, :q, nil) == q do
+      {:noreply,
+       socket
+       |> assign(group_lookup: lookup)
+       |> assign_with_looked_up_group(socket.assigns.categories)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_async(:group_lookup, {:exit, reason}, socket) do
+    warn(reason, "Group lookup failed")
+
+    case socket.assigns.group_lookup do
+      %{q: q} -> {:noreply, assign(socket, group_lookup: %{q: q, status: :not_found})}
+      _ -> {:noreply, socket}
+    end
+  end
+
+  # A group found by its handle or URL goes at the top of the list, once, whatever the other filters say, since its address was typed
+  defp assign_with_looked_up_group(socket, categories) do
+    case socket.assigns.group_lookup do
+      %{status: :found, categories: found, previews: previews} ->
+        found_ids = Enum.map(found, fn {group, _} -> id(group) end)
+
+        assign(socket,
+          categories: found ++ Enum.reject(categories, fn {group, _} -> id(group) in found_ids end),
+          group_previews: Map.merge(socket.assigns.group_previews, previews)
+        )
+
+      _ ->
+        assign(socket, categories: categories)
+    end
   end
 
   defp filter_categories(categories, search_term, join_filter, origin, previews) do

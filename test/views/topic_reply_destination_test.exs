@@ -71,8 +71,20 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
       |> open_reply(context.post, :feed)
       |> PhoenixTest.unwrap(fn view ->
         composer = composer_view(view)
-        composer |> element("[data-reply-audience=reply_moderators]") |> render_click()
-        assert has_element?(composer, "input[name='to_boundaries[]'][value=reply_moderators]")
+        # the group federates, so its replies aren't offered narrowing to its members or moderators, and the server refuses it when asked
+        # composer |> element("[data-reply-audience=reply_moderators]") |> render_click()
+        # assert has_element?(composer, "input[name='to_boundaries[]'][value=reply_moderators]")
+        assert has_element?(composer, "[data-reply-audience=clone_context]")
+
+        for audience <- ["reply_moderators", "reply_members"] do
+          refute has_element?(composer, "[data-reply-audience=#{audience}]")
+
+          render_click(composer, "Bonfire.UI.Common.SmartInput:select_reply_audience", %{
+            "id" => audience
+          })
+
+          refute has_element?(composer, "input[name='to_boundaries[]'][value=#{audience}]")
+        end
 
         # a forged, broader choice is rejected by the server
         render_click(composer, "Bonfire.UI.Common.SmartInput:select_reply_audience", %{

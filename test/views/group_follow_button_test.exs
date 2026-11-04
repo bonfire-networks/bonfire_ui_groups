@@ -177,4 +177,38 @@ defmodule Bonfire.UI.Groups.GroupFollowButtonTest do
       assert Follows.following?(creator, group), "the click followed the group"
     end
   end
+
+  # an open group hosted elsewhere (Mbin, Lemmy) admits at once, while the Follow sent alongside waits for its answer
+  test "Join on an open group hosted elsewhere shows us as a member, while the follow waits",
+       context do
+    account = fake_account!()
+    joiner = fake_user!(account)
+
+    mirrored =
+      Bonfire.Classify.Simulate.fake_group!(context.member, %{
+        name: "Open elsewhere",
+        membership: "open",
+        visibility: "global",
+        participation: "anyone",
+        default_content_visibility: "public"
+      })
+
+    assert {:ok, _} =
+             Bonfire.Federate.ActivityPub.Peered.save_canonical_uri(
+               mirrored,
+               "https://elsewhere.local/m/open"
+             )
+
+    conn(user: joiner, account: account)
+    |> visit(Bonfire.Common.URIs.path(mirrored))
+    |> wait_async()
+    |> click_button("#join_btn_#{mirrored.id}", "Join")
+    |> assert_has("[data-id=group_hero][data-variant=member]")
+
+    # the follow waiting must not stop the header showing the membership
+    assert Categories.member?(joiner, mirrored)
+
+    assert Bonfire.Social.Requests.requested?(joiner, Bonfire.Data.Social.Follow, mirrored),
+           "control: the follow of a group hosted elsewhere waits for its answer"
+  end
 end

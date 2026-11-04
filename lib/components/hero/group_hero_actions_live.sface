@@ -85,7 +85,7 @@
         <a
           phx-hook="Copy"
           id={"group-hero-copy-url-#{id(@group)}"}
-          href={@permalink}
+          href={Bonfire.Common.URIs.canonical_url(@group) || @permalink}
           target="_top"
           class="flex items-center gap-3 text-sm"
         >

@@ -236,6 +236,8 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
       })
 
       assert has_element?(composer, "#smart_input_post_title:not(.hidden) #composer_post_title")
+      # outside a group the title stays optional
+      assert has_element?(composer, "#composer_post_title[placeholder=Optional]")
       assert has_element?(composer, "#smart_input_summary.hidden")
 
       composer |> element("#summary_btn") |> render_click()

@@ -82,6 +82,35 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
     assert Floki.attribute(unpin, "phx-value-scope") == ["sidebar"]
   end
 
+  test "a group mirrored from elsewhere, as the sidebar loads it, copies its id there", %{
+    user: user
+  } do
+    mirrored = Bonfire.Classify.Simulate.fake_group!(user, %{visibility: "global"})
+
+    assert {:ok, _} =
+             Bonfire.Federate.ActivityPub.Peered.save_canonical_uri(
+               mirrored,
+               "https://elsewhere.local/c/mirrored"
+             )
+
+    {:ok, _} = Bonfire.Social.Pins.pin(user, mirrored, nil, to_feeds: [])
+
+    # as the sidebar has it, so the link reads only what that load brings
+    assert [{loaded, _topics}] =
+             Bonfire.Classify.my_pinned_tree(user) |> Enum.filter(&(id(elem(&1, 0)) == mirrored.id))
+
+    document =
+      render_component(&SidebarGroupLive.render/1,
+        category: loaded,
+        parent_id: "sidebar",
+        current_path: "/feed"
+      )
+      |> Floki.parse_document!()
+
+    assert Floki.find(document, "[data-role=sidebar_group_copy_link]")
+           |> Floki.attribute("href") == ["https://elsewhere.local/c/mirrored"]
+  end
+
   test "row menu offers copying the group link, and joining to a non-member", %{group: group} do
     document =
       render_component(&SidebarGroupLive.render/1,
@@ -94,9 +123,10 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
 
     copy = Floki.find(document, "[data-role=sidebar_group_copy_link]")
     assert Floki.attribute(copy, "phx-hook") == ["Copy"]
-    assert [href] = Floki.attribute(copy, "href")
-    assert String.starts_with?(href, "http")
-    assert String.ends_with?(href, Bonfire.Common.URIs.path(group))
+    # the group's ActivityPub id, which opens its page in a browser
+    assert Floki.attribute(copy, "href") == [
+             Bonfire.Common.URIs.canonical_url(group, preload_if_needed: true)
+           ]
 
     join = Floki.find(document, "[data-role=sidebar_group_join]")
     assert Floki.attribute(join, "phx-click") == ["Bonfire.UI.Groups:join_group"]

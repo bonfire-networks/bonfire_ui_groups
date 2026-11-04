@@ -32,7 +32,7 @@
             :if={e(@category, :profile, :summary, nil)}
             class="mt-0.5 line-clamp-2 break-words text-sm text-muted"
           >
-            {e(@category, :profile, :summary, nil)}
+            {Bonfire.Common.Text.markdown_to_text(e(@category, :profile, :summary, nil))}
           </p>
         </div>
         <Bonfire.UI.Common.OpenModalLive

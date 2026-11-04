@@ -34,7 +34,10 @@
             <:trigger>
               <span class="opacity-70" aria-hidden="true">#</span>
               <span class="max-w-[14rem] truncate">{topic_name(topic)}</span>
-              <#Icon iconify="carbon:chevron-down" class="size-3 shrink-0 opacity-70" />
+              {!-- full strength and set off by a divider, so the chip reads as a menu: it is the only way to the topic's follow, bell and settings --}
+              <span class="ml-0.5 border-l border-base-100/30 pl-1 flex items-center">
+                <#Icon iconify="carbon:chevron-down" class="size-4 shrink-0" />
+              </span>
             </:trigger>
             <li :if={not is_nil(e(@selected_topic, :character, nil)) and current_user_id(@__context__)}>
               <StatefulComponent
@@ -70,7 +73,8 @@
               <a
                 phx-hook="Copy"
                 id={"group-topic-copy-url-#{id(topic)}"}
-                href={Bonfire.Classify.Web.GroupNavigation.topic_path(@group, topic)}
+                href={Bonfire.Common.URIs.canonical_url(topic) ||
+                  Bonfire.Classify.Web.GroupNavigation.topic_path(@group, topic)}
                 target="_top"
                 class="flex items-center gap-3 text-sm"
               >

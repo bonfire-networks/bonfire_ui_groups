@@ -50,12 +50,16 @@
       id_prefix="group-hero-address"
       class="mt-0.5 block text-sm text-muted"
     />
-    <div
-      :if={e(@group, :profile, :summary, nil)}
-      class="mt-2.5 prose !text-[0.9375rem] max-w-none [&>p:first-child]:mt-0 [&>p:last-child]:mb-0"
-    >
-      {rich(e(@group, :profile, :summary, nil))}
-    </div>
+    {!-- a long description is clamped, with Read more: the About page shows it whole --}
+    {#case e(@group, :profile, :summary, nil)}
+      {#match nil}
+      {#match summary}
+        <Bonfire.UI.Common.TruncatableLive
+          id={"group-hero-summary-#{id(@group)}"}
+          html={rich(summary)}
+          class="mt-2.5 prose !text-[0.9375rem] max-w-none [&>p:first-child]:mt-0 [&>p:last-child]:mb-0"
+        />
+    {/case}
 
     <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
       <div data-role="group-hero-info" class="min-w-0 flex-1 text-sm text-muted">

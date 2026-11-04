@@ -56,7 +56,7 @@
                 <p
                   :if={e(category, :profile, :summary, "") != ""}
                   class="line-clamp-2 text-sm leading-relaxed text-muted"
-                >{e(category, :profile, :summary, "")}</p>
+                >{Bonfire.Common.Text.markdown_to_text(e(category, :profile, :summary, ""))}</p>
 
                 <div class="mt-0.5 flex items-center gap-1.5 text-xs">
                   <span class="inline-flex items-center gap-1 rounded-full bg-base-content/[0.06] px-2 py-0.5 font-medium text-muted">
@@ -88,6 +88,7 @@
       previews={@group_previews}
       page_info={@page_info}
       search_term={@search_term}
+      group_lookup={@group_lookup}
       join_filter={@join_filter}
       origin={@origin}
     />
