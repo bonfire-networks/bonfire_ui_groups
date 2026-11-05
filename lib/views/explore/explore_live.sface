@@ -1,12 +1,28 @@
 <div class="flex flex-col">
   <Bonfire.UI.Groups.GroupFiltersLive
+    view={@view}
     selected_tab={@selected_tab}
     search_term={@search_term}
     join_filter={@join_filter}
     origin={@origin}
+    index_search={not is_nil(@index_search)}
+    search_index={@search_index}
   />
 
-  {#if @selected_tab == "archived"}
+  {#if @view in [:feed, :feed_all]}
+    {!-- the feed of the chosen groups, with the feed's own controls to narrow its posts --}
+    <StatefulComponent
+      module={maybe_component(Bonfire.UI.Social.FeedLive, @__context__)}
+      id={@feed_component_id}
+      feed_name={@feed_name}
+      feed_filters={@feed_filters}
+      feed={nil}
+      loading
+      page_title={@page_title}
+      showing_within={:feed}
+      custom_actions={Bonfire.UI.Social.Activity.DiscussionPreviewActionsLive}
+    />
+  {#elseif @selected_tab == "archived"}
     <div class="bonfire-wrapper !p-0">
       {#if @categories == []}
         <div class="flex flex-col items-center justify-center px-6 py-16 text-center">
@@ -20,7 +36,7 @@
           </p>
           <LinkLive
             :if={@search_term != "" or @join_filter != "all" or @origin != "all"}
-            to="/groups?tab=archived"
+            to="/groups/archived"
             class="btn btn-ghost mt-3"
           >{l("Clear filters")}</LinkLive>
           <p class="mt-1 max-w-sm text-sm text-muted">
@@ -43,7 +59,18 @@
                       <#Icon iconify="ph:users-three-duotone" class="size-6 text-subtle" />
                     </div>
                   {#match url}
-                    <img src={url} class="size-12 rounded-box object-cover grayscale-[40%]">
+                    {!-- blurred for a group marked sensitive, as a sensitive post's media is --}
+                    <span class="relative block size-12">
+                      <img
+                        src={url}
+                        class="size-12 rounded-box object-cover grayscale-[40%]"
+                        data-sensitive={Bonfire.Classify.Categories.sensitive?(category)}
+                      />
+                      <span
+                        :if={Bonfire.Classify.Categories.sensitive?(category)}
+                        class="absolute inset-0 backdrop-blur-sm bg-black/50 z-40 rounded-md"
+                      />
+                    </span>
                 {/case}
               </Bonfire.UI.Common.LinkLive>
 
@@ -86,7 +113,7 @@
       selected_tab={@selected_tab}
       categories={@categories}
       previews={@group_previews}
-      page_info={@page_info}
+      page_info={if @index_search, do: @index_search.page_info, else: @page_info}
       search_term={@search_term}
       group_lookup={@group_lookup}
       join_filter={@join_filter}

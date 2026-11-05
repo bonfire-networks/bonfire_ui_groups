@@ -12,15 +12,24 @@
           class="!size-11 !rounded-box !text-base"
         />
       {#match url}
-        <img
-          src={url}
-          alt=""
-          width="44"
-          height="44"
-          class="size-11 rounded-box bg-fill object-cover"
-          loading="lazy"
-          aria-hidden="true"
-        />
+        {!-- a group marked sensitive: its icon blurred, as a sensitive post's media is, until "Sensitive content" is pressed --}
+        <div class="relative size-11">
+          <img
+            src={url}
+            alt=""
+            width="44"
+            height="44"
+            class="size-11 rounded-box bg-fill object-cover"
+            loading="lazy"
+            aria-hidden="true"
+            data-sensitive={Categories.sensitive?(@object)}
+          />
+          <div
+            :if={Categories.sensitive?(@object)}
+            id={CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
+            class="absolute inset-0 backdrop-blur-sm bg-black/50 z-40 cursor-pointer rounded-md"
+          />
+        </div>
     {/case}
 
     <div class="flex min-w-0 flex-col gap-0.5">
@@ -31,6 +40,13 @@
       >{name(@object)}</LinkLive>
 
       <div class="flex min-w-0 items-center gap-1.5 text-[0.8125rem] leading-5 text-subtle">
+        <button
+          :if={Categories.sensitive?(@object)}
+          type="button"
+          data-role="sensitive_badge"
+          phx-click={CategoryLive.show_sensitive(@object, @showing_within)}
+          class="relative z-50 btn btn-primary btn-xs shrink-0 gap-1"
+        ><#Icon iconify="ph:warning-circle" class="size-3.5" />{l("Sensitive content")}</button>
         <span class="shrink-0 tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
         <span
           :if={remote?(@object) and instance_host(@object)}
@@ -54,9 +70,15 @@
       </div>
 
       {!-- a div, not a p: the summary is rich text with its own paragraphs, and a p inside a p makes the browser close the outer one, so the clamp lost hold of it --}
+      {!-- hidden for a group marked sensitive until "Sensitive content" is pressed; still indexed, so a word in it still finds the group --}
       <div
         :if={e(@object, :profile, :summary, "") != ""}
-        class="mt-1 line-clamp-2 max-w-prose text-sm leading-5 text-muted"
+        id={CategoryLive.sensitive_part_id("summary", @object, @showing_within)}
+        data-role="group-card-summary"
+        class={[
+          "mt-1 line-clamp-2 max-w-prose text-sm leading-5 text-muted",
+          hidden: Categories.sensitive?(@object)
+        ]}
       >{rich(e(@object, :profile, :summary, ""))}</div>
     </div>
 
@@ -109,6 +131,12 @@
               height="40"
               class="absolute inset-0 h-full w-full object-cover"
               loading="lazy"
+              data-sensitive={Categories.sensitive?(@object)}
+            />
+            <div
+              :if={Categories.sensitive?(@object)}
+              id={CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
+              class="absolute inset-0 backdrop-blur-sm bg-black/50 z-40 cursor-pointer rounded-md"
             />
         {/case}
       </div>
@@ -119,6 +147,13 @@
           class="block truncate text-base font-bold leading-6 text-base-content underline-offset-2 hover:underline"
         >{name(@object)}</LinkLive>
         <div class="flex min-w-0 flex-wrap items-center gap-x-2 text-xs leading-5 text-muted">
+          <button
+            :if={Categories.sensitive?(@object)}
+            type="button"
+            data-role="sensitive_badge"
+            phx-click={CategoryLive.show_sensitive(@object, @showing_within)}
+            class="btn btn-primary btn-xs gap-1"
+          ><#Icon iconify="ph:warning-circle" class="size-3.5" />{l("Sensitive content")}</button>
           <span class="tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
           {#case Bonfire.Boundaries.Presets.dimension_meta(:membership, e(@preview, :membership, nil))}
             {#match %{} = meta}
@@ -133,7 +168,9 @@
     </div>
     <p
       :if={e(@object, :profile, :summary, "") not in [nil, ""]}
-      class="line-clamp-2 text-sm leading-5 text-muted"
+      id={CategoryLive.sensitive_part_id("summary", @object, @showing_within)}
+      data-role="group-card-summary"
+      class={["line-clamp-2 text-sm leading-5 text-muted", hidden: Categories.sensitive?(@object)]}
     >{Bonfire.Common.Text.markdown_to_text(e(@object, :profile, :summary, ""))}</p>
   </article>
 {#elseif @showing_within == :feed}
@@ -144,9 +181,26 @@
         <div class="h-40 w-full bg-primary group-hover:scale-[1.02] transition-transform duration-300" />
       {#match banner}
         <div
-          class="h-40 w-full bg-center bg-cover bg-no-repeat bg-base-300 group-hover:scale-[1.02] transition-transform duration-300"
+          data-role="group-card-banner"
+          data-sensitive={Categories.sensitive?(@object)}
+          class="relative h-40 w-full bg-center bg-cover bg-no-repeat bg-base-300 group-hover:scale-[1.02] transition-transform duration-300"
           style={"background-image: url('#{URI.encode(banner)}')"}
-        />
+        >
+          {!-- a group marked sensitive: the banner blurred, as a sensitive post's media is --}
+          <div
+            :if={Categories.sensitive?(@object)}
+            id={CategoryLive.sensitive_part_id("banner", @object, @showing_within)}
+            class="absolute inset-0 flex items-center justify-center backdrop-blur-sm bg-black/50 z-40 cursor-pointer"
+          >
+            <button
+              type="button"
+              phx-click={CategoryLive.show_sensitive(@object, @showing_within)}
+              class="btn z-50 btn-primary btn-sm"
+            >
+              {l("Sensitive content")}
+            </button>
+          </div>
+        </div>
     {/case}
 
     <div class="flex items-start gap-3 p-4">
@@ -159,7 +213,16 @@
                 <#Icon iconify="ph:users-three-duotone" class="size-7 text-subtle" />
               </div>
             {#match url}
-              <img src={url} class="size-14 rounded-box ring-2 ring-base-100 object-cover">
+              <img
+                src={url}
+                class="size-14 rounded-box ring-2 ring-base-100 object-cover"
+                data-sensitive={Categories.sensitive?(@object)}
+              />
+              <div
+                :if={Categories.sensitive?(@object)}
+                id={CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
+                class="absolute inset-0 backdrop-blur-sm bg-black/50 z-40 cursor-pointer rounded-md"
+              />
           {/case}
         </div>
 
@@ -167,7 +230,17 @@
           <div class="font-bold text-base text-base-content">
             {rich(name(@object))}
           </div>
-          <div :if={e(@object, :profile, :summary, "") != ""} class="text-sm text-muted line-clamp-2">{Bonfire.Common.Text.markdown_to_text(e(@object, :profile, :summary, ""))}</div>
+          <span
+            :if={Categories.sensitive?(@object)}
+            data-role="sensitive_badge"
+            class="badge badge-warning badge-sm gap-1"
+          ><#Icon iconify="ph:warning-circle" class="size-3.5" />{l("Sensitive content")}</span>
+          <div
+            :if={e(@object, :profile, :summary, "") != ""}
+            id={CategoryLive.sensitive_part_id("summary", @object, @showing_within)}
+            data-role="group-card-summary"
+            class={["text-sm text-muted line-clamp-2", hidden: Categories.sensitive?(@object)]}
+          >{Bonfire.Common.Text.markdown_to_text(e(@object, :profile, :summary, ""))}</div>
           {!-- Meta --}
           <div class="flex items-center gap-3 mt-1">
             <span class="flex items-center gap-1 text-xs text-subtle">
@@ -204,7 +277,18 @@
                 />
               </div>
             {#match url}
-              <img src={url} class="size-28.75 rounded-box object-cover">
+              <span class="relative block">
+                <img
+                  src={url}
+                  class="size-28.75 rounded-box object-cover"
+                  data-sensitive={Categories.sensitive?(@object)}
+                />
+                <span
+                  :if={Categories.sensitive?(@object)}
+                  id={CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
+                  class="absolute inset-0 backdrop-blur-sm bg-black/50 z-40 cursor-pointer rounded-md"
+                />
+              </span>
           {/case}
         </LinkLive>
 
@@ -222,9 +306,18 @@
               />
             </div>
           </div>
+          <button
+            :if={Categories.sensitive?(@object)}
+            type="button"
+            data-role="sensitive_badge"
+            phx-click={CategoryLive.show_sensitive(@object, @showing_within)}
+            class="btn btn-primary btn-xs gap-1 self-start"
+          ><#Icon iconify="ph:warning-circle" class="size-3.5" />{l("Sensitive content")}</button>
           <p
             :if={e(@object, :profile, :summary, "") != ""}
-            class="text-base text-base-content line-clamp-4"
+            id={CategoryLive.sensitive_part_id("summary", @object, @showing_within)}
+            data-role="group-card-summary"
+            class={["text-base text-base-content line-clamp-4", hidden: Categories.sensitive?(@object)]}
           >{Bonfire.Common.Text.markdown_to_text(e(@object, :profile, :summary, ""))}</p>
 
           {!-- Meta line: governance chip + members count --}

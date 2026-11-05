@@ -239,7 +239,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       group = create_group(me, name: "Listed Group")
 
       conn = conn(user: me, account: account)
-      {:ok, _view, html} = live(conn, "/groups")
+      {:ok, _view, html} = live(conn, "/groups/discover")
 
       assert html =~ "Listed Group"
     end
@@ -338,7 +338,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       assert page_html =~ "instance_pin_toggle"
 
       # but the discover list rows do not carry it
-      {:ok, _view, list_html} = live(conn, "/groups")
+      {:ok, _view, list_html} = live(conn, "/groups/discover")
       refute list_html =~ "instance_pin_toggle"
     end
 
@@ -985,7 +985,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       {:ok, _} = Categories.soft_delete(group, me)
 
       conn = conn(user: me, account: account)
-      {:ok, _view, html} = live(conn, "/groups?tab=archived")
+      {:ok, _view, html} = live(conn, "/groups/archived")
 
       assert html =~ "Archived Directory Group"
     end
@@ -1079,7 +1079,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       {:ok, _} = Categories.join_and_follow_group(alice, group)
 
       conn = conn(user: alice, account: account)
-      {:ok, _view, html} = live(conn, "/groups?tab=joined")
+      {:ok, _view, html} = live(conn, "/groups/joined")
 
       assert html =~ "Joined Directory Group"
     end
@@ -1098,7 +1098,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
         )
 
       conn = conn(user: alice, account: account)
-      {:ok, _view, html} = live(conn, "/groups?tab=joined")
+      {:ok, _view, html} = live(conn, "/groups/joined")
 
       refute html =~ "Unjoined Discoverable Group"
 
@@ -1112,7 +1112,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       group = create_group(me, name: "Creator Joined Group")
 
       conn = conn(user: me, account: account)
-      {:ok, _view, html} = live(conn, "/groups?tab=joined")
+      {:ok, _view, html} = live(conn, "/groups/joined")
 
       assert html =~ "Creator Joined Group"
     end
@@ -1132,7 +1132,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       {:ok, _} = Bonfire.Social.Graph.Follows.follow(alice, topic)
 
       conn = conn(user: alice, account: account)
-      {:ok, _view, html} = live(conn, "/groups?tab=joined")
+      {:ok, _view, html} = live(conn, "/groups/joined")
 
       refute html =~ "Followed Topic"
       assert html =~ "joined any groups yet"
@@ -1153,7 +1153,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       for group <- groups, do: {:ok, _} = Categories.join_and_follow_group(alice, group)
 
       conn = conn(user: alice, account: account)
-      {:ok, view, html} = live(conn, "/groups?tab=joined")
+      {:ok, view, html} = live(conn, "/groups/joined")
 
       # first page shows 2 of 3, with a Load more button (id `load_more_joined`)
       assert html =~ "load_more_joined"

@@ -4,7 +4,8 @@
   <div
     :if={is_binary(@banner_url)}
     data-role="group-hero-banner"
-    class="aspect-[3/1] w-full overflow-hidden bg-base-200"
+    data-sensitive={@sensitive_notice}
+    class="relative aspect-[3/1] w-full overflow-hidden bg-base-200"
   >
     <Bonfire.UI.Common.LazyImage
       parent_id={"group-hero-banner-#{id(@group)}"}
@@ -13,6 +14,12 @@
       class="h-full w-full object-cover"
       refetch_key={"Bonfire.Federate.ActivityPub:refetch_profile:#{id(@group)}"}
       disable_lazy
+    />
+    {!-- blurred as a sensitive post's media is, until the notice's "Continue" --}
+    <div
+      :if={@sensitive_notice}
+      id={deterministic_dom_id("sensitive-content-backdrop", @group, "group_hero_banner")}
+      class="absolute inset-0 backdrop-blur-sm bg-black/50 z-40"
     />
   </div>
 
@@ -32,15 +39,22 @@
           class="!size-18 !rounded-box !text-3xl ring-4 ring-base-100"
         />
       {#else}
-        <Bonfire.UI.Common.AvatarLive
-          parent_id="group-hero"
-          wrapper_class="border-0 avatar !flex shrink-0"
-          title={e(@group, :profile, :name, nil)}
-          class="size-18 inline-block object-cover rounded-box ring-4 ring-base-100"
-          user_id={id(@group)}
-          fallback_class="size-18"
-          src={@avatar_url}
-        />
+        <div data-role="group-hero-avatar" data-sensitive={@sensitive_notice} class="relative">
+          <Bonfire.UI.Common.AvatarLive
+            parent_id="group-hero"
+            wrapper_class="border-0 avatar !flex shrink-0"
+            title={e(@group, :profile, :name, nil)}
+            class="size-18 inline-block object-cover rounded-box ring-4 ring-base-100"
+            user_id={id(@group)}
+            fallback_class="size-18"
+            src={@avatar_url}
+          />
+          <div
+            :if={@sensitive_notice}
+            id={deterministic_dom_id("sensitive-content-backdrop", @group, "group_hero_avatar")}
+            class="absolute inset-0 backdrop-blur-sm bg-black/50 z-40 rounded-box"
+          />
+        </div>
       {/if}
     </div>
     <h1 class="mt-3 text-2xl lg:text-[1.75rem] font-bold tracking-tight leading-tight text-balance">{e(@group, :profile, :name, l("Untitled group"))}</h1>

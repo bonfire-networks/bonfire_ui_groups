@@ -55,7 +55,7 @@
               <p class="mt-1 max-w-sm text-sm text-muted">{l("Groups from across the fediverse show up here once people on this instance discover them.")}</p>
             {#elseif @selected_tab == "joined"}
               <p class="text-base font-medium text-base-content">{l("You haven't joined any groups yet")}</p>
-              <p class="mt-1 max-w-sm text-sm text-muted">{l("Choose All groups to find a group to join.")}</p>
+              <p class="mt-1 max-w-sm text-sm text-muted">{l("Find a group to join.")}</p>
             {#else}
               <p class="text-base font-medium text-base-content">{l("No groups here yet")}</p>
               <p class="mt-1 max-w-sm text-sm text-muted">
@@ -65,7 +65,7 @@
             <LinkLive
               :if={@search_term != "" or @join_filter != "all" or @origin != "all"}
               opts={[id: "group-discovery-clear-filters"]}
-              to={"/groups?tab=#{@selected_tab}"}
+              to={if @selected_tab == "joined", do: "/groups/joined", else: "/groups/discover"}
               class="btn btn-sm btn-ghost mt-3"
             >{l("Clear filters")}</LinkLive>
           </div>

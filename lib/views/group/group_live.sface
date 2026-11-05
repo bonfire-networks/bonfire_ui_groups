@@ -67,6 +67,10 @@
           e(assigns, :view_mode, :full) == :preview ->
             Bonfire.UI.Groups.AccessGateLive
 
+          # a group or topic marked sensitive, until "Continue"
+          e(assigns, :sensitive_notice?, false) and not group_settings?(@type, @selected_tab) ->
+            Bonfire.UI.Groups.SensitiveNoticeLive
+
           @type == :topic ->
             Config.get([:ui, :topic, :sections], [])[tab(@selected_tab)] ||
               Bonfire.UI.Social.ProfileTimelineLive
@@ -110,6 +114,7 @@
                 selected_topic={if @type == :topic, do: @category}
                 can_create_topic={@can_create_topic}
                 can_edit_topic={@can_edit_topic}
+                sensitive_notice={e(assigns, :sensitive_notice?, false)}
               />
               {!-- inside a group the topic's chip carries its name and actions, so only a standalone topic gets its own header --}
               <StatelessComponent

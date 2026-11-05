@@ -1,21 +1,45 @@
 <.form
   for={@form}
   id="group-discovery-filters"
-  action="/groups"
+  action={Bonfire.UI.Groups.ExploreLive.view_path(@view)}
   method="get"
   phx-change="filter_groups"
   phx-submit="filter_groups"
   class="flex flex-col gap-4 px-4 pt-4 sm:px-6"
 >
-  {!-- a guest only has one view, so there is nothing to switch between --}
-  <div
-    :if={current_user_id(@__context__)}
-    id="group-view-filter"
-    role="radiogroup"
-    aria-label={l("Group view")}
-    class="flex gap-6 border-b-hair border-divider"
+  {!-- the list of the chosen groups, or their feed --}
+  <nav
+    :if={modes(@view, @origin) != []}
+    id="group-mode-switch"
+    aria-label={l("Groups or their latest updates")}
+    class="flex gap-1 self-start rounded-field bg-fill p-1"
   >
-    {#for {value, label} <- views()}
+    {#for {label, to, current?} <- modes(@view, @origin)}
+      <LinkPatchLive
+        to={to}
+        class={
+          "btn btn-sm h-8 min-h-8 rounded-field border-0 px-3 font-medium shadow-none",
+          "bg-base-100 text-base-content": current?,
+          "btn-ghost text-muted hover:text-base-content": !current?
+        }
+      >{label}</LinkPatchLive>
+    {/for}
+  </nav>
+
+  {!-- the view tabs; on the feed views, the origin menu sits at the end of their row, as there is no search row --}
+  <div
+    :if={current_user_id(@__context__) || feed_view?(@view)}
+    id="group-view-filter"
+    class="flex items-center gap-6 border-b-hair border-divider"
+  >
+    {!-- a guest only has one view, so there is nothing to switch between --}
+    <div
+      :if={current_user_id(@__context__)}
+      role="radiogroup"
+      aria-label={l("Group view")}
+      class="flex gap-6"
+    >
+      {#for {value, label} <- views(@view)}
       <label
         for={"group-view-#{value}"}
         class="-mb-px flex min-h-11 cursor-pointer items-center border-b-2 border-transparent text-sm font-medium text-subtle transition-colors hover:text-base-content has-[:checked]:border-base-content has-[:checked]:text-base-content has-[:focus-visible]:outline has-[:focus-visible]:outline-2"
@@ -30,12 +54,23 @@
         />
         {label}
       </label>
-    {/for}
+      {/for}
+    </div>
+
+    <Bonfire.UI.Groups.GroupFilterMenusLive
+      :if={feed_view?(@view)}
+      menus={menus(assigns)}
+      form={@form}
+      class="ml-auto flex items-center gap-1 pb-1"
+    />
   </div>
 
-  <div class="flex flex-wrap items-center gap-2">
+  <div :if={!feed_view?(@view)} class="flex flex-wrap items-center gap-2">
+    {!-- the search box searches groups, so the feed views don't show this row --}
     <label for="group-discovery-search" class="sr-only">{l("Search groups")}</label>
-    <div class="input h-10 min-w-0 flex-1 basis-full gap-1 rounded-field border-0 bg-fill pl-1 transition-colors focus-within:bg-fill-strong focus-within:outline-none sm:basis-auto">
+    <div
+      class="input h-10 min-w-0 flex-1 basis-full gap-1 rounded-field border-0 bg-fill pl-1 transition-colors focus-within:bg-fill-strong focus-within:outline-none sm:basis-auto"
+    >
       <button
         id="group-discovery-submit"
         type="submit"
@@ -56,54 +91,7 @@
       />
     </div>
 
-    <div class="flex items-center gap-1">
-      {#for {field, id, icon, options, value, legend} <- [
-          {:origin, "group-origin-filters", "ph:globe-hemisphere-west", origins(), @origin,
-           l("Filter by where groups are hosted")},
-          {:join_filter, "group-policy-filters", "ph:door-open", join_policies(), @join_filter,
-           l("Filter by joining policy")}
-        ]}
-        <Dropdown
-          id={id}
-          position="bottom-end"
-          menu={false}
-          close_on_select
-          label={legend}
-          panel_class="!w-56"
-          trigger_class={
-            "btn btn-sm h-10 min-h-10 gap-1.5 rounded-field border-0 px-3 font-normal shadow-none",
-            "btn-ghost text-muted hover:text-base-content": value == "all",
-            "bg-fill text-base-content": value != "all"
-          }
-        >
-          <:trigger>
-            <Iconify.iconify icon={icon} class="size-4" />
-            <span>{selected_label(options, value)}</span>
-            <#Icon iconify="carbon:chevron-down" class="size-3 opacity-60" />
-          </:trigger>
-
-          <fieldset class="flex flex-col">
-            <legend class="sr-only">{legend}</legend>
-            {#for {option, label} <- options}
-              <label
-                for={"#{id}-#{option}"}
-                class="flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-selector px-2.5 text-sm text-base-content hover:bg-fill has-[:focus-visible]:bg-fill"
-              >
-                <input
-                  id={"#{id}-#{option}"}
-                  type="radio"
-                  name={@form[field].name}
-                  value={option}
-                  checked={value == option}
-                  class="sr-only"
-                />
-                <span>{label}</span>
-                <#Icon :if={value == option} iconify="ph:check" class="size-4 text-primary" />
-              </label>
-            {/for}
-          </fieldset>
-        </Dropdown>
-      {/for}
-    </div>
+    {!-- was a fixed list of the origin and joining-policy menus; `menus/1` puts the public/private switch in the joining policy's place while the index answers a typed term. The dropdowns moved into `GroupFilterMenusLive`, which the feed views render in the tabs row --}
+    <Bonfire.UI.Groups.GroupFilterMenusLive menus={menus(assigns)} form={@form} />
   </div>
 </.form>

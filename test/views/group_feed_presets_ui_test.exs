@@ -55,12 +55,14 @@ defmodule Bonfire.UI.Groups.GroupFeedPresetsUITest do
   #   |> assert_has("[data-id=feed] [data-role=published_in]", text: "Other Feed Group")
   # end
 
-  test "the feeds menu lists My groups and All known groups", %{account: account, me: me} do
+  # was "the feeds menu lists My groups and All known groups": /groups now has both feeds (`/groups/feed` and `/groups/feed/all`), so the feeds menu no longer lists them by default, while their pages keep working (the test above)
+  test "the feeds menu doesn't list My groups and All known groups", %{account: account, me: me} do
     conn(user: me, account: account)
     |> visit("/feed/local")
     |> wait_async()
-    |> assert_has("#feed-tab-my_groups[href='/feed/my_groups']", text: "My groups")
-    |> assert_has("#feed-tab-known_groups[href='/feed/known_groups']", text: "All known groups")
+    |> assert_has("[id^=feed-tab-]")
+    |> refute_has("#feed-tab-my_groups")
+    |> refute_has("#feed-tab-known_groups")
   end
 
   # a group's posts reach its outbox as the group's boosts, so hiding boosts is an activity type that visibly narrows this feed

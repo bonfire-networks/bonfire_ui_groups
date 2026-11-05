@@ -215,4 +215,134 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
       render(view)
     end)
   end
+
+  # a group marked sensitive opens its composer with "sensitive" on, which the author can turn off: a prefill, not a rule
+  describe "in a group marked sensitive" do
+    setup do
+      account = fake_account!()
+      owner = fake_user!(account)
+
+      group =
+        Bonfire.Classify.Simulate.fake_group!(owner, %{
+          name: "Sensitive composer",
+          membership: "open",
+          visibility: "global",
+          participation: "anyone",
+          default_content_visibility: "public"
+        })
+
+      %{owner: owner, group: group, conn: conn(user: owner, account: account)}
+    end
+
+    defp mark!(group), do: assert({:ok, _} = Bonfire.Social.Objects.set_sensitivity(group, true))
+
+    defp open_group_composer(conn, group) do
+      conn
+      |> visit("/&#{group.character.username}")
+      |> wait_async()
+      |> click_button("#inline_composer_placeholder_open", "Start a discussion…")
+    end
+
+    # the post's mark, found by its unique text, since submitting the form does not hand it back
+    defp stored_sensitive?(text) do
+      post_id =
+        repo().one!(
+          from(pc in Bonfire.Data.Social.PostContent,
+            where: ilike(pc.html_body, ^"%#{text}%"),
+            select: pc.id
+          )
+        )
+
+      {:ok, post} = Bonfire.Posts.read(post_id, skip_boundary_check: true)
+      e(repo().maybe_preload(post, :sensitive), :sensitive, :is_sensitive, false) == true
+    end
+
+    test "the composer of a group not marked sensitive opens with sensitive off", %{
+      conn: conn,
+      group: group
+    } do
+      conn
+      |> open_group_composer(group)
+      |> PhoenixTest.unwrap(fn view ->
+        composer = composer_view(view)
+        assert has_element?(composer, "#sensitive_btn input[name=sensitive][value=false]")
+        render(view)
+      end)
+    end
+
+    test "the composer of a group marked sensitive opens with sensitive on", %{
+      conn: conn,
+      group: group
+    } do
+      mark!(group)
+
+      conn
+      |> open_group_composer(group)
+      |> PhoenixTest.unwrap(fn view ->
+        composer = composer_view(view)
+        assert has_element?(composer, "#sensitive_btn input[name=sensitive][value=true]")
+        assert has_element?(composer, "#sensitive_btn button[aria-pressed=true]")
+        render(view)
+      end)
+    end
+
+    test "the author can turn it off and the post is stored not sensitive", %{
+      conn: conn,
+      group: group
+    } do
+      mark!(group)
+
+      conn
+      |> open_group_composer(group)
+      |> PhoenixTest.unwrap(fn view ->
+        composer = composer_view(view)
+        composer |> element("#sensitive_btn button") |> render_click()
+        assert has_element?(composer, "#sensitive_btn input[name=sensitive][value=false]")
+
+        form_html = composer |> element("#smart_input_form") |> render()
+        [_, sensitive] = Regex.run(~r{name="sensitive" value="([^"]*)"}, form_html)
+
+        submit_composer(view, "<p>turned off by its author</p>", %{"sensitive" => sensitive})
+      end)
+
+      assert stored_sensitive?("turned off by its author") == false
+    end
+
+    test "a post left with it on is stored sensitive", %{conn: conn, group: group} do
+      mark!(group)
+
+      conn
+      |> open_group_composer(group)
+      |> PhoenixTest.unwrap(fn view ->
+        form_html = composer_view(view) |> element("#smart_input_form") |> render()
+        [_, sensitive] = Regex.run(~r{name="sensitive" value="([^"]*)"}, form_html)
+
+        submit_composer(view, "<p>left on as prefilled</p>", %{"sensitive" => sensitive})
+      end)
+
+      assert stored_sensitive?("left on as prefilled") == true
+    end
+
+    test "a reply in its thread opens with sensitive on too", %{
+      conn: conn,
+      owner: owner,
+      group: group
+    } do
+      post =
+        Bonfire.Classify.Simulate.fake_post_in_group!(owner, group, "<p>a post to reply to</p>")
+
+      mark!(group)
+
+      {:ok, view, _html} = live(conn, "/discussion/#{id(post)}")
+      Bonfire.UI.Common.Testing.Helpers.live_async_wait(view)
+
+      view
+      |> element("[data-id=action_reply][phx-value-id='#{id(post)}']")
+      |> render_click()
+
+      composer = composer_view(view)
+      render(composer)
+      assert has_element?(composer, "#sensitive_btn input[name=sensitive][value=true]")
+    end
+  end
 end

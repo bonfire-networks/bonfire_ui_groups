@@ -34,7 +34,7 @@ defmodule Bonfire.UI.Groups.GroupBioTest do
 
   test "the groups directory renders the bio, with its links", %{conn: conn} do
     conn
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> assert_has("a[href='https://example.com/list']", text: "our reading list")
   end
 

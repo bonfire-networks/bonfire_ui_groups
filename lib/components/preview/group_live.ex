@@ -1,6 +1,8 @@
 defmodule Bonfire.UI.Groups.Preview.GroupLive do
   use Bonfire.UI.Common.Web, :stateless_component
   alias Bonfire.Classify.Categories
+  # `sensitive_part_id/3` and `show_sensitive/2`, which the topic card shares
+  alias Bonfire.Classify.Web.Preview.CategoryLive
 
   prop object, :any
   prop preview, :map, default: %{}
@@ -13,13 +15,14 @@ defmodule Bonfire.UI.Groups.Preview.GroupLive do
     do: [
       :character,
       :profile,
+      # the card of a group marked sensitive blurs its images and hides its description
+      :sensitive,
       parent_category: [:profile, :character]
     ]
 
   def name(object) do
     Bonfire.Classify.Web.Preview.CategoryLive.name(object, l("Unnamed group"))
   end
-
   # TODO (perf): row_chip walks the group's ACLs on every render.
   # Batch-preload via `update_many/1` or resolve once in ExploreLive.mount.
   defdelegate row_chip(group), to: Bonfire.Boundaries.Presets, as: :group_row_chip

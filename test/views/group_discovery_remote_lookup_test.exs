@@ -61,7 +61,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
     local_group: local_group
   } do
     conn
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> wait_async()
     |> assert_has("#group-preview-#{id(local_group)}")
     |> fill_in("Search groups", with: "!cooks@mocked.local")
@@ -72,7 +72,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
 
   test "a URL that resolves to a person says it isn't a group and shows no person", %{conn: conn} do
     conn
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> wait_async()
     |> fill_in("Search groups", with: @remote_person)
     |> wait_async()
@@ -90,7 +90,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
     )
 
     conn
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> wait_async()
     |> assert_has("#group-preview-#{id(local_group)}")
     |> fill_in("Search groups", with: "!cooks@mocked.local")
@@ -111,7 +111,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
     other_group = Simulate.fake_group!(me, %{name: "Quiet readers"})
 
     conn
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> wait_async()
     |> assert_has("#group-preview-#{id(other_group)}")
     |> fill_in("Search groups", with: "bakers")

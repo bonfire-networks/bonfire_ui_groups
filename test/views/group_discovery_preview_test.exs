@@ -41,7 +41,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     card = "#group-preview-#{id(group)}"
 
     conn(user: me, account: account)
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> assert_has("[data-two-columns]")
     |> refute_has("#widgets-drawer")
     |> assert_has(card, text: "Accessible systems guild")
@@ -68,7 +68,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     request_card = "#group-preview-#{id(request_group)}"
 
     conn(user: me, account: account)
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> fill_in("Search groups", with: "Unusual typography")
     |> assert_has(open_card)
     |> refute_has(request_card)
@@ -95,6 +95,25 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_has(request_card)
   end
 
+  # the fallback: with no search index, the search filters the groups already loaded, by name and by their topics' names
+  test "with no search backend, search filters the loaded groups", %{account: account, me: me} do
+    # `ProcessTree` treats a stored nil as unset, so `false` stands for "no adapter"
+    Process.put([:bonfire_search, :adapter], false)
+
+    group = create_group(me, "Fallback makers", "local:members")
+    other = create_group(me, "Fallback readers", "on_request")
+    Simulate.fake_category!(me, group, %{name: "Letterpress", type: :topic})
+
+    conn(user: me, account: account)
+    |> visit("/groups/discover")
+    |> fill_in("Search groups", with: "Letterpress")
+    |> assert_has("#group-preview-#{id(group)}")
+    |> refute_has("#group-preview-#{id(other)}")
+    |> fill_in("Search groups", with: "")
+    |> assert_has("#group-preview-#{id(group)}")
+    |> assert_has("#group-preview-#{id(other)}")
+  end
+
   test "joined groups use the same cards with real topics and membership data", %{
     account: account,
     me: me
@@ -104,7 +123,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     card = "#group-joined-grid #group-preview-#{id(group)}"
 
     conn(user: me, account: account)
-    |> visit("/groups?tab=joined")
+    |> visit("/groups/joined")
     |> refute_has("#group-discovery-hero")
     |> assert_has(card, text: "Joined makers")
     |> assert_has(card, text: "Craft")
@@ -127,7 +146,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     refute Bonfire.Classify.Categories.member?(context.me, followed_group)
 
     conn(user: context.me, account: context.account)
-    |> visit("/groups?tab=joined")
+    |> visit("/groups/joined")
     |> assert_has("#join_btn_#{id(member_group)}", text: "Joined")
     |> refute_has("#group-preview-#{id(followed_group)}")
   end
@@ -148,7 +167,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     {:ok, _} = Bonfire.Social.Graph.Follows.follow(me, followed_only)
 
     conn(user: me, account: account)
-    |> visit("/groups?tab=joined")
+    |> visit("/groups/joined")
     |> assert_has("#group-joined-grid article", count: 2)
     |> refute_has("#group-preview-#{id(followed_only)}")
     |> click_button("#load_more_joined", "Load more")
@@ -161,7 +180,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     group = create_group(me, "Open garden", "local:members")
 
     conn(user: me, account: account)
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> choose("By request")
     |> assert_has("#group-discovery-empty", text: "No groups match this joining policy")
     |> refute_has("#group-discovery-empty", text: "No groups here yet")
@@ -177,7 +196,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     card = "#group-preview-#{id(group)}"
 
     conn(user: me, account: account)
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> choose("This instance")
     |> assert_has(card)
     |> refute_has("#{card} [data-role=group-card-origin]")
@@ -192,9 +211,9 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     group = create_group(me, "Linked local group", "local:members")
 
     conn(user: me, account: account)
-    |> visit("/groups?origin=remote")
+    |> visit("/groups/discover?origin=remote")
     |> refute_has("#group-preview-#{id(group)}")
-    |> visit("/groups?origin=local")
+    |> visit("/groups/discover?origin=local")
     |> assert_has("#group-preview-#{id(group)}")
   end
 
@@ -227,7 +246,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
       })
 
     conn(user: me, account: account)
-    |> visit("/groups?#{params}")
+    |> visit("/groups/discover?#{params}")
     |> assert_has("#group-preview-#{id(group)}")
     |> refute_has("#group-preview-#{id(other)}")
     |> fill_in("Search groups", with: "")
@@ -243,7 +262,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     create_group(me, "Newest workshop", "local:members")
 
     conn(user: me, account: account)
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> fill_in("Search groups", with: "Older needle")
     |> choose("Open to join")
     |> assert_has("#group-discovery-empty", text: "No matching groups loaded yet")
@@ -262,7 +281,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     {:ok, _} = Bonfire.Classify.Categories.soft_delete(archived, me)
 
     conn(user: me, account: account)
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> refute_has("#group-preview-#{id(archived)}")
     |> fill_in("Search groups", with: "garden")
     |> choose("Joined")
@@ -279,7 +298,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> fill_in("Search groups", with: "")
     |> assert_has("a", text: "Archived garden")
     |> assert_has("#group-view-archived[checked]")
-    |> choose("All groups")
+    |> choose("All known groups")
     |> assert_has("#group-preview-#{id(joined)}")
     |> refute_has("#group-preview-#{id(archived)}")
   end
@@ -288,7 +307,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     group = create_group(me, "Joined garden", "local:members")
 
     conn(user: me, account: account)
-    |> visit("/groups?tab=joined")
+    |> visit("/groups/joined")
     |> fill_in("Search groups", with: "missing")
     |> click_link("Clear filters")
     |> assert_has("#group-view-joined[checked]")

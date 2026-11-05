@@ -67,6 +67,30 @@
       >{@form[:summary].value}</textarea>
     </div>
 
+    {!-- a mirror's mark is its origin's to set (`Categories.update/4` refuses a local edit of one), so it has no switch --}
+    <div :if={@hosted_here?} class="form-control">
+      {!-- an unticked box sends nothing, so this says `false` when it is not ticked --}
+      {!-- not a bare `sensitive`, which the composer's own field is named --}
+      <input type="hidden" name="category[sensitive]" value="false">
+      <label for="group_settings_sensitive" class="flex items-center gap-3 cursor-pointer">
+        <input
+          id="group_settings_sensitive"
+          type="checkbox"
+          name="category[sensitive]"
+          value="true"
+          checked={@sensitive?}
+          aria-describedby="group_settings_sensitive_help"
+          class="checkbox checkbox-sm"
+        />
+        <span class="text-sm font-medium text-base-content">{l("Mark this group as sensitive")}</span>
+      </label>
+      <p id="group_settings_sensitive_help" class="mt-1 text-xs text-muted leading-snug">
+        {l(
+          "People see a content warning before its posts, and its banner and icon are blurred. Lemmy, PieFed and Mbin treat it as NSFW: some of their instances hide or refuse it, so fewer people there will find it."
+        )}
+      </p>
+    </div>
+
     <div class="flex justify-end gap-3 pt-3">
       <button type="reset" id="group_settings_identity_reset" class="btn btn-ghost normal-case">{l("Reset text fields")}</button>
       <button

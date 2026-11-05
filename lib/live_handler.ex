@@ -3,15 +3,23 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
   alias Bonfire.Classify.Categories
 
-  def handle_event("save_group_identity", %{"profile" => profile}, socket) do
+  def handle_event("save_group_identity", %{"profile" => profile} = params, socket) do
     user = current_user_required!(socket)
     profile = Map.take(profile, ["name", "summary"])
     socket = assign(socket, :draft, profile)
 
+    # the sensitive switch, which a mirror's settings don't show: left out then, so nothing changes it
+    attrs =
+      case params do
+        %{"category" => %{"sensitive" => sensitive}} ->
+          %{profile: profile, sensitive: sensitive == "true"}
+        _ -> %{profile: profile}
+      end
+
     # Uploads save independently, so the modal's opening snapshot can be stale.
     with {:ok, category} <-
            Categories.get(id(socket.assigns.category), [:default, current_user: user]),
-         {:ok, category} <- Categories.update(user, category, %{profile: profile}) do
+         {:ok, category} <- Categories.update(user, category, attrs) do
       send_self(category: category)
 
       {:noreply,
@@ -29,6 +37,10 @@ defmodule Bonfire.UI.Groups.LiveHandler do
          |> assign_flash(:error, l("Could not save group details. Check the name and try again."))}
     end
   end
+
+  # "Continue" on the notice of a group or topic marked sensitive: shows its feed and unblurs its header, in this socket only, so the next visit shows the notice again
+  def handle_event("show_sensitive_group", _, socket),
+    do: {:noreply, assign(socket, :sensitive_notice?, false)}
 
   def handle_event("load_settings_people", _, socket),
     do: {:noreply, Bonfire.UI.Groups.Settings.PeopleLive.load_more(socket)}
@@ -269,7 +281,32 @@ defmodule Bonfire.UI.Groups.LiveHandler do
     )
 
     send(page_pid || self(), {{Bonfire.Classify.LiveHandler, :refresh_membership}, group_id})
+
+    # for a page holding the viewer's joined group ids (the /groups directory), which keeps them without asking again
+    send(
+      page_pid || self(),
+      {{Bonfire.UI.Groups, :joined_groups_changed},
+       {group_id, Keyword.get(button_assigns, :my_membership) == true}}
+    )
+
     reload_sidebar(socket)
+  end
+
+  @doc false
+  def handle_info({:joined_groups_changed, {group_id, member?}}, socket) do
+    case assigns(socket)[:joined_group_ids] do
+      %MapSet{} = joined ->
+        {:noreply,
+         assign(socket,
+           joined_group_ids:
+             if(member?, do: MapSet.put(joined, group_id), else: MapSet.delete(joined, group_id)),
+           # the held outboxes of the joined groups are loaded again the next time their feed shows
+           joined_outbox_ids: %{}
+         )}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   # the sidebar (PersistentLive) has its own modal

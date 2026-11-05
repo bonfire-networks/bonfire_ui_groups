@@ -18,6 +18,8 @@ defmodule Bonfire.UI.Groups.Settings.IdentityLive do
 
     assigns
     |> assign(:form, form)
+    |> assign(:sensitive?, Bonfire.Classify.Categories.sensitive?(assigns.category))
+    |> assign(:hosted_here?, Bonfire.Me.Integration.is_local?(assigns.category))
     |> render_sface()
   end
 end

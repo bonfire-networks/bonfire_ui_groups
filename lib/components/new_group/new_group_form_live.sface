@@ -54,6 +54,27 @@
       show_unavailable_toggles={@show_unavailable_toggles}
     />
 
+    {!-- the sensitive mark, as in the group's settings (`Bonfire.UI.Groups.Settings.IdentityLive`). `category[…]`, which `Bonfire.Classify.LiveHandler.new/3` merges in, rather than a bare `sensitive`, which the composer's own field is named; the hidden `false` says so when the box is not ticked --}
+    <div class="form-control">
+      <input type="hidden" name="category[sensitive]" value="false">
+      <label for="new_group_sensitive" class="flex items-center gap-3 cursor-pointer">
+        <input
+          id="new_group_sensitive"
+          type="checkbox"
+          name="category[sensitive]"
+          value="true"
+          aria-describedby="new_group_sensitive_help"
+          class="checkbox checkbox-sm"
+        />
+        <span class="text-sm font-medium text-base-content">{l("Mark this group as sensitive")}</span>
+      </label>
+      <p id="new_group_sensitive_help" class="mt-1 text-xs text-muted leading-snug">
+        {l(
+          "People see a content warning before its posts, and its banner and icon are blurred. Lemmy, PieFed and Mbin treat it as NSFW: some of their instances hide or refuse it, so fewer people there will find it."
+        )}
+      </p>
+    </div>
+
     {!-- Primary action --}
     <button type="submit" class="btn btn-primary w-full normal-case">
       <#Icon iconify="ph:check" class="size-4 mr-1" />{l("Create group")}

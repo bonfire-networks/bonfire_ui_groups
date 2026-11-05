@@ -1,0 +1,44 @@
+<div class={@class}>
+  {#for {field, id, icon, options, value, default_value, legend} <- @menus}
+    <Dropdown
+      id={id}
+      position="bottom-end"
+      menu={false}
+      close_on_select
+      label={legend}
+      panel_class="!w-56"
+      trigger_class={
+        "btn btn-sm h-10 min-h-10 gap-1.5 rounded-field border-0 px-3 font-normal shadow-none",
+        "btn-ghost text-muted hover:text-base-content": value == default_value,
+        "bg-fill text-base-content": value != default_value
+      }
+    >
+      <:trigger>
+        <Iconify.iconify icon={icon} class="size-4" />
+        <span>{Bonfire.UI.Groups.GroupFiltersLive.selected_label(options, value)}</span>
+        <#Icon iconify="carbon:chevron-down" class="size-3 opacity-60" />
+      </:trigger>
+
+      <fieldset class="flex flex-col">
+        <legend class="sr-only">{legend}</legend>
+        {#for {option, label} <- options}
+          <label
+            for={"#{id}-#{option}"}
+            class="flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-selector px-2.5 text-sm text-base-content hover:bg-fill has-[:focus-visible]:bg-fill"
+          >
+            <input
+              id={"#{id}-#{option}"}
+              type="radio"
+              name={@form[field].name}
+              value={option}
+              checked={value == option}
+              class="sr-only"
+            />
+            <span>{label}</span>
+            <#Icon :if={value == option} iconify="ph:check" class="size-4 text-primary" />
+          </label>
+        {/for}
+      </fieldset>
+    </Dropdown>
+  {/for}
+</div>
