@@ -31,7 +31,9 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     ],
     default_value: :automatic,
     description:
-      l("Automatic opens the latest updates from your groups if you joined any, and otherwise the groups to discover."),
+      l(
+        "Automatic opens the latest updates from your groups if you joined any, and otherwise the groups to discover."
+      ),
     scope: :user,
     id: "groups_default_view",
     label_name: l("Groups page opens on")
@@ -47,43 +49,45 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     {categories, group_previews, page_info} = {[], %{}, nil}
 
     {:ok,
-       assign(socket,
-         page: "groups",
-         without_secondary_widgets: true,
-         page_title: l("Groups"),
-         back: true,
-         # which of the routes' views shows: `:discover`, `:joined`, `:archived`, `:feed` or `:feed_all`
-         view: nil,
-         selected_tab: "discover",
-         # the one membership load: the viewer's joined group ids, held for the visit. They list the Joined view and mark the directory's cards as joined, and joining or leaving here updates them (`Bonfire.UI.Groups.LiveHandler`)
-         joined_group_ids: MapSet.new(Categories.joined_group_ids(current_user(socket))),
-         # and, by origin, the outbox ids of the joined groups and their topics, loaded when `/groups/feed` first shows (see `groups_feed_filters/3`)
-         joined_outbox_ids: %{},
-         feed_name: nil,
-         feed_filters: %{},
-         feed_component_id: nil,
-         all_categories: categories,
-         categories: categories,
-         group_previews: group_previews,
-         search_term: "",
-         group_lookup: nil,
-         # set while the search index answers the search, with its own page info
-         index_search: nil,
-         # which search index a search reads, public or closed (checked for the viewer), switched while a term is typed
-         search_index: "public",
-         join_filter: "all",
-         origin: "all",
-         page_info: page_info,
-         page_header_aside: [
-           {Bonfire.UI.Groups.NewGroupLive,
-            [
-              id: "groups_header_create",
-              parent_id: "groups_header",
-              header_action: true,
-              open_btn_wrapper_class: "shrink-0"
-            ]}
-         ]
-       )}
+     assign(socket,
+       page: "groups",
+       without_secondary_widgets: true,
+       page_title: l("Groups"),
+       back: true,
+       # which of the routes' views shows: `:discover`, `:joined`, `:archived`, `:feed` or `:feed_all`
+       view: nil,
+       selected_tab: "discover",
+       # the one membership load: the viewer's joined group ids, held for the visit. They list the Joined view and mark the directory's cards as joined, and joining or leaving here updates them (`Bonfire.UI.Groups.LiveHandler`)
+       joined_group_ids: MapSet.new(Categories.joined_group_ids(current_user(socket))),
+       # and, by origin, the outbox ids of the joined groups and their topics, loaded when `/groups/feed` first shows (see `groups_feed_filters/3`)
+       joined_outbox_ids: %{},
+       feed_name: nil,
+       feed_filters: %{},
+       # what `groups_feed_filters/3` worked out for this reader, kept out of `feed_filters`
+       runtime_filters: nil,
+       feed_component_id: nil,
+       all_categories: categories,
+       categories: categories,
+       group_previews: group_previews,
+       search_term: "",
+       group_lookup: nil,
+       # set while the search index answers the search, with its own page info
+       index_search: nil,
+       # which search index a search reads, public or closed (checked for the viewer), switched while a term is typed
+       search_index: "public",
+       join_filter: "all",
+       origin: "all",
+       page_info: page_info,
+       page_header_aside: [
+         {Bonfire.UI.Groups.NewGroupLive,
+          [
+            id: "groups_header_create",
+            parent_id: "groups_header",
+            header_action: true,
+            open_btn_wrapper_class: "shrink-0"
+          ]}
+       ]
+     )}
   end
 
   # the view comes from the route, and `tab` is no longer read. A guest has no groups of their own, so a view of them is patched to the matching view of every group, and the URL names what shows
@@ -183,11 +187,23 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   defp valid_origin(origin) when origin in @origins, do: origin
   defp valid_origin(_), do: "all"
 
+  # the feed tells the page when its filters change (`notify_filter_changes`), and the page passes them on to the sidebar's customise-feed widget, which offers to save the feed once they differ from where it started, as on `Bonfire.UI.Social.FeedsLive`
+  def handle_info({:feed_filters_changed, component_id, feed_name, filters}, socket) do
+    if component_id == socket.assigns[:feed_component_id] do
+      Phoenix.LiveView.send_update(Bonfire.UI.Social.WidgetCustomizeFeedLive,
+        id: "feed_preferences_#{component_id}",
+        preferences: %{feed_name: feed_name, feed_filters: filters}
+      )
+    end
+
+    {:noreply, socket}
+  end
+
   # a feed view loads no groups: its `FeedLive` loads the feed itself, from the preset
   defp load_group_view(socket, view, origin) when view in @feed_views do
     feed_name = if view == :feed, do: :my_groups, else: :known_groups
     feed_component_id = "groups_feed_#{view}_#{origin}"
-    {socket, feed_filters} = groups_feed_filters(socket, view, origin)
+    {socket, feed_filters, runtime_filters} = groups_feed_filters(socket, view, origin)
 
     assign(socket,
       # the feed's own controls are in the sidebar's customise-feed widget, as on any feed page (see `Bonfire.UI.Social.FeedsLive`)
@@ -219,6 +235,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
       group_lookup: nil,
       feed_name: feed_name,
       feed_filters: feed_filters,
+      runtime_filters: runtime_filters,
       feed: nil,
       loading: true,
       feed_component_id: feed_component_id
@@ -226,7 +243,8 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   end
 
   # The origin menu chooses groups by where they are hosted, as in the directory, so it goes into the groups' scope rather than the feed's own `origin` filter (where each activity came from). A new origin is a new component id, so the feed reloads.
-  # `/groups/feed` filters by the outboxes of the joined groups and their topics, loaded the first time it shows for an origin and held for its later pages, with `in_groups: [:feed_ids]` in place of the preset's `:joined` subquery. With no outboxes it keeps `:joined`, which then shows nothing, as empty `feed_ids` would be dropped and leave the feed unscoped
+  # `/groups/feed` filters by the outboxes of the joined groups and their topics, loaded the first time it shows for an origin and held for its later pages, with `in_groups: [:feed_ids]` in place of the preset's `:joined` subquery. Those are runtime filters, worked out for this reader: the feed's own filters keep the reader's choice, `:joined` with the origin, which is what a saved feed keeps. With no outboxes there are no runtime filters, and `:joined` shows nothing, as empty `feed_ids` would be dropped and leave the feed unscoped
+  # Returns `{socket, feed_filters, runtime_filters}`
   defp groups_feed_filters(socket, :feed, origin) do
     held = socket.assigns[:joined_outbox_ids] || %{}
 
@@ -238,17 +256,23 @@ defmodule Bonfire.UI.Groups.ExploreLive do
       end)
 
     socket = assign(socket, joined_outbox_ids: Map.put(held, origin, outbox_ids))
+    feed_filters = %{in_groups: Enum.reject([:joined, origin_atom(origin)], &is_nil/1)}
 
+    # case outbox_ids do
+    #   [] -> {socket, %{in_groups: Enum.reject([:joined, origin_atom(origin)], &is_nil/1)}}
+    #   ids -> {socket, %{in_groups: [:feed_ids], feed_ids: ids}}
+    # end
+    # replaced: the held outboxes go in the runtime filters, so saving the feed can't keep them
     case outbox_ids do
-      [] -> {socket, %{in_groups: Enum.reject([:joined, origin_atom(origin)], &is_nil/1)}}
-      ids -> {socket, %{in_groups: [:feed_ids], feed_ids: ids}}
+      [] -> {socket, feed_filters, nil}
+      ids -> {socket, feed_filters, %{in_groups: [:feed_ids], feed_ids: ids}}
     end
   end
 
   defp groups_feed_filters(socket, _feed_all, origin) do
     case origin_atom(origin) do
-      nil -> {socket, %{}}
-      origin -> {socket, %{in_groups: [:all, origin]}}
+      nil -> {socket, %{}, nil}
+      origin -> {socket, %{in_groups: [:all, origin]}, nil}
     end
   end
 
@@ -324,7 +348,11 @@ defmodule Bonfire.UI.Groups.ExploreLive do
         query =
           if view in @feed_views,
             do: %{"origin" => origin},
-            else: %{"search_term" => search_term, "join_filter" => join_filter, "origin" => origin}
+            else: %{
+              "search_term" => search_term,
+              "join_filter" => join_filter,
+              "origin" => origin
+            }
 
         {:noreply, push_patch(socket, to: view_path(view, query))}
 
@@ -565,7 +593,8 @@ defmodule Bonfire.UI.Groups.ExploreLive do
         found_ids = Enum.map(found, fn {group, _} -> id(group) end)
 
         assign(socket,
-          categories: found ++ Enum.reject(categories, fn {group, _} -> id(group) in found_ids end),
+          categories:
+            found ++ Enum.reject(categories, fn {group, _} -> id(group) in found_ids end),
           group_previews: Map.merge(socket.assigns.group_previews, previews)
         )
 

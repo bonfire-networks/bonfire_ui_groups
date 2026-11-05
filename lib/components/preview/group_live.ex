@@ -23,6 +23,7 @@ defmodule Bonfire.UI.Groups.Preview.GroupLive do
   def name(object) do
     Bonfire.Classify.Web.Preview.CategoryLive.name(object, l("Unnamed group"))
   end
+
   # TODO (perf): row_chip walks the group's ACLs on every render.
   # Batch-preload via `update_many/1` or resolve once in ExploreLive.mount.
   defdelegate row_chip(group), to: Bonfire.Boundaries.Presets, as: :group_row_chip

@@ -71,6 +71,7 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
       |> open_reply(context.post, :feed)
       |> PhoenixTest.unwrap(fn view ->
         composer = composer_view(view)
+
         # the group federates, so its replies aren't offered narrowing to its members or moderators, and the server refuses it when asked
         # composer |> element("[data-reply-audience=reply_moderators]") |> render_click()
         # assert has_element?(composer, "input[name='to_boundaries[]'][value=reply_moderators]")

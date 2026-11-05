@@ -10,6 +10,7 @@ defmodule Bonfire.UI.Groups.Routes do
         pipe_through(:browser)
 
         live("/groups", ExploreLive, as: :groups)
+
         # the directory views, and the feed of the joined groups or of every group, each with its own route; `/groups` renders whichever opens by default
         live("/groups/discover", ExploreLive, :discover, as: :groups)
         live("/groups/joined", ExploreLive, :joined, as: :groups)

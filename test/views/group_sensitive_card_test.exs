@@ -168,12 +168,13 @@ defmodule Bonfire.UI.Groups.GroupSensitiveCardTest do
 
   # the icon shows outside the card too: in the sidebar it is left out (too small to blur), elsewhere blurred
   describe "outside the card" do
-    test "the sidebar shows the icon of a group not marked sensitive, and not that of one marked", %{
-      account: account,
-      owner: owner,
-      plain: plain,
-      marked: marked
-    } do
+    test "the sidebar shows the icon of a group not marked sensitive, and not that of one marked",
+         %{
+           account: account,
+           owner: owner,
+           plain: plain,
+           marked: marked
+         } do
       row = fn group -> "[data-role=sidebar-group][id$='-group-#{id(group)}']" end
 
       conn(user: owner, account: account)

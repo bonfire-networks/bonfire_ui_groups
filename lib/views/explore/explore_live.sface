@@ -16,6 +16,8 @@
       id={@feed_component_id}
       feed_name={@feed_name}
       feed_filters={@feed_filters}
+      runtime_filters={@runtime_filters}
+      notify_filter_changes
       feed={nil}
       loading
       page_title={@page_title}

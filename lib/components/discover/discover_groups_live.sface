@@ -5,7 +5,11 @@
       {#match component}
         {#case @group_lookup}
           {#match %{status: :searching, q: q}}
-            <p data-role="group-lookup-status" role="status" class="mb-4 flex items-center gap-2 text-sm text-muted">
+            <p
+              data-role="group-lookup-status"
+              role="status"
+              class="mb-4 flex items-center gap-2 text-sm text-muted"
+            >
               <span class="loading loading-spinner loading-xs" />
               {l("Looking up %{address} on the fediverse…", address: q)}
             </p>

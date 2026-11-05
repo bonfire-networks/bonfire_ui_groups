@@ -121,7 +121,9 @@ defmodule Bonfire.UI.Groups.GroupsDefaultViewTest do
     conn(user: ctx.loner, account: ctx.loner_account)
     |> visit("/settings/user/bonfire_ui_groups")
     |> assert_has("*", text: "Groups page opens on")
-    |> PhoenixTest.select("Groups page opens on", option: "Latest activities from all known groups")
+    |> PhoenixTest.select("Groups page opens on",
+      option: "Latest activities from all known groups"
+    )
 
     conn(user: ctx.loner, account: ctx.loner_account)
     |> visit("/groups")

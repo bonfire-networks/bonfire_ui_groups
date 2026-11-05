@@ -40,20 +40,20 @@
       class="flex gap-6"
     >
       {#for {value, label} <- views(@view)}
-      <label
-        for={"group-view-#{value}"}
-        class="-mb-px flex min-h-11 cursor-pointer items-center border-b-2 border-transparent text-sm font-medium text-subtle transition-colors hover:text-base-content has-[:checked]:border-base-content has-[:checked]:text-base-content has-[:focus-visible]:outline has-[:focus-visible]:outline-2"
-      >
-        <input
-          id={"group-view-#{value}"}
-          type="radio"
-          name={@form[:tab].name}
-          value={value}
-          checked={@selected_tab == value}
-          class="sr-only"
-        />
-        {label}
-      </label>
+        <label
+          for={"group-view-#{value}"}
+          class="-mb-px flex min-h-11 cursor-pointer items-center border-b-2 border-transparent text-sm font-medium text-subtle transition-colors hover:text-base-content has-[:checked]:border-base-content has-[:checked]:text-base-content has-[:focus-visible]:outline has-[:focus-visible]:outline-2"
+        >
+          <input
+            id={"group-view-#{value}"}
+            type="radio"
+            name={@form[:tab].name}
+            value={value}
+            checked={@selected_tab == value}
+            class="sr-only"
+          />
+          {label}
+        </label>
       {/for}
     </div>
 
@@ -68,9 +68,7 @@
   <div :if={!feed_view?(@view)} class="flex flex-wrap items-center gap-2">
     {!-- the search box searches groups, so the feed views don't show this row --}
     <label for="group-discovery-search" class="sr-only">{l("Search groups")}</label>
-    <div
-      class="input h-10 min-w-0 flex-1 basis-full gap-1 rounded-field border-0 bg-fill pl-1 transition-colors focus-within:bg-fill-strong focus-within:outline-none sm:basis-auto"
-    >
+    <div class="input h-10 min-w-0 flex-1 basis-full gap-1 rounded-field border-0 bg-fill pl-1 transition-colors focus-within:bg-fill-strong focus-within:outline-none sm:basis-auto">
       <button
         id="group-discovery-submit"
         type="submit"

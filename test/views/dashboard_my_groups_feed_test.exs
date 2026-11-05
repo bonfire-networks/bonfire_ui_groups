@@ -77,7 +77,9 @@ defmodule Bonfire.UI.Groups.DashboardMyGroupsFeedTest do
     |> visit("/dashboard?feed=local")
     |> wait_async()
     |> assert_has("[data-id=dashboard_feed] #feed-tab-local[aria-current=page]")
-    |> assert_has("[data-id=dashboard_feed] a#feed-tab-my_groups[href='/dashboard?feed=my_groups']")
+    |> assert_has(
+      "[data-id=dashboard_feed] a#feed-tab-my_groups[href='/dashboard?feed=my_groups']"
+    )
   end
 
   test "choosing My groups in the dashboard settings puts it on the dashboard", %{

@@ -21,6 +21,8 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
   setup do
     Process.put([:bonfire, :feed_live_update_many_preload_mode], :inline)
     Process.put(:federating, false)
+    # the origin and sort tests put three or more group posts on one page
+    Process.put([:bonfire, :default_pagination_limit], 10)
 
     account = fake_account!()
     me = fake_user!(account)
@@ -89,7 +91,8 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
     |> refute_has("#group-preview-#{id(group_b)}")
     |> click_link("#group-mode-switch a", "Latest updates")
     |> assert_path("/groups/feed")
-    |> click_link("#group-mode-switch a", "Groups")
+    |> refute_has("#group-mode-switch a", text: "Groups")
+    |> click_link("#group-mode-switch a", "Directory")
     |> assert_path("/groups/joined")
   end
 
@@ -236,5 +239,150 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
     conn(user: loner, account: account)
     |> visit("/groups?tab=joined")
     |> assert_has("#group-preview-#{id(group_b)}")
+  end
+
+  # `me` is a member of a group on this instance and of one mirrored from elsewhere, each with a post, so each origin has something to show and something to hide
+  describe "origin on the feed views" do
+    # the label id is prefixed with the component id (the editor can mount twice on a page)
+    @origin_scope "[role=radiogroup][aria-labelledby$='_origin_label']"
+    @local_post "A post in the joined group"
+    @remote_post "A post in the mirrored group"
+
+    setup %{me: me} do
+      owner = fake_user!()
+
+      mirrored =
+        Simulate.fake_group!(owner, Map.put(@open_group, :name, "Mirrored Activity Group"))
+
+      {:ok, _} = Categories.join_group(me, mirrored)
+      Simulate.fake_post_in_group!(owner, mirrored, "<p>#{@remote_post}</p>")
+
+      # a `Peered` row is what makes a group a mirror of one hosted elsewhere
+      assert {:ok, _} =
+               Bonfire.Federate.ActivityPub.Peered.save_canonical_uri(
+                 mirrored,
+                 "https://elsewhere.local/c/mirrored_activity"
+               )
+
+      :ok
+    end
+
+    for path <- ["/groups/feed", "/groups/feed/all"] do
+      test "#{path} shows both groups' posts with no origin chosen", %{
+        account: account,
+        me: me
+      } do
+        conn(user: me, account: account)
+        |> visit(unquote(path))
+        |> wait_async()
+        |> assert_has("[data-id=feed] article", text: @local_post)
+        |> assert_has("[data-id=feed] article", text: @remote_post)
+      end
+
+      for {label, origin, shown, hidden} <- [
+            {"This instance", "local", @local_post, @remote_post},
+            {"Other instances", "remote", @remote_post, @local_post}
+          ] do
+        test "#{path}: the origin menu's #{label} shows only its group's post, and stays in the URL",
+             %{account: account, me: me} do
+          conn(user: me, account: account)
+          |> visit(unquote(path))
+          |> wait_async()
+          |> assert_has("[data-id=feed] article", text: @local_post)
+          |> assert_has("[data-id=feed] article", text: @remote_post)
+          |> choose(unquote(label))
+          |> wait_async()
+          |> assert_has("[data-id=feed] article", text: unquote(shown))
+          |> refute_has("[data-id=feed] article", text: unquote(hidden))
+          |> assert_path(unquote(path), query_params: %{"origin" => unquote(origin)})
+        end
+
+        test "#{path}: More filters' origin #{label} shows only its group's post", %{
+          account: account,
+          me: me
+        } do
+          conn(user: me, account: account)
+          |> visit(unquote(path))
+          |> wait_async()
+          |> assert_has("[data-id=feed] article", text: @local_post)
+          |> assert_has("[data-id=feed] article", text: @remote_post)
+          |> click_button("[data-role=open_modal]", "More filters")
+          |> click_button("#{@origin_scope} [role=radio]", unquote(label))
+          |> click_button("Apply filters")
+          |> wait_async()
+          |> assert_has("[data-id=feed] article", text: unquote(shown))
+          |> refute_has("[data-id=feed] article", text: unquote(hidden))
+        end
+      end
+    end
+  end
+
+  # two posts in the joined group: the older one has replies, the newer one has none, so newest first and most replied put them in opposite orders
+  describe "Most replied on the feed views" do
+    @replied_post "An older post with replies"
+    @quiet_post "A newer post without replies"
+
+    setup %{group_a: group_a} do
+      author = fake_user!()
+      replier = fake_user!()
+
+      replied = Simulate.fake_post_in_group!(author, group_a, "<p>#{@replied_post}</p>")
+
+      for n <- 1..2 do
+        {:ok, _} =
+          Bonfire.Posts.publish(
+            current_user: replier,
+            post_attrs: %{
+              post_content: %{html_body: "<p>reply #{n}</p>"},
+              reply_to_id: replied.id
+            },
+            boundary: "public"
+          )
+      end
+
+      Simulate.fake_post_in_group!(author, group_a, "<p>#{@quiet_post}</p>")
+
+      :ok
+    end
+
+    for path <- ["/groups/feed", "/groups/feed/all"] do
+      test "#{path}: Most replied puts the post with more replies first", %{
+        account: account,
+        me: me
+      } do
+        conn(user: me, account: account)
+        |> visit(unquote(path))
+        |> wait_async()
+        |> assert_feed_order(@quiet_post, @replied_post)
+        |> PhoenixTest.select("Sort", option: "Most replied")
+        |> wait_async()
+        |> assert_has("select[name=feed_order] option[value=reply_count][selected]")
+        |> assert_feed_order(@replied_post, @quiet_post)
+      end
+    end
+  end
+
+  # both texts are in the feed, `first` in an article above `second`'s
+  defp assert_feed_order(session, first, second) do
+    PhoenixTest.unwrap(session, fn view ->
+      html = Phoenix.LiveViewTest.render(view)
+
+      texts =
+        html
+        |> Floki.parse_document!()
+        |> Floki.find("[data-id=feed] article")
+        |> Enum.map(&Floki.text/1)
+
+      first_at = Enum.find_index(texts, &(&1 =~ first))
+      second_at = Enum.find_index(texts, &(&1 =~ second))
+
+      assert first_at, "#{inspect(first)} should be in the feed"
+      assert second_at, "#{inspect(second)} should be in the feed"
+
+      assert first_at < second_at,
+             "#{inspect(first)} (article #{first_at}) should come before #{inspect(second)} (article #{second_at})"
+
+      html
+    end)
   end
 end

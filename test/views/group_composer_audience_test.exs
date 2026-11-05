@@ -27,6 +27,7 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
       open_menu(composer, "composer_audience_picker")
       composer |> element("[data-audience-group='#{group.id}']") |> render_click()
       assert has_element?(composer, "#composer_group_visibility_trigger", "Group members only")
+
       # the title appears once posting in a group, and is recommended there: without one, threadiverse servers list the post as a short post rather than a thread, and a title added later won't change that
       assert has_element?(composer, "#smart_input_post_title:not(.hidden) #composer_post_title")
       assert has_element?(composer, "#composer_post_title[placeholder=Recommended]")

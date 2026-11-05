@@ -19,7 +19,10 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
 
     actors = %{
       @remote_group =>
-        APSimulate.actor_json(@remote_group, "cooks", %{"type" => "Group", "name" => "Remote cooks"}),
+        APSimulate.actor_json(@remote_group, "cooks", %{
+          "type" => "Group",
+          "name" => "Remote cooks"
+        }),
       @remote_person => APSimulate.actor_json(@remote_person, "dave", %{"name" => "Dave Person"})
     }
 
@@ -33,8 +36,11 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
         send(test_pid, {:fetched, url})
 
         case webfingers[URI.decode_query(URI.parse(url).query || "")["resource"]] do
-          nil -> %Tesla.Env{status: 404, body: ""}
-          actor_id -> json(APSimulate.webfingered(actors[actor_id]["preferredUsername"], actor_id))
+          nil ->
+            %Tesla.Env{status: 404, body: ""}
+
+          actor_id ->
+            json(APSimulate.webfingered(actors[actor_id]["preferredUsername"], actor_id))
         end
 
       %{method: :get, url: url} ->

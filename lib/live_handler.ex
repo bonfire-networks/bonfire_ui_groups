@@ -13,7 +13,9 @@ defmodule Bonfire.UI.Groups.LiveHandler do
       case params do
         %{"category" => %{"sensitive" => sensitive}} ->
           %{profile: profile, sensitive: sensitive == "true"}
-        _ -> %{profile: profile}
+
+        _ ->
+          %{profile: profile}
       end
 
     # Uploads save independently, so the modal's opening snapshot can be stale.

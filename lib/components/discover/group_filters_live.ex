@@ -7,6 +7,7 @@ defmodule Bonfire.UI.Groups.GroupFiltersLive do
   prop search_term, :string, default: ""
   prop join_filter, :string, default: "all"
   prop origin, :string, default: "all"
+
   @doc "True while the search index answers the typed term, when the public/private switch takes the joining-policy menu's place"
   prop index_search, :boolean, default: false
   prop search_index, :string, default: "public"
@@ -44,13 +45,16 @@ defmodule Bonfire.UI.Groups.GroupFiltersLive do
         []
 
       paired ->
-        {directory, feed} = if view in [:feed, :feed_all], do: {paired, view}, else: {view, paired}
+        {directory, feed} =
+          if view in [:feed, :feed_all], do: {paired, view}, else: {view, paired}
+
         query = %{"origin" => origin}
 
         [
-          {l("Groups"), Bonfire.UI.Groups.ExploreLive.view_path(directory, query),
+          {l("Directory"), Bonfire.UI.Groups.ExploreLive.view_path(directory, query),
            view == directory},
-          {l("Latest updates"), Bonfire.UI.Groups.ExploreLive.view_path(feed, query), view == feed}
+          {l("Latest updates"), Bonfire.UI.Groups.ExploreLive.view_path(feed, query),
+           view == feed}
         ]
     end
   end
