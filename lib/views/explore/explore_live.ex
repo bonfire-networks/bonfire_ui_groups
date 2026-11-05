@@ -218,7 +218,9 @@ defmodule Bonfire.UI.Groups.ExploreLive do
                feed_name: feed_name,
                feed_filters: feed_filters,
                # these feeds are only group activities, so switching them off would empty them
-               hide_filters: [:group_activity]
+               # hide_filters: [:group_activity]
+               # replaced: Origin is also left out, as the /groups origin menu covers it here, and the feed's own origin filter empties feeds limited to group outboxes (see `Bonfire.Social.Activities.maybe_filter/3`)
+               hide_filters: [:group_activity, :origin]
              ]}
           ]
         ]
