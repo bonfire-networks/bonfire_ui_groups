@@ -62,7 +62,7 @@
     <section
       :if={@selected_tab != "members" and @moderators != []}
       data-role="group-sidebar-moderators"
-      class="py-3"
+      class="pt-3"
     >
       <h3 class="mb-2 type-overline text-subtle">{l("Moderators")}</h3>
       <div class="flex flex-col">
