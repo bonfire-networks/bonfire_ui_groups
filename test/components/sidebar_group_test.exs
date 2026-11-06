@@ -97,7 +97,8 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
 
     # as the sidebar has it, so the link reads only what that load brings
     assert [{loaded, _topics}] =
-             Bonfire.Classify.my_pinned_tree(user) |> Enum.filter(&(id(elem(&1, 0)) == mirrored.id))
+             Bonfire.Classify.my_pinned_tree(user)
+             |> Enum.filter(&(id(elem(&1, 0)) == mirrored.id))
 
     document =
       render_component(&SidebarGroupLive.render/1,

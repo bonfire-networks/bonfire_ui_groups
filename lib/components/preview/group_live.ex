@@ -1,6 +1,8 @@
 defmodule Bonfire.UI.Groups.Preview.GroupLive do
   use Bonfire.UI.Common.Web, :stateless_component
   alias Bonfire.Classify.Categories
+  # `sensitive_part_id/3` and `show_sensitive/2`, which the topic card shares
+  alias Bonfire.Classify.Web.Preview.CategoryLive
 
   prop object, :any
   prop preview, :map, default: %{}
@@ -13,6 +15,8 @@ defmodule Bonfire.UI.Groups.Preview.GroupLive do
     do: [
       :character,
       :profile,
+      # the card of a group marked sensitive blurs its images and hides its description
+      :sensitive,
       parent_category: [:profile, :character]
     ]
 

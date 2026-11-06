@@ -67,6 +67,15 @@
       >{@form[:summary].value}</textarea>
     </div>
 
+    <Bonfire.Classify.Web.SensitiveSwitchLive
+      category={@category}
+      id="group_settings_sensitive"
+      label={l("Mark this group as sensitive")}
+      help={l(
+        "People see a content warning before its posts, and its banner and icon are blurred. Lemmy, PieFed and Mbin treat it as NSFW: some of their instances hide or refuse it, so fewer people there will find it."
+      )}
+    />
+
     <div class="flex justify-end gap-3 pt-3">
       <button type="reset" id="group_settings_identity_reset" class="btn btn-ghost normal-case">{l("Reset text fields")}</button>
       <button

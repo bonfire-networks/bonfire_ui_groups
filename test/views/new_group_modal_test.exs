@@ -269,6 +269,51 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     end
   end
 
+  # a group can be marked sensitive (a content warning on the whole group) as it is created, not only later in its settings
+  describe "marked sensitive" do
+    defp created_sensitive?(name) do
+      id =
+        from(c in Category, join: p in assoc(c, :profile), where: p.name == ^name, select: c.id)
+        |> Repo.one!()
+
+      {:ok, group} =
+        Bonfire.Classify.Categories.get(id, [:default, skip_boundary_check: true])
+
+      Bonfire.Classify.Categories.sensitive?(group)
+    end
+
+    defp create_from_modal(conn, name, fun) do
+      conn
+      |> visit("/groups")
+      |> click_button("[data-role=open_modal]", "Create group")
+      |> click_button("[data-preset=local_community]", "Local community")
+      # not an exact label match: it is followed by a required-field `*`
+      |> fill_in("#new_group_name", "Group name", with: name, exact: false)
+      |> fun.()
+      |> click_button("#new_group_form button[type=submit]", "Create group")
+    end
+
+    test "a group created without ticking the box starts unmarked", %{conn: conn} do
+      name = "Unmarked #{System.unique_integer([:positive])}"
+
+      conn
+      |> create_from_modal(name, fn session ->
+        refute_has(session, "#new_group_sensitive[checked]")
+      end)
+
+      assert created_sensitive?(name) == false
+    end
+
+    test "a group created with the box ticked starts marked", %{conn: conn} do
+      name = "Marked #{System.unique_integer([:positive])}"
+
+      conn
+      |> create_from_modal(name, &check(&1, "Mark this group as sensitive"))
+
+      assert created_sensitive?(name) == true
+    end
+  end
+
   describe "config integrity" do
     # These lock in the preset → boundary-dimension mapping contract.
     # Per DESIGN.md §"Layer 1 — Defaults": every preset must produce a complete,

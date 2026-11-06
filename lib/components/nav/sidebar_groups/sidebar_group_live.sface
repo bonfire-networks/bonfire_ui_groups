@@ -16,7 +16,11 @@
         "[@media(hover:hover)]:group-hover/row:opacity-0 [@media(hover:hover)]:group-has-[summary:focus-visible]/row:opacity-0":
           @topics != []
       ]}>
-        {#case Media.avatar_url(@category)}
+        {!-- a group marked sensitive gets its generated tile, not its icon: too small to blur and reveal --}
+        {#case if(Bonfire.Classify.Categories.sensitive?(@category),
+            do: "/images/avatar.png",
+            else: Media.avatar_url(@category)
+          )}
           {#match "/images/avatar.png"}
             <Bonfire.UI.Common.NavTileLive object={@category} name={@group_name} />
           {#match url}

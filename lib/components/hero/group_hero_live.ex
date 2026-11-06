@@ -31,6 +31,9 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
   @doc "Offer Topic settings in the selected chip's menu, decided by the page."
   prop can_edit_topic, :boolean, default: false
 
+  @doc "The page shows its sensitive notice (`Bonfire.UI.Groups.SensitiveNoticeLive`), so the banner and avatar are blurred until \"Continue\"."
+  prop sensitive_notice, :boolean, default: false
+
   @doc "The viewer's pin state for the ⋯ menu, see `Bonfire.UI.Groups.GroupHeroActionsLive`."
   prop pins, :map, default: %{instance: false, sidebar: false, can_pin_instance: false}
 

@@ -159,6 +159,10 @@ defmodule Bonfire.UI.Groups.GroupLive do
       to_boundaries:
         List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(category))
     }
+    # in a group or topic marked sensitive, the composer opens with "sensitive" on, which the author can turn off: a prefill, nothing is enforced at publish
+    |> Map.merge(
+      if(Bonfire.Classify.Categories.sensitive?(category), do: %{show_sensitive: true}, else: %{})
+    )
   end
 
   def tab(selected_tab) do

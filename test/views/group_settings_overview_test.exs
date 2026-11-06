@@ -195,6 +195,37 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     |> assert_has("#settings-group-name", text: updated_name)
   end
 
+  test "marking a group sensitive from its settings saves it, and unmarking saves that too", %{
+    conn: conn,
+    group: group
+  } do
+    sensitive? = fn ->
+      {:ok, got} = Categories.get(id(group), [:default, skip_boundary_check: true])
+      Categories.sensitive?(got)
+    end
+
+    session =
+      conn
+      |> visit("/&#{group.character.username}/settings")
+      |> click_button("#group_settings_identity_open", "Edit")
+      |> refute_has("#group_settings_sensitive[checked]")
+      |> check("Mark this group as sensitive")
+      |> click_button("#group_settings_identity_save", "Save changes")
+      |> assert_has("#modal [role=status]", text: "Category updated!")
+
+    assert sensitive?.() == true
+
+    session
+    |> visit("/&#{group.character.username}/settings")
+    |> click_button("#group_settings_identity_open", "Edit")
+    |> assert_has("#group_settings_sensitive[checked]")
+    |> uncheck("Mark this group as sensitive")
+    |> click_button("#group_settings_identity_save", "Save changes")
+    |> assert_has("#modal [role=status]", text: "Category updated!")
+
+    assert sensitive?.() == false
+  end
+
   # the setup's group is nonfederated, which rightly stays silent, so this one federates
   if Bonfire.Common.Extend.extension_enabled?(:bonfire_federate_activitypub) do
     test "renaming a federated group from its settings tells other instances", %{

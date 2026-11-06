@@ -1,11 +1,11 @@
 {#if Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category) ||
     Bonfire.Boundaries.can?(@__context__, :mediate, @category)}
-  {!-- the group's two moderation feeds together: its NOTIFICATIONS (what moderators act on: reports, join requests, and the moderation records, its log) and its INBOX (posts submitted to it), minus what it has already shared (its outbox). Reports (`include_flags`) and requests about the group rather than the viewer (`include_requests`) are kept in only here, behind the moderation check above, as the notifications preset does for one's own. The feeds go in `feed_filters`, which a named preset keeps, not `feed_id`, which it replaces --}
+  {!-- the group's two moderation feeds together: its NOTIFICATIONS (what moderators act on: reports, join requests, and the moderation records, its log) and its INBOX (posts submitted to it), minus what it has already shared (its outbox). Reports (`include_flags`) and requests about the group rather than the viewer (`include_requests`) are kept in only here, behind the moderation check above, as the notifications preset does for one's own. The feeds go in `runtime_filters`, which scope the query on every load without being part of the feed's own filters, not `feed_id`, which a named preset replaces --}
   <StatefulComponent
     module={maybe_component(Bonfire.UI.Social.FeedLive, @__context__)}
     id={ComponentID.new(Bonfire.UI.Social.FeedLive, "group_moderation_#{id(@category)}", __MODULE__)}
     feed_name={:moderation}
-    feed_filters={%{
+    runtime_filters={%{
       feed_ids:
         Enum.reject(
           [
@@ -13,7 +13,9 @@
             e(@category, :character, :inbox_id, nil)
           ],
           &is_nil/1
-        ),
+        )
+    }}
+    feed_filters={%{
       exclude_feed_ids: e(@category, :character, :outbox_id, nil),
       # an inbox lists events, and most of a group's are about the group itself (join requests, follows), which one-row-per-object would collapse into one, as the flag presets also avoid
       show_objects_only_once: false

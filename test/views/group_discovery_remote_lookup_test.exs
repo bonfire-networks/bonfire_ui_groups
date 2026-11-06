@@ -19,7 +19,10 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
 
     actors = %{
       @remote_group =>
-        APSimulate.actor_json(@remote_group, "cooks", %{"type" => "Group", "name" => "Remote cooks"}),
+        APSimulate.actor_json(@remote_group, "cooks", %{
+          "type" => "Group",
+          "name" => "Remote cooks"
+        }),
       @remote_person => APSimulate.actor_json(@remote_person, "dave", %{"name" => "Dave Person"})
     }
 
@@ -33,8 +36,11 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
         send(test_pid, {:fetched, url})
 
         case webfingers[URI.decode_query(URI.parse(url).query || "")["resource"]] do
-          nil -> %Tesla.Env{status: 404, body: ""}
-          actor_id -> json(APSimulate.webfingered(actors[actor_id]["preferredUsername"], actor_id))
+          nil ->
+            %Tesla.Env{status: 404, body: ""}
+
+          actor_id ->
+            json(APSimulate.webfingered(actors[actor_id]["preferredUsername"], actor_id))
         end
 
       %{method: :get, url: url} ->
@@ -61,7 +67,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
     local_group: local_group
   } do
     conn
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> wait_async()
     |> assert_has("#group-preview-#{id(local_group)}")
     |> fill_in("Search groups", with: "!cooks@mocked.local")
@@ -72,7 +78,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
 
   test "a URL that resolves to a person says it isn't a group and shows no person", %{conn: conn} do
     conn
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> wait_async()
     |> fill_in("Search groups", with: @remote_person)
     |> wait_async()
@@ -90,7 +96,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
     )
 
     conn
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> wait_async()
     |> assert_has("#group-preview-#{id(local_group)}")
     |> fill_in("Search groups", with: "!cooks@mocked.local")
@@ -111,7 +117,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryRemoteLookupTest do
     other_group = Simulate.fake_group!(me, %{name: "Quiet readers"})
 
     conn
-    |> visit("/groups")
+    |> visit("/groups/discover")
     |> wait_async()
     |> assert_has("#group-preview-#{id(other_group)}")
     |> fill_in("Search groups", with: "bakers")
