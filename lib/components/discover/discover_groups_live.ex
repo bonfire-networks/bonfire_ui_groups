@@ -12,4 +12,7 @@ defmodule Bonfire.UI.Groups.DiscoverGroupsLive do
   prop origin, :string, default: "all"
 
   prop selected_tab, :string, default: "discover"
+
+  @doc "The path the \"Next page\" link adds its cursor to: the view's own path, so it names the view even when the bare `/groups` shows it. With none, the current URL"
+  prop current_url, :string, default: nil
 end
