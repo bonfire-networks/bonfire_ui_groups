@@ -64,7 +64,10 @@
     {#match _}
       <StatelessComponent
         module={cond do
-          e(assigns, :view_mode, :full) == :preview ->
+          # e(assigns, :view_mode, :full) == :preview ->
+          # the members tab gets through for whoever may see the list without reading the group (`Categories.roster_visible?/2`, eg. an instance admin), and every other tab stays gated
+          e(assigns, :view_mode, :full) == :preview and
+              not (@selected_tab == "members" and e(assigns, :roster_visible?, false)) ->
             Bonfire.UI.Groups.AccessGateLive
 
           # a group or topic marked sensitive, until "Continue"

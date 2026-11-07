@@ -79,5 +79,36 @@ if Bonfire.Common.Extend.extension_enabled?(:bonfire_ui_groups) do
       |> assert_has("#group-member-directory", text: "Bob Beta")
       |> assert_has("#group-member-directory", text: "Cara Gamma")
     end
+
+    # an instance admin sees the whole list of a group hosted here, read-only, where it is for members only
+    test "an instance admin who is not a member loads every page of a group joined by request", %{
+      admin: creator
+    } do
+      group =
+        Simulate.fake_group!(creator, %{
+          name: "Paginate Request Group",
+          membership: "on_request",
+          visibility: "global"
+        })
+
+      m1 = fake_user!(fake_account!(), %{name: "Alice Alpha"})
+      m2 = fake_user!(fake_account!(), %{name: "Bob Beta"})
+      m3 = fake_user!(fake_account!(), %{name: "Cara Gamma"})
+
+      for m <- [m1, m2, m3],
+          do: {:ok, _} = Categories.add_member(creator, group, id(m), skip_boundary_check: true)
+
+      instance_admin_account = fake_account!()
+      instance_admin = fake_admin!(instance_admin_account)
+      refute Categories.member?(instance_admin, group), "control: not a member"
+
+      conn(user: instance_admin, account: instance_admin_account)
+      |> visit(members_path(group))
+      |> wait_async()
+      |> click_button("[data-id=load_more]", "Load more")
+      |> assert_has("#group-member-directory", text: "Alice Alpha")
+      |> assert_has("#group-member-directory", text: "Bob Beta")
+      |> assert_has("#group-member-directory", text: "Cara Gamma")
+    end
   end
 end

@@ -112,6 +112,33 @@ defmodule Bonfire.UI.Groups.GroupModerationInboxTest do
     |> refute_has("[data-id=feed] article", text: "Just an ordinary post")
   end
 
+  # the rows about the group (its follows, the join request) show its card with a follow toggle beside Join; the toggle's bell, "notify me about new posts", waits for a follow there, also for a local group
+  test "the follow toggle on the group's card in the moderation inbox shows its bell only once following",
+       %{
+         group: group,
+         moderator: moderator,
+         moderator_account: moderator_account
+       } do
+    Bonfire.Social.Graph.Follows.unfollow(moderator, group)
+    refute Bonfire.Social.Graph.Follows.following?(moderator, group)
+
+    toggle = "[id^='follow_feed_#{id(group)}_']"
+
+    conn(user: moderator, account: moderator_account)
+    |> visit("/group/#{group.character.username}/settings/moderation")
+    |> wait_async()
+    # the control: the card's follow toggle is there, so a missing bell is the toggle's choice
+    |> assert_has_or_open_browser(toggle)
+    |> refute_has("#{toggle}[id$='_bell'][data-role=bell_button]")
+
+    {:ok, _} = Bonfire.Social.Graph.Follows.follow(moderator, group)
+
+    conn(user: moderator, account: moderator_account)
+    |> visit("/group/#{group.character.username}/settings/moderation")
+    |> wait_async()
+    |> assert_has_or_open_browser("#{toggle}[id$='_bell'][data-role=bell_button]")
+  end
+
   test "someone who doesn't moderate the group doesn't see its reports in the group's inbox", %{
     group: group,
     member: member,
