@@ -82,6 +82,19 @@
                 <span class="flex-1 truncate" data-role="label">{l("Copy link")}</span>
               </a>
             </li>
+            {!-- a topic hosted elsewhere: fetches what its origin has posted that we have not met, into the topic's feed here --}
+            <li :if={not is_nil(e(@selected_topic, :character, :peered, nil)) and
+              current_user_id(@__context__)}>
+              <button
+                type="button"
+                phx-click="Bonfire.Me.Users:fetch_outbox"
+                phx-value-id={id(@selected_topic)}
+                class="flex items-center gap-3 w-full text-sm text-base-content"
+              >
+                <#Icon iconify="ph:sort-ascending-duotone" class="size-4 shrink-0 text-muted" />
+                <span class="flex-1 truncate">{l("Get latest activities")}</span>
+              </button>
+            </li>
             <li :if={@can_edit_topic}>
               <Bonfire.UI.Common.OpenModalLive
                 id={"edit_topic_modal_#{uid(@selected_topic)}"}
