@@ -27,8 +27,9 @@
   </nav>
 
   {!-- the view tabs; on the feed views, the origin menu sits at the end of their row, as there is no search row --}
+  {!-- was `:if={current_user_id(@__context__) || feed_view?(@view)}`; the origin menu is now for signed-in users only, so a guest has nothing in this row --}
   <div
-    :if={current_user_id(@__context__) || feed_view?(@view)}
+    :if={current_user_id(@__context__)}
     id="group-view-filter"
     class="flex items-center gap-6 border-b-hair border-divider"
   >
@@ -65,7 +66,11 @@
     />
   </div>
 
-  <div :if={!feed_view?(@view)} class="flex flex-wrap items-center gap-2">
+  {!-- was `:if={!feed_view?(@view)}`; a guest gets no search box nor filter menus, and reads this instance's groups (see `Bonfire.UI.Groups.ExploreLive`) --}
+  <div
+    :if={!feed_view?(@view) and current_user_id(@__context__)}
+    class="flex flex-wrap items-center gap-2"
+  >
     {!-- the search box searches groups, so the feed views don't show this row --}
     <label for="group-discovery-search" class="sr-only">{l("Search groups")}</label>
     <div class="input h-10 min-w-0 flex-1 basis-full gap-1 rounded-field border-0 bg-fill pl-1 transition-colors focus-within:bg-fill-strong focus-within:outline-none sm:basis-auto">

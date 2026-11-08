@@ -42,6 +42,81 @@ defmodule Bonfire.UI.Groups.GroupGuestInteractionTest do
     test "on a federated group offers a guest remote interaction" do
       assert join_as_guest(group!("global")) =~ "remote_interaction"
     end
+
+    # the other server fetches `url=` to find what to join, so it has to name the group's actor, not an object route that only serves posts
+    test "on a federated group points remote interaction at the group's actor" do
+      group = group!("global")
+      to = join_as_guest(group)
+
+      %URI{path: path, query: query} = URI.parse(to)
+      params = URI.decode_query(query || "")
+
+      assert path == "/remote_interaction"
+      assert params["type"] == "join"
+
+      expected = Bonfire.Common.URIs.canonical_url(group)
+      assert is_binary(expected) and expected != ""
+      refute expected =~ "/pub/objects/"
+
+      assert params["url"] == expected
+      refute params["url"] =~ "/pub/objects/"
+
+      # what the other server gets when it fetches that URL
+      actor_json =
+        build_conn()
+        |> put_req_header("accept", "application/activity+json")
+        |> get(URI.parse(params["url"]).path)
+        |> json_response(200)
+
+      assert actor_json["type"] == "Group"
+      assert actor_json["id"] == expected
+    end
+  end
+
+  # a visitor not signed in has no live socket: their click is a plain request to the LiveHandler route (`bonfire_basic.js`), carrying only the button's id, so this is the path they take
+  describe "Join, as a visitor without a live socket" do
+    defp join_without_socket(group) do
+      conn = get(conn(), "/LiveHandler/Bonfire.UI.Groups/join_group?id=#{group.id}")
+
+      assert conn.status in [301, 302],
+             "not redirected (#{conn.status}): " <>
+               (conn.resp_body
+                |> Floki.parse_document!()
+                |> Floki.find("main, body")
+                |> Floki.text()
+                |> String.split()
+                |> Enum.join(" ")
+                |> String.slice(0, 400))
+
+      redirected_to(conn)
+    end
+
+    defp remote_page(to) do
+      %URI{path: path, query: query} = URI.parse(to)
+      {:ok, _view, html} = live(conn(), "#{path}?#{query}")
+      html
+    end
+
+    test "on a federated group leads to remote interaction with the group's actor" do
+      group = group!("global")
+      to = join_without_socket(group)
+
+      assert to =~ "/remote_interaction"
+      assert to =~ "type=join"
+
+      # what the page hands the visitor's instance: the group's actor, as with a live socket above
+      expected = Bonfire.Common.URIs.canonical_url(group, preload_if_needed: true)
+      refute expected =~ "/pub/objects/"
+      assert remote_page(to) =~ ~s(value="#{expected}")
+    end
+
+    test "on a non-federated group offers only to sign in" do
+      group = group!("nonfederated")
+      to = join_without_socket(group)
+
+      refute to =~ "/remote_interaction" and remote_page(to) =~ "Interact remotely",
+             "a group no other server can fetch cannot be joined from one"
+    end
   end
 
   describe "Follow" do

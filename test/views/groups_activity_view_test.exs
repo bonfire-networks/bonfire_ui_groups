@@ -390,6 +390,243 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
     end
   end
 
+  # a guest has no menus to choose with, so /groups shows them only the mode switch
+  describe "as a guest" do
+    test "a signed-in user has the search box, the filter menus and the feed's customise widget",
+         %{account: account, me: me} do
+      conn(user: me, account: account)
+      |> visit("/groups/discover")
+      |> assert_has("#group-discovery-search")
+      |> assert_has("#group-origin-filters")
+      |> assert_has("#group-policy-filters")
+
+      conn(user: me, account: account)
+      |> visit("/groups/feed/all")
+      |> wait_async()
+      |> assert_has("#group-origin-filters")
+      |> assert_has("[data-role=feed_advanced_filters]")
+    end
+
+    for path <- ["/groups", "/groups/discover", "/groups/feed/all"] do
+      test "#{path} shows a guest no search box and no filter menus, and keeps the mode switch" do
+        conn()
+        |> visit(unquote(path))
+        |> wait_async()
+        |> assert_has("#group-mode-switch")
+        |> refute_has("#group-discovery-search")
+        |> refute_has("#group-origin-filters")
+        |> refute_has("#group-policy-filters")
+        |> refute_has("#group-index-filters")
+      end
+    end
+
+    test "/groups/feed/all shows a guest no customise widget" do
+      conn()
+      |> visit("/groups/feed/all")
+      |> wait_async()
+      |> assert_has("[data-id=feed] article", text: "A post in the other group")
+      |> refute_has("[data-role=feed_advanced_filters]")
+      |> refute_has("select[name=feed_order]")
+    end
+
+    # with no origin menu to change it, a guest's origin is this instance
+    test "a signed-in user sees local and mirrored groups and posts with no origin chosen", %{
+      account: account,
+      me: me,
+      group_b: group_b
+    } do
+      mirrored = mirrored_group_with_post!()
+
+      conn(user: me, account: account)
+      |> visit("/groups/discover")
+      |> assert_has("#group-preview-#{id(group_b)}")
+      |> assert_has("#group-preview-#{id(mirrored)}")
+
+      conn(user: me, account: account)
+      |> visit("/groups/feed/all")
+      |> wait_async()
+      |> assert_has("[data-id=feed] article", text: "A post in the other group")
+      |> assert_has("[data-id=feed] article", text: "A post in the mirrored group")
+    end
+
+    for path <- ["/groups", "/groups/discover"] do
+      test "#{path} lists only this instance's groups to a guest", %{group_b: group_b} do
+        mirrored = mirrored_group_with_post!()
+
+        conn()
+        |> visit(unquote(path))
+        |> assert_has("#group-preview-#{id(group_b)}")
+        |> refute_has("#group-preview-#{id(mirrored)}")
+      end
+    end
+
+    test "/groups/feed/all shows a guest only posts in this instance's groups" do
+      mirrored_group_with_post!()
+
+      conn()
+      |> visit("/groups/feed/all")
+      |> wait_async()
+      |> assert_has("[data-id=feed] article", text: "A post in the other group")
+      |> refute_has("[data-id=feed] article", text: "A post in the mirrored group")
+    end
+  end
+
+  # four public groups on this instance, each page holding two, and four posts in them
+  describe "guest pagination" do
+    setup %{group_b: group_b} do
+      Process.put([:bonfire, :default_pagination_limit], 2)
+
+      owner = fake_user!()
+
+      for n <- 1..2 do
+        Simulate.fake_group!(owner, Map.put(@open_group, :name, "Paged Group #{n}"))
+
+        Simulate.fake_post_in_group!(
+          owner,
+          group_b,
+          "<p>Another post #{n} in the other group</p>"
+        )
+      end
+
+      :ok
+    end
+
+    test "Load more shows a guest the directory's next groups" do
+      conn()
+      |> visit("/groups/discover")
+      |> assert_has("article[id^=group-preview-]", count: 2)
+      |> click_button("[data-id=load_more]", "Load more")
+      |> assert_has("article[id^=group-preview-]", count: 4)
+    end
+
+    test "Load more shows a guest the feed's next posts" do
+      conn()
+      |> visit("/groups/feed/all")
+      |> wait_async()
+      |> assert_has("[data-id=feed] article", count: 2)
+      |> click_button("[data-id=load_more]", "Load more")
+      |> wait_async()
+      |> assert_has("[data-id=feed] article", count: 4)
+    end
+
+    # the link a browser without JavaScript follows
+    for {path, selector} <- [
+          {"/groups/discover", "article[id^=group-preview-]"},
+          {"/groups/feed/all", "[data-id=feed] article"}
+        ] do
+      test "#{path}: Next page shows a guest the next page, without JavaScript" do
+        session =
+          conn()
+          |> visit(unquote(path))
+          |> wait_async()
+          |> assert_has(unquote(selector), count: 2)
+
+        first_page = shown_ids(session, unquote(selector))
+
+        session =
+          session
+          |> click_link("a[data-id=next_page]", "Next page")
+          |> wait_async()
+          |> assert_has(unquote(selector), count: 2)
+
+        next_page = shown_ids(session, unquote(selector))
+
+        assert MapSet.disjoint?(MapSet.new(first_page), MapSet.new(next_page)),
+               "the next page should not repeat the first page's #{inspect(first_page)}, got #{inspect(next_page)}"
+      end
+    end
+
+    # what a guest's browser gets: the static render only, with no LiveView connected, which PhoenixTest's `visit` always does. `/groups` opens on the directory for a guest, who has joined no groups, unless the instance's "Groups page opens on" names the feed
+    for {path, default_view, view, selector} <- [
+          {"/groups", nil, :discover, "article[id^=group-preview-]"},
+          {"/groups/", nil, :discover, "article[id^=group-preview-]"},
+          {"/groups", :feed_all, :feed_all, "[data-id=feed] article"},
+          {"/groups/discover", nil, :discover, "article[id^=group-preview-]"},
+          {"/groups/feed/all", nil, :feed_all, "[data-id=feed] article"}
+        ] do
+      test "#{path}#{if default_view, do: " opening on #{default_view}"}: the static render of Next page shows a guest the next page, at the view's own path" do
+        if unquote(default_view),
+          do:
+            Process.put(
+              [:bonfire_ui_groups, Bonfire.UI.Groups, :default_view],
+              unquote(default_view)
+            )
+
+        first_html = conn() |> get(unquote(path)) |> html_response(200)
+        first_page = static_ids(first_html, unquote(selector))
+
+        assert length(first_page) == 2,
+               "the first page should show 2, got #{inspect(first_page)}"
+
+        assert [href] =
+                 first_html
+                 |> Floki.parse_document!()
+                 |> Floki.find("a[data-id=next_page]")
+                 |> Floki.attribute("href")
+
+        %URI{path: next_path, query: next_query} = URI.parse(href)
+
+        next_page =
+          conn()
+          |> get("#{next_path}?#{next_query}")
+          |> html_response(200)
+          |> static_ids(unquote(selector))
+
+        assert next_page != [], "the next page (#{href}) should show the next items, got none"
+
+        assert MapSet.disjoint?(MapSet.new(first_page), MapSet.new(next_page)),
+               "the next page (#{href}) should not repeat the first page's #{inspect(first_page)}, got #{inspect(next_page)}"
+
+        assert next_path == Bonfire.UI.Groups.ExploreLive.view_path(unquote(view)),
+               "Next page should link to the view's own path, got #{href}"
+      end
+    end
+  end
+
+  defp static_ids(html, selector) do
+    html
+    |> Floki.parse_document!()
+    |> Floki.find(selector)
+    |> Floki.attribute("id")
+  end
+
+  # the ids of the elements `selector` finds on the page; `unwrap` returns the session, so they come back as a message
+  defp shown_ids(session, selector) do
+    PhoenixTest.unwrap(session, fn view ->
+      html = Phoenix.LiveViewTest.render(view)
+
+      ids =
+        html
+        |> Floki.parse_document!()
+        |> Floki.find(selector)
+        |> Floki.attribute("id")
+
+      send(self(), {:shown_ids, ids})
+      html
+    end)
+
+    assert_received {:shown_ids, ids}
+    ids
+  end
+
+  # a public group with a post, mirrored from another instance through a `Peered` row
+  defp mirrored_group_with_post! do
+    owner = fake_user!()
+
+    mirrored =
+      Simulate.fake_group!(owner, Map.put(@open_group, :name, "Mirrored Public Group"))
+
+    Simulate.fake_post_in_group!(owner, mirrored, "<p>A post in the mirrored group</p>")
+
+    assert {:ok, _} =
+             Bonfire.Federate.ActivityPub.Peered.save_canonical_uri(
+               mirrored,
+               "https://elsewhere.local/c/mirrored_public"
+             )
+
+    mirrored
+  end
+
   # both texts are in the feed, `first` in an article above `second`'s
   defp assert_feed_order(session, first, second) do
     PhoenixTest.unwrap(session, fn view ->

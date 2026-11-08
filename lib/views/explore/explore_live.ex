@@ -78,6 +78,8 @@ defmodule Bonfire.UI.Groups.ExploreLive do
        join_filter: "all",
        origin: "all",
        page_info: page_info,
+       # the cursor of the directory page shown, nil for the first (see `handle_params/3`)
+       page_after: nil,
        page_header_aside: [
          {Bonfire.UI.Groups.NewGroupLive,
           [
@@ -92,13 +94,20 @@ defmodule Bonfire.UI.Groups.ExploreLive do
 
   # the view comes from the route, and `tab` is no longer read. A guest has no groups of their own, so a view of them is patched to the matching view of every group, and the URL names what shows
   def handle_params(params, _uri, socket) do
+    # the cursor of the "Next page" link a browser without JavaScript follows (see `Bonfire.UI.Common.LoadMoreLive`), namespaced by this module; LiveHandlers then calls this again with it unwrapped. The feed views' link names `Bonfire.Social.Feeds` instead, whose LiveHandler loads that page
+    page_after = e(params, inspect(__MODULE__), "after", nil) || Map.get(params, "after")
+
     params = Map.get(params, "group_filters", params)
-    origin = valid_origin(Map.get(params, "origin"))
+    # origin = valid_origin(Map.get(params, "origin"))
+    # replaced: with no origin in the URL, a guest reads this instance's groups, as they have no origin menu
+    origin = valid_origin(Map.get(params, "origin"), default_origin(current_user(socket)))
     view = route_view(socket)
 
     case guest_view(view, current_user(socket)) do
       ^view ->
-        socket = load_group_view(socket, view, origin)
+        # socket = load_group_view(socket, view, origin)
+        # replaced: a directory view loads the page the cursor names
+        socket = load_group_view(socket, view, origin, page_after)
 
         if view in @feed_views do
           {:noreply, socket}
@@ -184,8 +193,13 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   defp view_tab(:archived), do: "archived"
   defp view_tab(_), do: "discover"
 
-  defp valid_origin(origin) when origin in @origins, do: origin
-  defp valid_origin(_), do: "all"
+  defp valid_origin(origin, default \\ "all")
+  defp valid_origin(origin, _default) when origin in @origins, do: origin
+  defp valid_origin(_, default), do: default
+
+  # the origin when the URL names none, for the directory and the feed alike: every instance for a signed-in user, who has the origin menu, and this instance for a guest, who doesn't
+  defp default_origin(nil), do: "local"
+  defp default_origin(_user), do: "all"
 
   # the feed tells the page when its filters change (`notify_filter_changes`), and the page passes them on to the sidebar's customise-feed widget, which offers to save the feed once they differ from where it started, as on `Bonfire.UI.Social.FeedsLive`
   def handle_info({:feed_filters_changed, component_id, feed_name, filters}, socket) do
@@ -199,8 +213,11 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     {:noreply, socket}
   end
 
+  # `page_after` is the cursor of the directory page to load, nil for the first
+  defp load_group_view(socket, view, origin, page_after \\ nil)
+
   # a feed view loads no groups: its `FeedLive` loads the feed itself, from the preset
-  defp load_group_view(socket, view, origin) when view in @feed_views do
+  defp load_group_view(socket, view, origin, _page_after) when view in @feed_views do
     feed_name = if view == :feed, do: :my_groups, else: :known_groups
     feed_component_id = "groups_feed_#{view}_#{origin}"
     {socket, feed_filters, runtime_filters} = groups_feed_filters(socket, view, origin)
@@ -278,14 +295,16 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     end
   end
 
-  defp load_group_view(socket, view, origin) do
+  defp load_group_view(socket, view, origin, page_after) do
     user = current_user(socket)
     joined = socket.assigns.joined_group_ids
+    page_opts = if page_after, do: [after: page_after], else: []
 
     {categories, previews, page_info} =
       case view do
         :joined ->
-          joined_groups_page(user, joined, [])
+          # joined_groups_page(user, joined, [])
+          joined_groups_page(user, joined, page_opts)
 
         :archived ->
           {groups, _page_info} = Classify.my_archived_groups(user)
@@ -293,11 +312,15 @@ defmodule Bonfire.UI.Groups.ExploreLive do
           {categories, previews, nil}
 
         :discover ->
-          if socket.assigns.view == :discover and socket.assigns.origin == origin do
+          # if socket.assigns.view == :discover and socket.assigns.origin == origin do
+          # replaced: the page already loaded is kept only if it is the same page
+          if socket.assigns.view == :discover and socket.assigns.origin == origin and
+               socket.assigns.page_after == page_after do
             {socket.assigns.all_categories, socket.assigns.group_previews,
              socket.assigns.page_info}
           else
-            discover_page(user, joined, origin)
+            # discover_page(user, joined, origin)
+            discover_page(user, joined, origin, page_opts)
           end
       end
 
@@ -306,6 +329,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
       sidebar_widgets: [],
       view: view,
       selected_tab: view_tab(view),
+      page_after: page_after,
       origin: origin,
       all_categories: categories,
       group_previews: previews,
@@ -334,8 +358,11 @@ defmodule Bonfire.UI.Groups.ExploreLive do
 
     socket =
       assign(socket,
+        # was `if(Map.get(params, "index", socket.assigns.search_index) == "closed",`; a guest has no public/private switch, so reads the public index
         search_index:
-          if(Map.get(params, "index", socket.assigns.search_index) == "closed",
+          if(
+            current_user(socket) &&
+              Map.get(params, "index", socket.assigns.search_index) == "closed",
             do: "closed",
             else: "public"
           )
@@ -428,7 +455,9 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   end
 
   defp filter_groups(socket, search_term, join_filter) do
-    search_term = String.trim(search_term)
+    # search_term = String.trim(search_term)
+    # replaced: a guest has no search box, so a term from the URL or a crafted event is ignored
+    search_term = if current_user(socket), do: String.trim(search_term), else: ""
     socket = maybe_look_up_group(socket, search_term)
 
     case index_search(socket, search_term, 0) do

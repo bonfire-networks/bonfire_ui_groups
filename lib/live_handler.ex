@@ -104,7 +104,12 @@ defmodule Bonfire.UI.Groups.LiveHandler do
   end
 
   def handle_event("join_group", %{"id" => id} = params, socket) do
-    with {:ok, current_user} <- current_user_or_remote_interaction(socket, "join", id),
+    # the event can only carry an id, but this runs with the button's own socket, so use the group when the caller passed one (as the Follow handler does): a guest is sent to remote interaction with the group's canonical URL, and a bare id gives an object URL, which another server can't resolve to the group's actor
+    object = assigned_object_or_id(socket, id)
+
+    # replaced: a bare id made the guest's remote interaction URL point at `/pub/objects/<id>` rather than the group's actor
+    # with {:ok, current_user} <- current_user_or_remote_interaction(socket, "join", id),
+    with {:ok, current_user} <- current_user_or_remote_interaction(socket, "join", object),
          {:ok, result} <- Categories.join_and_follow_group(current_user, id) do
       after_membership_change(
         socket,
@@ -131,6 +136,10 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
       # a guest: `current_user_or_remote_interaction/3` hands back the socket already redirecting them to sign in or to remote interaction
       %Phoenix.LiveView.Socket{} = redirecting ->
+        {:noreply, redirecting}
+
+      # the same, for a visitor with no live socket, whose click is a plain request to the LiveHandler route (`bonfire_basic.js`): the conn comes back redirecting
+      %Plug.Conn{} = redirecting ->
         {:noreply, redirecting}
 
       e ->

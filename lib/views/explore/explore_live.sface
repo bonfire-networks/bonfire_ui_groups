@@ -10,7 +10,8 @@
   />
 
   {#if @view in [:feed, :feed_all]}
-    {!-- the feed of the chosen groups, with the feed's own controls to narrow its posts --}
+    {!-- the feed of the chosen groups, with the feed's own controls to narrow its posts. `current_url` is the view's own path, so "Next page" names the view even when the bare `/groups` shows it --}
+    {!-- was `feed={nil}` and `loading`, so the feed always loaded its first page itself; the "Next page" link a browser without JavaScript follows has `Bonfire.Social.Feeds`' LiveHandler load the page it names into these assigns, as on `Bonfire.UI.Social.FeedsLive`, and with none the feed still loads itself --}
     <StatefulComponent
       module={maybe_component(Bonfire.UI.Social.FeedLive, @__context__)}
       id={@feed_component_id}
@@ -18,8 +19,10 @@
       feed_filters={@feed_filters}
       runtime_filters={@runtime_filters}
       notify_filter_changes
-      feed={nil}
-      loading
+      feed={@feed}
+      page_info={if is_list(@feed), do: @page_info}
+      loading={@loading}
+      current_url={view_path(@view)}
       page_title={@page_title}
       showing_within={:feed}
       custom_actions={Bonfire.UI.Social.Activity.DiscussionPreviewActionsLive}
@@ -120,6 +123,7 @@
       group_lookup={@group_lookup}
       join_filter={@join_filter}
       origin={@origin}
+      current_url={view_path(@view)}
     />
   {/if}
 </div>

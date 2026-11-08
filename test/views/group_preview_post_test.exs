@@ -115,6 +115,63 @@ defmodule Bonfire.UI.Groups.GroupPreviewPostTest do
     end
   end
 
+  describe "opening it, signed out" do
+    setup do
+      previous =
+        Bonfire.Common.Config.get(
+          [Bonfire.UI.Social.RestrictedContentLive],
+          nil,
+          :bonfire_ui_social
+        )
+
+      on_exit(fn ->
+        Bonfire.Common.Config.put(
+          [Bonfire.UI.Social.RestrictedContentLive],
+          previous,
+          :bonfire_ui_social
+        )
+      end)
+
+      Bonfire.Common.Config.put(
+        [Bonfire.UI.Social.RestrictedContentLive, :modularity],
+        true,
+        :bonfire_ui_social
+      )
+
+      # someone from another instance can only use their account there if this one federates, and the post is findable from anywhere
+      Process.put(:federating, true)
+      creator = fake_user!(fake_account!())
+
+      group =
+        Simulate.fake_group!(creator, %{
+          membership: "open",
+          visibility: "global",
+          participation: "anyone",
+          default_content_visibility: "public:preview"
+        })
+
+      author = fake_user!(fake_account!())
+
+      {:ok, _} =
+        Bonfire.Classify.Categories.add_member(creator, group, id(author),
+          skip_boundary_check: true
+        )
+
+      {:ok, post: Simulate.fake_post_in_group!(author, group, "<p>#{@body}</p>")}
+    end
+
+    # only members may read it, and an account on another instance is no member, so it couldn't read it there either: the link would lead nowhere
+    test "doesn't offer to use an account on another instance", %{post: post} do
+      conn()
+      |> visit("/post/#{id(post)}")
+      |> wait_async()
+      # the positive first: this is the restricted screen, not the post
+      |> assert_has("[data-role=restricted_content]")
+      |> refute_has("body", text: @body)
+      |> refute_has("[data-role=remote_interaction]")
+    end
+  end
+
   test "a member reads it", %{creator: creator, group: group, post: post} do
     account = fake_account!()
     member = fake_user!(account)

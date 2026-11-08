@@ -102,6 +102,7 @@
         :if={@page_info}
         live_handler="Bonfire.UI.Groups.ExploreLive"
         page_info={@page_info}
+        current_url={@current_url}
         context={if @selected_tab == "joined", do: "joined", else: nil}
         hide_if_no_more
       />
