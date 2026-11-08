@@ -22,10 +22,10 @@
             else: Media.avatar_url(@category)
           )}
           {#match "/images/avatar.png"}
-            <Bonfire.UI.Common.NavTileLive object={@category} name={@group_name} />
+            <Bonfire.UI.Common.NavTileLive object={@category} name={@group_name} class="!size-6 !text-xs" />
           {#match url}
             <div
-              class="size-5 rounded-[5px] bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 outline outline-1 -outline-offset-1 outline-base-content/10"
+              class="size-6 rounded-[5px] bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 outline outline-1 -outline-offset-1 outline-base-content/10"
               style={"background-image: url('#{URI.encode(url)}');"}
               aria-hidden="true"
             />
@@ -50,10 +50,10 @@
     >
       <summary
         aria-label={l("Topics in %{group}", group: @group_name)}
-        class="absolute left-0 top-0 z-10 flex !p-0 !min-h-0 !w-9 !h-8 opacity-0 [@media(hover:none)]:left-auto [@media(hover:none)]:right-9 [@media(hover:none)]:opacity-100 [@media(hover:hover)]:group-hover/row:opacity-100 focus-visible:opacity-100 items-center justify-center rounded-selector cursor-pointer list-none after:!content-none [&::-webkit-details-marker]:hidden group/caret !bg-transparent focus-visible:outline-none [@media(pointer:coarse)]:!h-9"
+        class="absolute left-0.5 top-0 z-10 flex !p-0 !min-h-0 !w-9 !h-9 opacity-0 [@media(hover:none)]:left-auto [@media(hover:none)]:right-9 [@media(hover:none)]:opacity-100 [@media(hover:hover)]:group-hover/row:opacity-100 focus-visible:opacity-100 items-center justify-center rounded-selector cursor-pointer list-none after:!content-none [&::-webkit-details-marker]:hidden group/caret !bg-transparent focus-visible:outline-none"
       >
-        {!-- the summary stays a 36px hit area; only the visible chip matches the 20px avatar it replaces --}
-        <span class="flex size-5 items-center justify-center rounded-[5px] bg-fill group-hover/caret:bg-fill-strong group-focus-visible/caret:outline group-focus-visible/caret:outline-2 group-focus-visible/caret:outline-primary">
+        {!-- the summary stays a 36px hit area; only the visible chip matches the 24px avatar it replaces --}
+        <span class="flex size-6 items-center justify-center rounded-[5px] bg-fill group-hover/caret:bg-fill-strong group-focus-visible/caret:outline group-focus-visible/caret:outline-2 group-focus-visible/caret:outline-primary">
           <#Icon
             iconify="carbon:chevron-down"
             class="size-3 text-muted transition-transform group-open/sidebar-group:rotate-180"
@@ -61,7 +61,7 @@
         </span>
       </summary>
       <ul data-role="sidebar-topics" class="sidebar-child-list">
-        <li :for={topic <- @topics} class="!block w-full min-w-0 !pl-7">
+        <li :for={topic <- @topics} class="!block w-full min-w-0 !pl-7.5">
           <LinkLive
             to={Bonfire.Classify.Web.GroupNavigation.link(topic.path, @group_return_to)}
             opts={[
@@ -86,7 +86,7 @@
       position="bottom-start"
       strategy="fixed"
       wrapper_class="!absolute right-0 top-0"
-      trigger_class="flex !size-8 items-center justify-center rounded-selector cursor-pointer hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(hover:hover)]:opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 aria-expanded:opacity-100 [@media(pointer:coarse)]:!size-9"
+      trigger_class="flex !size-9 items-center justify-center rounded-selector cursor-pointer hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(hover:hover)]:opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100 aria-expanded:opacity-100"
       label={l("Options for %{group}", group: @group_name)}
       trigger_opts={@trigger_opts}
     >
