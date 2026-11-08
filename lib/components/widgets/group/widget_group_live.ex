@@ -53,16 +53,17 @@ defmodule Bonfire.UI.Groups.WidgetGroupLive do
   The access dimensions, in reading order, for the "Who can" list: each with its slug, the row's label and the preset's metadata. A dimension whose slug has no preset is left out.
 
       iex> Bonfire.UI.Groups.WidgetGroupLive.access_rows("open", "global", "group_members", "public") |> Enum.map(&elem(&1, 0))
-      [:membership, :visibility, :participation, :default_content_visibility]
+      [:visibility, :membership, :participation, :default_content_visibility]
       iex> Bonfire.UI.Groups.WidgetGroupLive.access_rows("open", nil, nil, nil) |> Enum.map(&elem(&1, 0))
       [:membership]
   """
   def access_rows(membership_slug, visibility_slug, participation_slug, content_visibility_slug) do
     [
+      # who can see the group comes before who can join it
+      {:visibility, visibility_slug, l("Find group")},
       {:membership, membership_slug, l("Join")},
-      {:visibility, visibility_slug, l("See")},
       {:participation, participation_slug, l("Post")},
-      {:default_content_visibility, content_visibility_slug, l("New posts")}
+      {:default_content_visibility, content_visibility_slug, l("See content")}
     ]
     |> Enum.flat_map(fn {dimension, slug, label} ->
       case Bonfire.Boundaries.Presets.dimension_meta(dimension, slug) do

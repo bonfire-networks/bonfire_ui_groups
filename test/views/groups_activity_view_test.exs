@@ -536,6 +536,22 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
       end
     end
 
+    test "get_conn_render gives the static render a guest gets, where visit connects a LiveView" do
+      # Alpine's `show` starts as whether the socket is connected (`load_more_live.sface:21`)
+      conn()
+      |> get_conn_render("/groups/discover")
+      |> assert_has("article[id^=group-preview-]", count: 2)
+      |> assert_has("[data-id=load_more][x-data*='show: false']")
+      |> refute_has("[data-id=load_more][x-data*='show: true']")
+      |> assert_has("a[data-id=next_page]")
+
+      conn()
+      |> visit("/groups/discover")
+      |> wait_async()
+      |> assert_has("[data-id=load_more][x-data*='show: true']")
+      |> refute_has("[data-id=load_more][x-data*='show: false']")
+    end
+
     # what a guest's browser gets: the static render only, with no LiveView connected, which PhoenixTest's `visit` always does. `/groups` opens on the directory for a guest, who has joined no groups, unless the instance's "Groups page opens on" names the feed
     for {path, default_view, view, selector} <- [
           {"/groups", nil, :discover, "article[id^=group-preview-]"},
@@ -552,11 +568,27 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
               unquote(default_view)
             )
 
-        first_html = conn() |> get(unquote(path)) |> html_response(200)
-        first_page = static_ids(first_html, unquote(selector))
+        # first_html = conn() |> get(unquote(path)) |> html_response(200)
+        # first_page = static_ids(first_html, unquote(selector))
+        #
+        # assert length(first_page) == 2,
+        #        "the first page should show 2, got #{inspect(first_page)}"
+        #
+        # next_page =
+        #   conn()
+        #   |> get("#{next_path}?#{next_query}")
+        #   |> html_response(200)
+        #   |> static_ids(unquote(selector))
 
-        assert length(first_page) == 2,
-               "the first page should show 2, got #{inspect(first_page)}"
+        # the first page shows 2 items, with one Next page link
+        first_html =
+          conn()
+          |> get_conn_render(unquote(path))
+          |> assert_has(unquote(selector), count: 2)
+          |> assert_has("a[data-id=next_page]", count: 1)
+          |> static_html()
+
+        first_page = static_ids(first_html, unquote(selector))
 
         assert [href] =
                  first_html
@@ -568,8 +600,8 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
 
         next_page =
           conn()
-          |> get("#{next_path}?#{next_query}")
-          |> html_response(200)
+          |> get_conn_render("#{next_path}?#{next_query}")
+          |> static_html()
           |> static_ids(unquote(selector))
 
         assert next_page != [], "the next page (#{href}) should show the next items, got none"
@@ -581,6 +613,17 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
                "Next page should link to the view's own path, got #{href}"
       end
     end
+  end
+
+  # the HTML of a `get_conn_render` session, a 200 response; `unwrap` returns the session, so the HTML comes back as a message
+  defp static_html(session) do
+    PhoenixTest.unwrap(session, fn conn ->
+      send(self(), {:static_html, html_response(conn, 200)})
+      conn
+    end)
+
+    assert_received {:static_html, html}
+    html
   end
 
   defp static_ids(html, selector) do

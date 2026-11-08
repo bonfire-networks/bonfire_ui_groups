@@ -66,7 +66,7 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
         as_creator(ctx)
         |> visit(group_path(ctx.group))
 
-      for label <- ["Join", "See", "Post", "New posts"] do
+      for label <- ["Find group", "Join", "Post", "See content"] do
         assert_has(session, "#{@widget} [data-role=group-access-list] dt",
           text: label,
           exact: true
@@ -76,7 +76,7 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
       session
       |> assert_has("#{@widget} [data-role=group-widget-membership]", text: "Join")
       |> assert_has("#{@widget} [data-role=group-widget-default_content_visibility]",
-        text: "New posts"
+        text: "See content"
       )
       |> refute_has("[data-id=group_hero] [data-role=group-access-list]")
       |> assert_has("#{@widget} [data-role=group-widget-created]")
@@ -105,6 +105,38 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
     end
   end
 
+  # the three preview options say "preview" and who gets it, so the settings form reads them as one family
+  describe "About, preview visibility" do
+    test "a group local users can preview says so" do
+      account = fake_account!()
+      me = fake_user!(account)
+
+      group =
+        Simulate.fake_group!(me, %{
+          name: "Local preview",
+          membership: "local:members",
+          visibility: "local:preview",
+          participation: "group_members",
+          default_content_visibility: "local"
+        })
+
+      {:ok, view, _html} =
+        live(conn(user: me, account: account), "/group/#{group.character.username}")
+
+      assert has_element?(
+               view,
+               "#{@widget} [data-role=group-widget-visibility] dd",
+               "Users of this instance can preview"
+             )
+    end
+
+    # not selectable until groups federate, so no group can be made with it here
+    test "the federated preview option says anyone can preview" do
+      assert %{label: "Anyone can preview"} =
+               Bonfire.Boundaries.Presets.dimension_meta(:visibility, "preview")
+    end
+  end
+
   describe "About, the stored default post visibility" do
     # Who can read what members post is what a member most needs before writing: the other rows say who can join, see and post, not who the posts reach. Moved from `group_hero_toolbar_test.exs` with the details.
     test "access details say who can read posts, from the group's stored default" do
@@ -126,7 +158,7 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
       assert has_element?(
                view,
                "[data-id=group_widget] [data-role=group-widget-default_content_visibility] dd",
-               "Users of this instance"
+               "Users of this instance (by default)"
              )
 
       # the description is the value's tooltip
@@ -148,7 +180,7 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
       assert has_element?(
                view,
                "[data-id=group_widget] [data-role=group-widget-default_content_visibility] dt",
-               "New posts"
+               "See content"
              )
 
       assert has_element?(

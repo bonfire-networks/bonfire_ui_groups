@@ -35,6 +35,27 @@
           </span>
         </label>
       </Phoenix.Component.form>
+      <Phoenix.Component.form
+        for={to_form(%{})}
+        phx-change="Bonfire.Classify:toggle_auto_bell"
+        id="group_settings_auto_bell_form"
+        class="mt-4"
+      >
+        <input type="hidden" name="group_id" value={id(@category)}>
+        <label for="group_settings_auto_bell" class="flex min-h-11 cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            id="group_settings_auto_bell"
+            name="enabled"
+            class="toggle toggle-primary mt-1"
+            checked={Bonfire.Classify.Categories.auto_bell_new_users?(@category)}
+          />
+          <span>
+            <span class="block font-medium">{l("Turn on notifications for new users")}</span>
+            <span class="mt-1 block text-sm text-muted">{l("New users get this group's new posts in their notifications")}</span>
+          </span>
+        </label>
+      </Phoenix.Component.form>
     {#else}
       <p role="status">{l("Only instance administrators can change these settings.")}</p>
     {/if}
