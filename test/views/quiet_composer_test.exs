@@ -23,7 +23,9 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
                "#composer_resize_handle[role=separator][tabindex='0'][aria-label='Resize composer']"
              )
 
-      assert has_element?(composer, "#composer_type_chooser_trigger", "Create post")
+      # a note is the base: the tray is there, with no type picked
+      assert has_element?(composer, "#composer_type_tray_toggle[aria-expanded=false]")
+      refute has_element?(composer, "#composer_type_tray [aria-pressed=true]")
 
       # the optional title is only offered when posting in a group/topic
       refute has_element?(composer, "#smart_input_post_title")
@@ -32,7 +34,7 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
       # closing lives in the header; an empty composer closes without asking
       assert has_element?(composer, "header #composer_close #close_composer_button")
       refute has_element?(composer, "#smart_input_more_options #discard_composer")
-      refute has_element?(composer, "#composer_publish_controls #composer_type_chooser")
+      refute has_element?(composer, "#composer_publish_controls #composer_type_tray")
       assert has_element?(composer, "#composer_header_actions > #composer_author:first-child")
       assert has_element?(composer, "#expand_composer_button[aria-label='Expand composer']")
 
@@ -191,7 +193,7 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
 
       assert render(composer) =~ "Not encrypted"
       assert has_element?(composer, "#submit_btn", "Send")
-      refute has_element?(composer, "#composer_type_chooser")
+      refute has_element?(composer, "#composer_type_tray")
       refute has_element?(composer, "#scheduled_at_btn")
       assert has_element?(composer, "header #composer_close")
       render(view)

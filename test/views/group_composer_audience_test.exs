@@ -176,8 +176,9 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
     |> PhoenixTest.unwrap(fn view ->
       composer = composer_view(view)
       assert has_element?(composer, "[data-role=group-composer-audience]", "Group members only")
-      assert has_element?(composer, "header #composer_type_chooser")
-      refute has_element?(composer, "#composer_publish_controls #composer_type_chooser")
+      # what to create is the tray beside the tools, not a menu in the header
+      assert has_element?(composer, "#composer_type_tray")
+      refute has_element?(composer, "header #composer_type_tray")
       assert has_element?(composer, "header #composer_close")
 
       # no topic yet: the place chip names just the group
