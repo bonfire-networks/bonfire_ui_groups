@@ -305,6 +305,8 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
   @doc false
   def handle_info({:joined_groups_changed, {group_id, member?}}, socket) do
+    socket = maybe_refresh_hero_page_header(socket, group_id, member?)
+
     case assigns(socket)[:joined_group_ids] do
       %MapSet{} = joined ->
         {:noreply,
@@ -318,6 +320,15 @@ defmodule Bonfire.UI.Groups.LiveHandler do
       _ ->
         {:noreply, socket}
     end
+  end
+
+  # joining or leaving swaps the hero, so the page header follows
+  defp maybe_refresh_hero_page_header(socket, group_id, member?) do
+    group = e(assigns(socket), :frame_group, nil)
+
+    if e(assigns(socket), :hero_shown?, false) and id(group) == group_id,
+      do: Bonfire.UI.Groups.GroupHeroLive.assign_page_header(socket, group, member?),
+      else: socket
   end
 
   # the sidebar (PersistentLive) has its own modal

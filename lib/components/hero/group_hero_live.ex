@@ -1,6 +1,6 @@
 defmodule Bonfire.UI.Groups.GroupHeroLive do
   @moduledoc """
-  The group page header, the same for everyone: banner, avatar, name, address, description, then a row with the member count and the actions. Only the actions depend on the viewer: Join (or Pending) and follow for visitors; their membership as a status, the bell and ⋯ (follow, leave) for members. The page header above stays as the sticky bar, so back and the sidebar toggle live there.
+  The group page header: banner, avatar, name, address, description, then a row with the member count and the actions. Compact for members. Only the actions depend on the viewer: Join (or Pending) and follow for visitors; their membership as a status, the bell and ⋯ (follow, leave) for members. The page header above stays as the sticky bar, so back and the sidebar toggle live there.
 
   The banner shows at its stored 3:1 ratio (`Bonfire.Files.BannerUploader`). Which actions show is the viewer's membership (`my_membership`, from `Bonfire.Classify.LiveHandler`), not `view_mode`: a non-member of an open public group can read everything and still needs Join.
   """
@@ -59,6 +59,71 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
   """
   def variant(true), do: "member"
   def variant(_), do: "visitor"
+
+  @doc """
+  The hero's DOM id, per variant so joining resets the toggle.
+
+      iex> Bonfire.UI.Groups.GroupHeroLive.dom_id(%{id: "01G"}, "member")
+      "group_hero-01G-member"
+  """
+  def dom_id(group, variant), do: "group_hero-#{id(group)}-#{variant}"
+
+  @doc """
+  A member's header avatar and toggle, else `[]`.
+
+      iex> Bonfire.UI.Groups.GroupHeroLive.page_header_assigns(%{id: "01G"}, false)
+      []
+      iex> Bonfire.UI.Groups.GroupHeroLive.page_header_assigns(nil, true)
+      []
+  """
+  def page_header_assigns(group, my_membership) do
+    if group && variant(my_membership) == "member" do
+      [
+        page_header_icon: %{
+          id: id(group),
+          object: group,
+          # nil without an avatar, so the header draws the group's tile
+          src: if((url = Media.avatar_url(group)) != "/images/avatar.png", do: url),
+          name: e(group, :profile, :name, nil)
+        },
+        page_header_aside: [
+          {Bonfire.UI.Groups.GroupHeroToggleLive, [hero_id: dom_id(group, "member")]}
+        ]
+      ]
+    else
+      []
+    end
+  end
+
+  @doc """
+  Assigns `page_header_assigns/2`, clearing only its own toggle.
+  """
+  def assign_page_header(socket, group, my_membership) do
+    case page_header_assigns(group, my_membership) do
+      [] ->
+        if toggle_aside?(e(assigns(socket), :page_header_aside, nil)),
+          do: assign(socket, page_header_icon: nil, page_header_aside: nil),
+          else: socket
+
+      header ->
+        assign(socket, header)
+    end
+  end
+
+  @doc """
+  Whether the aside holds the hero toggle.
+
+      iex> Bonfire.UI.Groups.GroupHeroLive.toggle_aside?([{Bonfire.UI.Groups.GroupHeroToggleLive, []}])
+      true
+      iex> Bonfire.UI.Groups.GroupHeroLive.toggle_aside?([{Bonfire.Notify.Web.BellButtonLive, []}])
+      false
+      iex> Bonfire.UI.Groups.GroupHeroLive.toggle_aside?(nil)
+      false
+  """
+  def toggle_aside?(aside) when is_list(aside),
+    do: Enum.any?(aside, &match?({Bonfire.UI.Groups.GroupHeroToggleLive, _}, &1))
+
+  def toggle_aside?(_), do: false
 
   @doc """
   Whether the viewer is one of the group's (already loaded) moderators, so no boundary query runs per render.

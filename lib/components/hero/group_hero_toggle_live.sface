@@ -1,0 +1,17 @@
+<button
+  id={"#{@hero_id}-toggle"}
+  type="button"
+  data-role="group-hero-toggle"
+  aria-expanded="false"
+  aria-controls={@hero_id}
+  aria-label={l("Group details")}
+  data-tip={l("Group details")}
+  phx-click={JS.toggle_attribute({"data-compact", ""}, to: "##{@hero_id}")
+  |> JS.toggle_attribute({"inert", ""}, to: "##{@hero_id} [data-role=group-hero-details]")
+  |> JS.toggle_attribute({"aria-expanded", "true", "false"})}
+  class="group btn btn-ghost btn-circle tooltip tooltip-left"
+>
+  {!-- outlined folded, filled open --}
+  <#Icon iconify="ph:info" class="size-5 group-aria-expanded:hidden" />
+  <#Icon iconify="ph:info-fill" class="size-5 hidden group-aria-expanded:block" />
+</button>

@@ -58,6 +58,17 @@ defmodule Bonfire.UI.Groups.GroupLive do
       |> assign_new(:member_search, fn -> "" end)
       |> assign_new(:member_role, fn -> "all" end)
 
+    # members get a compact hero, with its avatar and toggle in the page header
+    shown? = hero_shown?(socket.assigns)
+
+    socket =
+      socket
+      |> assign(:hero_shown?, shown?)
+      |> Bonfire.UI.Groups.GroupHeroLive.assign_page_header(
+        if(shown?, do: socket.assigns.frame_group),
+        e(socket.assigns, :my_group_membership, false)
+      )
+
     socket =
       if socket.assigns.selected_tab == "settings" do
         socket
@@ -163,6 +174,30 @@ defmodule Bonfire.UI.Groups.GroupLive do
     |> Map.merge(
       if(Bonfire.Classify.Categories.sensitive?(category), do: %{show_sensitive: true}, else: %{})
     )
+  end
+
+  @doc """
+  The tab's body component, before gates.
+  """
+  def section_component(type, selected_tab, tab_id) do
+    if type == :topic,
+      do:
+        Config.get([:ui, :topic, :sections], [])[tab(selected_tab)] ||
+          Bonfire.UI.Social.ProfileTimelineLive,
+      else:
+        tab_component(selected_tab) || tab_component(tab_id) ||
+          Bonfire.UI.Social.ProfileTimelineLive
+  end
+
+  # the hero lives in the body component's `header` slot: tabs without one (eg. the topic directory) and group settings show none
+  defp hero_shown?(assigns) do
+    type = e(assigns, :type, nil)
+    selected_tab = e(assigns, :selected_tab, nil)
+    module = section_component(type, selected_tab, e(assigns, :tab_id, nil))
+
+    not is_nil(e(assigns, :frame_group, nil)) and not group_settings?(type, selected_tab) and
+      Code.ensure_loaded?(module) and function_exported?(module, :__slots__, 0) and
+      Enum.any?(module.__slots__(), &(&1.name == :header))
   end
 
   def tab(selected_tab) do

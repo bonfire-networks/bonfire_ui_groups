@@ -74,13 +74,8 @@
           e(assigns, :sensitive_notice?, false) and not group_settings?(@type, @selected_tab) ->
             Bonfire.UI.Groups.SensitiveNoticeLive
 
-          @type == :topic ->
-            Config.get([:ui, :topic, :sections], [])[tab(@selected_tab)] ||
-              Bonfire.UI.Social.ProfileTimelineLive
-
           true ->
-            tab_component(@selected_tab) || tab_component(@tab_id) ||
-              Bonfire.UI.Social.ProfileTimelineLive
+            section_component(@type, @selected_tab, @tab_id)
         end}
         user={@category}
         {...assigns}
