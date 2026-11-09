@@ -4,7 +4,7 @@
       to={Bonfire.Classify.Web.GroupNavigation.link(@group_path, @group_return_to)}
       opts={[id: @row_id <> "-link", title: @group_name, "aria-current": if(@active?, do: "page", else: nil)]}
       class={[
-        "nav-row !pr-10 hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
+        "nav-row h-9 !pr-10 hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
         "[@media(pointer:coarse)]:!pr-12": @topics == [],
         "[@media(hover:none)]:!pr-20": @topics != [],
         "bg-fill-strong": @active?
