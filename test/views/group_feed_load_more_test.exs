@@ -92,6 +92,91 @@ defmodule Bonfire.UI.Groups.GroupFeedLoadMoreTest do
       |> assert_has_or_open_browser("#activity_#{old_activity_id}")
     end
 
+    for option <- ["All posts", "Newest first"] do
+      test "after Show older activities, picking #{option} still lists the discussions", %{
+        account: account,
+        me: me
+      } do
+        Process.put(
+          Config.keys_tree([Bonfire.Social.Feeds, :query_with_deferred_join]),
+          true
+        )
+
+        Process.put(
+          Config.keys_tree([Bonfire.UI.Social.FeedLive, :time_limit]),
+          7
+        )
+
+        group = Simulate.fake_group!(me, %{name: "Older Posts Layout Group"})
+
+        {_old_discussion, old_activity_id} =
+          fake_post_in_group_days_ago!(
+            me,
+            group,
+            30,
+            "<p>discussion from thirty days ago</p>"
+          )
+
+        Simulate.fake_post_in_group!(me, group, "<p>discussion from today</p>")
+
+        conn(user: me, account: account)
+        |> visit("/&#{group.character.username}/discussions?time_limit=7")
+        |> wait_async()
+        |> click_link("a[data-id=next_page]", "Next page")
+        |> wait_async()
+        |> click_button("#load_more_show_older[data-id=load_more]", "Show older activities")
+        |> wait_async()
+        |> assert_has("#activity_#{old_activity_id}")
+        |> choose(unquote(option))
+        |> wait_async()
+        |> assert_has_or_open_browser("[data-id=feed] article", text: "discussion from today")
+        |> assert_has_or_open_browser("[data-id=feed] article",
+          text: "discussion from thirty days ago"
+        )
+      end
+
+      test "with no discussions in the window, after Show older activities, picking #{option} still lists them",
+           %{
+             account: account,
+             me: me
+           } do
+        Process.put(
+          Config.keys_tree([Bonfire.Social.Feeds, :query_with_deferred_join]),
+          true
+        )
+
+        Process.put(
+          Config.keys_tree([Bonfire.UI.Social.FeedLive, :time_limit]),
+          7
+        )
+
+        group = Simulate.fake_group!(me, %{name: "Only Older Posts Group"})
+
+        for {days, text} <- [
+              {40, "discussion from forty days ago"},
+              {30, "discussion from thirty days ago"}
+            ] do
+          fake_post_in_group_days_ago!(me, group, days, "<p>#{text}</p>")
+        end
+
+        conn(user: me, account: account)
+        |> visit("/&#{group.character.username}/discussions?time_limit=7")
+        |> wait_async()
+        |> refute_has("[data-id=feed] article")
+        |> click_button("Show older activities")
+        |> wait_async()
+        |> assert_has("[data-id=feed] article", text: "discussion from thirty days ago")
+        |> choose(unquote(option))
+        |> wait_async()
+        |> assert_has_or_open_browser("[data-id=feed] article",
+          text: "discussion from thirty days ago"
+        )
+        |> assert_has_or_open_browser("[data-id=feed] article",
+          text: "discussion from forty days ago"
+        )
+      end
+    end
+
     test "clicking Load more keeps the feed scoped to the group's outbox", %{
       account: account,
       me: me

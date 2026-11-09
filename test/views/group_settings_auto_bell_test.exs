@@ -30,9 +30,9 @@ defmodule Bonfire.UI.Groups.GroupSettingsAutoBellTest do
     |> assert_has("#group_settings_auto_join_form", text: "Auto-join new users")
     |> assert_has("#group_settings_auto_bell_form", text: "Turn on notifications for new users")
     # the label also holds the help text
-    |> check("#group_settings_auto_bell_form input[name=enabled]", "Turn on notifications for new users",
-      exact: false
-    )
+    |> check(
+      "#group_settings_auto_bell_form input[name=enabled]",
+      "Turn on notifications for new users", exact: false)
 
     assert Categories.auto_bell_new_users?(group)
     refute Categories.auto_join_new_users?(group)
