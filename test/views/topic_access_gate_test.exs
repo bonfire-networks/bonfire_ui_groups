@@ -57,6 +57,67 @@ defmodule Bonfire.UI.Groups.TopicAccessGateTest do
     |> refute_has("[data-id=feed]")
   end
 
+  describe "a topic the viewer can only preview" do
+    @summary "A topic summary only members should read"
+
+    setup context do
+      {group, topic} = restricted_topic(context.owner, "on_request")
+      media = Bonfire.Social.Fake.upload_media(:images, context.owner)
+
+      {:ok, group} =
+        Bonfire.Classify.Categories.update(context.owner, group, %{
+          profile: %{icon_id: media.id, image_id: media.id}
+        })
+
+      {:ok, _} =
+        Bonfire.Classify.Categories.update(context.owner, topic, %{profile: %{summary: @summary}})
+
+      member_account = fake_account!()
+      member = fake_user!(member_account)
+
+      {:ok, _} =
+        Bonfire.Classify.Categories.add_member(context.owner, group, id(member),
+          skip_boundary_check: true
+        )
+
+      %{group: group, topic: topic, member: member, member_account: member_account}
+    end
+
+    test "a member of the group sees the topic with its description", context do
+      conn(user: context.member, account: context.member_account)
+      |> visit(topic_path(context.topic))
+      |> wait_async()
+      |> refute_has("#topic_access_gate")
+      |> assert_has("[data-role=group-topic-summary]", text: @summary)
+    end
+
+    test "a preview viewer sees the parent group's minimal header, no description, and the gate's actions",
+         context do
+      conn(user: context.visitor, account: context.account)
+      |> visit(topic_path(context.topic))
+      |> wait_async()
+      |> assert_has("#topic_access_gate h1", text: "Restricted topic")
+      |> assert_has("#topic_access_gate [data-id=group_hero][data-compact]")
+      |> refute_has("[data-role=group-hero-toggle]")
+      |> refute_has("[data-role=group-hero-banner]")
+      |> refute_has("#topic_access_gate img.size-full")
+      |> refute_has("main", text: @summary)
+      |> assert_has("#topic_access_gate a", text: "View group")
+      |> assert_has("#topic_access_gate button", text: "Request to join")
+      |> refute_has("[data-role=group-hero-actions]")
+    end
+
+    test "a guest gets the same", context do
+      conn()
+      |> visit(topic_path(context.topic))
+      |> wait_async()
+      |> assert_has("#topic_access_gate [data-id=group_hero][data-compact]")
+      |> refute_has("[data-role=group-hero-banner]")
+      |> refute_has("#topic_access_gate img.size-full")
+      |> refute_has("main", text: @summary)
+    end
+  end
+
   def topic_path(topic), do: "/+#{topic.character.username}"
   def group_alias_path(topic), do: "/&#{topic.id}"
 

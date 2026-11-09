@@ -77,7 +77,8 @@ defmodule Bonfire.UI.Groups.GroupLive do
       |> assign(:hero_shown?, shown?)
       |> Bonfire.UI.Groups.GroupHeroLive.assign_page_header(
         if(shown?, do: socket.assigns.frame_group),
-        e(socket.assigns, :my_group_membership, false)
+        e(socket.assigns, :my_group_membership, false),
+        e(socket.assigns, :view_mode, :full)
       )
 
     socket =

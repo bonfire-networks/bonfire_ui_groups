@@ -14,13 +14,16 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> visit("/groups")
     |> assert_has("#join_btn_#{id(group)}", text: "Request to join")
     |> click_link("#group-preview-link-#{id(group)}", "Preview readers")
-    |> assert_has("[data-role=group-widget-visibility]",
-      text: "Anyone can preview (but doesn't federate)"
-    )
+    # a viewer who only previews the group gets the minimal header and no "Who can" widget
+    # |> assert_has("[data-role=group-widget-visibility]",
+    #   text: "Anyone can preview (but doesn't federate)"
+    # )
+    |> refute_has("[data-role=group-widget-visibility]")
     |> assert_has("[data-role=group-hero-membership]", text: "On request")
-    |> assert_has(
-      "[data-role=group-widget-visibility] dd[title*='Access to discussions depends on membership']"
-    )
+
+    # |> assert_has(
+    #   "[data-role=group-widget-visibility] dd[title*='Access to discussions depends on membership']"
+    # )
   end
 
   setup do

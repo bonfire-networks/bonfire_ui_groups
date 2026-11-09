@@ -4,19 +4,19 @@
   id={dom_id(@group, @variant)}
   data-id="group_hero"
   data-variant={@variant}
-  data-compact={@variant == "member"}
+  data-compact={@variant == "member" or @preview}
   class="group/hero bg-base-100"
 >
-  {!-- folded while compact: grid rows 1fr to 0fr animate the height, `inert` keeps folded links out of the tab order --}
+  {!-- folded while compact: grid rows 1fr to 0fr animate the height, `inert` keeps folded links out of the tab order. A preview viewer's stays folded (no toggle), and leaves out the banner and description. Replaced: data-compact={@variant == "member"} inert={@variant == "member"} --}
   <div
     data-role="group-hero-details"
-    inert={@variant == "member"}
+    inert={@variant == "member" or @preview}
     class="grid grid-rows-[1fr] transition-[grid-template-rows,opacity] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] group-data-compact/hero:grid-rows-[0fr] group-data-compact/hero:opacity-0 motion-reduce:transition-opacity"
   >
     <div class="min-h-0 overflow-hidden">
       {!-- 3:1, the ratio `Bonfire.Files.BannerUploader` stores; `refetch_key` refetches a remote group whose banner 404s --}
       <div
-        :if={is_binary(@banner_url)}
+        :if={is_binary(@banner_url) and not @preview}
         data-role="group-hero-banner"
         data-sensitive={@sensitive_notice}
         class="relative aspect-[3/1] w-full overflow-hidden bg-base-200"
@@ -38,7 +38,7 @@
       </div>
 
       <div class="px-4">
-        <div class={"flex", if(is_binary(@banner_url), do: "-mt-9", else: "mt-4")}>
+        <div class={"flex", if(is_binary(@banner_url), do: if(@preview, do: "mt-4", else: "-mt-9"), else: "mt-4")}>
           {#if @avatar_url == "/images/avatar.png"}
             <Bonfire.UI.Common.NavTileLive
               object={@group}
@@ -72,7 +72,8 @@
           class="mt-0.5 block text-sm text-muted"
         />
         {!-- a long description is clamped, with Read more: the About page shows it whole --}
-        {#case e(@group, :profile, :summary, nil)}
+        {!-- none for a preview viewer --}
+        {#case if(@preview, do: nil, else: e(@group, :profile, :summary, nil))}
           {#match nil}
           {#match summary}
             <Bonfire.UI.Common.TruncatableLive
@@ -96,8 +97,13 @@
     <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
       <div data-role="group-hero-info" class="min-w-0 flex-1 text-sm text-muted">
         <div class="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0">
-          <div :if={@members != []} data-role="group-hero-facepile" class="mr-1 flex -space-x-2">
-            {#for member <- @members}
+          {!-- the pill: the first members and the total for whoever may see the list, else the moderators and no total; a preview viewer gets none. The faces were the loaded members only (`:if` on `@members`). --}
+          <div
+            :if={@faces != [] and not @preview}
+            data-role="group-hero-facepile"
+            class="mr-1 flex -space-x-2"
+          >
+            {#for member <- @faces}
               <Bonfire.UI.Common.AvatarLive
                 parent_id={"group-hero-face-#{id(member)}"}
                 wrapper_class="border-0 avatar !flex shrink-0"
@@ -111,6 +117,7 @@
           </div>
           {!-- the plain path, as a patch: `GroupLive` keeps the entry page in its state. Replaced: <LinkLive to={Bonfire.Classify.Web.GroupNavigation.link("#{path(@group)}/members", @group_return_to)}> --}
           <LinkPatchLive
+            :if={@roster_visible and not @preview}
             to={"#{path(@group)}/members"}
             class="shrink-0 tabular-nums hover:underline"
             opts={["data-role": "group-hero-members"]}
@@ -118,13 +125,14 @@
           {!-- visitors only: how to join, which decides what they do next; the rest is in the group widget --}
           {#case @variant == "visitor" && Bonfire.Boundaries.Presets.dimension_meta(:membership, @membership_slug)}
             {#match %{} = meta}
-              <span aria-hidden="true">·</span>
+              <span :if={not @preview} aria-hidden="true">·</span>
               <span data-role="group-hero-membership">{hero_dimension_label(:membership, @membership_slug, meta)}</span>
             {#match _}
           {/case}
         </div>
       </div>
       <Bonfire.UI.Groups.GroupHeroActionsLive
+        :if={@actions}
         group={@group}
         permalink={@permalink}
         moderators={@moderators}

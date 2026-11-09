@@ -317,4 +317,72 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       |> assert_has("#{@hero} [data-role=group-hero-members]", text: "2 members")
     end
   end
+
+  # the members pill (faces and total) follows who may see the list of members (`Categories.roster_visible?/2`), as the members tab does: someone who can't sees the moderators and no total
+  describe "the members pill" do
+    @faces "#{@hero} [data-role=group-hero-facepile]"
+
+    defp group_with_roster(membership) do
+      moderator = fake_user!(fake_account!(), %{name: "Mod Erator"})
+      member_account = fake_account!()
+      member = fake_user!(member_account, %{name: "Mara Member"})
+
+      group =
+        Simulate.fake_group!(moderator, %{
+          name: "Roster club",
+          membership: membership,
+          visibility: "global",
+          participation: "anyone",
+          default_content_visibility: "public"
+        })
+
+      {:ok, _} = Categories.add_member(moderator, group, id(member), skip_boundary_check: true)
+      assert Categories.member?(member, group), "control: a member"
+      {group, member, member_account}
+    end
+
+    test "on a group joined by request, a member and a non-member instance admin see the faces and the total" do
+      {group, member, member_account} = group_with_roster("on_request")
+
+      admin_account = fake_account!()
+      admin = fake_admin!(admin_account)
+      refute Categories.member?(admin, group), "control: not a member"
+
+      conn(user: member, account: member_account)
+      |> visit(group_path(group))
+      |> wait_async()
+      |> assert_has("#{@faces} [title='Mara Member']")
+      |> assert_has("#{@hero} [data-role=group-hero-members]", text: "2 members")
+
+      conn(user: admin, account: admin_account)
+      |> visit(group_path(group))
+      |> wait_async()
+      |> assert_has("#{@faces} [title='Mara Member']")
+      |> assert_has("#{@hero} [data-role=group-hero-members]", text: "2 members")
+    end
+
+    test "on a group joined by request, a non-member sees only the moderators' faces and no total" do
+      {group, _member, _member_account} = group_with_roster("on_request")
+      {_user, conn} = signed_in()
+
+      conn
+      |> visit(group_path(group))
+      |> wait_async()
+      |> assert_has("#{@faces} [title='Mod Erator']")
+      |> refute_has("#{@faces} [title='Mara Member']")
+      |> refute_has("#{@hero} [data-role=group-hero-members]")
+    end
+
+    test "on a group anyone can join and read, a non-member still sees the members and the total" do
+      {group, _member, _member_account} = group_with_roster("open")
+      assert Categories.roster_audience(group) == :readers, "control: the list is for readers"
+      {_user, conn} = signed_in()
+
+      conn
+      |> visit(group_path(group))
+      |> wait_async()
+      |> assert_has("#{@faces} [title='Mara Member']")
+      |> assert_has("#{@hero} [data-role=group-hero-members]", text: "2 members")
+    end
+  end
 end

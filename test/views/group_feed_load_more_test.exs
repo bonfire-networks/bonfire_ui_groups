@@ -177,6 +177,62 @@ defmodule Bonfire.UI.Groups.GroupFeedLoadMoreTest do
       end
     end
 
+    for sort <- ["Recent replies", "Recent threads"] do
+      test "sorted by #{sort}, the feed offers Load more past the first page", %{
+        account: account,
+        me: me
+      } do
+        limit = Bonfire.Common.Config.get(:default_pagination_limit, 2)
+        group = Simulate.fake_group!(me, %{name: "Sorted Pages Group"})
+
+        for n <- 1..(limit + 1),
+            do: Simulate.fake_post_in_group!(me, group, "<p>discussion #{n}</p>")
+
+        conn(user: me, account: account)
+        |> visit("/&#{group.character.username}/discussions")
+        |> wait_async()
+        |> pick_view_option(unquote(sort))
+        |> wait_async()
+        |> assert_has("[data-id=feed] article", count: limit)
+        |> assert_has_or_open_browser("[data-id=load_more]", text: "Load more")
+      end
+
+      test "sorted by #{sort}, the feed offers Show older activities past the time window", %{
+        account: account,
+        me: me
+      } do
+        Process.put(
+          Config.keys_tree([Bonfire.Social.Feeds, :query_with_deferred_join]),
+          true
+        )
+
+        Process.put(Config.keys_tree([Bonfire.UI.Social.FeedLive, :time_limit]), 7)
+
+        group = Simulate.fake_group!(me, %{name: "Sorted Window Group"})
+
+        {_old, old_activity_id} =
+          fake_post_in_group_days_ago!(me, group, 30, "<p>discussion from thirty days ago</p>")
+
+        Simulate.fake_post_in_group!(me, group, "<p>discussion from today</p>")
+
+        conn(user: me, account: account)
+        |> visit("/&#{group.character.username}/discussions?time_limit=7")
+        |> wait_async()
+        |> pick_view_option(unquote(sort))
+        |> wait_async()
+        |> assert_has("[data-id=feed] article", text: "discussion from today")
+        # the deferred join's first page still has a cursor, so the window ends one page later; the button (as in a browser), as the no-JS "Next page" link doesn't carry the sort
+        |> click_button("[data-id=load_more]", "Load more")
+        |> wait_async()
+        |> assert_has_or_open_browser("#load_more_show_older[data-id=load_more]",
+          text: "Show older activities"
+        )
+        |> click_button("#load_more_show_older[data-id=load_more]", "Show older activities")
+        |> wait_async()
+        |> assert_has("#activity_#{old_activity_id}")
+      end
+    end
+
     test "clicking Load more keeps the feed scoped to the group's outbox", %{
       account: account,
       me: me

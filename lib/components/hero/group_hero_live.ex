@@ -17,6 +17,15 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
   @doc "`true`, `:requested` or `false`, see `Bonfire.Classify.Categories.my_membership_states/2`."
   prop my_membership, :any, default: false
 
+  @doc "`:preview` for a viewer who may see the group but not read it: the header stays folded, with no banner, description or members, and no toggle to expand it (see `page_header_assigns/3`)."
+  prop view_mode, :atom, default: :full
+
+  @doc "Show the actions (Join, follow, the member's menu). Off where the page offers them itself, eg. inside `Bonfire.UI.Topics.TopicAccessGateLive`."
+  prop actions, :boolean, default: true
+
+  @doc "Whether the viewer may see the list of members (`Bonfire.Classify.Categories.roster_visible?/2`, assigned once by the page). Otherwise the pill shows the moderators and no total."
+  prop roster_visible, :boolean, default: true
+
   prop membership_slug, :string, default: nil
   prop member_count, :integer, default: 0
   prop subcategories, :list, default: []
@@ -42,10 +51,23 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
     |> assign(
       avatar_url: Media.avatar_url(assigns.group),
       banner_url: Media.banner_url(assigns.group, fallback: false),
-      variant: variant(assigns.my_membership)
+      variant: variant(assigns.my_membership),
+      preview: assigns.view_mode == :preview,
+      faces: faces(assigns.roster_visible, assigns.members, assigns.moderators)
     )
     |> render_sface()
   end
+
+  @doc """
+  The avatars in the members pill: the first members for whoever may see the list, else the (already loaded) moderators, as the members tab lists only those to them.
+
+      iex> Bonfire.UI.Groups.GroupHeroLive.faces(true, [%{id: "m"}], [%{id: "o"}])
+      [%{id: "m"}]
+      iex> Bonfire.UI.Groups.GroupHeroLive.faces(false, [%{id: "m"}], [%{id: "o"}])
+      [%{id: "o"}]
+  """
+  def faces(true, members, _moderators), do: members
+  def faces(_roster_visible, _members, moderators), do: Enum.take(moderators, 5)
 
   @doc """
   Which actions to show: members get theirs, everyone else (including someone with a pending request) Join.
@@ -69,37 +91,60 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
   def dom_id(group, variant), do: "group_hero-#{id(group)}-#{variant}"
 
   @doc """
-  A member's header avatar and toggle, else `[]`.
+  A member's header avatar and toggle, a preview viewer's avatar without the toggle (their header has nothing to expand), else `[]`.
 
       iex> Bonfire.UI.Groups.GroupHeroLive.page_header_assigns(%{id: "01G"}, false)
       []
       iex> Bonfire.UI.Groups.GroupHeroLive.page_header_assigns(nil, true)
       []
+      iex> Bonfire.UI.Groups.GroupHeroLive.page_header_assigns(%{id: "01G"}, false, :preview)[:page_header_aside]
+      nil
   """
-  def page_header_assigns(group, my_membership) do
-    if group && variant(my_membership) == "member" do
-      [
-        page_header_icon: %{
-          id: id(group),
-          object: group,
-          # nil without an avatar, so the header draws the group's tile
-          src: if((url = Media.avatar_url(group)) != "/images/avatar.png", do: url),
-          name: e(group, :profile, :name, nil)
-        },
-        page_header_aside: [
-          {Bonfire.UI.Groups.GroupHeroToggleLive, [hero_id: dom_id(group, "member")]}
+  def page_header_assigns(group, my_membership, view_mode \\ :full) do
+    cond do
+      is_nil(group) ->
+        []
+
+      variant(my_membership) == "member" ->
+        [
+          page_header_icon: page_header_icon(group),
+          page_header_aside: [
+            {Bonfire.UI.Groups.GroupHeroToggleLive, [hero_id: dom_id(group, "member")]}
+          ]
         ]
-      ]
-    else
-      []
+
+      view_mode == :preview ->
+        [page_header_icon: page_header_icon(group), page_header_aside: nil]
+
+      true ->
+        []
     end
   end
 
+  # The header assigns come from the viewer's variant and view mode (members: avatar and toggle; preview viewers: avatar only). Replaced:
+  # def page_header_assigns(group, my_membership) do
+  #   if group && variant(my_membership) == "member" do
+  #     [page_header_icon: %{...}, page_header_aside: [{Bonfire.UI.Groups.GroupHeroToggleLive, [hero_id: dom_id(group, "member")]}]]
+  #   else
+  #     []
+  #   end
+  # end
+
+  defp page_header_icon(group) do
+    %{
+      id: id(group),
+      object: group,
+      # nil without an avatar, so the header draws the group's tile
+      src: if((url = Media.avatar_url(group)) != "/images/avatar.png", do: url),
+      name: e(group, :profile, :name, nil)
+    }
+  end
+
   @doc """
-  Assigns `page_header_assigns/2`, clearing only its own toggle.
+  Assigns `page_header_assigns/3`, clearing only its own toggle.
   """
-  def assign_page_header(socket, group, my_membership) do
-    case page_header_assigns(group, my_membership) do
+  def assign_page_header(socket, group, my_membership, view_mode \\ :full) do
+    case page_header_assigns(group, my_membership, view_mode) do
       [] ->
         if toggle_aside?(e(assigns(socket), :page_header_aside, nil)),
           do: assign(socket, page_header_icon: nil, page_header_aside: nil),

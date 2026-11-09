@@ -88,7 +88,9 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
     |> refute_has("[data-id=feed]")
     |> refute_has("[data-id=group]", text: "Restricted discussion")
     |> refute_has("#inline_composer_placeholder")
-    |> assert_has("[data-id=group]", text: "1 member")
+    # a viewer who only previews the group gets no members pill and no total (the minimal header)
+    # |> assert_has("[data-id=group]", text: "1 member")
+    |> refute_has("[data-role=group-hero-members]")
 
     refute Bonfire.Classify.Categories.member?(member, group)
     assert Bonfire.Social.Graph.Follows.following?(member, group)

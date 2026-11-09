@@ -105,6 +105,8 @@
                 moderators={@moderators}
                 members={@members}
                 my_membership={@my_group_membership}
+                view_mode={@view_mode}
+                roster_visible={e(assigns, :group_roster_visible?, true)}
                 group_return_to={@group_return_to}
                 membership_slug={@group_membership_slug}
                 member_count={@group_member_count}
