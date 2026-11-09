@@ -109,8 +109,11 @@ defmodule Bonfire.UI.Groups.GroupSensitiveCardTest do
     test "a guest sees the same", %{marked: marked} do
       card = "#group-preview-#{id(marked)}"
 
+      # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView)
+      # conn()
+      # |> visit("/groups")
       conn()
-      |> visit("/groups")
+      |> get_conn_render("/groups")
       |> assert_has("#{card} [data-role=sensitive_badge]")
       |> assert_has("#{card} img[data-sensitive]")
     end

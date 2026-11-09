@@ -29,6 +29,7 @@
     </div>
 
     <ul class="menu p-0 w-full gap-0">
+      {!-- the rows are patch links with the plain path, so they need no entry page. Replaced: group_return_to={@group_return_to} --}
       <Bonfire.UI.Groups.SidebarGroupLive
         :for={{%{type: :group} = category, children} <- e(@categories, [])}
         category={category}
@@ -39,7 +40,6 @@
         my_membership={Map.get(@my_memberships, id(category), false)}
         join_mode={Map.get(@join_modes, id(category))}
         current_path={@current_path}
-        group_return_to={@group_return_to}
       />
       {!-- <li>
         <LinkLive to="/groups" class="flex items-center !gap-2 !px-3 py-1.5 text-muted">

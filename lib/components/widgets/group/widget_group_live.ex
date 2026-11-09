@@ -61,8 +61,11 @@ defmodule Bonfire.UI.Groups.WidgetGroupLive do
     [
       # who can see the group comes before who can join it
       {:visibility, visibility_slug, l("Find group")},
-      {:membership, membership_slug, l("Join")},
-      {:participation, participation_slug, l("Post")},
+      # the labels are verbs ("who can join / post"), so they use the shared verb entries, which translate apart from the nouns ("a post")
+      # {:membership, membership_slug, l("Join")},
+      # {:participation, participation_slug, l("Post")},
+      {:membership, membership_slug, lc("verb: action", "Join", [], :bonfire_classify)},
+      {:participation, participation_slug, lc("verb: action", "Post", [], :bonfire_posts)},
       {:default_content_visibility, content_visibility_slug, l("See content")}
     ]
     |> Enum.flat_map(fn {dimension, slug, label} ->

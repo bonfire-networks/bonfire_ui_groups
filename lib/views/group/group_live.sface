@@ -88,7 +88,8 @@
             data-role="group-header-block"
             class={
               "border-b-(length:--divider-width) border-divider":
-                @frame_group && not group_settings?(@type, @selected_tab)
+                @frame_group && not group_settings?(@type, @selected_tab) &&
+                  not discussions_tabs?(assigns, current_user_id(@__context__))
             }
           >
             {#if not (group_settings?(@type, @selected_tab) and @view_mode == :full)}
@@ -114,6 +115,13 @@
                 can_edit_topic={@can_edit_topic}
                 sensitive_notice={e(assigns, :sensitive_notice?, false)}
               />
+              {!-- under the topic tabs, the selected topic's address (copyable, as the group's is in the header) and its description; `character.peered` and `profile` are loaded by `Bonfire.Classify.LiveHandler` --}
+              <div :if={@type == :topic and @frame_group} data-role="group-topic-info" class="px-4 pb-3">
+                <StatelessComponent
+                  module={maybe_component(Bonfire.UI.Topics.TopicAboutLive, @__context__)}
+                  category={@category}
+                />
+              </div>
               {!-- inside a group the topic's chip carries its name and actions, so only a standalone topic gets its own header --}
               <StatelessComponent
                 :if={@type == :topic and is_nil(@frame_group)}
@@ -145,7 +153,10 @@
             id="group_pinned_carousel"
             scope={if @type == :topic, do: :topic, else: :group}
             scope_object={@category}
-            class="border-b border-divider pt-3.5 pb-4"
+            class={[
+              "pt-3.5 pb-4",
+              "border-b border-divider": not discussions_tabs?(assigns, current_user_id(@__context__))
+            ]}
             wrapper_class="w-full relative bg-transparent px-(--stream-content-padding)"
             title_class="pb-2.5"
             heading_class="text-[13px] font-medium text-base-content/58"

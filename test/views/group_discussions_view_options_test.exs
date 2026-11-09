@@ -5,7 +5,7 @@ defmodule Bonfire.UI.Groups.GroupDiscussionsViewOptionsTest do
   alias Bonfire.Classify.Simulate
 
   setup do
-    # per process, so the three entries of "All posts" fit on one page (the test default is 2)
+    # per process, so the three entries of "Latest updates" fit on one page (the test default is 2)
     Process.put([:bonfire, :default_pagination_limit], 10)
 
     account = fake_account!()
@@ -41,10 +41,10 @@ defmodule Bonfire.UI.Groups.GroupDiscussionsViewOptionsTest do
 
     assert order(session) == [:a, :b], "control: by latest activity A (replied last) comes first"
 
-    session = session |> choose("Newest first") |> wait_async()
+    session = session |> choose("Recent threads") |> wait_async()
     assert order(session) == [:b, :a]
 
-    session = session |> choose("Recently active") |> wait_async()
+    session = session |> choose("Recent replies") |> wait_async()
     assert order(session) == [:a, :b]
   end
 
@@ -53,7 +53,7 @@ defmodule Bonfire.UI.Groups.GroupDiscussionsViewOptionsTest do
       conn
       |> visit("/&#{group.character.username}/discussions")
       |> wait_async()
-      |> choose("Newest first")
+      |> choose("Recent threads")
       |> wait_async()
 
     assert order(session) == [:b, :a]
@@ -74,7 +74,7 @@ defmodule Bonfire.UI.Groups.GroupDiscussionsViewOptionsTest do
       |> refute_has("[data-id=feed] article", text: "a reply to A")
       # threads get the discussion footer (reply counter and participants) in place of the feed's actions
       |> assert_has("[data-id=feed] article [data-role=discussion_preview_actions]")
-      |> choose("All posts")
+      |> click_button("[data-role=discussions_view_options] button", "Latest updates")
       |> wait_async()
       |> assert_has("[data-id=feed] article", text: "a reply to A")
       # every post gets the feed's normal actions
@@ -84,7 +84,7 @@ defmodule Bonfire.UI.Groups.GroupDiscussionsViewOptionsTest do
     assert order(session) == [:reply, :b, :a]
 
     session
-    |> choose("Threads")
+    |> click_button("[data-role=discussions_view_options] button", "Discussions")
     |> wait_async()
     |> refute_has("[data-id=feed] article", text: "a reply to A")
     |> assert_has("[data-id=feed] article [data-role=discussion_preview_actions]")
@@ -94,7 +94,7 @@ defmodule Bonfire.UI.Groups.GroupDiscussionsViewOptionsTest do
     conn
     |> visit("/&#{group.character.username}/discussions")
     |> wait_async()
-    |> choose("Newest first")
+    |> choose("Recent threads")
     |> wait_async()
     |> refute_has("[data-id=feed] article", text: "a reply to A")
   end

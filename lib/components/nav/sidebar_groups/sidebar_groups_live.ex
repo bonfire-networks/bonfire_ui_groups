@@ -57,11 +57,13 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
   defp assign_current_path(socket) do
     url = current_url(socket)
     path = is_binary(url) && (URI.parse(url).path || url)
-    params = e(socket.assigns, :__context__, :current_params, %{}) || %{}
+    # the rows are patch links with the plain path, so the sidebar holds no entry page
+    # params = e(socket.assigns, :__context__, :current_params, %{}) || %{}
 
     socket
     |> assign(:current_path, path || "")
-    |> assign(:group_return_to, Bonfire.Classify.Web.GroupNavigation.return_to(params, url))
+
+    # |> assign(:group_return_to, Bonfire.Classify.Web.GroupNavigation.return_to(params, url))
   end
 
   # a pin changed (`Pins.LiveHandler.handle_info/2`), or a membership (routed via PersistentLive)

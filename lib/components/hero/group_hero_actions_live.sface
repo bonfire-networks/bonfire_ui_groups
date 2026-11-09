@@ -44,15 +44,16 @@
     >
       {if @moderator, do: l("Moderator"), else: l("Joined")}
     </span>
-    <LinkLive
+    {!-- the plain path, as a patch: `GroupLive` keeps the entry page in its state. Replaced: <LinkLive to={Bonfire.Classify.Web.GroupNavigation.link("#{path(@group)}/settings", @group_return_to)}> --}
+    <LinkPatchLive
       :if={@moderator}
-      to={Bonfire.Classify.Web.GroupNavigation.link("#{path(@group)}/settings", @group_return_to)}
+      to={"#{path(@group)}/settings"}
       class={round_button_class()}
       label={l("Manage")}
     >
       <#Icon iconify="ph:gear-six" class="size-[18px]" />
       <span class="sr-only">{l("Manage")}</span>
-    </LinkLive>
+    </LinkPatchLive>
     <StatefulComponent
       :if={current_user_id(@__context__)}
       module={maybe_component(Bonfire.Notify.Web.BellButtonLive, @__context__)}

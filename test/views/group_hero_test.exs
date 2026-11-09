@@ -41,8 +41,11 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
 
   describe "visitors" do
     test "a guest is offered Join and follow in the header", %{group: group} do
+      # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView)
+      # conn()
+      # |> visit(group_path(group))
       conn()
-      |> visit(group_path(group))
+      |> get_conn_render(group_path(group))
       |> assert_has(@visitor)
       |> assert_has("#{@hero} h1", text: "Reading together")
       |> assert_has("#{@hero} [data-role=group-hero-members]", text: "1 member")
@@ -68,8 +71,11 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       [handle, host] = String.split(address, "@", parts: 2)
 
       # the visible text may break before the host (`<wbr>`), so the handle and the host are checked apart; the copied value is the whole address
+      # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView)
+      # conn()
+      # |> visit(group_path(group))
       conn()
-      |> visit(group_path(group))
+      |> get_conn_render(group_path(group))
       |> assert_has(
         "#{@hero} [data-role=group-address][phx-hook=Copy][data-clipboard-text='#{address}']",
         text: handle
@@ -109,8 +115,11 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
 
     # the same tile as the sidebar's, so a group looks the same in both
     test "a group without an avatar shows its initial", %{group: group} do
+      # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView)
+      # conn()
+      # |> visit(group_path(group))
       conn()
-      |> visit(group_path(group))
+      |> get_conn_render(group_path(group))
       |> assert_has("#{@hero} [data-role=group_tile]", text: "R")
       |> refute_has("#{@hero} [data-role=group_preset_icon]")
     end

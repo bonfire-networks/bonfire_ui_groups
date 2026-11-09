@@ -92,7 +92,7 @@ defmodule Bonfire.UI.Groups.GroupFeedLoadMoreTest do
       |> assert_has_or_open_browser("#activity_#{old_activity_id}")
     end
 
-    for option <- ["All posts", "Newest first"] do
+    for option <- ["Latest updates", "Recent threads"] do
       test "after Show older activities, picking #{option} still lists the discussions", %{
         account: account,
         me: me
@@ -127,7 +127,7 @@ defmodule Bonfire.UI.Groups.GroupFeedLoadMoreTest do
         |> click_button("#load_more_show_older[data-id=load_more]", "Show older activities")
         |> wait_async()
         |> assert_has("#activity_#{old_activity_id}")
-        |> choose(unquote(option))
+        |> pick_view_option(unquote(option))
         |> wait_async()
         |> assert_has_or_open_browser("[data-id=feed] article", text: "discussion from today")
         |> assert_has_or_open_browser("[data-id=feed] article",
@@ -166,7 +166,7 @@ defmodule Bonfire.UI.Groups.GroupFeedLoadMoreTest do
         |> click_button("Show older activities")
         |> wait_async()
         |> assert_has("[data-id=feed] article", text: "discussion from thirty days ago")
-        |> choose(unquote(option))
+        |> pick_view_option(unquote(option))
         |> wait_async()
         |> assert_has_or_open_browser("[data-id=feed] article",
           text: "discussion from thirty days ago"
@@ -249,6 +249,12 @@ defmodule Bonfire.UI.Groups.GroupFeedLoadMoreTest do
       |> refute_has("[data-id=feed]", text: "group entry")
     end
   end
+
+  # the layouts are tabs (buttons), the sorts are radios in the current tab's menu
+  defp pick_view_option(session, "Latest updates" = layout),
+    do: click_button(session, "[data-role=discussions_view_options] button", layout)
+
+  defp pick_view_option(session, sort), do: choose(session, sort)
 
   defp fake_post_in_group_days_ago!(user, group, days, html) do
     boundaries = List.wrap(Bonfire.Classify.Boundaries.read_default_content_visibility(group))

@@ -1,5 +1,5 @@
 defmodule Bonfire.UI.Groups.GroupAddressLive do
-  @moduledoc "A group's full federated address (eg. `&name@instance`), copyable. Shown whole, wrapping instead of truncating, since a cut-off address can't be searched for from another server."
+  @moduledoc "A group's or topic's full federated address (eg. `&name@instance`, `+name@instance`), copyable. Shown whole, wrapping instead of truncating, since a cut-off address can't be searched for from another server."
   use Bonfire.UI.Common.Web, :stateless_component
 
   prop group, :any, required: true

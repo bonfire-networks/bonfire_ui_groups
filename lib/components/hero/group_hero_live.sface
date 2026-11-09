@@ -109,11 +109,12 @@
               />
             {/for}
           </div>
-          <LinkLive
-            to={Bonfire.Classify.Web.GroupNavigation.link("#{path(@group)}/members", @group_return_to)}
+          {!-- the plain path, as a patch: `GroupLive` keeps the entry page in its state. Replaced: <LinkLive to={Bonfire.Classify.Web.GroupNavigation.link("#{path(@group)}/members", @group_return_to)}> --}
+          <LinkPatchLive
+            to={"#{path(@group)}/members"}
             class="shrink-0 tabular-nums hover:underline"
             opts={["data-role": "group-hero-members"]}
-          >{lp("%{count} member", "%{count} members", @member_count, count: @member_count)}</LinkLive>
+          >{lp("%{count} member", "%{count} members", @member_count, count: @member_count)}</LinkPatchLive>
           {!-- visitors only: how to join, which decides what they do next; the rest is in the group widget --}
           {#case @variant == "visitor" && Bonfire.Boundaries.Presets.dimension_meta(:membership, @membership_slug)}
             {#match %{} = meta}
