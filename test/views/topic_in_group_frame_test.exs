@@ -68,6 +68,14 @@ defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
       |> refute_has("#topic-parent-banner")
     end
 
+    # "Get latest activities" fetches a remote actor's outbox, so a topic made here has none to offer (the mirrored topic's is in `TopicOutboxFetchUITest`)
+    test "a local topic's chip menu has no \"Get latest activities\"", ctx do
+      as_creator(ctx)
+      |> visit(topic_path(ctx.group, ctx.topic))
+      |> assert_has("#{@topic_menu} [data-id=unfollow]", text: "Unfollow topic")
+      |> refute_has("#{@topic_menu} [phx-click='Bonfire.Me.Users:fetch_outbox']")
+    end
+
     test "moderators get the topic's settings in the chip menu; members don't", ctx do
       as_creator(ctx)
       |> visit(topic_path(ctx.group, ctx.topic))

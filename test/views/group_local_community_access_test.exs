@@ -11,7 +11,7 @@ defmodule Bonfire.UI.Groups.GroupLocalCommunityAccessTest do
 
     owner = fake_user!(fake_account!())
 
-    # the settings UI labels: Join "Users of this instance", See "Discoverable group preview", Post "Users of this instance", New posts "Users of this instance"
+    # the settings UI labels: Join "Users of this instance", See "Anyone can preview (but doesn't federate)", Post "Users of this instance", New posts "Users of this instance"
     group =
       Bonfire.Classify.Simulate.fake_group!(owner, %{
         name: "Testgroep Ypsilon",

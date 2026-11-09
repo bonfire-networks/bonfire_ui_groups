@@ -38,7 +38,7 @@
           {#for {dimension, slug, label, meta} <- @access_rows}
             <div data-role={"group-widget-#{dimension}"} class="contents">
               <dt class="text-muted">{label}</dt>
-              <dd title={e(meta, :description, nil)}>{Bonfire.UI.Groups.GroupHeroLive.hero_dimension_label(dimension, slug, meta)}</dd>
+              <dd title={e(meta, :description, nil)}>{Bonfire.UI.Groups.GroupHeroLive.hero_dimension_label(dimension, slug, meta)}{#if dimension == :default_content_visibility} {l("(by default)")}{/if}</dd>
             </div>
           {/for}
         </dl>
