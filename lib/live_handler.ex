@@ -327,7 +327,13 @@ defmodule Bonfire.UI.Groups.LiveHandler do
     group = e(assigns(socket), :frame_group, nil)
 
     if e(assigns(socket), :hero_shown?, false) and id(group) == group_id,
-      do: Bonfire.UI.Groups.GroupHeroLive.assign_page_header(socket, group, member?),
+      do:
+        Bonfire.UI.Groups.GroupHeroLive.assign_page_header(
+          socket,
+          group,
+          member?,
+          e(assigns(socket), :view_mode, :full)
+        ),
       else: socket
   end
 

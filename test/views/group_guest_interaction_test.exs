@@ -123,9 +123,12 @@ defmodule Bonfire.UI.Groups.GroupGuestInteractionTest do
     test "on a non-federated group sends a guest to sign in" do
       group = group!("nonfederated")
 
+      # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView), and there is no async load to wait for
+      # conn()
+      # |> visit("/&#{group.character.username}")
+      # |> wait_async()
       conn()
-      |> visit("/&#{group.character.username}")
-      |> wait_async()
+      |> get_conn_render("/&#{group.character.username}")
       |> assert_has("[data-id=follow][href^='/login']")
       |> refute_has("[data-id=follow][href$='/interact/follow']")
     end
@@ -133,9 +136,12 @@ defmodule Bonfire.UI.Groups.GroupGuestInteractionTest do
     test "on a federated group links a guest to its remote follow page" do
       group = group!("global")
 
+      # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView), and there is no async load to wait for
+      # conn()
+      # |> visit("/&#{group.character.username}")
+      # |> wait_async()
       conn()
-      |> visit("/&#{group.character.username}")
-      |> wait_async()
+      |> get_conn_render("/&#{group.character.username}")
       |> assert_has("[data-id=follow][href$='/interact/follow']")
     end
   end
@@ -145,9 +151,12 @@ defmodule Bonfire.UI.Groups.GroupGuestInteractionTest do
     test "renders the remote interaction form for a group" do
       group = group!("global")
 
+      # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView), and there is no async load to wait for
+      # conn()
+      # |> visit("/&#{group.character.username}/interact/follow")
+      # |> wait_async()
       conn()
-      |> visit("/&#{group.character.username}/interact/follow")
-      |> wait_async()
+      |> get_conn_render("/&#{group.character.username}/interact/follow")
       |> assert_has("form", text: "Follow")
     end
 
@@ -155,9 +164,12 @@ defmodule Bonfire.UI.Groups.GroupGuestInteractionTest do
       owner = fake_user!()
       topic = Bonfire.Classify.Simulate.fake_category!(owner, nil, %{type: :topic})
 
+      # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView), and there is no async load to wait for
+      # conn()
+      # |> visit("/+#{topic.character.username}/interact/follow")
+      # |> wait_async()
       conn()
-      |> visit("/+#{topic.character.username}/interact/follow")
-      |> wait_async()
+      |> get_conn_render("/+#{topic.character.username}/interact/follow")
       |> assert_has("form", text: "Follow")
     end
   end

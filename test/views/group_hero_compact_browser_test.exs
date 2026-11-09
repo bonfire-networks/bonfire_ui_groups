@@ -4,6 +4,8 @@ defmodule Bonfire.UI.Groups.GroupHeroCompactBrowserTest do
 
   alias Wallaby.{Browser, Query}
   require Browser
+  # `Browser.assert_has/2` is a macro whose expansion calls `execute_query/2` unqualified
+  import Wallaby.Browser, only: [execute_query: 2]
   alias Bonfire.Common.Repo
 
   @moduletag :ui
@@ -31,7 +33,10 @@ defmodule Bonfire.UI.Groups.GroupHeroCompactBrowserTest do
     %{session: Browser.resize_window(session, 1440, 1000), user: user}
   end
 
-  test "a member's toggle shows the full hero, and hides it again", %{session: session, user: user} do
+  test "a member's toggle shows the full hero, and hides it again", %{
+    session: session,
+    user: user
+  } do
     group =
       Bonfire.Classify.Simulate.fake_group!(Bonfire.Me.Fake.fake_user!(), %{
         name: "Compact walkers",

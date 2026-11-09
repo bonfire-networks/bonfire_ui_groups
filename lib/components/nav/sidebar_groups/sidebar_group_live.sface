@@ -1,7 +1,8 @@
 <li id={@row_id} data-role="sidebar-group" class="!block w-full min-w-0">
   <div class="group/row relative !block !p-0 !rounded-none hover:!bg-transparent">
-    <LinkLive
-      to={Bonfire.Classify.Web.GroupNavigation.link(@group_path, @group_return_to)}
+    {!-- a patch link with the plain path, on every page: the client sends it to the main view, which patches when it serves the route (inside `GroupLive`, keeping the entry page in its state) and otherwise answers with a live navigate, whose `_live_referer` is the page left. Replaced: <LinkLive to={Bonfire.Classify.Web.GroupNavigation.link(@group_path, @group_return_to)} ...> --}
+    <LinkPatchLive
+      to={@group_path}
       opts={[id: @row_id <> "-link", title: @group_name, "aria-current": if(@active?, do: "page", else: nil)]}
       class={[
         "nav-row h-9 !pr-10 hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
@@ -41,7 +42,7 @@
         <#Icon iconify="ph:lock-simple-fill" class="size-3 text-subtle" />
         <span class="sr-only">{l("Private group")}</span>
       </span>
-    </LinkLive>
+    </LinkPatchLive>
     <details
       :if={@topics != []}
       id={@row_id <> "-topics"}
@@ -62,8 +63,9 @@
       </summary>
       <ul data-role="sidebar-topics" class="sidebar-child-list">
         <li :for={topic <- @topics} class="!block w-full min-w-0 !pl-7.5">
-          <LinkLive
-            to={Bonfire.Classify.Web.GroupNavigation.link(topic.path, @group_return_to)}
+          {!-- a patch link with the plain path, as the group's row above. Replaced: <LinkLive to={Bonfire.Classify.Web.GroupNavigation.link(topic.path, @group_return_to)} ...> --}
+          <LinkPatchLive
+            to={topic.path}
             opts={[
               id: @row_id <> "-topic-" <> topic.id,
               title: topic.name,
@@ -76,7 +78,7 @@
             ]}
           >
             <span class="min-w-0 truncate">{topic.name}</span>
-          </LinkLive>
+          </LinkPatchLive>
         </li>
       </ul>
     </details>

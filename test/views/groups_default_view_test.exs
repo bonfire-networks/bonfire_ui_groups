@@ -73,8 +73,11 @@ defmodule Bonfire.UI.Groups.GroupsDefaultViewTest do
   end
 
   test "a guest opens on the directory", ctx do
+    # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView)
+    # conn()
+    # |> visit("/groups")
     conn()
-    |> visit("/groups")
+    |> get_conn_render("/groups")
     |> assert_directory_view(ctx.group)
   end
 

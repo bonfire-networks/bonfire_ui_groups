@@ -262,8 +262,8 @@ defmodule Bonfire.UI.Groups.GroupRosterVisibilityUITest do
     |> refute_has("main", text: "Quiet Member")
   end
 
-  # the faces at the top of the group's page are the first few members, so they follow the same rule as the list
-  test "on a group joined by request, a stranger sees no members' faces at the top of the page",
+  # the faces at the top of the group's page are the first few members, so they follow the same rule as the list: someone who can't see the list gets the moderators' faces and no total, as the members tab lists only those to them
+  test "on a group joined by request, a stranger sees only the moderators' faces and no total at the top of the page",
        %{
          moderator: moderator,
          member: member,
@@ -277,12 +277,14 @@ defmodule Bonfire.UI.Groups.GroupRosterVisibilityUITest do
     |> visit("/group/#{group.character.username}")
     |> wait_async()
     |> assert_has("[data-role=group-hero-facepile]")
+    |> assert_has("[data-role=group-hero-members]")
 
     conn(user: stranger, account: stranger_account)
     |> visit("/group/#{group.character.username}")
     |> wait_async()
-    |> refute_has("[data-role=group-hero-facepile]")
-    |> assert_has("[data-role=group-hero-members]")
+    |> assert_has("[data-role=group-hero-facepile] [title='#{moderator.profile.name}']")
+    |> refute_has("[data-role=group-hero-facepile] [title='Quiet Member']")
+    |> refute_has("[data-role=group-hero-members]")
   end
 
   # found on prod: the followers page of a group listed its followers, but "Load more" answered "User not found", since the load-more handler looks for the profile's `user` and a group page has its `category`

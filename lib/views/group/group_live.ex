@@ -31,10 +31,13 @@ defmodule Bonfire.UI.Groups.GroupLive do
     leaving_settings? =
       e(socket.assigns, :selected_tab, nil) == "settings" and params["tab"] != "settings"
 
-    # the topic chips patch between the group and its topics, all served by this view
+    previous_id = id(e(assigns(socket), :category, nil))
+
+    # the topic chips and the sidebar's rows patch between groups and their topics, all served by this view
     case Bonfire.Classify.LiveHandler.maybe_switch_category(params, socket) do
       {:ok, socket} ->
         socket
+        |> reset_members_filters_on_switch(previous_id)
         |> assign_page()
         |> handle_category_params(params, uri, leaving_settings?)
 
@@ -47,7 +50,15 @@ defmodule Bonfire.UI.Groups.GroupLive do
     end
   end
 
-  defp handle_category_params(socket, params, uri, leaving_settings?) do
+  # the members page's search and role filter are the view's own state (`Bonfire.UI.Groups.LiveHandler`), which `Bonfire.Classify.LiveHandler.load_category/4` knows nothing of: a patch to another group or topic starts them afresh
+  defp reset_members_filters_on_switch(socket, previous_id) do
+    if not is_nil(previous_id) and previous_id != id(e(assigns(socket), :category, nil)),
+      do: assign(socket, member_search: "", member_role: "all"),
+      else: socket
+  end
+
+  # `_leaving_settings?`: back no longer depends on it (see the commented `back:` below)
+  defp handle_category_params(socket, params, uri, _leaving_settings?) do
     {:noreply, socket} = Bonfire.Classify.LiveHandler.handle_params(params, uri, socket)
 
     socket =
@@ -66,31 +77,49 @@ defmodule Bonfire.UI.Groups.GroupLive do
       |> assign(:hero_shown?, shown?)
       |> Bonfire.UI.Groups.GroupHeroLive.assign_page_header(
         if(shown?, do: socket.assigns.frame_group),
-        e(socket.assigns, :my_group_membership, false)
+        e(socket.assigns, :my_group_membership, false),
+        e(socket.assigns, :view_mode, :full)
       )
 
     socket =
       if socket.assigns.selected_tab == "settings" do
         socket
         |> assign(:page_title, Bonfire.UI.Groups.SettingsLive.page_title(socket.assigns.tab_id))
+        # the settings' back is the group (or its settings), served by this view, so a patch with the plain path: the view keeps the entry page
+        # |> assign(
+        #   :back,
+        #   Bonfire.Classify.Web.GroupNavigation.link(
+        #     if(socket.assigns.tab_id,
+        #       do: path(socket.assigns.category) <> "/settings",
+        #       else: path(socket.assigns.category)
+        #     ),
+        #     socket.assigns.group_return_to
+        #   )
+        # )
         |> assign(
-          :back,
-          Bonfire.Classify.Web.GroupNavigation.link(
+          back:
             if(socket.assigns.tab_id,
               do: path(socket.assigns.category) <> "/settings",
               else: path(socket.assigns.category)
             ),
-            socket.assigns.group_return_to
-          )
+          back_patch: true
         )
       else
         assign(socket,
           page_title: Bonfire.Classify.Web.Preview.CategoryLive.name(socket.assigns.category),
+          # back is the entry page on every tab but members, whose back is the group (set by its clause, on each patch to it): a patch from members to the group keeps the entry page, as the view's state holds it
+          # back:
+          #   if(leaving_settings? and socket.assigns.selected_tab != "members",
+          #     do: socket.assigns.group_return_to,
+          #     else: socket.assigns.back
+          #   )
           back:
-            if(leaving_settings? and socket.assigns.selected_tab != "members",
+            if(socket.assigns.selected_tab != "members",
               do: socket.assigns.group_return_to,
               else: socket.assigns.back
-            )
+            ),
+          # the entry page is another view's page, so a navigate; the members page's back (the group) is a patch
+          back_patch: socket.assigns.selected_tab == "members"
         )
       end
 
@@ -126,6 +155,21 @@ defmodule Bonfire.UI.Groups.GroupLive do
       false
   """
   def group_settings?(type, selected_tab), do: type != :topic and selected_tab == "settings"
+
+  @doc """
+  Whether the feed starts with the "Discussions" / "Latest updates" tabs (`Bonfire.UI.Social.DiscussionsViewOptionsLive`, shown on the `:recent_discussions` feed to someone signed in), which draw their own rule, so the header's and the pins' bottom borders above them would double it. Not when the access gate or sensitive notice stands in for the feed.
+
+      iex> Bonfire.UI.Groups.GroupLive.discussions_tabs?(%{selected_tab: :discussions, view_mode: :full}, "user_id")
+      true
+      iex> Bonfire.UI.Groups.GroupLive.discussions_tabs?(%{selected_tab: "posts", view_mode: :full}, "user_id")
+      false
+      iex> Bonfire.UI.Groups.GroupLive.discussions_tabs?(%{selected_tab: "discussions", view_mode: :full}, nil)
+      false
+  """
+  def discussions_tabs?(assigns, current_user_id) do
+    to_string(e(assigns, :selected_tab, nil)) == "discussions" and not is_nil(current_user_id) and
+      e(assigns, :view_mode, :full) == :full and not e(assigns, :sensitive_notice?, false)
+  end
 
   defp assign_page(socket) do
     if e(assigns(socket), :type, nil) == :topic,

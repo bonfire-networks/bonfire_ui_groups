@@ -25,9 +25,12 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
   end
 
   test "guests see the hero and sign-in overlay without a feed", %{group: group} do
+    # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView), and there is no async load to wait for
+    # conn()
+    # |> visit("/&#{group.character.username}")
+    # |> wait_async()
     conn()
-    |> visit("/&#{group.character.username}")
-    |> wait_async()
+    |> get_conn_render("/&#{group.character.username}")
     |> assert_has("h1", text: "Preview club")
     |> assert_has("#group_access_gate a[href^='/login?go=']", text: "Sign in")
     |> refute_has("[data-id=feed]")
@@ -85,7 +88,9 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
     |> refute_has("[data-id=feed]")
     |> refute_has("[data-id=group]", text: "Restricted discussion")
     |> refute_has("#inline_composer_placeholder")
-    |> assert_has("[data-id=group]", text: "1 member")
+    # a viewer who only previews the group gets no members pill and no total (the minimal header)
+    # |> assert_has("[data-id=group]", text: "1 member")
+    |> refute_has("[data-role=group-hero-members]")
 
     refute Bonfire.Classify.Categories.member?(member, group)
     assert Bonfire.Social.Graph.Follows.following?(member, group)
@@ -125,9 +130,17 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
           :group_path -> Bonfire.Common.URIs.path(group)
         end
 
-      conn()
-      |> visit(path)
-      |> wait_async()
+      # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView), and there is no async load to wait for
+      # conn()
+      # |> visit(path)
+      # |> wait_async()
+      # `mounted/3` refuses the group by sending the visitor to the not-found page, which `get_conn_render` does not follow: the browser does, so the test fetches the page the redirect names, as the same visitor
+      refused = get(conn(), path)
+      %URI{path: to_path, query: to_query} = URI.parse(redirected_to(refused))
+
+      refused
+      |> recycle()
+      |> get_conn_render(if(to_query, do: "#{to_path}?#{to_query}", else: to_path))
       # the not-found page, reached on purpose: `mounted/3` refuses a group this visitor may not see, and says so
       |> assert_has("#error-headline", text: "Not found")
       # not the crash `GroupLive.mount/3` used to hit by reading a `:category` that was never assigned
@@ -145,9 +158,12 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
         default_content_visibility: "local"
       })
 
+    # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView), and there is no async load to wait for
+    # conn()
+    # |> visit("/&#{group.character.username}")
+    # |> wait_async()
     conn()
-    |> visit("/&#{group.character.username}")
-    |> wait_async()
+    |> get_conn_render("/&#{group.character.username}")
     |> refute_has("#group_access_gate")
     |> refute_has("[data-role=category_preview]")
   end

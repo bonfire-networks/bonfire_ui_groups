@@ -18,17 +18,18 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
     %{user: user, group: group, topic: topic}
   end
 
-  test "topic navigation opens its group and preserves the entry page", %{
+  test "topic navigation opens its group", %{
     group: group,
     topic: topic
   } do
+    topic_path = Bonfire.Classify.Web.GroupNavigation.topic_path(group, topic)
+
     html =
       render_component(&SidebarGroupLive.render/1,
         category: group,
         children: [{topic, []}],
         parent_id: "sidebar",
-        current_path: Bonfire.Common.URIs.path(group) <> "/topic/" <> topic.character.username,
-        group_return_to: "/feed?sort=latest"
+        current_path: topic_path
       )
 
     document = Floki.parse_document!(html)
@@ -37,13 +38,41 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
     assert [_] = Floki.find(document, "summary[aria-label]")
     assert [] == Floki.find(document, "summary a")
 
-    assert [_] =
-             Floki.find(
-               document,
-               "a[aria-current='page'][href*='group_from=%2Ffeed%3Fsort%3Dlatest']"
-             )
-
+    # the current row is the topic's, pointing at its plain path
+    assert [_] = Floki.find(document, "a[aria-current='page'][href='#{topic_path}']")
     assert Floki.attribute(document, "a[aria-current='page']", "title") == [topic.profile.name]
+  end
+
+  # the rows sit in `PersistentLive`, a sticky view: a patch link is sent by the client to the main view, which patches when it serves the route and otherwise answers with a navigate, so the link needs no entry page in its href
+  test "the group row and the topic row are patch links with the plain path", %{
+    group: group,
+    topic: topic
+  } do
+    group_path = Bonfire.Common.URIs.path(group)
+    topic_path = Bonfire.Classify.Web.GroupNavigation.topic_path(group, topic)
+
+    document =
+      render_component(&SidebarGroupLive.render/1,
+        category: group,
+        children: [{topic, []}],
+        parent_id: "sidebar",
+        current_path: "/feed"
+      )
+      |> Floki.parse_document!()
+
+    # positive first: both rows are there and go to the right paths
+    assert [group_row] = Floki.find(document, "#sidebar-group-#{group.id}-link")
+    assert Floki.attribute(group_row, "href") == [group_path]
+
+    assert [topic_row] =
+             Floki.find(document, "#sidebar-group-#{group.id}-topic-#{topic.id}")
+
+    assert Floki.attribute(topic_row, "href") == [topic_path]
+
+    for row <- [group_row, topic_row] do
+      assert Floki.attribute(row, "data-phx-link") == ["patch"]
+      refute hd(Floki.attribute(row, "href")) =~ "group_from"
+    end
   end
 
   test "other groups start collapsed and empty groups have no disclosure", %{

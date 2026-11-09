@@ -53,8 +53,11 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
 
     # visitors get it there too, so the header isn't followed by a block of reference material
     test "a visitor finds it in the sidebar too, not under the header", ctx do
+      # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView)
+      # conn()
+      # |> visit(group_path(ctx.group))
       conn()
-      |> visit(group_path(ctx.group))
+      |> get_conn_render(group_path(ctx.group))
       |> assert_has(".sidebar-widgets #{@widget}")
       |> refute_has("[data-id=main_section] #{@widget}")
     end
@@ -84,8 +87,11 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
 
     # the header keeps only how to join, which changes what a visitor does next; who can see the group is in the widget
     test "visitors see how to join in the header, and who can see it only in the widget", ctx do
+      # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView)
+      # conn()
+      # |> visit(group_path(ctx.group))
       conn()
-      |> visit(group_path(ctx.group))
+      |> get_conn_render(group_path(ctx.group))
       |> assert_has("[data-id=group_hero] [data-role=group-hero-membership]")
       |> refute_has("[data-id=group_hero] [data-role=group-hero-visibility]")
       |> assert_has("#{@widget} [data-role=group-widget-visibility]")

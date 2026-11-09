@@ -15,7 +15,8 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
   # see `Bonfire.Classify.Categories.join_mode/1`
   prop join_mode, :string, default: nil
   prop current_path, :string, default: ""
-  prop group_return_to, :string, default: "/groups"
+  # the rows are patch links with the plain path, so they need no entry page
+  # prop group_return_to, :string, default: "/groups"
 
   @doc "Renders one pinned group and its visible topics, opening the current group automatically."
   def render(assigns) do

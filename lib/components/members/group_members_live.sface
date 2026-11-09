@@ -1,7 +1,8 @@
 <section id="group-member-directory" class="bg-base-100">
   <header class="flex items-center justify-between gap-3 border-b-hair border-divider px-4 py-3">
-    <LinkLive
-      to={Bonfire.Classify.Web.GroupNavigation.link(path(@category), @group_return_to)}
+    {!-- the plain path, as a patch: `GroupLive` keeps the entry page in its state. Replaced: <LinkLive to={Bonfire.Classify.Web.GroupNavigation.link(path(@category), @group_return_to)}> --}
+    <LinkPatchLive
+      to={path(@category)}
       opts={[id: "members-parent-link"]}
       class="inline-flex min-w-0 items-center gap-3 text-sm"
     >
@@ -15,7 +16,7 @@
         {/case}
       </span>
       <span class="truncate">{e(@category, :profile, :name, l("Group"))}</span>
-    </LinkLive>
+    </LinkPatchLive>
     <label
       for="widgets-drawer"
       class="btn btn-ghost btn-circle shrink-0 xl:hidden"
