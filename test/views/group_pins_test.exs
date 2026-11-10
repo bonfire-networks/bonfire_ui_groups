@@ -79,14 +79,16 @@ defmodule Bonfire.UI.Groups.GroupPinsTest do
       |> refute_has("[data-role=pin_menu]")
     end
 
-    # the post's page decides its other menu rows from the loaded boundary, before the menu opens; the group and topic rows cost a few queries, so they wait for a moderator to open it
+    # every permission row waits for the menu to open, so a page of posts renders none of them up front
     test "the group and topic rows load when the menu opens, not with the page", ctx do
       as_moderator(ctx)
       |> visit("/post/#{id(ctx.topic_post)}")
       |> assert_has("article", text: "Topic news")
-      |> assert_has("[data-id=boundary_details]")
+      |> assert_has("[data-id=permitted_actions_placeholder]")
+      |> refute_has("[data-id=boundary_details]")
       |> refute_has("[data-role=pin_to_group]")
       |> open_more_menu()
+      |> assert_has("[data-id=boundary_details]")
       |> assert_has("[data-role=pin_to_group]")
     end
 
