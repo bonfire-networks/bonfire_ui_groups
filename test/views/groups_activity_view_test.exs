@@ -515,21 +515,20 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
           {"/groups/feed/all", "[data-id=feed] article"}
         ] do
       test "#{path}: Next page shows a guest the next page, without JavaScript" do
+        # the static render a guest without JavaScript gets, where `visit` would connect a LiveView
         session =
           conn()
-          |> visit(unquote(path))
-          |> wait_async()
+          |> get_conn_render(unquote(path))
           |> assert_has(unquote(selector), count: 2)
 
-        first_page = shown_ids(session, unquote(selector))
+        first_page = static_ids(static_html(session), unquote(selector))
 
         session =
-          session
-          |> click_link("a[data-id=next_page]", "Next page")
-          |> wait_async()
+          conn()
+          |> get_conn_render(static_href(session, "a[data-id=next_page]"))
           |> assert_has(unquote(selector), count: 2)
 
-        next_page = shown_ids(session, unquote(selector))
+        next_page = static_ids(static_html(session), unquote(selector))
 
         assert MapSet.disjoint?(MapSet.new(first_page), MapSet.new(next_page)),
                "the next page should not repeat the first page's #{inspect(first_page)}, got #{inspect(next_page)}"
@@ -631,25 +630,6 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
     |> Floki.parse_document!()
     |> Floki.find(selector)
     |> Floki.attribute("id")
-  end
-
-  # the ids of the elements `selector` finds on the page; `unwrap` returns the session, so they come back as a message
-  defp shown_ids(session, selector) do
-    PhoenixTest.unwrap(session, fn view ->
-      html = Phoenix.LiveViewTest.render(view)
-
-      ids =
-        html
-        |> Floki.parse_document!()
-        |> Floki.find(selector)
-        |> Floki.attribute("id")
-
-      send(self(), {:shown_ids, ids})
-      html
-    end)
-
-    assert_received {:shown_ids, ids}
-    ids
   end
 
   # a public group with a post, mirrored from another instance through a `Peered` row

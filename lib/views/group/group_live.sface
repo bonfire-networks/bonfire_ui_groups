@@ -66,8 +66,10 @@
         module={cond do
           # e(assigns, :view_mode, :full) == :preview ->
           # the members tab gets through for whoever may see the list without reading the group (`Categories.roster_visible?/2`, eg. an instance admin), and every other tab stays gated
+          # whoever may update the group gets its settings past the gate (`settings_gate_exempt?` is decided with the tab, in the live handler)
           e(assigns, :view_mode, :full) == :preview and
-              not (@selected_tab == "members" and e(assigns, :roster_visible?, false)) ->
+            not (@selected_tab == "members" and e(assigns, :roster_visible?, false)) and
+              not (@selected_tab == "settings" and e(assigns, :settings_gate_exempt?, false)) ->
             Bonfire.UI.Groups.AccessGateLive
 
           # a group or topic marked sensitive, until "Continue"

@@ -84,7 +84,7 @@ defmodule Bonfire.UI.Groups.GroupFeedLoadMoreTest do
         text: "discussion from thirty days ago"
       )
       |> refute_has("#activity_#{old_activity_id}")
-      |> click_link("a[data-id=next_page]", "Next page")
+      |> click_button("[data-id=load_more]", "Load more")
       |> wait_async()
       |> assert_has("#load_more_show_older[data-id=load_more]", text: "Show older activities")
       |> click_button("#load_more_show_older[data-id=load_more]", "Show older activities")
@@ -122,7 +122,7 @@ defmodule Bonfire.UI.Groups.GroupFeedLoadMoreTest do
         conn(user: me, account: account)
         |> visit("/&#{group.character.username}/discussions?time_limit=7")
         |> wait_async()
-        |> click_link("a[data-id=next_page]", "Next page")
+        |> click_button("[data-id=load_more]", "Load more")
         |> wait_async()
         |> click_button("#load_more_show_older[data-id=load_more]", "Show older activities")
         |> wait_async()
@@ -231,6 +231,62 @@ defmodule Bonfire.UI.Groups.GroupFeedLoadMoreTest do
         |> wait_async()
         |> assert_has("#activity_#{old_activity_id}")
       end
+    end
+
+    # a sort picked in the view options is a LiveView-only choice (not in the URL), and its cursor is for that ordering; the Next page link only exists without a socket, so with one the Load more button must continue in the picked order
+    test "after picking Recent threads, Load more lists the next discussions in that order",
+         %{account: account, me: me} do
+      limit = Bonfire.Common.Config.get(:default_pagination_limit, 2)
+      group = Simulate.fake_group!(me, %{name: "Cursor Ordering Group"})
+
+      for n <- 1..(limit + 1),
+          do: Simulate.fake_post_in_group!(me, group, "<p>discussion #{n}</p>")
+
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}/discussions")
+      |> wait_async()
+      |> pick_view_option("Recent threads")
+      |> wait_async()
+      |> assert_has("[data-id=feed] article", count: limit)
+      |> click_button("[data-id=load_more]", "Load more")
+      |> wait_async()
+      |> assert_has("[data-id=feed] article", count: limit + 1)
+      |> assert_has_or_open_browser("[data-id=feed] article", text: "discussion 1")
+    end
+
+    # without a socket nobody can pick a sort in the view options, so a sort reaches the static render only in the URL, and the Next page link must carry it
+    # spec for later: feeds don't read a sort from the URL (feeds_live_handler takes it from assigns or feed_filters) and a LiveView's static current_url drops the query string, so a sort in the URL isn't kept on the next page
+    @tag :todo
+    test "with the sort in the URL, the static Next page link carries it and lists the next discussions",
+         %{me: me} do
+      limit = Bonfire.Common.Config.get(:default_pagination_limit, 2)
+      # visible to a guest
+      group =
+        Simulate.fake_group!(me, %{
+          name: "Static Cursor Ordering Group",
+          membership: "open",
+          visibility: "global",
+          participation: "anyone",
+          default_content_visibility: "public"
+        })
+
+      for n <- 1..(limit + 1),
+          do: Simulate.fake_post_in_group!(me, group, "<p>discussion #{n}</p>")
+
+      # a guest, on the group's own path (its default tab is the discussions): a signed-in user's static render waits for the socket to load the feed (`feed_live.ex:493`), and the `/discussions` path is for signed-in users (`routes.ex:58-60`)
+      first_page =
+        conn()
+        |> get_conn_render("/&#{group.character.username}?sort_by=date_created")
+        |> assert_has("[data-id=feed] article", count: limit)
+
+      next_href = static_href(first_page, "a[data-id=next_page]")
+
+      assert next_href =~ "sort_by=date_created",
+             "the Next page link should carry the sort, got #{next_href}"
+
+      conn()
+      |> get_conn_render(next_href)
+      |> assert_has_or_open_browser("[data-id=feed] article", text: "discussion 1")
     end
 
     test "clicking Load more keeps the feed scoped to the group's outbox", %{

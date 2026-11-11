@@ -92,14 +92,20 @@ defmodule Bonfire.UI.Groups.GroupBanUITest do
   end
 
   # A block includes a ghost, so its box also removes the person from the group's followers and says so. A silence keeps the follow, so its box must not
-  for {type, ghosts?} <- [{"Silence", false}, {"Block", true}] do
+  # each with the menu item's visible label: the flags menu doesn't load the block state, so its Block item reads "Block or unblock …"
+  # for {type, ghosts?} <- [{"Silence", false}, {"Block", true}] do
+  for {type, button_label, ghosts?} <- [
+        {"Silence", "Silence", false},
+        {"Block", "Block or unblock", true}
+      ] do
     test "the #{type} form in the group offers to tell other instances, and #{if ghosts?, do: "says it removes them from the followers", else: "does not mention ghosting"}",
          %{moderator: moderator, moderator_account: moderator_account, group: group} do
       session =
         conn(user: moderator, account: moderator_account)
         |> visit("/group/#{group.character.username}/settings/moderation")
         |> wait_async()
-        |> click_button("[data-role=open_modal]", "#{unquote(type)} Troublesome Author")
+        # |> click_button("[data-role=open_modal]", "#{unquote(type)} Troublesome Author")
+        |> click_button("[data-role=open_modal]", "#{unquote(button_label)} Troublesome Author")
         |> assert_has("[data-role=group_block] [data-role=also_unfollow_and_notify]")
         |> assert_has("[data-role=group_block]", text: "Tell other instances too")
         |> refute_has("[data-role=group_block]", text: "Nothing is sent to other instances")

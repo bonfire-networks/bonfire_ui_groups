@@ -179,7 +179,7 @@ defmodule Bonfire.UI.Groups.GroupFollowButtonTest do
   end
 
   # an open group hosted elsewhere (Mbin, Lemmy) admits at once, while the Follow sent alongside waits for its answer
-  test "Join on an open group hosted elsewhere shows us as a member, while the follow waits",
+  test "Join on an open group hosted elsewhere waits for its answer, then shows us as a member while the follow waits",
        context do
     account = fake_account!()
     joiner = fake_user!(account)
@@ -199,13 +199,29 @@ defmodule Bonfire.UI.Groups.GroupFollowButtonTest do
                "https://elsewhere.local/m/open"
              )
 
-    conn(user: joiner, account: account)
+    conn = conn(user: joiner, account: account)
+
+    # a Join on a group hosted elsewhere waits for the group's own answer, even when it is open
+    conn
     |> visit(Bonfire.Common.URIs.path(mirrored))
     |> wait_async()
     |> click_button("#join_btn_#{mirrored.id}", "Join")
-    |> assert_has("[data-id=group_hero][data-variant=member]")
+    # |> assert_has("[data-id=group_hero][data-variant=member]")
+    |> assert_has("button", text: "Joining…")
+    |> refute_has("[data-id=group_hero][data-variant=member]")
+
+    refute Categories.member?(joiner, mirrored), "control: the group has not answered the Join"
+
+    # the group answers the Join as its Accept would, leaving the Follow sent alongside still waiting
+    assert {:ok, _} =
+             Categories.join_group(joiner, mirrored, skip_boundary_check: true, incoming: true)
 
     # the follow waiting must not stop the header showing the membership
+    conn
+    |> visit(Bonfire.Common.URIs.path(mirrored))
+    |> wait_async()
+    |> assert_has("[data-id=group_hero][data-variant=member]")
+
     assert Categories.member?(joiner, mirrored)
 
     assert Bonfire.Social.Requests.requested?(joiner, Bonfire.Data.Social.Follow, mirrored),

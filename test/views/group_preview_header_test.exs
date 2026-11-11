@@ -1,6 +1,6 @@
 defmodule Bonfire.UI.Groups.GroupPreviewHeaderTest do
   @moduledoc """
-  A viewer who can only preview a group (`view_mode == :preview`, eg. a local non-member of a `local_community` group) gets the minimal header members already have: the hero folded (`data-compact`), the group's icon and name in the page header, and Join. No banner, description, members or "Who can" widget, and no toggle to expand it. Members of the same group get the full header behind the toggle.
+  A viewer who can only preview a group (`view_mode == :preview`, eg. a local non-member of a group with `nonfederated:preview` visibility) gets the minimal header members already have: the hero folded (`data-compact`), the group's icon and name in the page header, and Join. No banner, description, members or "Who can" widget, and no toggle to expand it. Members of the same group get the full header behind the toggle.
   """
   use Bonfire.UI.Groups.ConnCase, async: false
   @moduletag :ui
@@ -22,7 +22,7 @@ defmodule Bonfire.UI.Groups.GroupPreviewHeaderTest do
     owner_account = fake_account!()
     owner = fake_user!(owner_account)
 
-    # the `local_community` preset: Join "Users of this instance", See "Anyone can preview (but doesn't federate)", Post "Users of this instance", New posts "Users of this instance"
+    # explicit dimensions (a preview-only group, which `local_community` used to be, and `private_club` still is with `local:preview`): Join "Users of this instance", See "Anyone can preview (but doesn't federate)", Post "Users of this instance", New posts "Users of this instance"
     group =
       Simulate.fake_group!(owner, %{
         name: "Preview header club",

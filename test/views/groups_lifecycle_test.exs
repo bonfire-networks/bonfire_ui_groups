@@ -448,10 +448,14 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
       # The selected card carries aria-checked="true". Use the preset slug as
       # data attribute to identify it unambiguously.
-      assert html =~ ~s(data-preset="public_local_community")
+      # `public_local_community` is an alias of `local_community`, which has the same dimensions, so the card checked is `local_community`
+      # assert html =~ ~s(data-preset="public_local_community")
+      assert html =~ ~s(data-preset="local_community")
 
+      # assert html =~
+      #          ~r/data-preset="public_local_community"[^>]*aria-checked="true"|aria-checked="true"[^>]*data-preset="public_local_community"/
       assert html =~
-               ~r/data-preset="public_local_community"[^>]*aria-checked="true"|aria-checked="true"[^>]*data-preset="public_local_community"/
+               ~r/data-preset="local_community"[^>]*aria-checked="true"|aria-checked="true"[^>]*data-preset="local_community"/
     end
 
     # Detection can't match circle-controlled participation slugs (`group_members`,

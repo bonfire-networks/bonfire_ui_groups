@@ -58,6 +58,47 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
     |> assert_has("[data-id=feed]", text: "Restricted discussion")
   end
 
+  # Whoever may edit the group's settings gets them past the gate, read or not: a group whose members lost their read grant would otherwise lock its own moderators out of the page that could fix it.
+  test "settings open past the gate for whoever may update the group, and stay gated for anyone else",
+       context do
+    group = context.group
+    path = "/&#{group.character.username}/settings/boundaries"
+
+    moderator = fake_user!(context.account)
+    assert {:ok, _} = Bonfire.Classify.Categories.add_moderator(context.owner, group, moderator)
+
+    conn(user: moderator, account: context.account)
+    |> visit(path)
+    |> wait_async()
+    |> refute_has("#group_access_gate")
+    |> assert_has("#group_settings_boundaries_form")
+
+    # may edit and see, but not read: the gate's own case
+    editor = fake_user!(context.account)
+    {:ok, acl} = Bonfire.Boundaries.Acls.get_or_create_object_custom_acl(group, context.owner)
+
+    Bonfire.Boundaries.Grants.grant(editor.id, acl, [:see, :edit], true,
+      current_user: context.owner
+    )
+
+    refute Bonfire.Boundaries.can?(editor, :read, group),
+           "the control: the editor holds no read, so the page is the preview it was gated for"
+
+    conn(user: editor, account: context.account)
+    |> visit(path)
+    |> wait_async()
+    |> refute_has("#group_access_gate")
+    |> assert_has("#group_settings_boundaries_form")
+
+    stranger = fake_user!(context.account)
+
+    conn(user: stranger, account: context.account)
+    |> visit(path)
+    |> wait_async()
+    |> assert_has("#group_access_gate")
+    |> refute_has("#group_settings_boundaries_form")
+  end
+
   test "leaving a populated private group immediately gates content while preserving following",
        context do
     Process.put(:federating, false)

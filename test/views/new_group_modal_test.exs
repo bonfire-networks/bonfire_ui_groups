@@ -219,7 +219,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     # otherwise `resolve_dims/1` falls back to defaults regardless of preset.
     # The values are the preset's own declared dimensions, so this also pins
     # `local_community` to the audience its description promises: anyone can find it
-    # (`nonfederated:preview`, without federating), users of this instance join and post.
+    # and read it (`nonfederated`, without federating), users of this instance join and post.
     test "after picking a preset (Advanced collapsed), the form carries the preset's dimensions as hidden inputs",
          %{conn: conn} do
       conn
@@ -227,7 +227,8 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       |> click_button("[data-role=open_modal]", "Create group")
       |> click_button("[data-preset=local_community]", "Local community")
       |> assert_has(~s|input[type="hidden"][name="membership"][value="local:members"]|)
-      |> assert_has(~s|input[type="hidden"][name="visibility"][value="nonfederated:preview"]|)
+      # |> assert_has(~s|input[type="hidden"][name="visibility"][value="nonfederated:preview"]|)  # the preset's visibility before it became readable
+      |> assert_has(~s|input[type="hidden"][name="visibility"][value="nonfederated"]|)
       |> assert_has(~s|input[type="hidden"][name="participation"][value="local:contributors"]|)
       |> assert_has(~s|input[type="hidden"][name="default_content_visibility"][value="local"]|)
     end
@@ -757,6 +758,9 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     end
 
     test "keeps its description when Custom group boundaries is only opened", %{conn: conn} do
+      assert preset_description() ==
+               "Public on this instance, not federated. Only users of this instance can join and participate."
+
       conn
       |> open_modal()
       |> click_button("Custom group boundaries")
