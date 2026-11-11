@@ -10,7 +10,7 @@
       <LinkLive
         to="/groups"
         label={l("All groups")}
-        class="inline-flex items-center gap-0.5 -ml-1 px-1 min-h-8 rounded-selector text-sm font-bold text-muted hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:min-h-9"
+        class="inline-flex items-center gap-0.5 -ml-1 px-1 min-h-8 rounded-selector text-sm font-bold text-muted [@media(pointer:coarse)]:text-xs [@media(pointer:coarse)]:uppercase [@media(pointer:coarse)]:tracking-widest hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [@media(pointer:coarse)]:min-h-9"
       >
         {l("Groups")}
         <#Icon iconify="carbon:chevron-right" class="size-3.5 ml-[2px] mt-[2px]" />
