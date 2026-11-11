@@ -53,9 +53,28 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
       banner_url: Media.banner_url(assigns.group, fallback: false),
       variant: variant(assigns.my_membership),
       preview: assigns.view_mode == :preview,
+      # `group` has `character: [:peered]` preloaded by the page (`load_category/4`)
+      remote: not Bonfire.Social.is_local?(assigns.group),
       faces: faces(assigns.roster_visible, assigns.members, assigns.moderators)
     )
     |> render_sface()
+  end
+
+  @doc """
+  The count of a group's members for display. A group hosted elsewhere is counted as far as we know its members (those of ours who joined it, and those its origin names), so it says so.
+
+  ## Examples
+
+      iex> Bonfire.UI.Groups.GroupHeroLive.member_count_label(1, false)
+      "1 member"
+
+      iex> Bonfire.UI.Groups.GroupHeroLive.member_count_label(2, true)
+      "2 known members"
+  """
+  def member_count_label(count, remote?) when is_integer(count) do
+    if remote?,
+      do: lp("%{count} known member", "%{count} known members", count, count: count),
+      else: lp("%{count} member", "%{count} members", count, count: count)
   end
 
   @doc """

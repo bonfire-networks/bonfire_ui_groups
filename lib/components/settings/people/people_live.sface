@@ -112,6 +112,11 @@
             person={person}
             parent_id={"settings-person-#{id(person)}"}
             event="Bonfire.UI.Groups:remove_settings_member"
+            make_moderator_event="Bonfire.UI.Groups:make_settings_moderator"
+            remove_moderator_event="Bonfire.UI.Groups:remove_settings_moderator"
+            moderator?={Enum.any?(@moderators, &(id(&1) == id(person)))}
+            hosted_here?={@hosted_here?}
+            custodian_id={@custodian_id}
             target={@myself}
           />
         </li>

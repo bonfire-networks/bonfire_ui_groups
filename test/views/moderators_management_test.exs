@@ -210,4 +210,119 @@ defmodule Bonfire.UI.Groups.ModeratorsManagementTest do
 
     assert has_element?(view, "##{ls_id} li", findable.profile.name)
   end
+
+  # "Make moderator" and "Remove as moderator" in the Manage dropdown of a member's row, on the members page and in the settings' People list (`Bonfire.UI.Groups.MemberActionsLive`)
+  describe "from a member's Manage dropdown" do
+    setup %{admin: admin, member: member, group: group} do
+      Process.put(:federating, false)
+      {:ok, _} = Categories.add_member(admin, group, id(member), skip_boundary_check: true)
+      :ok
+    end
+
+    defp members_path(group), do: "/group/#{group.character.username}/members"
+    defp people_path(group), do: "/&#{group.character.username}/settings"
+
+    test "on the members page, a creator makes a member a moderator and takes it back", %{
+      conn: conn,
+      group: group,
+      member: member
+    } do
+      row = "#directory-member-#{id(member)}"
+
+      conn
+      |> visit(members_path(group))
+      |> wait_async()
+      |> assert_has("#{row} [data-role=make_moderator]", text: "Make moderator")
+      |> refute_has("#{row} [data-role=remove_moderator_item]")
+      |> click_button("#{row} [data-role=make_moderator]", "Make moderator")
+      |> assert_has("#{row} span", text: "Moderator")
+      |> assert_has("#{row} [data-role=remove_moderator_item]", text: "Remove as moderator")
+      |> refute_has("#{row} [data-role=make_moderator]")
+
+      assert Categories.member_role(member, group) == "moderator"
+      assert id(member) in Enum.map(Categories.moderators(group), &id/1)
+
+      conn
+      |> visit(members_path(group))
+      |> wait_async()
+      |> click_button("#{row} [data-role=remove_moderator_item]", "Remove as moderator")
+      |> assert_has("#{row} span", text: "Member")
+      |> assert_has("#{row} [data-role=make_moderator]")
+      |> refute_has("#{row} [data-role=remove_moderator_item]")
+
+      refute id(member) in Enum.map(Categories.moderators(group), &id/1)
+      refute Boundaries.can?(member, :mediate, group)
+    end
+
+    test "in the settings' People list, a creator makes a member a moderator and takes it back",
+         %{conn: conn, group: group, member: member} do
+      row = "#settings-person-#{id(member)}"
+
+      conn
+      |> visit(people_path(group))
+      |> wait_async()
+      |> assert_has("#{row} [data-role=make_moderator]", text: "Make moderator")
+      |> refute_has("#{row} [data-role=remove_moderator_item]")
+      |> click_button("#{row} [data-role=make_moderator]", "Make moderator")
+      |> assert_has("#{row} span", text: "Moderator")
+      |> assert_has("#{row} [data-role=remove_moderator_item]", text: "Remove as moderator")
+      |> refute_has("#{row} [data-role=make_moderator]")
+
+      assert Categories.member_role(member, group) == "moderator"
+
+      conn
+      |> visit(people_path(group))
+      |> wait_async()
+      |> click_button("#{row} [data-role=remove_moderator_item]", "Remove as moderator")
+      |> assert_has("#{row} [data-role=make_moderator]")
+      |> refute_has("#{row} [data-role=remove_moderator_item]")
+
+      refute id(member) in Enum.map(Categories.moderators(group), &id/1)
+    end
+
+    test "the creator's own row has no Manage dropdown, and a plain member sees none at all", %{
+      conn: conn,
+      account: account,
+      group: group,
+      admin: admin,
+      member: member
+    } do
+      conn
+      |> visit(members_path(group))
+      |> wait_async()
+      |> assert_has("#directory-member-#{id(member)} [data-role=make_moderator]")
+      |> refute_has("#directory-member-#{id(admin)} [data-role=make_moderator]")
+      |> refute_has("#directory-member-#{id(admin)} [data-role=remove_moderator_item]")
+
+      conn(user: member, account: account)
+      |> visit(members_path(group))
+      |> wait_async()
+      |> assert_has("#directory-member-#{id(admin)}")
+      |> refute_has("[data-role=make_moderator]")
+      |> refute_has("[data-role=remove_moderator_item]")
+    end
+
+    test "on a group hosted elsewhere, a local moderator is offered neither, only Remove from the group",
+         %{conn: conn, group: group, admin: admin, member: member} do
+      # a moderator's row too, which would offer "Remove as moderator" if the group were ours
+      {:ok, _} = Categories.add_moderator(admin, group, id(member))
+
+      assert {:ok, _} =
+               Bonfire.Federate.ActivityPub.Peered.save_canonical_uri(
+                 group,
+                 "https://elsewhere.local/c/modtest"
+               )
+
+      row = "#directory-member-#{id(member)}"
+
+      conn
+      |> visit(members_path(group))
+      |> wait_async()
+      |> assert_has("#{row} [data-role=remove_from_group]", text: "Remove from the group")
+      |> refute_has("#{row} [data-role=make_moderator]")
+      |> refute_has("#{row} [data-role=remove_moderator_item]")
+    end
+
+    # Not covered here: a last moderator who isn't the group's custodian, which the fixture can't make (the creator is both and has no dropdown on their own row); `Categories.remove_moderator/4` refusing the last one is covered by the context tests
+  end
 end

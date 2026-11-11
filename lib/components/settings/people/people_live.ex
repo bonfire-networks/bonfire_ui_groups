@@ -18,6 +18,12 @@ defmodule Bonfire.UI.Groups.Settings.PeopleLive do
   @doc "Whether the viewer may ghost, silence, block or remove members of the group (`:mediate`), worked out once per group"
   data may_moderate?, :boolean, default: false
 
+  @doc "Whether the group is hosted here (`Categories.hosted_here?/1`), worked out once per group: a mirror's moderators are managed at its origin"
+  data hosted_here?, :boolean, default: false
+
+  @doc "The group's custodian, who is never demoted from here, worked out once per group"
+  data custodian_id, :string, default: nil
+
   @doc "The visibility slug that says who can see the list (`Categories.roster_visibility_slug/1`), worked out once per group"
   data roster_visibility_slug, :string, default: nil
 
@@ -39,7 +45,10 @@ defmodule Bonfire.UI.Groups.Settings.PeopleLive do
             can_add?: Categories.can_add_members?(current_user(socket), socket.assigns.category),
             may_moderate?:
               Bonfire.Boundaries.can?(current_user(socket), :mediate, socket.assigns.category),
-            roster_visibility_slug: Categories.roster_visibility_slug(socket.assigns.category)
+            roster_visibility_slug: Categories.roster_visibility_slug(socket.assigns.category),
+            hosted_here?: Categories.hosted_here?(socket.assigns.category),
+            custodian_id:
+              e(repo().maybe_preload(socket.assigns.category, :tree), :tree, :custodian_id, nil)
           )
           |> load_page(nil)
 
@@ -83,6 +92,38 @@ defmodule Bonfire.UI.Groups.Settings.PeopleLive do
                else: nil
              )
          )}
+
+      error ->
+        error(error)
+        {:error, error}
+    end
+  end
+
+  @doc "Makes a member a moderator (`Categories.add_moderator/4`), answering whether it worked, and refreshes the card's moderators."
+  def promote(socket, user_id) do
+    case Categories.add_moderator(
+           current_user_required!(socket),
+           socket.assigns.category,
+           user_id
+         ) do
+      {:ok, _} ->
+        {:ok, assign(socket, moderators: Categories.moderators(socket.assigns.category))}
+
+      error ->
+        error(error)
+        {:error, error}
+    end
+  end
+
+  @doc "Takes a moderator back to a plain member (`Categories.remove_moderator/4`), answering whether it worked, and refreshes the card's moderators."
+  def demote(socket, user_id) do
+    case Categories.remove_moderator(
+           current_user_required!(socket),
+           socket.assigns.category,
+           user_id
+         ) do
+      {:ok, _} ->
+        {:ok, assign(socket, moderators: Categories.moderators(socket.assigns.category))}
 
       error ->
         error(error)

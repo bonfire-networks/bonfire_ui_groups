@@ -27,7 +27,11 @@
 
       <div class="flex items-center gap-4 mt-5">
         <#Icon iconify="carbon:user-multiple" class="size-6 text-muted" />
-        <div class="text-sm text-base-content"><b class="font-bold">{@member_count}</b> {if e(@category, :type, nil) == :group, do: l("Members"), else: l("Followers")}</div>
+        <div class="text-sm text-base-content"><b class="font-bold">{@member_count}</b> {cond do
+            e(@category, :type, nil) != :group -> l("Followers")
+            remote?(@category) -> l("Known members")
+            true -> l("Members")
+          end}</div>
       </div>
     </div>
 

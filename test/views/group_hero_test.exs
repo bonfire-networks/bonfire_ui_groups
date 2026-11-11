@@ -113,6 +113,32 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       )
     end
 
+    # a mirror's count is the people we know of in it (those of ours who joined, and whom its origin names), not its origin's; the local group's stays "1 member" (the first test)
+    test "a group mirrored from elsewhere counts the members known here", %{creator: creator} do
+      # open and global, so anyone may see who is in it
+      mirrored =
+        Simulate.fake_group!(creator, %{
+          name: "Mirrored",
+          membership: "open",
+          visibility: "global"
+        })
+
+      assert {:ok, _} =
+               Bonfire.Federate.ActivityPub.Peered.save_canonical_uri(
+                 mirrored,
+                 "https://elsewhere.local/c/mirrored"
+               )
+
+      {_user, conn} = signed_in()
+
+      conn
+      |> visit("/group/#{mirrored.id}")
+      |> assert_has("#{@hero} [data-role=group-hero-members]", text: "1 known member")
+      |> visit("/group/#{mirrored.id}/about")
+      |> wait_async()
+      |> assert_has("div.text-sm", text: "Known members")
+    end
+
     # the same tile as the sidebar's, so a group looks the same in both
     test "a group without an avatar shows its initial", %{group: group} do
       # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView)

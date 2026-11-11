@@ -29,7 +29,11 @@
     <h1 class="flex items-baseline gap-2 type-title">
       {l("Members")}
       <span id="members-directory-count" class="text-lg font-normal tabular-nums text-muted">
-        {@member_count}
+        {#if @hosted_here?}
+          {@member_count}
+        {#else}
+          {Bonfire.UI.Groups.GroupHeroLive.member_count_label(@member_count, true)}
+        {/if}
       </span>
     </h1>
     <p class="mt-2 text-sm text-muted">{l("People in %{group}", group: e(@category, :profile, :name, l("this group")))}</p>
@@ -110,6 +114,9 @@
           category={@category}
           person={entry.person}
           parent_id={"member-directory-#{entry.id}"}
+          moderator?={entry.moderator?}
+          hosted_here?={@hosted_here?}
+          custodian_id={@custodian_id}
         />
       </li>
     {/for}

@@ -236,15 +236,72 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
     end
 
     test "the member count patches to the members page and its group link patches back", ctx do
+      # what a real group has and the fake lacks: another member who moderates, a post in its feed, and a post in a topic
+      other = fake_user!()
+      {:ok, _} = Bonfire.Classify.Categories.join_and_follow_group(other, ctx.group)
+      {:ok, _} = Bonfire.Classify.Categories.add_moderator(ctx.me, ctx.group, other)
+      Bonfire.Classify.Simulate.fake_post_in_group!(ctx.me, ctx.group, "<p>A group post</p>")
+      Bonfire.Classify.Simulate.fake_post_in_group!(ctx.me, ctx.topic, "<p>A topic post</p>")
+
+      # more members than a page (the test page limit is 2), so the members page has a cursor for a next page
+      for _ <- 1..3,
+          do:
+            {:ok, _} =
+              Bonfire.Classify.Categories.join_and_follow_group(fake_user!(), ctx.group,
+                skip_boundary_check: true
+              )
+
+      # an unexpected crash in the view or a component is re-raised in the test env (`ErrorHandling.maybe_reraise/2`), so no log needs reading
       {:ok, view, _} = live(connection_from_entry(ctx), ctx.group_path)
 
       view |> element("[data-role='group-hero-members']") |> render_click()
       assert_patch(view, "#{ctx.group_path}/members")
       assert has_element?(view, "#members-parent-link[href='#{ctx.group_path}']")
+      live_async_wait(view)
+      # positive first: the members page has its own next-page button
+      assert has_element?(view, "button[data-id=load_more]")
+      [_, members_cursor] = Regex.run(~r/data-page="([^"]+)"/, render(view))
 
       view |> element("#members-parent-link") |> render_click()
       assert_patch(view, ctx.group_path)
       assert has_element?(view, @back)
+
+      # the feed's own button must not carry the members page's cursor: an id-shaped cursor sent to the feed (sorted by latest reply) as `after` raises in `Paginator`. In tests the feed loads synchronously, which hides the window in the browser where its button still has the view's `page_info`, so the view's pagination assigns are read (they are what `ProfileTimelineLive` hands the feed)
+      refute has_element?(view, "button[data-id=load_more][data-page='#{members_cursor}']"),
+             "the feed's button carries the members page's cursor"
+
+      view_assigns = :sys.get_state(view.pid).socket.assigns
+      assert view_assigns.selected_tab == "discussions"
+      assert is_nil(view_assigns.page_info), "the members page's page_info is still the view's"
+      assert is_nil(view_assigns.previous_page_info)
+
+      live_async_wait(view)
+
+      # back by what the browser's popstate sends: a patch to the group's path
+      render_patch(view, "#{ctx.group_path}/members")
+      assert has_element?(view, "#members-parent-link[href='#{ctx.group_path}']")
+      render_patch(view, ctx.group_path)
+      assert has_element?(view, @back)
+
+      # back after the members page's search and role filter were set
+      render_patch(view, "#{ctx.group_path}/members")
+
+      render_click(view, "Bonfire.UI.Groups:filter_members", %{
+        "members" => %{"search" => "a"}
+      })
+
+      view |> element("#members-filter-moderators") |> render_click()
+      render_patch(view, ctx.group_path)
+      assert has_element?(view, @back)
+    end
+
+    test "the members page's group link, in a full page flow with the compact hero", ctx do
+      conn(user: ctx.me, account: ctx.account)
+      |> visit(ctx.group_path)
+      |> click_link("[data-role='group-hero-members']", "member")
+      |> assert_has("#members-parent-link[href='#{ctx.group_path}']")
+      |> click_link("#members-parent-link", ctx.group.profile.name)
+      |> assert_has("a[aria-label='Manage']")
     end
 
     test "the Manage gear patches to the settings", ctx do

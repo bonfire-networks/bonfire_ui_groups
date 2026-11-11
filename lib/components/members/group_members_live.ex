@@ -49,6 +49,9 @@ defmodule Bonfire.UI.Groups.GroupMembersLive do
       more?: not is_nil(Bonfire.UI.Common.LoadMoreLive.end_cursor(assigns.page_info)),
       # once per page rather than per member: whether the viewer may block members from the group, the check `Blocks.block/3` makes for `on_behalf_of:`
       may_moderate?: Bonfire.Boundaries.can?(assigns[:__context__], :mediate, assigns.category),
+      # also once per page: a mirror's moderators are managed at its origin (`Categories.hosted_here?/1`), and the custodian is never demoted from here
+      hosted_here?: Bonfire.Classify.Categories.hosted_here?(assigns.category),
+      custodian_id: e(repo().maybe_preload(assigns.category, :tree), :tree, :custodian_id, nil),
       form: to_form(%{"search" => assigns.member_search}, as: :members)
     )
     |> render_sface()

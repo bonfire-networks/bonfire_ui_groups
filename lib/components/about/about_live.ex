@@ -23,4 +23,8 @@ defmodule Bonfire.UI.Groups.AboutLive do
 
   prop members, :list, default: []
   prop moderators, :list, default: []
+
+  @doc "Whether the group is hosted elsewhere, so its count is of the members known here. `category` has `character: [:peered]` preloaded by the page (`load_category/4`)."
+  def remote?(nil), do: false
+  def remote?(category), do: not Bonfire.Social.is_local?(category)
 end

@@ -51,6 +51,23 @@ defmodule Bonfire.UI.Groups.GroupMembersTest do
     |> assert_path("/group/#{group.character.username}")
   end
 
+  # the control is the first test, where the count is plain ("2")
+  test "the count of a group mirrored from elsewhere says the members are those known here", %{
+    account: account,
+    me: me,
+    group: group
+  } do
+    assert {:ok, _} =
+             Bonfire.Federate.ActivityPub.Peered.save_canonical_uri(
+               group,
+               "https://elsewhere.local/c/directory"
+             )
+
+    conn(user: me, account: account)
+    |> visit("/group/#{group.id}/members")
+    |> assert_has("#members-directory-count", text: "known member")
+  end
+
   test "a moderator outside the member list still appears once" do
     moderator = fake_user!(fake_account!())
     member = fake_user!(fake_account!())

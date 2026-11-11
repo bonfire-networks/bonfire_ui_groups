@@ -103,6 +103,61 @@ defmodule Bonfire.UI.Groups.LiveHandler do
     end
   end
 
+  # from the members page: its `moderators` are the page's own, so they are read again here
+  def handle_event("make_moderator", %{"id" => user_id}, socket) when is_binary(user_id) do
+    category = e(assigns(socket), :category, nil)
+
+    case Categories.add_moderator(current_user_required!(socket), category, user_id) do
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> assign(moderators: Categories.moderators(category))
+         |> assign_flash(:info, l("Moderator added"))}
+
+      error ->
+        error(error)
+        {:noreply, assign_flash(socket, :error, l("Could not add moderator"))}
+    end
+  end
+
+  def handle_event("remove_moderator", %{"id" => user_id}, socket) when is_binary(user_id) do
+    category = e(assigns(socket), :category, nil)
+
+    case Categories.remove_moderator(current_user_required!(socket), category, user_id) do
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> assign(moderators: Categories.moderators(category))
+         |> assign_flash(:info, l("Moderator removed"))}
+
+      error ->
+        {:noreply, assign_flash(socket, :error, remove_moderator_error(error))}
+    end
+  end
+
+  # from the members list in the group's settings, which keeps its own moderators
+  def handle_event("make_settings_moderator", %{"id" => user_id}, socket)
+      when is_binary(user_id) do
+    case Bonfire.UI.Groups.Settings.PeopleLive.promote(socket, user_id) do
+      {:ok, socket} ->
+        {:noreply, assign_flash(socket, :info, l("Moderator added"))}
+
+      {:error, _} ->
+        {:noreply, assign_flash(socket, :error, l("Could not add moderator"))}
+    end
+  end
+
+  def handle_event("remove_settings_moderator", %{"id" => user_id}, socket)
+      when is_binary(user_id) do
+    case Bonfire.UI.Groups.Settings.PeopleLive.demote(socket, user_id) do
+      {:ok, socket} ->
+        {:noreply, assign_flash(socket, :info, l("Moderator removed"))}
+
+      {:error, error} ->
+        {:noreply, assign_flash(socket, :error, remove_moderator_error(error))}
+    end
+  end
+
   def handle_event("join_group", %{"id" => id} = params, socket) do
     # the event can only carry an id, but this runs with the button's own socket, so use the group when the caller passed one (as the Follow handler does): a guest is sent to remote interaction with the group's canonical URL, and a bare id gives an object URL, which another server can't resolve to the group's actor
     object = assigned_object_or_id(socket, id)
@@ -342,6 +397,14 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
   defp remove_member_error({:error, :last_moderator}),
     do: l("A group needs at least one moderator. Make someone else a moderator first.")
+
+  defp remove_moderator_error({:error, :last_moderator}),
+    do: l("A group needs at least one moderator. Make someone else a moderator first.")
+
+  defp remove_moderator_error(error) do
+    error(error)
+    l("Could not remove moderator")
+  end
 
   defp remove_member_error({:error, :hosted_elsewhere}),
     do: l("This group is run on another instance, so its members are managed there.")

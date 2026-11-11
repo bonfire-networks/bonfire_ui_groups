@@ -8,6 +8,32 @@
     <span class="text-xs font-medium">{l("Manage")}</span>
     <#Icon iconify="ph:caret-down" class="size-3" />
   </:trigger>
+  <li :if={@hosted_here? and not @moderator?}>
+    <button
+      type="button"
+      data-role="make_moderator"
+      :on-click={@make_moderator_event}
+      phx-value-id={id(@person)}
+      phx-target={@target}
+      class="flex items-center w-full gap-3 text-sm"
+    >
+      <#Icon iconify="ph:shield-check-duotone" class="size-4 shrink-0" />
+      <span class="flex-1 truncate text-left">{l("Make moderator")}</span>
+    </button>
+  </li>
+  <li :if={@hosted_here? and @moderator? and id(@person) != @custodian_id}>
+    <button
+      type="button"
+      data-role="remove_moderator_item"
+      :on-click={@remove_moderator_event}
+      phx-value-id={id(@person)}
+      phx-target={@target}
+      class="flex items-center w-full gap-3 text-sm"
+    >
+      <#Icon iconify="ph:shield-duotone" class="size-4 shrink-0" />
+      <span class="flex-1 truncate text-left">{l("Remove as moderator")}</span>
+    </button>
+  </li>
   <li data-role="remove_from_group_item">
     <button
       type="button"
