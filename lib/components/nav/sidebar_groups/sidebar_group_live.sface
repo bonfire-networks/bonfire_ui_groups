@@ -67,7 +67,10 @@
         </span>
       </summary>
       <ul data-role="sidebar-topics" class="sidebar-child-list">
-        <li :for={topic <- @topics} class="!block w-full min-w-0 !pl-7.5 [@media(pointer:coarse)]:!pl-9.5">
+        <li
+          :for={topic <- @topics}
+          class="!block w-full min-w-0 !pl-7.5 [@media(pointer:coarse)]:!pl-9.5"
+        >
           {!-- a patch link with the plain path, as the group's row above. Replaced: <LinkLive to={Bonfire.Classify.Web.GroupNavigation.link(topic.path, @group_return_to)} ...> --}
           <LinkPatchLive
             to={topic.path}
