@@ -14,7 +14,9 @@ defmodule Bonfire.UI.Groups.GroupRosterVisibilityUITest do
     Process.put([:bonfire, :default_pagination_limit], 10)
 
     moderator_account = fake_account!()
-    moderator = fake_user!(moderator_account)
+    # a fixed name, as it goes into a CSS selector: a fake one can have an apostrophe (eg. "O'Keefe"), which makes the selector invalid
+    # moderator = fake_user!(moderator_account)
+    moderator = fake_user!(moderator_account, %{name: "Mod Erator"})
     member_account = fake_account!()
     member = fake_user!(member_account, %{name: "Quiet Member"})
     stranger_account = fake_account!()
