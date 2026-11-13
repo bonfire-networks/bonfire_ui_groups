@@ -57,7 +57,7 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       open_menu(composer, "composer_audience_picker")
 
       composer
-      |> element("#composer_audience_picker_search_form")
+      |> element("#composer_audience_picker_search")
       |> render_change(%{"search" => "no-such-audience-xyz"})
 
       assert has_element?(
@@ -67,7 +67,7 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
              )
 
       composer
-      |> element("#composer_audience_picker_search_form")
+      |> element("#composer_audience_picker_search")
       |> render_change(%{"search" => "Needle"})
 
       assert has_element?(
@@ -144,7 +144,7 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       open_menu(composer, "composer_visibility_picker")
 
       composer
-      |> element("#composer_visibility_picker_search_form")
+      |> element("#composer_visibility_picker_search")
       |> render_change(%{"search" => "Close"})
 
       assert has_element?(composer, "[data-audience-circle='#{circle.id}']")
@@ -155,7 +155,7 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       assert has_element?(composer, "[data-audience-circle='#{circle.id}'][aria-pressed=true]")
 
       composer
-      |> element("#composer_visibility_picker_search_form")
+      |> element("#composer_visibility_picker_search")
       |> render_change(%{"search" => ""})
 
       composer |> element("[data-audience-circle='#{other.id}']") |> render_click()
@@ -329,7 +329,7 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       refute has_element?(composer, "[data-audience-group='#{readonly.id}']")
 
       composer
-      |> element("#composer_audience_picker_search_form")
+      |> element("#composer_audience_picker_search")
       |> render_change(%{"search" => "Picker"})
 
       assert has_element?(composer, "[data-audience-group='#{joined.id}']")
@@ -337,7 +337,7 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       refute has_element?(composer, "[data-audience-group='#{readonly.id}']")
 
       composer
-      |> element("#composer_audience_picker_search_form")
+      |> element("#composer_audience_picker_search")
       |> render_change(%{"search" => "unjoined"})
 
       assert has_element?(
@@ -370,7 +370,7 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
       composer = composer_view(view)
 
       composer
-      |> element("#composer_audience_picker_search_form")
+      |> element("#composer_audience_picker_search")
       |> render_change(%{"search" => "Restricted needle"})
 
       refute has_element?(composer, "[data-audience-group='#{group.id}']")

@@ -51,6 +51,42 @@ defmodule Bonfire.UI.Groups.GroupComposerAudienceTest do
     end)
   end
 
+  test "opening the composer for a group drops the previous draft's per-action limits" do
+    account = fake_account!()
+    owner = fake_user!(account)
+
+    group =
+      Bonfire.Classify.Simulate.fake_group!(owner, %{
+        name: "Fresh destination",
+        visibility: "members:private",
+        default_content_visibility: "members:private"
+      })
+
+    {:ok, circle} = Bonfire.Boundaries.Circles.create(owner, "No quotes")
+
+    conn(user: owner, account: account)
+    |> visit("/feed/local")
+    |> PhoenixTest.unwrap(fn view ->
+      composer = composer_view(view)
+
+      # a limit set on a personal draft, as CustomizeBoundaryLive sends it
+      Phoenix.LiveView.send_update(composer.pid, Bonfire.UI.Common.SmartInputContainerLive,
+        id: :smart_input,
+        verb_permissions: %{quote: %{circle.id => :cannot}}
+      )
+
+      assert has_element?(composer, "input[name^='verb_permissions[quote]']")
+
+      render_click(composer, "Bonfire.UI.Common.SmartInput:select_smart_input", %{
+        "opts" => Jason.encode!(%{context_id: group.id, open: true})
+      })
+
+      assert has_element?(composer, "input[name=context_id][value='#{group.id}']")
+      refute has_element?(composer, "input[name^='verb_permissions']")
+      render(view)
+    end)
+  end
+
   # the software hosting a mirrored group may not know these audiences, and leak a post narrowed to them; it doesn't federate here, so that being a mirror is the only thing that changes what it offers
   test "the composer in a group mirrored from another server offers no members-only or moderators-only audience, nor accepts one" do
     account = fake_account!()

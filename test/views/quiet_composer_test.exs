@@ -112,7 +112,7 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
       open_menu(composer, "composer_visibility_picker")
 
       composer
-      |> element("#composer_visibility_picker_search_form")
+      |> element("#composer_visibility_picker_search")
       |> render_change(%{"search" => "Public"})
 
       assert has_element?(composer, "[data-audience-preset=public]")
@@ -221,6 +221,10 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
              )
 
       refute has_element?(composer, "#close_composer_button")
+
+      # the sheet offers a way back, not only Discard
+      composer |> element("header #composer_close #discard_composer button[data-role=open_modal]") |> render_click()
+      assert has_element?(composer, "#keep_editing", "Keep editing")
       render(view)
     end)
   end
