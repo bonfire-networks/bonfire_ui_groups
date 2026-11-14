@@ -122,13 +122,6 @@
             class="shrink-0 tabular-nums hover:underline"
             opts={["data-role": "group-hero-members"]}
           >{member_count_label(@member_count, @remote)}</LinkPatchLive>
-          {!-- visitors only: how to join, which decides what they do next; the rest is in the group widget --}
-          {#case @variant == "visitor" && Bonfire.Boundaries.Presets.dimension_meta(:membership, @membership_slug)}
-            {#match %{} = meta}
-              <span :if={not @preview} aria-hidden="true">·</span>
-              <span data-role="group-hero-membership">{hero_dimension_label(:membership, @membership_slug, meta)}</span>
-            {#match _}
-          {/case}
         </div>
       </div>
       <Bonfire.UI.Groups.GroupHeroActionsLive

@@ -19,7 +19,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     #   text: "Anyone can preview (but doesn't federate)"
     # )
     |> refute_has("[data-role=group-widget-visibility]")
-    |> assert_has("[data-role=group-hero-membership]", text: "On request")
+    |> refute_has("[data-role=group-hero-membership]")
 
     # |> assert_has(
     #   "[data-role=group-widget-visibility] dd[title*='Access to discussions depends on membership']"

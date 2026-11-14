@@ -1,12 +1,9 @@
 <div class="contents">
-  {!-- Layer 1 — Audience presets --}
+  {!-- Layer 1 — Audience presets: one list, a row per preset, the radio on the right --}
   <section class="flex flex-col gap-2" role="radiogroup" aria-label={l("What kind of group?")}>
-    <div class="flex items-baseline justify-between">
-      <h3 class="text-sm font-medium text-muted">{l("What kind of group?")}</h3>
-      <span class="text-xs text-muted">{l("Pick one to start")}</span>
-    </div>
+    <h3 class="text-xs font-medium text-muted">{l("What kind of group?")}</h3>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+    <div class="flex flex-col divide-hair divide-divider rounded-box border border-divider overflow-hidden">
       {#for slug <- @preset_slug_list}
         {#case Map.get(@preset_metas, slug)}
           {#match meta when is_map(meta) and map_size(meta) > 0}
@@ -19,28 +16,42 @@
               phx-value-preset={slug}
               phx-target={@myself}
               class={
-                "flex items-start gap-3 cursor-pointer p-3 rounded-selector border text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01]",
-                "ring-2 ring-primary bg-primary/5 border-divider shadow-sm": @preset == slug,
-                "border-divider hover:bg-fill hover:border-divider": @preset != slug
+                "flex items-start gap-3 w-full px-3.5 py-3 text-left cursor-pointer transition-colors duration-150 focus-visible:!-outline-offset-2",
+                "bg-primary/10": @preset == slug,
+                "hover:bg-fill": @preset != slug
               }
             >
-              <span class="flex items-center justify-center size-8 rounded-md bg-fill shrink-0 mt-0.5">
-                <Iconify.iconify
-                  icon={e(meta, :icon, "ph:users-three-duotone")}
-                  class={
-                    "size-4",
-                    "text-primary": @preset == slug,
-                    "text-muted": @preset != slug
-                  }
-                />
-              </span>
+              <Iconify.iconify
+                icon={e(meta, :icon, "ph:users-three-duotone")}
+                class={
+                  "size-[18px] shrink-0 mt-px",
+                  "text-primary": @preset == slug,
+                  "text-muted": @preset != slug
+                }
+              />
               <span class="flex-1 min-w-0">
-                <span class="block text-sm font-medium leading-tight">{e(meta, :label, slug)}</span>
-                {!-- hidden once a Layer 2 toggle has fine-tuned it; a field picked in Advanced selects Custom instead, and only opening Advanced changes nothing --}
-                {#if !(slug == @preset && @layer2_touched)}
-                  <span class="block mt-0.5 text-xs text-muted leading-snug">{e(meta, :description, nil)}</span>
-                {/if}
+                <span class="flex items-center gap-2 text-sm font-medium leading-tight text-base-content">
+                  {e(meta, :label, slug)}
+                  {!-- marked once a Layer 2 toggle has fine-tuned it, keeping the description so the starting point stays readable; a field picked in Advanced selects Custom instead, and only opening Advanced changes nothing --}
+                  {#if slug == @preset && @layer2_touched}
+                    <span
+                      data-role="preset_modified"
+                      class="inline-flex items-center px-1.5 rounded-full bg-base-content/10 text-[11px] font-medium text-muted"
+                    >
+                      {l("Modified")}
+                    </span>
+                  {/if}
+                </span>
+                <span class="block mt-0.5 text-[13px] leading-snug text-muted text-pretty">{e(meta, :description, nil)}</span>
               </span>
+              <span
+                aria-hidden="true"
+                class={
+                  "size-4 shrink-0 mt-px rounded-full transition-[border-width,border-color] duration-150",
+                  "border-[5px] border-primary": @preset == slug,
+                  "border-[1.5px] border-base-content/25": @preset != slug
+                }
+              />
             </button>
           {#match _}
         {/case}
@@ -57,18 +68,31 @@
           phx-value-preset="custom"
           phx-target={@myself}
           class={
-            "flex items-start gap-3 p-3 rounded-box border border-dashed text-left transition-all duration-200 ease-out motion-safe:hover:scale-[1.01]",
-            "ring-2 ring-primary bg-primary/5 border-divider": @preset == "custom",
-            "border-divider hover:bg-fill hover:border-divider": @preset != "custom"
+            "flex items-start gap-3 w-full px-3.5 py-3 text-left cursor-pointer transition-colors duration-150 focus-visible:!-outline-offset-2",
+            "bg-primary/10": @preset == "custom",
+            "hover:bg-fill": @preset != "custom"
           }
         >
-          <span class="flex items-center justify-center size-8 rounded-md bg-fill shrink-0 mt-0.5">
-            <#Icon iconify="ri:settings-4-line" class="size-4 text-muted" />
-          </span>
+          <#Icon
+            iconify="ph:sliders-horizontal"
+            class={
+              "size-[18px] shrink-0 mt-px",
+              "text-primary": @preset == "custom",
+              "text-muted": @preset != "custom"
+            }
+          />
           <span class="flex-1 min-w-0">
-            <span class="block text-sm font-medium leading-tight">{l("Custom")}</span>
-            <span class="block mt-0.5 text-xs text-muted">{l("Start from scratch and configure every dimension.")}</span>
+            <span class="block text-sm font-medium leading-tight text-base-content">{l("Custom")}</span>
+            <span class="block mt-0.5 text-[13px] leading-snug text-muted">{l("Start from scratch and configure every dimension.")}</span>
           </span>
+          <span
+            aria-hidden="true"
+            class={
+              "size-4 shrink-0 mt-px rounded-full transition-[border-width,border-color] duration-150",
+              "border-[5px] border-primary": @preset == "custom",
+              "border-[1.5px] border-base-content/25": @preset != "custom"
+            }
+          />
         </button>
       {/if}
     </div>
@@ -76,66 +100,55 @@
 
   {!-- Override-swap banner --}
   {#if @pending_preset}
-    <div class="flex items-start gap-3 p-3 rounded-box bg-warning/10 border border-warning/40">
-      <#Icon iconify="ph:warning-duotone" class="size-4 text-warning shrink-0 mt-0.5" />
-      <div class="flex-1 text-sm">
-        <div class="font-medium text-base-content">
-          {l("Apply %{preset}? This will replace your fine-tuning.",
-            preset: e(@preset_metas, @pending_preset, :label, @pending_preset)
-          )}
-        </div>
-        <div class="flex gap-2 mt-2">
-          <button
-            type="button"
-            phx-click="confirm_preset_change"
-            phx-target={@myself}
-            class="btn btn-sm btn-warning normal-case"
-          >
-            {l("Apply defaults")}
-          </button>
-          <button
-            type="button"
-            phx-click="cancel_preset_change"
-            phx-target={@myself}
-            class="btn btn-sm btn-ghost normal-case"
-          >
-            {l("Keep my changes")}
-          </button>
-        </div>
+    <div role="alert" class="flex flex-wrap items-center gap-3 px-3.5 py-2.5 rounded-box bg-warning/10 border border-warning/25">
+      <div class="flex-1 min-w-[12rem] text-sm text-base-content">
+        {l("Apply %{preset}? This will replace your fine-tuning.",
+          preset: e(@preset_metas, @pending_preset, :label, @pending_preset)
+        )}
+      </div>
+      <div class="flex gap-1">
+        <button
+          type="button"
+          phx-click="cancel_preset_change"
+          phx-target={@myself}
+          class="btn btn-sm btn-ghost normal-case"
+        >
+          {l("Keep my changes")}
+        </button>
+        <button
+          type="button"
+          phx-click="confirm_preset_change"
+          phx-target={@myself}
+          class="btn btn-sm border-0 normal-case bg-base-content text-base-100 hover:bg-base-content/90"
+        >
+          {l("Apply defaults")}
+        </button>
       </div>
     </div>
   {/if}
 
-  {!-- Layer 2 — Fine-tune toggles --}
-  {#if @preset && @preset != "custom"}
-    <section class="flex flex-col gap-1">
-      <div class="flex items-baseline justify-between">
-        <h3 class="text-sm font-medium text-muted">{l("Fine-tune")}</h3>
-        {#if @layer2_touched}
-          <span class="inline-flex items-center gap-1 text-xs text-muted">
-            <#Icon iconify="ph:pencil-simple-duotone" class="size-3" />
-            {l("Modified")}
-          </span>
-        {/if}
-      </div>
+  {!-- Layer 2 — Fine-tune toggles, plus any rows the parent form adds (`extra_toggles`); those stay when Custom hides the preset's toggles --}
+  {#if (@preset && @preset != "custom") || slot_assigned?(:extra_toggles)}
+    <section class="flex flex-col gap-2">
+      <h3 :if={@preset && @preset != "custom"} class="text-xs font-medium text-muted">{l("Fine-tune")}</h3>
 
       <div class="flex flex-col divide-hair divide-divider rounded-box border border-divider overflow-hidden">
-        {#for %{key: key, label: label, help: help, locked: locked} <- @layer2_rows}
+        {#for %{key: key, label: label, help: help, locked: locked} <- if(@preset && @preset != "custom", do: @layer2_rows, else: [])}
           {#if @show_unavailable_toggles || !locked}
-            <div class="flex items-start gap-3 p-3">
+            <div class={"flex items-start gap-3 px-3.5 py-3", "opacity-60": locked}>
               <div class="flex-1 min-w-0">
                 <div class="text-sm font-medium text-base-content">{label}</div>
                 <div class="text-xs text-muted mt-0.5 leading-snug">{help}</div>
                 {#if locked}
                   <div class="mt-1 inline-flex items-center gap-1 text-xs text-muted">
-                    <#Icon iconify="ph:lock-simple-duotone" class="size-3" />
+                    <#Icon iconify="ph:lock-simple" class="size-3" />
                     {layer2_lock_reason(key)}
                   </div>
                 {/if}
               </div>
               <input
                 type="checkbox"
-                class="toggle toggle-primary toggle-sm mt-1 shrink-0"
+                class="toggle toggle-primary toggle-sm mt-0.5 shrink-0"
                 checked={Map.get(@layer2, key, false)}
                 disabled={locked}
                 phx-click="toggle_layer2"
@@ -146,110 +159,105 @@
             </div>
           {/if}
         {/for}
+
+        {#if slot_assigned?(:extra_toggles)}
+          <#slot {@extra_toggles} />
+        {/if}
       </div>
     </section>
   {/if}
 
-  {!-- Layer 3 — Fine-tune each dimension (mirrors the "Advanced Permissions" card from the boundary modal) --}
-  <section class="rounded-box p-[1.5px] bg-gradient-to-br from-primary/70 via-warning/60 to-primary/70">
-    <div class="bg-base-100 rounded-[calc(0.5rem-1.5px)]">
-      <button
-        type="button"
-        phx-click="toggle_advanced"
-        phx-target={@myself}
-        aria-expanded={if @advanced_open, do: "true", else: "false"}
-        class="flex items-center gap-3 w-full p-3 text-left motion-safe:active:scale-[0.995] transition-transform"
-      >
-        <span class="shrink-0 size-8 rounded-full bg-gradient-to-br from-primary/20 to-warning/20 flex items-center justify-center">
-          <#Icon iconify="ph:sliders-horizontal-duotone" class="size-4 text-warning" />
-        </span>
-        <span class="flex-1 min-w-0">
-          <span class="block text-sm font-medium leading-tight text-base-content">
-            {l("Custom group boundaries")}
-          </span>
-          <span class="block mt-0.5 text-xs text-muted leading-snug">
-            {l("Optional, only for specific needs.")}
-          </span>
-        </span>
-        <#Icon
-          iconify="carbon:chevron-down"
-          class={
-            "size-4 text-muted shrink-0 transition-transform duration-150",
-            "rotate-180": @advanced_open
-          }
-        />
-      </button>
-
-      {#if @advanced_open}
-        <div class="flex flex-col gap-5 p-4 border-t border-divider">
-          <p class="text-xs text-muted">
-            {l(
-              "These controls override the preset and fine-tune toggles above. Changes here stick even if you swap presets."
-            )}
-          </p>
-
-          {!-- visibility first: the options below it depend on who can see the group, so each choice only narrows the ones after it --}
-          <Bonfire.UI.Groups.BoundaryScopeSelectorLive
-            dimension={:visibility}
-            label={e(@preset_dimensions, :visibility, :label, l("Who can see the group?"))}
-            description={l("Decide who should be able to find this group.")}
-            name="visibility"
-            selected={@visibility}
-            target={@myself}
-            slug_order={e(@preset_dimensions, :visibility, :slug_order, [])}
-            options={e(@preset_dimensions, :visibility, :options, %{})}
-            circles={@circles}
-            show_unavailable_toggles={@show_unavailable_toggles}
-          />
-
-          <Bonfire.UI.Groups.BoundaryDimensionLive
-            dimension={:membership}
-            label={e(@preset_dimensions, :membership, :label, l("Who can join?"))}
-            name="membership"
-            selected={@membership}
-            target={@myself}
-            slug_order={e(@preset_dimensions, :membership, :slug_order, [])}
-            options={with_disabled(
-              e(@preset_dimensions, :membership, :options, %{}),
-              Bonfire.Classify.Boundaries.disabled_options_by_reach(:membership, @visibility)
-            )}
-            circles={@circles}
-            show_unavailable_toggles={@show_unavailable_toggles}
-          />
-
-          <Bonfire.UI.Groups.BoundaryDimensionLive
-            dimension={:participation}
-            label={e(@preset_dimensions, :participation, :label, l("Who can post and interact?"))}
-            name="participation"
-            selected={@participation}
-            target={@myself}
-            slug_order={e(@preset_dimensions, :participation, :slug_order, [])}
-            options={with_disabled(
-              e(@preset_dimensions, :participation, :options, %{}),
-              Bonfire.Classify.Boundaries.disabled_options_by_reach(:participation, @visibility)
-            )}
-            circles={@circles}
-            show_unavailable_toggles={@show_unavailable_toggles}
-          />
-
-          <Bonfire.UI.Groups.BoundaryScopeSelectorLive
-            dimension={:default_content_visibility}
-            label={e(@preset_dimensions, :default_content_visibility, :label, l("Default post visibility"))}
-            description={l(
-              "Pick content visibility: how posts are shared by default (authors may still change it per-post). Affects future posts only."
-            )}
-            name="default_content_visibility"
-            selected={@default_content_visibility}
-            target={@myself}
-            slug_order={e(@preset_dimensions, :default_content_visibility, :slug_order, [])}
-            options={e(@preset_dimensions, :default_content_visibility, :options, %{})}
-            disabled_scopes={Bonfire.Classify.Boundaries.disabled_dcv_scopes(@visibility)}
-            circles={@circles}
-            show_unavailable_toggles={@show_unavailable_toggles}
-          />
-        </div>
+  {!-- Layer 3 — Fine-tune each dimension: a quiet disclosure, so it never competes with the preset choice --}
+  <section class="flex flex-col">
+    <button
+      type="button"
+      phx-click="toggle_advanced"
+      phx-target={@myself}
+      aria-expanded={if @advanced_open, do: "true", else: "false"}
+      class="flex items-center gap-2 w-full py-1 rounded-md text-left text-sm text-muted hover:text-base-content transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+    >
+      <#Icon
+        iconify="ph:caret-right-bold"
+        class={
+          "size-3 shrink-0 transition-transform duration-200",
+          "rotate-90": @advanced_open
+        }
+      />
+      <span class="font-medium">{l("Custom group boundaries")}</span>
+      {#if !@advanced_open}
+        <span class="ml-auto text-xs opacity-70">{l("Optional, only for specific needs.")}</span>
       {/if}
-    </div>
+    </button>
+
+    {#if @advanced_open}
+      <div class="flex flex-col gap-6 pt-4">
+        <p class="text-xs text-muted">
+          {l(
+            "These controls override the preset and fine-tune toggles above. Changes here stick even if you swap presets."
+          )}
+        </p>
+
+        {!-- visibility first: the options below it depend on who can see the group, so each choice only narrows the ones after it --}
+        <Bonfire.UI.Groups.BoundaryScopeSelectorLive
+          dimension={:visibility}
+          label={e(@preset_dimensions, :visibility, :label, l("Who can see the group?"))}
+          description={l("Decide who should be able to find this group.")}
+          name="visibility"
+          selected={@visibility}
+          target={@myself}
+          slug_order={e(@preset_dimensions, :visibility, :slug_order, [])}
+          options={e(@preset_dimensions, :visibility, :options, %{})}
+          circles={@circles}
+          show_unavailable_toggles={@show_unavailable_toggles}
+        />
+
+        <Bonfire.UI.Groups.BoundaryDimensionLive
+          dimension={:membership}
+          label={e(@preset_dimensions, :membership, :label, l("Who can join?"))}
+          name="membership"
+          selected={@membership}
+          target={@myself}
+          slug_order={e(@preset_dimensions, :membership, :slug_order, [])}
+          options={with_disabled(
+            e(@preset_dimensions, :membership, :options, %{}),
+            Bonfire.Classify.Boundaries.disabled_options_by_reach(:membership, @visibility)
+          )}
+          circles={@circles}
+          show_unavailable_toggles={@show_unavailable_toggles}
+        />
+
+        <Bonfire.UI.Groups.BoundaryDimensionLive
+          dimension={:participation}
+          label={e(@preset_dimensions, :participation, :label, l("Who can post and interact?"))}
+          name="participation"
+          selected={@participation}
+          target={@myself}
+          slug_order={e(@preset_dimensions, :participation, :slug_order, [])}
+          options={with_disabled(
+            e(@preset_dimensions, :participation, :options, %{}),
+            Bonfire.Classify.Boundaries.disabled_options_by_reach(:participation, @visibility)
+          )}
+          circles={@circles}
+          show_unavailable_toggles={@show_unavailable_toggles}
+        />
+
+        <Bonfire.UI.Groups.BoundaryScopeSelectorLive
+          dimension={:default_content_visibility}
+          label={e(@preset_dimensions, :default_content_visibility, :label, l("Default post visibility"))}
+          description={l(
+            "Pick content visibility: how posts are shared by default (authors may still change it per-post). Affects future posts only."
+          )}
+          name="default_content_visibility"
+          selected={@default_content_visibility}
+          target={@myself}
+          slug_order={e(@preset_dimensions, :default_content_visibility, :slug_order, [])}
+          options={e(@preset_dimensions, :default_content_visibility, :options, %{})}
+          disabled_scopes={Bonfire.Classify.Boundaries.disabled_dcv_scopes(@visibility)}
+          circles={@circles}
+          show_unavailable_toggles={@show_unavailable_toggles}
+        />
+      </div>
+    {/if}
   </section>
 
   {!-- Hidden inputs forwarded to the surrounding parent <form>. The preset slug

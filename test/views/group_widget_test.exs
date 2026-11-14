@@ -85,14 +85,15 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
       |> assert_has("#{@widget} [data-role=group-widget-created]")
     end
 
-    # the header keeps only how to join, which changes what a visitor does next; who can see the group is in the widget
-    test "visitors see how to join in the header, and who can see it only in the widget", ctx do
+    # the header shows no join or visibility policy; both are in the widget
+    test "visitors see how to join and who can see it only in the widget", ctx do
       # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView)
       # conn()
       # |> visit(group_path(ctx.group))
       conn()
       |> get_conn_render(group_path(ctx.group))
-      |> assert_has("[data-id=group_hero] [data-role=group-hero-membership]")
+      |> refute_has("[data-id=group_hero] [data-role=group-hero-membership]")
+      |> assert_has("#{@widget} [data-role=group-widget-membership]")
       |> refute_has("[data-id=group_hero] [data-role=group-hero-visibility]")
       |> assert_has("#{@widget} [data-role=group-widget-visibility]")
     end

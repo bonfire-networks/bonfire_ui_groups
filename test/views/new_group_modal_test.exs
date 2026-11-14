@@ -769,14 +769,16 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
       )
     end
 
-    test "stays selected, without its description, once a Layer 2 toggle changes it", %{
-      conn: conn
-    } do
+    test "stays selected, keeps its description and is marked Modified once a Layer 2 toggle changes it",
+         %{conn: conn} do
       conn
       |> open_modal()
+      |> refute_has(~s([data-preset="#{@preset}"] [data-role=preset_modified]))
       |> click_layer2_toggle("joins_need_approval")
-      |> assert_has(~s([data-preset="#{@preset}"][aria-checked="true"]))
-      |> refute_has(~s([data-preset="#{@preset}"]), text: preset_description())
+      |> assert_has(~s([data-preset="#{@preset}"][aria-checked="true"]),
+        text: preset_description()
+      )
+      |> assert_has(~s([data-preset="#{@preset}"] [data-role=preset_modified]), text: "Modified")
     end
 
     test "gives way to Custom once a field is picked in Advanced", %{conn: conn} do

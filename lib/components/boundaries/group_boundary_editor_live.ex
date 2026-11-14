@@ -26,6 +26,9 @@ defmodule Bonfire.UI.Groups.GroupBoundaryEditorLive do
   @doc "When true (default), the Custom escape-hatch card is shown alongside the presets."
   prop show_custom_card, :boolean, default: true
 
+  @doc "Extra rows (e.g. the new-group form's sensitive switch) appended to the Fine-tune list, so the form's own options sit with the preset's. Shown on their own, without the Fine-tune heading, when Custom is picked."
+  slot extra_toggles
+
   data preset, :string, default: nil
   data layer2, :map, default: %{}
   data layer2_touched, :boolean, default: false

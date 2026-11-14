@@ -1,26 +1,25 @@
 {!-- Two-level boundary selector: Row 1 = scope, Row 2 = access level for selected scope --}
 
-<div id={"boundary_scope_#{@dimension}"} class="w-full form-control">
-  <label class="text-md font-medium text-muted mb-1">{@label}</label>
+<div id={"boundary_scope_#{@dimension}"} class="w-full flex flex-col gap-2">
+  <div>
+    <label class="block text-sm font-medium text-base-content">{@label}</label>
+    {#if @description}
+      <p class="mt-0.5 text-xs text-muted">{@description}</p>
+    {/if}
+  </div>
 
-  {#if @description}
-    <p class="text-xs text-muted mb-2">{@description}</p>
-  {/if}
-
-  {!-- Row 1: Scope cards --}
-  <div class="flex flex-wrap gap-2 mt-1">
+  {!-- Row 1: Scope, as a segmented control --}
+  <div class="flex flex-wrap gap-0.5 p-0.5 rounded-box border border-divider bg-base-content/[0.03]">
     {#for {scope, scope_meta, is_selected} <- @scope_ordered}
       {#if e(scope_meta, :disabled, nil) || scope in @disabled_scopes}
         {#if @show_unavailable}
-          <div class="flex items-center gap-2 px-3 py-2 rounded-box border border-divider opacity-40 cursor-not-allowed">
-            <Iconify.iconify
-              :if={e(scope_meta, :icon, nil)}
-              icon={scope_meta[:icon]}
-              class="size-4 shrink-0"
-            />
-            <span class="text-sm font-medium">{e(scope_meta, :label, scope)}</span>
-            <span class="badge badge-xs badge-ghost ml-1">{e(scope_meta, :disabled, nil) || l("Coming soon")}</span>
-          </div>
+          <span
+            title={e(scope_meta, :disabled, nil) || l("Coming soon")}
+            class="flex-1 min-w-fit inline-flex items-center justify-center gap-1.5 h-8 px-3 whitespace-nowrap text-[13px] text-muted opacity-40 cursor-not-allowed"
+          >
+            <Iconify.iconify :if={e(scope_meta, :icon, nil)} icon={scope_meta[:icon]} class="size-3.5 shrink-0" />
+            {e(scope_meta, :label, scope)}
+          </span>
         {/if}
       {#else}
         <button
@@ -29,61 +28,25 @@
           phx-value-dim={@dimension}
           phx-value-scope={scope}
           phx-target={@target}
+          aria-pressed={if is_selected, do: "true", else: "false"}
           title={e(scope_meta, :description, nil)}
           class={
-            "flex items-center gap-2 px-3 py-2 rounded-selector border transition-all duration-150 cursor-pointer",
-            "ring-2 ring-primary bg-primary/5 border-divider": is_selected,
-            "border-divider hover:bg-fill": !is_selected
+            "flex-1 min-w-fit inline-flex items-center justify-center gap-1.5 h-8 px-3 whitespace-nowrap text-[13px] transition-colors duration-150 cursor-pointer",
+            "bg-base-content/10 text-base-content font-medium shadow-sm": is_selected,
+            "text-muted hover:text-base-content": !is_selected
           }
         >
-          <Iconify.iconify
-            :if={e(scope_meta, :icon, nil)}
-            icon={scope_meta[:icon]}
-            class="size-4 shrink-0"
-          />
-          <span class="text-sm font-medium">{e(scope_meta, :label, scope)}</span>
+          <Iconify.iconify :if={e(scope_meta, :icon, nil)} icon={scope_meta[:icon]} class="size-3.5 shrink-0" />
+          {e(scope_meta, :label, scope)}
         </button>
       {/if}
     {/for}
   </div>
 
-  {#if @circles != []}
-    <div class="divider text-xs font-medium text-muted uppercase tracking-wide mt-3 mb-2">
-      {l("Or one of your circles")}
-    </div>
-
-    <div class="flex flex-wrap gap-2">
-      {#for circle <- @circles}
-        <button
-          type="button"
-          phx-click="Bonfire.Classify:set_boundary_dimensions"
-          phx-value-dim={@dimension}
-          phx-value-slug={id(circle)}
-          phx-target={@target}
-          class={
-            "flex items-center gap-2 px-3 py-2 rounded-selector border transition-all duration-150 cursor-pointer",
-            "ring-2 ring-primary bg-primary/5 border-divider": @selected == id(circle),
-            "border-divider hover:bg-fill": @selected != id(circle)
-          }
-        >
-          <#Icon
-            iconify="ph:users-three-duotone"
-            class={
-              "size-4 shrink-0",
-              "text-primary": @selected == id(circle),
-              "text-muted": @selected != id(circle)
-            }
-          />
-          <span class="text-sm font-medium truncate max-w-[10rem]">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>
-        </button>
-      {/for}
-    </div>
-  {/if}
-
-  {!-- Row 2: Access level cards — shown when a scope is selected with >1 access variant --}
+  {!-- Row 2: Access level, sitting right under its scope — shown when a scope is selected with >1 access variant --}
   {#if @selected_scope && length(@scope_slugs) > 1}
-    <div class="mt-3 pt-3 border-t border-primary/20">
-      <div class="text-xs font-medium text-muted mb-2">
+    <div class="mt-1 pl-3 border-l-2 border-divider">
+      <div class="text-xs text-muted mb-2">
         {l("How visible, within %{scope}:",
           scope:
             e(
@@ -94,15 +57,17 @@
             )
         )}
       </div>
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap gap-0.5 p-0.5 rounded-box border border-divider bg-base-content/[0.03]">
         {#for {slug, opt, role_meta, access_role, is_selected_access} <- @scope_slugs}
           {#if e(opt, :disabled, nil)}
             {#if @show_unavailable}
-              <div class="flex items-center gap-2 px-3 py-2 rounded-box border border-divider opacity-40 cursor-not-allowed text-sm">
-                <Iconify.iconify :if={e(role_meta, :icon, nil)} icon={role_meta[:icon]} class="size-4 shrink-0" />
-                <span class="font-medium">{e(role_meta, :label, nil) || e(opt, :label, slug)}</span>
-                <span class="badge badge-xs badge-ghost ml-1">{e(opt, :disabled, nil) || l("Coming soon")}</span>
-              </div>
+              <span
+                title={e(opt, :disabled, nil) || l("Coming soon")}
+                class="flex-1 min-w-fit inline-flex items-center justify-center gap-1.5 h-8 px-3 whitespace-nowrap text-[13px] text-muted opacity-40 cursor-not-allowed"
+              >
+                <Iconify.iconify :if={e(role_meta, :icon, nil)} icon={role_meta[:icon]} class="size-3.5 shrink-0" />
+                {e(role_meta, :label, nil) || e(opt, :label, slug)}
+              </span>
             {/if}
           {#else}
             <button
@@ -111,24 +76,66 @@
               phx-value-dim={@dimension}
               phx-value-slug={slug}
               phx-target={@target}
+              aria-pressed={if is_selected_access, do: "true", else: "false"}
               title={e(role_meta, :description, nil) || e(opt, :description, nil)}
               class={
-                "flex items-center gap-2 px-3 py-2 rounded-selector border transition-all duration-150 cursor-pointer text-sm",
-                "ring-2 ring-primary bg-primary/5 border-divider": is_selected_access,
-                "border-divider hover:bg-fill": !is_selected_access
+                "flex-1 min-w-fit inline-flex items-center justify-center gap-1.5 h-8 px-3 whitespace-nowrap text-[13px] transition-colors duration-150 cursor-pointer",
+                "bg-base-content/10 text-base-content font-medium shadow-sm": is_selected_access,
+                "text-muted hover:text-base-content": !is_selected_access
               }
             >
-              <Iconify.iconify :if={e(role_meta, :icon, nil)} icon={role_meta[:icon]} class="size-4 shrink-0" />
-              <span class="font-medium">{e(role_meta, :label, nil) || e(opt, :label, slug)}</span>
-              <div class={
-                "size-3 rounded-full border-2 shrink-0 ml-1 transition-all",
-                "border-primary bg-primary": is_selected_access,
-                "border-divider": !is_selected_access
-              } />
+              <Iconify.iconify :if={e(role_meta, :icon, nil)} icon={role_meta[:icon]} class="size-3.5 shrink-0" />
+              {e(role_meta, :label, nil) || e(opt, :label, slug)}
             </button>
           {/if}
         {/for}
       </div>
+    </div>
+  {/if}
+
+  {#if @circles != []}
+    <div class="mt-1 text-xs text-muted">{l("Or one of your circles")}</div>
+
+    {!-- the first five, plus the selected one wherever it sits; the rest wait behind "N more" (a client-side reveal, so it survives re-renders) --}
+    <div id={"boundary_scope_#{@dimension}_circles"} class="flex flex-wrap gap-1.5">
+      {#for {circle, i} <- Enum.with_index(@circles)}
+        <button
+          type="button"
+          phx-click="Bonfire.Classify:set_boundary_dimensions"
+          phx-value-dim={@dimension}
+          phx-value-slug={id(circle)}
+          phx-target={@target}
+          aria-pressed={if @selected == id(circle), do: "true", else: "false"}
+          data-more={if i >= 5, do: "true"}
+          title={l("Members of this circle")}
+          class={
+            "inline-flex items-center gap-1.5 h-8 px-3 rounded-full border text-[13px] transition-colors duration-150 cursor-pointer",
+            "border-primary bg-primary/10 text-base-content": @selected == id(circle),
+            "border-divider text-muted hover:bg-fill hover:text-base-content": @selected != id(circle),
+            "!hidden": i >= 5 and @selected != id(circle)
+          }
+        >
+          <#Icon
+            iconify="ph:users-three"
+            class={
+              "size-3.5 shrink-0",
+              "text-primary": @selected == id(circle)
+            }
+          />
+          <span class="truncate max-w-[10rem]">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>
+        </button>
+      {/for}
+
+      {#if Enum.count(Enum.drop(@circles, 5), &(id(&1) != @selected)) > 0}
+        <button
+          type="button"
+          phx-click={JS.remove_class("!hidden", to: "#boundary_scope_#{@dimension}_circles [data-more]") |> JS.hide()}
+          class="inline-flex items-center gap-1 h-8 px-3 rounded-full border border-dashed border-divider text-[13px] text-muted hover:bg-fill hover:text-base-content transition-colors"
+        >
+          {l("%{count} more", count: Enum.count(Enum.drop(@circles, 5), &(id(&1) != @selected)))}
+          <#Icon iconify="ph:caret-down" class="size-3" />
+        </button>
+      {/if}
     </div>
   {/if}
 

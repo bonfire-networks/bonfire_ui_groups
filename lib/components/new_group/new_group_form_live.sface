@@ -3,47 +3,47 @@
     for={%{}}
     as={:category}
     id="new_group_form"
-    class="flex flex-col w-full gap-4"
+    class="flex flex-col w-full gap-6"
     submit="Bonfire.UI.Groups:new"
     action="Bonfire.UI.Groups:new"
     opts={autocomplete: "off"}
   >
     {!-- Intent framing --}
-    <p class="-mt-3 text-sm leading-relaxed text-muted">
+    <p class="-mt-2 -mb-2 text-sm leading-relaxed text-muted">
       {l("A space for people to gather around something: a topic, a practice, a place.")}
     </p>
 
-    {!-- Name + description --}
-    <section class="flex flex-col gap-2">
-      <div class="form-control">
-        <label for="new_group_name" class="text-sm font-medium text-muted mb-1">
-          {l("Group name")} <span class="text-error" aria-hidden="true">*</span>
-        </label>
-        <input
-          id="new_group_name"
-          name="name"
-          type="text"
-          required
-          minlength="3"
-          maxlength="120"
-          phx-update="ignore"
-          placeholder={l("e.g. Design team, Book club…")}
-          onkeydown="if(event.key==='Enter'){event.preventDefault();const d=document.getElementById('new_group_summary');if(d && !d.closest('.hidden'))d.focus();}"
-          class="peer w-full input input-bordered input-sm focus:input-primary invalid:input-error"
-        />
-        <span class="hidden peer-[:invalid:not(:placeholder-shown)]:block mt-1 text-xs text-error">
-          {l("At least 3 characters.")}
-        </span>
-      </div>
+    {!-- Name + description: one field block, the name as its title line --}
+    <section class="rounded-box border border-divider bg-base-content/[0.03] transition-colors focus-within:border-base-content/25">
+      <label for="new_group_name" class="sr-only">
+        {l("Group name")} <span aria-hidden="true">*</span>
+      </label>
+      <input
+        id="new_group_name"
+        name="name"
+        type="text"
+        required
+        minlength="3"
+        maxlength="120"
+        phx-update="ignore"
+        placeholder={l("Group name")}
+        onkeydown="if(event.key==='Enter'){event.preventDefault();const d=document.getElementById('new_group_summary');if(d && !d.closest('.hidden'))d.focus();}"
+        class="peer block w-full bg-transparent border-0 outline-none focus:outline-none px-3.5 pt-3.5 pb-1 text-lg font-semibold tracking-tight text-base-content placeholder:text-base-content/35"
+      />
+      {!-- only once the field is left with too few characters, never on an empty untouched field --}
+      <span class="hidden peer-[:invalid:not(:placeholder-shown):not(:focus)]:block px-3.5 text-xs text-error">
+        {l("At least 3 characters.")}
+      </span>
 
-      <div id="new_group_description" class="form-control">
+      <div id="new_group_description">
         <textarea
           id="new_group_summary"
           name="summary"
           rows="2"
           maxlength="500"
           phx-update="ignore"
-          class="w-full textarea textarea-bordered textarea-sm focus:textarea-primary"
+          aria-label={l("What is this group about?")}
+          class="block w-full bg-transparent border-0 outline-none focus:outline-none resize-none px-3.5 pt-1 pb-3.5 text-sm leading-relaxed text-base-content/80 placeholder:text-base-content/35"
           placeholder={l("What is this group about?")}
         />
       </div>
@@ -52,33 +52,40 @@
     <Bonfire.UI.Groups.GroupBoundaryEditorLive
       id="new_group_boundary_editor"
       show_unavailable_toggles={@show_unavailable_toggles}
-    />
+    >
+      <:extra_toggles>
+        {!-- the sensitive mark, as in the group's settings (`Bonfire.UI.Groups.Settings.IdentityLive`). `category[…]`, which `Bonfire.Classify.LiveHandler.new/3` merges in, rather than a bare `sensitive`, which the composer's own field is named; the hidden `false` says so when the box is not ticked --}
+        <div id="new_group_sensitive_row" phx-update="ignore" class="flex items-start gap-3 px-3.5 py-3">
+          <input type="hidden" name="category[sensitive]" value="false">
+          <div class="flex-1 min-w-0">
+            <label for="new_group_sensitive" class="block text-sm font-medium text-base-content cursor-pointer">{l("Mark this group as sensitive")}</label>
+            <p id="new_group_sensitive_help" class="mt-0.5 text-xs text-muted leading-snug">
+              {l(
+                "People see a content warning before its posts, and its banner and icon are blurred. Lemmy, PieFed and Mbin treat it as NSFW: some of their instances hide or refuse it, so fewer people there will find it."
+              )}
+            </p>
+          </div>
+          <input
+            id="new_group_sensitive"
+            type="checkbox"
+            name="category[sensitive]"
+            value="true"
+            aria-describedby="new_group_sensitive_help"
+            class="toggle toggle-primary toggle-sm mt-0.5 shrink-0"
+          />
+        </div>
+      </:extra_toggles>
+    </Bonfire.UI.Groups.GroupBoundaryEditorLive>
 
-    {!-- the sensitive mark, as in the group's settings (`Bonfire.UI.Groups.Settings.IdentityLive`). `category[…]`, which `Bonfire.Classify.LiveHandler.new/3` merges in, rather than a bare `sensitive`, which the composer's own field is named; the hidden `false` says so when the box is not ticked --}
-    <div class="form-control">
-      <input type="hidden" name="category[sensitive]" value="false">
-      <label for="new_group_sensitive" class="flex items-center gap-3 cursor-pointer">
-        <input
-          id="new_group_sensitive"
-          type="checkbox"
-          name="category[sensitive]"
-          value="true"
-          aria-describedby="new_group_sensitive_help"
-          class="checkbox checkbox-sm"
-        />
-        <span class="text-sm font-medium text-base-content">{l("Mark this group as sensitive")}</span>
-      </label>
-      <p id="new_group_sensitive_help" class="mt-1 text-xs text-muted leading-snug">
-        {l(
-          "People see a content warning before its posts, and its banner and icon are blurred. Lemmy, PieFed and Mbin treat it as NSFW: some of their instances hide or refuse it, so fewer people there will find it."
-        )}
-      </p>
+    {!-- Primary action, pinned to the bottom of the modal's scroll area so it is always in reach --}
+    <div class="sticky bottom-[calc(-1rem_-_env(safe-area-inset-bottom,0px))] z-10 -mx-4 mb-[calc(-1rem_-_env(safe-area-inset-bottom,0px))] mt-2 flex justify-end px-4 pt-3 pb-safe-offset-3 bg-base-100 border-t-hair border-divider">
+      <button
+        type="submit"
+        class="btn btn-sm h-9 px-4 border-0 normal-case bg-base-content text-base-100 hover:bg-base-content/90"
+      >
+        {l("Create group")}
+      </button>
     </div>
-
-    {!-- Primary action --}
-    <button type="submit" class="btn btn-primary w-full normal-case">
-      <#Icon iconify="ph:check" class="size-4 mr-1" />{l("Create group")}
-    </button>
 
     <input type="hidden" name="context_id" value={id(@parent)}>
   </Form>

@@ -1,27 +1,23 @@
-<div id={"boundary_dim_#{@dimension}"} class="w-full form-control">
-  <label class="text-md font-medium text-muted mb-1">{@label}</label>
-  {#if @description}
-    <p class="text-xs text-muted mb-2">{@description}</p>
-  {/if}
+<div id={"boundary_dim_#{@dimension}"} class="w-full flex flex-col gap-2">
+  <div>
+    <label class="block text-sm font-medium text-base-content">{@label}</label>
+    {#if @description}
+      <p class="mt-0.5 text-xs text-muted">{@description}</p>
+    {/if}
+  </div>
 
-  <div class="flex flex-col gap-2 mt-1">
+  {!-- options as a segmented control; the selected option's description shows underneath, as a segment has no room for it --}
+  <div class="flex flex-wrap gap-0.5 p-0.5 rounded-box border border-divider bg-base-content/[0.03]">
     {#for slug <- if @slug_order != [], do: @slug_order, else: Map.keys(@options)}
       {#case Map.get(@options, slug)}
         {#match nil}
         {#match opt}
           {#if e(opt, :disabled, nil)}
             {#if @show_unavailable}
-              <div class="flex items-center gap-3 p-3 rounded-box border border-divider opacity-40 cursor-not-allowed">
-                <div class="flex flex-col min-w-0 flex-1">
-                  <span class="text-sm font-medium">{opt[:label]}</span>
-                  {#if opt[:description]}
-                    <span class="text-xs text-muted">{opt[:description]}</span>
-                  {/if}
-                </div>
-                <span class="badge badge-sm badge-ghost text-xs shrink-0">
-                  {opt[:disabled] || l("Coming soon")}
-                </span>
-              </div>
+              <span
+                title={opt[:disabled] || l("Coming soon")}
+                class="flex-1 min-w-fit inline-flex items-center justify-center gap-1.5 h-8 px-3 whitespace-nowrap text-[13px] text-muted opacity-40 cursor-not-allowed"
+              >{opt[:label]}</span>
             {/if}
           {#else}
             <button
@@ -30,69 +26,72 @@
               phx-value-dim={@dimension}
               phx-value-slug={slug}
               phx-target={@target}
+              aria-pressed={if @selected == slug, do: "true", else: "false"}
+              title={opt[:description]}
               class={
-                "flex items-center gap-3 p-3 rounded-selector border transition-all duration-150 cursor-pointer text-left",
-                "ring-2 ring-primary bg-primary/5 border-divider": @selected == slug,
-                "border-divider hover:bg-fill": @selected != slug
+                "flex-1 min-w-fit inline-flex items-center justify-center gap-1.5 h-8 px-3 whitespace-nowrap text-[13px] transition-colors duration-150 cursor-pointer",
+                "bg-base-content/10 text-base-content font-medium shadow-sm": @selected == slug,
+                "text-muted hover:text-base-content": @selected != slug
               }
             >
-              <div class="flex flex-col min-w-0 flex-1">
-                <span class="text-sm font-medium">{opt[:label]}</span>
-                {#if opt[:description]}
-                  <span class="text-xs text-muted">{opt[:description]}</span>
-                {/if}
-              </div>
-              <div class={
-                "size-4 rounded-full border-2 shrink-0 transition-all",
-                "border-primary bg-primary": @selected == slug,
-                "border-divider": @selected != slug
-              } />
+              {opt[:label]}
             </button>
           {/if}
       {/case}
     {/for}
+  </div>
 
-    {#if @circles != []}
-      <div class="divider text-xs font-medium text-muted uppercase tracking-wide mt-2 mb-0.5">
-        {l("Or one of your circles")}
-      </div>
+  {#case Map.get(@options, @selected)}
+    {#match %{description: description} when is_binary(description) and description != ""}
+      <p class="text-xs text-muted leading-snug">{description}</p>
+    {#match _}
+  {/case}
 
-      {#for circle <- @circles}
+  {#if @circles != []}
+    <div class="mt-1 text-xs text-muted">{l("Or one of your circles")}</div>
+
+    {!-- the first five, plus the selected one wherever it sits; the rest wait behind "N more" (a client-side reveal, so it survives re-renders) --}
+    <div id={"boundary_dim_#{@dimension}_circles"} class="flex flex-wrap gap-1.5">
+      {#for {circle, i} <- Enum.with_index(@circles)}
         <button
           type="button"
           phx-click="Bonfire.Classify:set_boundary_dimensions"
           phx-value-dim={@dimension}
           phx-value-slug={id(circle)}
           phx-target={@target}
+          aria-pressed={if @selected == id(circle), do: "true", else: "false"}
+          data-more={if i >= 5, do: "true"}
+          title={l("Members of this circle")}
           class={
-            "flex items-center gap-3 p-3 rounded-selector border transition-all duration-150 cursor-pointer text-left",
-            "ring-2 ring-primary bg-primary/5 border-divider": @selected == id(circle),
-            "border-divider hover:bg-fill": @selected != id(circle)
+            "inline-flex items-center gap-1.5 h-8 px-3 rounded-full border text-[13px] transition-colors duration-150 cursor-pointer",
+            "border-primary bg-primary/10 text-base-content": @selected == id(circle),
+            "border-divider text-muted hover:bg-fill hover:text-base-content": @selected != id(circle),
+            "!hidden": i >= 5 and @selected != id(circle)
           }
         >
-          <span class="flex items-center justify-center size-8 rounded-md bg-fill shrink-0">
-            <#Icon
-              iconify="ph:users-three-duotone"
-              class={
-                "size-4",
-                "text-primary": @selected == id(circle),
-                "text-muted": @selected != id(circle)
-              }
-            />
-          </span>
-          <span class="flex flex-col min-w-0 flex-1">
-            <span class="text-sm font-medium truncate">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>
-            <span class="text-xs text-muted">{l("Members of this circle")}</span>
-          </span>
-          <div class={
-            "size-4 rounded-full border-2 shrink-0 transition-all",
-            "border-primary bg-primary": @selected == id(circle),
-            "border-divider": @selected != id(circle)
-          } />
+          <#Icon
+            iconify="ph:users-three"
+            class={
+              "size-3.5 shrink-0",
+              "text-primary": @selected == id(circle)
+            }
+          />
+          <span class="truncate max-w-[10rem]">{e(circle, :named, :name, e(circle, :name, l("Unnamed circle")))}</span>
         </button>
       {/for}
-    {/if}
-  </div>
+
+      {#if Enum.count(Enum.drop(@circles, 5), &(id(&1) != @selected)) > 0}
+        <button
+          type="button"
+          phx-click={JS.remove_class("!hidden", to: "#boundary_dim_#{@dimension}_circles [data-more]") |> JS.hide()}
+          class="inline-flex items-center gap-1 h-8 px-3 rounded-full border border-dashed border-divider text-[13px] text-muted hover:bg-fill hover:text-base-content transition-colors"
+        >
+          {l("%{count} more", count: Enum.count(Enum.drop(@circles, 5), &(id(&1) != @selected)))}
+          <#Icon iconify="ph:caret-down" class="size-3" />
+        </button>
+      {/if}
+    </div>
+  {/if}
 
   <input type="hidden" name={@name} value={@selected}>
 </div>
