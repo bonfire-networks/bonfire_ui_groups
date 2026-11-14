@@ -83,6 +83,7 @@
         />
       </li>
       <li :if={@permalink}>
+        {!-- the shared Copy link item; the markup it replaced:
         <a
           phx-hook="Copy"
           id={"group-hero-copy-url-#{id(@group)}"}
@@ -93,6 +94,11 @@
           <#Icon iconify="ph:copy-duotone" class="size-4 shrink-0 text-muted" />
           <span class="flex-1 truncate" data-role="label">{l("Copy link")}</span>
         </a>
+        --}
+        <Bonfire.UI.Common.CopyLinkLive
+          id={"group-hero-copy-url-#{id(@group)}"}
+          url={Bonfire.Common.URIs.canonical_url(@group) || @permalink}
+        />
       </li>
       {!-- a group hosted elsewhere: fetches what its origin has posted that we have not met, into the group's feed here --}
       <li :if={not is_nil(e(@group, :character, :peered, nil))}>

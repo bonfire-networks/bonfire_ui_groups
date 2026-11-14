@@ -96,29 +96,57 @@ defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
     @hero "[data-id=group_hero]"
     @topic_info "[data-role=group-topic-info]"
 
-    defp address(thing), do: Bonfire.Me.Characters.display_username(thing, true)
+    # no prefix is shown, and the copy entries add `!` or `@`
+    defp address(thing), do: Bonfire.Me.Characters.display_username(thing, true, nil, "")
+
+    # the visible text may break before the host (`<wbr>`), so the handle and the host are checked apart
+    defp shows_address(session, scope, address) do
+      [handle, host] = String.split(address, "@", parts: 2)
+
+      session
+      |> assert_has("#{scope} [data-role=group-address]", text: handle)
+      |> assert_has("#{scope} [data-role=group-address]", text: "@#{host}")
+    end
+
+    defp copy_entry(scope, form, address),
+      do:
+        "#{scope} [data-role=group-address-copy][phx-hook=Copy][data-clipboard-text='#{form}#{address}']"
 
     test "the hero keeps the group's address, and the topic's is under the tabs", ctx do
       group_address = address(ctx.group)
       topic_address = address(ctx.topic)
-      assert String.starts_with?(topic_address, "+#{ctx.topic.character.username}@")
+      assert String.starts_with?(topic_address, "#{ctx.topic.character.username}@")
       refute topic_address == group_address
 
       as_creator(ctx)
       |> visit(topic_path(ctx.group, ctx.topic))
-      # the positive first: the group's address, copyable, in the hero
-      |> assert_has(
-        "#{@hero} [data-role=group-address][phx-hook=Copy][data-clipboard-text='#{group_address}']"
-      )
-      |> assert_has(
-        "#{@topic_info} [data-role=group-address][phx-hook=Copy][data-clipboard-text='#{topic_address}']"
-      )
-      # each address is copied by a hook of its own, and the hero has no copy of the topic's
-      |> assert_has("#group-hero-address-#{id(ctx.group)}")
-      |> assert_has("#group-topic-address-#{id(ctx.topic)}")
-      |> refute_has("#{@hero} [data-clipboard-text='#{topic_address}']")
-      |> refute_has("#{@topic_info} [data-clipboard-text='#{group_address}']")
+      # the positive first: the group's address, with its copy entries, in the hero
+      |> shows_address(@hero, group_address)
+      |> assert_has(copy_entry(@hero, "!", group_address))
+      |> assert_has(copy_entry(@hero, "@", group_address))
+      |> shows_address(@topic_info, topic_address)
+      |> assert_has(copy_entry(@topic_info, "!", topic_address))
+      |> assert_has(copy_entry(@topic_info, "@", topic_address))
+      |> refute_has("#{@topic_info} [data-role=group-address]", text: "+")
+      # each address has copy entries of its own (ids from the prefix), and the hero has no copy of the topic's
+      |> assert_has("#group-hero-address-#{id(ctx.group)}-lemmy")
+      |> assert_has("#group-topic-address-#{id(ctx.topic)}-lemmy")
+      |> refute_has("#{@hero} [data-clipboard-text$='#{topic_address}']")
+      |> refute_has("#{@topic_info} [data-clipboard-text$='#{group_address}']")
     end
+
+    # old test, when the address was one copy target with its `+` prefix
+    # test "the hero keeps the group's address, and the topic's is under the tabs", ctx do
+    #   group_address = Bonfire.Me.Characters.display_username(ctx.group, true)
+    #   topic_address = Bonfire.Me.Characters.display_username(ctx.topic, true)
+    #   assert String.starts_with?(topic_address, "+#{ctx.topic.character.username}@")
+    #   as_creator(ctx)
+    #   |> visit(topic_path(ctx.group, ctx.topic))
+    #   |> assert_has("#{@hero} [data-role=group-address][phx-hook=Copy][data-clipboard-text='#{group_address}']")
+    #   |> assert_has("#{@topic_info} [data-role=group-address][phx-hook=Copy][data-clipboard-text='#{topic_address}']")
+    #   |> assert_has("#group-hero-address-#{id(ctx.group)}")
+    #   |> assert_has("#group-topic-address-#{id(ctx.topic)}")
+    # end
 
     test "the block is under the topic tabs, and the group page has none", ctx do
       {:ok, view, html} = live(as_creator(ctx), topic_path(ctx.group, ctx.topic))
@@ -154,14 +182,16 @@ defmodule Bonfire.UI.Groups.TopicInGroupFrameTest do
         Simulate.fake_category!(ctx.creator, nil, %{name: "Standalone topic", type: :topic})
 
       topic_address = address(standalone)
-      assert String.starts_with?(topic_address, "+")
+      assert String.starts_with?(topic_address, standalone.character.username)
 
       as_creator(ctx)
       |> visit("/+#{standalone.character.username}")
       |> assert_has("[data-id=topic_subheader]", text: "Standalone topic")
-      |> assert_has(
-        "[data-id=topic_subheader] [data-role=group-address][phx-hook=Copy][data-clipboard-text='#{topic_address}']"
-      )
+      |> shows_address("[data-id=topic_subheader]", topic_address)
+      |> assert_has(copy_entry("[data-id=topic_subheader]", "!", topic_address))
+      |> assert_has(copy_entry("[data-id=topic_subheader]", "@", topic_address))
+      # old: the `+` prefixed address was the copy target
+      # |> assert_has("[data-id=topic_subheader] [data-role=group-address][phx-hook=Copy][data-clipboard-text='#{topic_address}']")
       |> refute_has(@topic_info)
     end
   end

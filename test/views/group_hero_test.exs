@@ -66,22 +66,41 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       |> refute_has(@member)
     end
 
-    test "the address is shown in full and copyable", %{group: group} do
-      address = Bonfire.Me.Characters.display_username(group, true)
+    test "the address is shown in full, with no prefix, and copies in three forms", %{
+      group: group
+    } do
+      address = Bonfire.Me.Characters.display_username(group, true, nil, "")
       [handle, host] = String.split(address, "@", parts: 2)
+      # the same value the ⋯ menu's Copy link copies
+      link = Bonfire.Common.URIs.canonical_url(group, preload_if_needed: true)
+      entry = "#{@hero} [data-role=group-address-copy][phx-hook=Copy]"
 
-      # the visible text may break before the host (`<wbr>`), so the handle and the host are checked apart; the copied value is the whole address
+      # the visible text may break before the host (`<wbr>`), so the handle and the host are checked apart
       # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView)
       # conn()
       # |> visit(group_path(group))
       conn()
       |> get_conn_render(group_path(group))
-      |> assert_has(
-        "#{@hero} [data-role=group-address][phx-hook=Copy][data-clipboard-text='#{address}']",
-        text: handle
-      )
+      |> assert_has("#{@hero} [data-role=group-address]", text: handle)
       |> assert_has("#{@hero} [data-role=group-address]", text: "@#{host}")
+      |> refute_has("#{@hero} [data-role=group-address]", text: "&")
+      |> assert_has("#{entry}[data-clipboard-text='!#{address}']")
+      |> assert_has("#{entry}[data-clipboard-text='@#{address}']")
+      |> assert_has("#{entry}[data-clipboard-text='#{link}']")
     end
+
+    # old test, when the address was one copy target with the `&` prefix
+    # test "the address is shown in full and copyable", %{group: group} do
+    #   address = Bonfire.Me.Characters.display_username(group, true)
+    #   [handle, host] = String.split(address, "@", parts: 2)
+    #   conn()
+    #   |> get_conn_render(group_path(group))
+    #   |> assert_has(
+    #     "#{@hero} [data-role=group-address][phx-hook=Copy][data-clipboard-text='#{address}']",
+    #     text: handle
+    #   )
+    #   |> assert_has("#{@hero} [data-role=group-address]", text: "@#{host}")
+    # end
 
     test "Copy link copies the group's ActivityPub id", %{group: group} do
       ap_id = Bonfire.Common.URIs.canonical_url(group, preload_if_needed: true)

@@ -107,6 +107,7 @@
         />
       </:trigger>
       <li>
+        {!-- the shared Copy link item; the markup it replaced:
         <a
           phx-hook="Copy"
           id={@row_id <> "-copy-link"}
@@ -119,6 +120,14 @@
           <#Icon iconify="ph:link" class="size-4 shrink-0" />
           <span class="flex-1 truncate" data-role="label">{l("Copy group link")}</span>
         </a>
+        --}
+        <Bonfire.UI.Common.CopyLinkLive
+          id={@row_id <> "-copy-link"}
+          role="sidebar_group_copy_link"
+          label={l("Copy group link")}
+          url={Bonfire.Common.URIs.canonical_url(@category) ||
+            Bonfire.Common.URIs.based_url(@group_path)}
+        />
       </li>
       {!-- asked only when this menu opens (its trigger pushes `load`), so the sidebar asks nothing per group up front --}
       <li :if={@show_bell?}>

@@ -1,3 +1,4 @@
+{!-- the address shows with no prefix; the dropdown copies it in the form each kind of server searches for. Old markup, when the address itself was the one copy target with its `&`/`+` prefix:
 <span
   data-role="group-address"
   phx-hook="Copy"
@@ -6,7 +7,6 @@
   title={l("Click to copy the address")}
   class={@class, "cursor-copy [overflow-wrap:anywhere]"}
 >
-  {!-- a line break, when one is needed, goes before the host rather than mid-word --}
   {#case String.split(@address, "@", parts: 2)}
     {#match [handle, host]}
       {handle}<wbr>@{host}
@@ -14,3 +14,83 @@
       {@address}
   {/case}
 </span>
+--}
+{!-- `no_flip`: always below the address, since flipped up the panel went under the sticky page header. `strategy="fixed"`: placed against the viewport, so the hero's overflow clipping doesn't hide the panel below the address --}
+<Dropdown
+  id={"#{@id_prefix}-#{id(@group)}"}
+  position="bottom-start"
+  no_flip
+  strategy="fixed"
+  close_on_select
+  wrapper_class={@class}
+  trigger_class="inline-flex items-start gap-1.5 text-left cursor-pointer"
+  panel_class="text-base-content"
+  label={l("Copy the address")}
+>
+  <:trigger>
+    <span data-role="group-address" class="[overflow-wrap:anywhere]">
+      {!-- a line break, when one is needed, goes before the host rather than mid-word --}
+      {#case String.split(@address, "@", parts: 2)}
+        {#match [handle, host]}
+          {handle}<wbr>@{host}
+        {#match _}
+          {@address}
+      {/case}
+    </span>
+    <#Icon iconify="ph:copy-duotone" class="size-4 shrink-0 mt-0.5" />
+  </:trigger>
+  <li>
+    <button
+      type="button"
+      phx-hook="Copy"
+      id={"#{@id_prefix}-#{id(@group)}-lemmy"}
+      data-role="group-address-copy"
+      data-clipboard-text={"!" <> @address}
+      title={"!" <> @address}
+      class="flex items-center gap-2 w-full text-sm text-base-content whitespace-nowrap"
+    >
+      {!-- each row shows the prefix it adds, not the whole value, which wrapped mid-word in a narrow panel
+      <span class="font-mono [overflow-wrap:anywhere]">!{@address}</span>
+      <span class="text-xs text-muted">{l("Lemmy, PieFed, Mbin…")}</span>
+      --}
+      <span class="w-6 text-center text-muted">!…</span>
+      <span>{l("Lemmy, PieFed, Mbin…")}</span>
+    </button>
+  </li>
+  <li>
+    <button
+      type="button"
+      phx-hook="Copy"
+      id={"#{@id_prefix}-#{id(@group)}-mastodon"}
+      data-role="group-address-copy"
+      data-clipboard-text={"@" <> @address}
+      title={"@" <> @address}
+      class="flex items-center gap-2 w-full text-sm text-base-content whitespace-nowrap"
+    >
+      {!--
+      <span class="font-mono [overflow-wrap:anywhere]">@{@address}</span>
+      <span class="text-xs text-muted">{l("Mastodon and others")}</span>
+      --}
+      <span class="w-6 text-center text-muted">@…</span>
+      <span>{l("Mastodon and others")}</span>
+    </button>
+  </li>
+  <li :if={@link}>
+    <button
+      type="button"
+      phx-hook="Copy"
+      id={"#{@id_prefix}-#{id(@group)}-link"}
+      data-role="group-address-copy"
+      data-clipboard-text={@link}
+      title={@link}
+      class="flex items-center gap-2 w-full text-sm text-base-content whitespace-nowrap"
+    >
+      {!--
+      <span class="font-mono [overflow-wrap:anywhere]">{@link}</span>
+      <span class="text-xs text-muted">{l("Link")}</span>
+      --}
+      <span class="w-6 flex justify-center text-muted"><#Icon iconify="ph:link-simple-duotone" class="size-4" /></span>
+      <span>{l("Link")}</span>
+    </button>
+  </li>
+</Dropdown>
