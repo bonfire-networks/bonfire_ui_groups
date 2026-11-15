@@ -87,6 +87,59 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       |> assert_has("#{entry}[data-clipboard-text='!#{address}']")
       |> assert_has("#{entry}[data-clipboard-text='@#{address}']")
       |> assert_has("#{entry}[data-clipboard-text='#{link}']")
+      # a guest gets `name@host` as the first row, and the rows show the values they copy
+      |> assert_has("#{entry}[data-form=plain][data-clipboard-text='#{address}']", text: address)
+      |> assert_has("#{entry}[data-form=bang]", text: "!#{address}")
+      |> assert_has("#{entry}[data-form=at]", text: "@#{address}")
+      # the link row keeps its label: the URL is only in its `title` and what it copies
+      |> assert_has("#{entry}[data-form=link][title='#{link}']", text: "Link")
+      |> assert_has("#{@hero} li:nth-child(2) [data-form=plain]")
+      |> assert_has("#{@hero} [data-role=group-address-heading]", text: "Copy address as")
+      # each row has the copy icon, and the check icon (hidden) that the Copy hook shows for a moment after a copy
+      |> then(fn session ->
+        Enum.reduce(~w(plain bang at link), session, fn form, session ->
+          session
+          |> assert_has("#{entry}[data-form=#{form}] [data-role=copy-icon]")
+          |> assert_has("#{entry}[data-form=#{form}] [data-role=copied-icon].hidden")
+        end)
+      end)
+    end
+
+    test "picking a form copies it, saves it as the user's choice, and shows the address in it everywhere",
+         %{group: group, creator: creator} do
+      other = Simulate.fake_group!(creator, %{name: "Other place", visibility: "global"})
+      address = Bonfire.Me.Characters.display_username(group, true, nil, "")
+      other_address = Bonfire.Me.Characters.display_username(other, true, nil, "")
+      [handle, _host] = String.split(address, "@", parts: 2)
+      [other_handle, other_host] = String.split(other_address, "@", parts: 2)
+      {user, conn} = signed_in()
+      entry = "#{@hero} [data-role=group-address-copy]"
+
+      # the positive first: before any choice the plain form shows, with the plain row first
+      conn
+      |> visit(group_path(group))
+      # the visible text breaks before the host (`<wbr>`), so the handle and the host are checked apart
+      |> assert_has("#{@hero} [data-role=group-address]", text: handle)
+      |> refute_has("#{@hero} [data-role=group-address]", text: "!#{handle}")
+      |> assert_has("#{@hero} li:nth-child(2) [data-form=plain]")
+      |> click_button("#{entry}[data-form=bang]", "!#{address}")
+
+      # the choice is stored on the user
+      saved_user = Bonfire.Me.Users.get_current(user.id)
+
+      # `Settings.put` stores a string as an atom
+      assert "bang" ==
+               [:ui, :group_address_form]
+               |> Bonfire.Common.Settings.get(nil, current_user: saved_user)
+               |> to_string()
+
+      # another group, and a fresh page load: the address shows with `!`, and that row is first
+      conn
+      |> visit(group_path(other))
+      |> assert_has("#{@hero} [data-role=group-address]", text: "!#{other_handle}")
+      |> assert_has("#{@hero} [data-role=group-address]", text: "@#{other_host}")
+      |> assert_has("#{@hero} li:nth-child(2) [data-form=bang]")
+      |> assert_has("#{entry}[data-form=plain][data-clipboard-text='#{other_address}']")
     end
 
     # old test, when the address was one copy target with the `&` prefix

@@ -44,6 +44,16 @@ defmodule Bonfire.UI.Groups.LiveHandler do
   def handle_event("show_sensitive_group", _, socket),
     do: {:noreply, assign(socket, :sensitive_notice?, false)}
 
+  # a pick in the address dropdown (the `Copy` hook copies it client-side): saved as the user's choice, which the address then shows in from the next page load on. The context is not re-assigned here, since the re-render would reset the row's check icon. A guest has nothing to save it to.
+  def handle_event("set_address_form", %{"form" => form}, socket)
+      when form in ["plain", "bang", "at"] do
+    if user = current_user(socket) do
+      Bonfire.Common.Settings.put([:ui, :group_address_form], form, current_user: user)
+    end
+
+    {:noreply, socket}
+  end
+
   def handle_event("load_settings_people", _, socket),
     do: {:noreply, Bonfire.UI.Groups.Settings.PeopleLive.load_more(socket)}
 
@@ -176,6 +186,16 @@ defmodule Bonfire.UI.Groups.LiveHandler do
         # joining a group also creates a follow, so flip the sibling Follow button live
         my_follow: if(e(result, :requested, false), do: :requested, else: true)
       )
+
+      # joining also followed the group, so its topics are offered as after a Follow (not while the join is only requested)
+      if !e(result, :requested, false),
+        do:
+          Bonfire.Classify.Web.GroupTopicsPickerLive.open(
+            current_user,
+            object,
+            :follow,
+            modal_id(socket)
+          )
 
       {:noreply, socket}
     else
@@ -375,6 +395,26 @@ defmodule Bonfire.UI.Groups.LiveHandler do
       _ ->
         {:noreply, socket}
     end
+  end
+
+  @doc """
+  A post was published in a group or topic the sidebar listens to (`Bonfire.Social.LivePush`'s `:new_activity`, broadcast on the outbox the group or topic boosts the post into, so its subject is that group or topic and its object the post). Only passes it on to the sidebar component, which holds the order and what it has already seen.
+  """
+  def handle_info({:new_activity, data}, socket) do
+    activity = e(data, :activity, nil)
+
+    post_id = e(activity, :object, :id, nil) || e(activity, :object_id, nil)
+    subject_id = e(activity, :subject, :id, nil) || e(activity, :subject_id, nil)
+
+    if (user_id = current_user_id(socket)) && post_id && subject_id do
+      Bonfire.UI.Common.ComponentID.send_updates(
+        Bonfire.UI.Groups.SidebarGroupsLive,
+        user_id,
+        %{new_activity: %{post_id: post_id, subject_id: subject_id}}
+      )
+    end
+
+    {:noreply, socket}
   end
 
   # joining or leaving swaps the hero, so the page header follows

@@ -1,5 +1,28 @@
-<li id={@row_id} data-role="sidebar-group" class="!block w-full min-w-0">
+<li
+  id={@row_id}
+  data-role="sidebar-group"
+  data-unpinned={if @unpinned, do: "true"}
+  class={"!block w-full min-w-0", "opacity-70": @unpinned}
+>
   <div class="group/row relative !block !p-0 !rounded-none hover:!bg-transparent">
+    {!-- shown for this session only (the user follows the group, hasn't pinned it): one click keeps it --}
+    <button
+      :if={@unpinned}
+      type="button"
+      data-role="sidebar_group_pin"
+      phx-click="Bonfire.Social.Pins:pin"
+      phx-value-direction="up"
+      phx-value-id={@category.id}
+      phx-value-scope="sidebar"
+      title={l("Keep in sidebar")}
+      aria-label={l("Keep %{group} in the sidebar", group: @group_name)}
+      class={[
+        "absolute top-0 z-10 flex size-9 [@media(pointer:coarse)]:size-10 items-center justify-center rounded-selector cursor-pointer hover:bg-fill-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary right-9 [@media(pointer:coarse)]:right-10",
+        "[@media(hover:none)]:right-[4.5rem]": @topics != []
+      ]}
+    >
+      <#Icon iconify="ph:push-pin" class="size-4 text-muted" />
+    </button>
     {!-- a patch link with the plain path, on every page: the client sends it to the main view, which patches when it serves the route (inside `GroupLive`, keeping the entry page in its state) and otherwise answers with a live navigate, whose `_live_referer` is the page left. Replaced: <LinkLive to={Bonfire.Classify.Web.GroupNavigation.link(@group_path, @group_return_to)} ...> --}
     <LinkPatchLive
       to={@group_path}
@@ -8,6 +31,7 @@
         "nav-row h-9 [@media(pointer:coarse)]:h-10 !pr-10 hover:bg-fill focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary",
         "[@media(pointer:coarse)]:!pr-12": @topics == [],
         "[@media(hover:none)]:!pr-20": @topics != [],
+        "!pr-[4.5rem]": @unpinned,
         "bg-fill-strong": @active?
       ]}
     >
@@ -46,6 +70,14 @@
       >
         <#Icon iconify="ph:lock-simple-fill" class="size-3 text-subtle" />
         <span class="sr-only">{l("Private group")}</span>
+      </span>
+      <span
+        :if={@new_activity?}
+        data-role="group-new-activity"
+        class="ml-auto size-2 shrink-0 rounded-full bg-primary"
+        title={l("New activity")}
+      >
+        <span class="sr-only">{l("New activity")}</span>
       </span>
     </LinkPatchLive>
     <details
@@ -86,6 +118,20 @@
             ]}
           >
             <span class="min-w-0 truncate">{topic.name}</span>
+            {!-- the dot lines up with the group's, which sits left of the space the group row keeps for its ⋯ menu (the group link's right padding, less this link's own `px-3`). Was `class="ml-auto size-2 shrink-0 rounded-full bg-primary"`, at this row's edge --}
+            <span
+              :if={topic.new_activity?}
+              data-role="topic-new-activity"
+              class={[
+                "ml-auto size-2 shrink-0 rounded-full bg-primary",
+                "mr-7",
+                "[@media(hover:none)]:mr-[4.25rem]": not @unpinned,
+                "!mr-[3.75rem]": @unpinned
+              ]}
+              title={l("New activity")}
+            >
+              <span class="sr-only">{l("New activity")}</span>
+            </span>
           </LinkPatchLive>
         </li>
       </ul>
@@ -187,8 +233,9 @@
             </button>
           </li>
       {/case}
-      <li role="separator" class="-mx-2 my-1 border-t border-divider" />
-      <li>
+      {!-- an unpinned row has nothing to remove: it goes on its own at the next load --}
+      <li :if={!@unpinned} role="separator" class="-mx-2 my-1 border-t border-divider" />
+      <li :if={!@unpinned}>
         {#if @instance_pinned}
           {!-- instance-pinned groups stay in everyone's sidebar; a personal unpin can't remove them --}
           <div
