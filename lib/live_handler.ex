@@ -405,12 +405,14 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
     post_id = e(activity, :object, :id, nil) || e(activity, :object_id, nil)
     subject_id = e(activity, :subject, :id, nil) || e(activity, :subject_id, nil)
+    # the post's author, as the payload already holds it
+    creator_id = e(activity, :object, :created, :creator_id, nil)
 
     if (user_id = current_user_id(socket)) && post_id && subject_id do
       Bonfire.UI.Common.ComponentID.send_updates(
         Bonfire.UI.Groups.SidebarGroupsLive,
         user_id,
-        %{new_activity: %{post_id: post_id, subject_id: subject_id}}
+        %{new_activity: %{post_id: post_id, subject_id: subject_id, creator_id: creator_id}}
       )
     end
 

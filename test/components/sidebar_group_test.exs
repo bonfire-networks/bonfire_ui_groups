@@ -293,7 +293,7 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
       {:ok, _} = Bonfire.Social.Pins.pin(me, a, nil, to_feeds: [])
       {:ok, _} = Bonfire.Social.Graph.Follows.follow(me, c)
 
-      %{conn: conn(user: me, account: account), a: a, b: b, c: c, t: t, other: other}
+      %{conn: conn(user: me, account: account), a: a, b: b, c: c, t: t, other: other, me: me}
     end
 
     defp group_rows(view),
@@ -410,6 +410,43 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
         _ = render(sidebar)
         Process.sleep(200)
         assert row_order(sidebar, all) == [a.id, c.id, b.id]
+
+        render(view)
+      end)
+    end
+
+    test "the user's own posts neither dot nor move their groups and topics", %{
+      conn: conn,
+      a: a,
+      b: b,
+      c: c,
+      t: t,
+      other: other,
+      me: me
+    } do
+      all = [a, b, c]
+
+      conn
+      |> visit("/dashboard")
+      |> wait_async()
+      |> PhoenixTest.unwrap(fn view ->
+        sidebar = composer_view(view)
+        assert row_order(sidebar, all) == [a.id, b.id]
+
+        # my posts in the lower group, and in the topic of a followed group
+        Bonfire.Classify.Simulate.fake_post_in_group!(me, b, "<p>My post in Beta</p>")
+        Bonfire.Classify.Simulate.fake_post_in_group!(me, t, "<p>My post in the topic</p>")
+        Process.sleep(500)
+        _ = render(sidebar)
+
+        assert row_order(sidebar, all) == [a.id, b.id]
+        assert [] == Floki.find(render(sidebar) |> Floki.parse_document!(), "[data-role=group-new-activity]")
+        assert [] == Floki.find(render(sidebar) |> Floki.parse_document!(), "[data-role=topic-new-activity]")
+
+        # positive: someone else's post in the same group does move it
+        Bonfire.Classify.Simulate.fake_post_in_group!(other, b, "<p>In Beta</p>")
+        assert order_is?(sidebar, all, [b.id, a.id]) == [b.id, a.id]
+        assert [_] = Floki.find(row_for(sidebar, b), "[data-role=group-new-activity]")
 
         render(view)
       end)

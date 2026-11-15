@@ -78,8 +78,11 @@ defmodule Bonfire.UI.Groups.SidebarGroupsLive do
   end
 
   # a post in a group or topic we listen to (`Bonfire.UI.Groups.LiveHandler.handle_info/2`)
-  def update(%{new_activity: %{post_id: post_id, subject_id: subject_id}}, socket) do
-    {:ok, bump(socket, post_id, subject_id)}
+  def update(%{new_activity: %{post_id: post_id, subject_id: subject_id} = activity}, socket) do
+    # the user's own posts don't dot or move their groups
+    if activity[:creator_id] && activity[:creator_id] == current_user_id(socket),
+      do: {:ok, socket},
+      else: {:ok, bump(socket, post_id, subject_id)}
   end
 
   def update(assigns, %{assigns: %{categories: _}} = socket) do
