@@ -153,7 +153,7 @@ defmodule Bonfire.UI.Groups.GroupPostRemovalTest do
       group: group,
       post: post
     } do
-      {:ok, admin} = Bonfire.Me.Users.make_admin(moderator)
+      {:ok, admin} = Bonfire.Me.Users.make_admin(moderator, skip_boundary_check: true)
 
       open_post_menu(admin, account, post)
       |> assert_has("[data-role=remove_from_group]")

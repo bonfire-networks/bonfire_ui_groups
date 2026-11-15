@@ -38,13 +38,15 @@ defmodule Bonfire.UI.Groups.Settings.PeopleLive do
     socket =
       cond do
         socket.assigns.loaded_group_id != id(socket.assigns.category) ->
+          current_user = current_user(socket)
+
           socket
           |> assign(
             people: [],
             loaded_group_id: id(socket.assigns.category),
-            can_add?: Categories.can_add_members?(current_user(socket), socket.assigns.category),
+            can_add?: Categories.can_add_members?(current_user, socket.assigns.category),
             may_moderate?:
-              Bonfire.Boundaries.can?(current_user(socket), :mediate, socket.assigns.category),
+              Bonfire.Boundaries.can?(current_user, :mediate, socket.assigns.category),
             roster_visibility_slug: Categories.roster_visibility_slug(socket.assigns.category),
             hosted_here?: Categories.hosted_here?(socket.assigns.category),
             custodian_id:
@@ -146,10 +148,12 @@ defmodule Bonfire.UI.Groups.Settings.PeopleLive do
   end
 
   defp load_page(socket, cursor) do
-    if Bonfire.Classify.ensure_update_allowed(current_user(socket), socket.assigns.category) do
+    current_user = current_user(socket)
+
+    if Bonfire.Classify.ensure_update_allowed(current_user, socket.assigns.category) do
       page =
         Categories.list_members(socket.assigns.category,
-          current_user: current_user(socket),
+          current_user: current_user,
           search: socket.assigns.search,
           pagination: [limit: 5, after: cursor]
         )

@@ -355,7 +355,7 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
 
     test "an admin pinning to everyone's sidebar from ⋯ flips the menu's label", %{group: group} do
       account = fake_account!()
-      {:ok, admin} = Bonfire.Me.Users.make_admin(fake_user!(account))
+      {:ok, admin} = Bonfire.Me.Users.make_admin(fake_user!(account), skip_boundary_check: true)
 
       conn(user: admin, account: account)
       |> visit(group_path(group))

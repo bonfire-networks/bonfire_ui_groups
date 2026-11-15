@@ -58,7 +58,10 @@
         <div id="new_group_sensitive_row" phx-update="ignore" class="flex items-start gap-3 px-3.5 py-3">
           <input type="hidden" name="category[sensitive]" value="false">
           <div class="flex-1 min-w-0">
-            <label for="new_group_sensitive" class="block text-sm font-medium text-base-content cursor-pointer">{l("Mark this group as sensitive")}</label>
+            <label
+              for="new_group_sensitive"
+              class="block text-sm font-medium text-base-content cursor-pointer"
+            >{l("Mark this group as sensitive")}</label>
             <p id="new_group_sensitive_help" class="mt-0.5 text-xs text-muted leading-snug">
               {l(
                 "People see a content warning before its posts, and its banner and icon are blurred. Lemmy, PieFed and Mbin treat it as NSFW: some of their instances hide or refuse it, so fewer people there will find it."

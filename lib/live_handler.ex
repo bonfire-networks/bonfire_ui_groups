@@ -1,6 +1,9 @@
 defmodule Bonfire.UI.Groups.LiveHandler do
   use Bonfire.UI.Common.Web, :live_handler
 
+  # a guest is sent to the remote interaction flow by the handler itself
+  @guest_allowed_events ~w(join_group)
+
   alias Bonfire.Classify.Categories
 
   def handle_event("save_group_identity", %{"profile" => profile} = params, socket) do

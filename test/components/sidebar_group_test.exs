@@ -440,8 +440,18 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
         _ = render(sidebar)
 
         assert row_order(sidebar, all) == [a.id, b.id]
-        assert [] == Floki.find(render(sidebar) |> Floki.parse_document!(), "[data-role=group-new-activity]")
-        assert [] == Floki.find(render(sidebar) |> Floki.parse_document!(), "[data-role=topic-new-activity]")
+
+        assert [] ==
+                 Floki.find(
+                   render(sidebar) |> Floki.parse_document!(),
+                   "[data-role=group-new-activity]"
+                 )
+
+        assert [] ==
+                 Floki.find(
+                   render(sidebar) |> Floki.parse_document!(),
+                   "[data-role=topic-new-activity]"
+                 )
 
         # positive: someone else's post in the same group does move it
         Bonfire.Classify.Simulate.fake_post_in_group!(other, b, "<p>In Beta</p>")

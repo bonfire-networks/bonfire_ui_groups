@@ -100,7 +100,10 @@
 
   {!-- Override-swap banner --}
   {#if @pending_preset}
-    <div role="alert" class="flex flex-wrap items-center gap-3 px-3.5 py-2.5 rounded-box bg-warning/10 border border-warning/25">
+    <div
+      role="alert"
+      class="flex flex-wrap items-center gap-3 px-3.5 py-2.5 rounded-box bg-warning/10 border border-warning/25"
+    >
       <div class="flex-1 min-w-[12rem] text-sm text-base-content">
         {l("Apply %{preset}? This will replace your fine-tuning.",
           preset: e(@preset_metas, @pending_preset, :label, @pending_preset)
@@ -133,7 +136,8 @@
       <h3 :if={@preset && @preset != "custom"} class="text-xs font-medium text-muted">{l("Fine-tune")}</h3>
 
       <div class="flex flex-col divide-hair divide-divider rounded-box border border-divider overflow-hidden">
-        {#for %{key: key, label: label, help: help, locked: locked} <- if(@preset && @preset != "custom", do: @layer2_rows, else: [])}
+        {#for %{key: key, label: label, help: help, locked: locked} <-
+            if(@preset && @preset != "custom", do: @layer2_rows, else: [])}
           {#if @show_unavailable_toggles || !locked}
             <div class={"flex items-start gap-3 px-3.5 py-3", "opacity-60": locked}>
               <div class="flex-1 min-w-0">

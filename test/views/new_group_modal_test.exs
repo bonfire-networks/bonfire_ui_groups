@@ -800,7 +800,7 @@ defmodule Bonfire.UI.Groups.NewGroupModalTest do
     test "admin user sees instance circles listed in the Advanced dimensions picker" do
       account = fake_account!()
       admin = fake_user!(account)
-      {:ok, _} = Bonfire.Me.Users.make_admin(admin)
+      {:ok, _} = Bonfire.Me.Users.make_admin(admin, skip_boundary_check: true)
 
       name = "AdminInstCircle #{System.unique_integer([:positive])}"
       {:ok, _} = Bonfire.Boundaries.Circles.create(:instance, %{named: %{name: name}})
