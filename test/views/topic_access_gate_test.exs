@@ -39,7 +39,9 @@ defmodule Bonfire.UI.Groups.TopicAccessGateTest do
     |> visit("/+#{topic.character.username}")
     |> wait_async()
     |> assert_has("#topic_access_gate a", text: "View group")
-    |> refute_has("#topic_access_gate button")
+    # no follow or join action; the parent's folded header still has its address's copy menu, which is buttons
+    # |> refute_has("#topic_access_gate button")
+    |> refute_has("#topic_access_gate button:not([data-id=group_hero] button)")
     |> refute_has("[data-id=feed]")
   end
 
@@ -53,7 +55,9 @@ defmodule Bonfire.UI.Groups.TopicAccessGateTest do
       "#topic_access_gate a[href='/login?go=%2F%2B#{topic.character.username}']",
       text: "Sign in"
     )
-    |> refute_has("#topic_access_gate button")
+    # no follow or join action; the parent's folded header still has its address's copy menu, which is buttons
+    # |> refute_has("#topic_access_gate button")
+    |> refute_has("#topic_access_gate button:not([data-id=group_hero] button)")
     |> refute_has("[data-id=feed]")
   end
 

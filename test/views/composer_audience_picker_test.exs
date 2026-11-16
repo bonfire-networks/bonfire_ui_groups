@@ -214,7 +214,9 @@ defmodule Bonfire.UI.Groups.ComposerAudiencePickerTest do
     member = fake_user!()
     outsider = fake_user!()
     {:ok, circle} = Bonfire.Boundaries.Circles.create(user, "Reviewers")
-    {:ok, _} = Bonfire.Boundaries.Circles.add_to_circles(member.id, circle)
+
+    {:ok, _} =
+      Bonfire.Boundaries.Circles.add_to_circles(member.id, circle, skip_boundary_check: true)
 
     conn(user: user, account: account)
     |> visit("/feed/local")

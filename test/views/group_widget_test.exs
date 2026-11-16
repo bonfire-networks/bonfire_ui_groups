@@ -19,7 +19,14 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
     behavior: [
       name: "Behavior",
       sections: [
-        civility: [name: "Civility", rules: [be_respectful: %{name: "Be respectful"}]]
+        civility: [
+          name: "Civility",
+          rules: [
+            be_respectful: %{name: "Be respectful"},
+            no_spam: %{name: "No spam"},
+            no_attacks: %{name: "No attacks"}
+          ]
+        ]
       ]
     ]
   ]
@@ -198,7 +205,14 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
   end
 
   describe "Rules" do
-    test "are left out when the group has none", ctx do
+    setup do
+      # the instance's rules are cached, and the cache isn't rolled back with the DB sandbox
+      Bonfire.Common.Cache.reset({Bonfire.CommunityRules, :load_instance_rules_sections}, [])
+      Bonfire.Common.Cache.reset({Bonfire.CommunityRules, :get_extra_info_for_instance}, [])
+      :ok
+    end
+
+    test "are left out when neither the group nor the instance has any", ctx do
       as_creator(ctx)
       |> visit(group_path(ctx.group))
       |> assert_has(@widget)
@@ -219,6 +233,54 @@ defmodule Bonfire.UI.Groups.GroupWidgetTest do
       as_creator(ctx)
       |> visit(group_path(ctx.group))
       |> assert_has("#{@widget} [data-role=group-widget-rules]", text: "Be respectful")
+    end
+
+    test "put all the instance's rules in a closed fold, under the group's own, in the order each one set",
+         ctx do
+      own = "#{@widget} [data-role=group-widget-own-rules]"
+      fold = "#{@widget} details[data-role=group-widget-instance-rules]:not([open])"
+
+      Settings.put([:bonfire_community_rules, :template_rules], @rules_template,
+        scope: :instance,
+        skip_boundary_check: true
+      )
+
+      {:ok, _} =
+        Bonfire.CommunityRules.save_rules(
+          Bonfire.Common.Settings.instance_scope(),
+          %{"civility" => %{"be_respectful" => %{}}},
+          %{"rules" => %{"civility" => ["no_attacks", "no_spam", "be_respectful"]}}
+        )
+
+      # the group has none of its own yet: the Rules heading and the fold only
+      as_creator(ctx)
+      |> visit(group_path(ctx.group))
+      |> assert_has("#{@widget} [data-role=group-widget-rules] h3", text: "Rules")
+      |> assert_has(fold, text: "Be respectful")
+      |> refute_has(own)
+
+      {:ok, _} =
+        Bonfire.CommunityRules.save_rules(id(ctx.group), %{
+          "civility" => %{"be_respectful" => %{}, "no_spam" => %{}, "no_attacks" => %{}}
+        })
+
+      # a rule the instance also has shows in the fold only, and the group follows the instance's order
+      as_creator(ctx)
+      |> visit(group_path(ctx.group))
+      |> assert_has(fold, text: "Be respectful")
+      |> refute_has(own, text: "Be respectful")
+      |> assert_has("#{own} li:first-child", text: "No attacks")
+      |> assert_has("#{own} li:last-child", text: "No spam")
+
+      {:ok, _} =
+        Bonfire.CommunityRules.save_rules(id(ctx.group), %{}, %{
+          "rules" => %{"civility" => ["no_spam", "no_attacks"]}
+        })
+
+      # once the group sets an order of its own, it uses that one
+      as_creator(ctx)
+      |> visit(group_path(ctx.group))
+      |> assert_has("#{own} li:first-child", text: "No spam")
     end
   end
 

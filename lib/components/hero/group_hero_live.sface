@@ -26,7 +26,8 @@
           src={@banner_url}
           alt={l("Group banner")}
           class="h-full w-full object-cover"
-          refetch_key={"Bonfire.Federate.ActivityPub:refetch_profile:#{id(@group)}"}
+          refetch_key={if current_user_id(@__context__),
+            do: "Bonfire.Federate.ActivityPub:refetch_profile:#{id(@group)}"}
           disable_lazy
         />
         {!-- blurred as a sensitive post's media is, until the notice's "Continue" --}

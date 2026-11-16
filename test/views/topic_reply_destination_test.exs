@@ -179,6 +179,76 @@ defmodule Bonfire.UI.Groups.TopicReplyDestinationTest do
     end
   end
 
+  # Mayel, 15 November: the reply button stayed disabled when replying in a group or topic. The button is enabled only once the composer's `SmartInput:validate` has set `input_status: :draft` (`input_controls_live.sface`), so typing is what's checked, and then the reply goes through the same form
+  describe "replying in a group or topic with the reply button" do
+    for {preset, attrs} <- [
+          local_community: [
+            visibility: "nonfederated",
+            default_content_visibility: "nonfederated",
+            membership: "open",
+            participation: "anyone"
+          ],
+          open_federated: [
+            visibility: "global",
+            membership: "open",
+            participation: "anyone"
+          ]
+        ],
+        surface <- [:group, :topic] do
+      test "a #{preset} #{surface} reply is enabled by typing, and publishes" do
+        account = fake_account!()
+        user = fake_user!(account)
+
+        group =
+          Bonfire.Classify.Simulate.fake_group!(
+            user,
+            Map.new([name: "Reply button #{unquote(preset)}"] ++ unquote(attrs))
+          )
+
+        topic =
+          Bonfire.Classify.Simulate.fake_category!(user, group, %{
+            type: :topic,
+            name: "Reply button topic"
+          })
+
+        post =
+          if unquote(surface) == :topic,
+            do: Bonfire.Classify.Simulate.fake_post_in_topic!(user, topic, "<p>Reply button</p>"),
+            else:
+              Bonfire.Classify.Simulate.fake_post_in_group!(user, group, "<p>Reply button</p>")
+
+        content = "reply typed in #{unquote(preset)} #{unquote(surface)}"
+
+        conn(user: user, account: account)
+        |> open_reply(post, :feed)
+        |> PhoenixTest.unwrap(fn view ->
+          composer = composer_view(view)
+
+          # positive first: the replies' own composer is there, and starts disabled with nothing typed
+          assert has_element?(composer, "input[name=context_id][value='#{post.id}']")
+          assert has_element?(composer, "#submit_btn[disabled]")
+          # replies need no title, so none is asked for
+          refute has_element?(composer, "#smart_input_post_title")
+
+          type_draft(composer)
+          refute has_element?(composer, "#submit_btn[disabled]")
+
+          composer
+          |> element("#smart_input_form")
+          |> render_submit(%{"post" => %{"post_content" => %{"html_body" => content}}})
+
+          render(view)
+        end)
+
+        assert Bonfire.Common.Repo.exists?(
+                 Ecto.Query.from(pc in Bonfire.Data.Social.PostContent,
+                   where: ilike(pc.html_body, ^"%#{content}%")
+                 )
+               )
+      end
+    end
+  end
+
   test "personal replies start inherited and can select the original author" do
     account = fake_account!()
     user = fake_user!(account)

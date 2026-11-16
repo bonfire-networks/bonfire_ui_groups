@@ -10,6 +10,12 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
   # resolved by `SidebarGroupsLive` for the whole list at once, since deriving it here would be one query per row
   prop preset_icon, :string, default: nil
   prop instance_pinned, :boolean, default: false
+
+  # shown only because of a post while the sidebar was open (the user follows it but hasn't pinned it), so muted, with a button to keep it
+  prop unpinned, :boolean, default: false
+
+  # the group and topic ids with a post since the page opened (`SidebarGroupsLive`), shown with a dot
+  prop new_activity_ids, :any, default: nil
   # false, :requested or true
   prop my_membership, :any, default: false
   # see `Bonfire.Classify.Categories.join_mode/1`
@@ -17,6 +23,9 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
   prop current_path, :string, default: ""
   # the rows are patch links with the plain path, so they need no entry page
   # prop group_return_to, :string, default: "/groups"
+
+  defp new_activity?(%MapSet{} = ids, id), do: MapSet.member?(ids, id)
+  defp new_activity?(_, _), do: false
 
   @doc "Renders one pinned group and its visible topics, opening the current group automatically."
   def render(assigns) do
@@ -30,6 +39,7 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
           id: topic.id,
           name: Bonfire.Classify.Web.Preview.CategoryLive.name(topic, l("Topic")),
           path: topic_path,
+          new_activity?: new_activity?(assigns.new_activity_ids, topic.id),
           active?:
             SidebarGroupsLive.active_link?(assigns.current_path, topic_path) or
               SidebarGroupsLive.active_link?(assigns.current_path, path(topic))
@@ -54,7 +64,9 @@ defmodule Bonfire.UI.Groups.SidebarGroupLive do
     |> assign(:group_name, group_name)
     |> assign(:topics, topics)
     |> assign(:active?, active?)
-    |> assign(:expanded?, active? or active_topic?)
+    # open when it is the current page, or when a topic has a dot (the group row itself has none then)
+    |> assign(:expanded?, active? or active_topic? or Enum.any?(topics, & &1.new_activity?))
+    |> assign(:new_activity?, new_activity?(assigns.new_activity_ids, assigns.category.id))
     |> assign(:row_id, row_id)
     |> assign(:show_bell?, show_bell?)
     |> assign(

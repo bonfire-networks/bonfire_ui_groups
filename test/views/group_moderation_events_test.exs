@@ -31,6 +31,7 @@ defmodule Bonfire.UI.Groups.GroupModerationEventsTest do
     assert Bonfire.Boundaries.can?(moderator, :mediate, group), "control: the moderator is one"
 
     {:ok,
+     creator: creator,
      moderator: moderator,
      moderator_account: moderator_account,
      member: member,
@@ -107,6 +108,97 @@ defmodule Bonfire.UI.Groups.GroupModerationEventsTest do
 
       assert Bonfire.Boundaries.can?(member, :reply, post),
              "control: the moderator's unlock applies"
+    end
+  end
+
+  describe "the author and a lock" do
+    test "the author can't reopen a thread a group moderator locked, and a moderator can", %{
+      moderator: moderator,
+      member: member,
+      author: author,
+      post: post
+    } do
+      assert {:ok, _} = Blocks.lock(post, current_user: moderator)
+      refute Bonfire.Boundaries.can?(member, :reply, post), "control: the thread is locked"
+
+      assert {:error, _} = Blocks.unlock(post, current_user: author)
+
+      refute Bonfire.Boundaries.can?(member, :reply, post),
+             "the author reopened a thread a moderator closed"
+
+      assert {:ok, _} = Blocks.unlock(post, current_user: moderator)
+
+      assert Bonfire.Boundaries.can?(member, :reply, post),
+             "control: the moderator's unlock applies"
+    end
+
+    test "another moderator of the group can reopen a thread a moderator locked", %{
+      creator: creator,
+      moderator: moderator,
+      member: member,
+      author: author,
+      group: group,
+      post: post
+    } do
+      other_moderator = fake_user!(fake_account!())
+      {:ok, _} = Categories.add_moderator(creator, group, id(other_moderator))
+      assert Bonfire.Boundaries.can?(other_moderator, :mediate, group), "control: B moderates"
+
+      assert {:ok, _} = Blocks.lock(post, current_user: moderator)
+      refute Bonfire.Boundaries.can?(member, :reply, post), "control: the thread is locked"
+
+      assert {:error, _} = Blocks.unlock(post, current_user: author)
+      refute Bonfire.Boundaries.can?(member, :reply, post)
+
+      assert {:ok, _} = Blocks.unlock(post, current_user: other_moderator)
+      assert Bonfire.Boundaries.can?(member, :reply, post), "the other moderator reopened it"
+    end
+
+    # outside any group: an instance moderator (not an admin) may lock and reopen a post they didn't write, like an admin
+    test "an instance moderator who is not an admin can lock and reopen a post outside any group" do
+      author = fake_user!(fake_account!())
+      commenter = fake_user!(fake_account!())
+
+      {:ok, instance_mod} =
+        Bonfire.Me.Users.make_moderator(fake_user!(fake_account!()), skip_boundary_check: true)
+
+      {:ok, post} =
+        Bonfire.Posts.publish(
+          current_user: author,
+          post_attrs: %{post_content: %{html_body: "<p>not in a group</p>"}},
+          boundary: "public"
+        )
+
+      assert Bonfire.Boundaries.can?(commenter, :reply, post), "control: open to begin with"
+
+      assert {:ok, _} = Blocks.lock(post, current_user: instance_mod)
+      refute Bonfire.Boundaries.can?(commenter, :reply, post), "the instance moderator locked it"
+
+      assert {:error, _} = Blocks.unlock(post, current_user: author)
+
+      refute Bonfire.Boundaries.can?(commenter, :reply, post),
+             "the author reopened a moderator's lock"
+
+      assert {:ok, _} = Blocks.unlock(post, current_user: instance_mod)
+
+      assert Bonfire.Boundaries.can?(commenter, :reply, post),
+             "the instance moderator reopened it"
+    end
+
+    test "a plain user can't lock someone else's post outside any group" do
+      author = fake_user!(fake_account!())
+      commenter = fake_user!(fake_account!())
+      plain = fake_user!(fake_account!())
+
+      {:ok, post} =
+        Bonfire.Posts.publish(
+          current_user: author,
+          post_attrs: %{post_content: %{html_body: "<p>not in a group</p>"}},
+          boundary: "public"
+        )
+
+      assert {:error, _} = Blocks.lock(post, current_user: plain)
+      assert Bonfire.Boundaries.can?(commenter, :reply, post)
     end
   end
 

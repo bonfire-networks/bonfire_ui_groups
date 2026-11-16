@@ -180,7 +180,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
       # admins render the group hero with extra menu entries — guard against the pin-action DOM-id
       # collision that previously crashed connected mount ("found duplicate ID ... OpenModalLive")
-      {:ok, me} = Bonfire.Me.Users.make_admin(me)
+      {:ok, me} = Bonfire.Me.Users.make_admin(me, skip_boundary_check: true)
       group = create_group(me, name: "Admin Cozy Club")
 
       conn = conn(user: me, account: account)
@@ -247,7 +247,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     test "an instance admin can pin a group to everyone's sidebar from its hero ⋯ menu" do
       account = fake_account!()
       me = fake_user!(account)
-      {:ok, me} = Bonfire.Me.Users.make_admin(me)
+      {:ok, me} = Bonfire.Me.Users.make_admin(me, skip_boundary_check: true)
       group = create_group(me, name: "Featured Group")
 
       conn = conn(user: me, account: account)
@@ -273,7 +273,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     test "an instance admin can reorder + unpin instance-pinned groups from instance settings" do
       account = fake_account!()
       me = fake_user!(account)
-      {:ok, me} = Bonfire.Me.Users.make_admin(me)
+      {:ok, me} = Bonfire.Me.Users.make_admin(me, skip_boundary_check: true)
       group_a = create_group(me, name: "Order Group A")
       group_b = create_group(me, name: "Order Group B")
 
@@ -328,7 +328,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
     test "an instance admin can pin a group from its hero ⋯ menu, but not from the discover list" do
       account = fake_account!()
       me = fake_user!(account)
-      {:ok, me} = Bonfire.Me.Users.make_admin(me)
+      {:ok, me} = Bonfire.Me.Users.make_admin(me, skip_boundary_check: true)
       group = create_group(me, name: "Discover Group")
 
       conn = conn(user: me, account: account)
@@ -615,6 +615,107 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
       assert Bonfire.Boundaries.Presets.group_dimension_slugs(%{id: group.id}) == before,
              "a stranger changed someone else's group's boundaries"
+    end
+
+    # a moderator holds `:mediate`, not `:configure`: the settings event is checked once, as may they edit the group's settings, and its writes follow from that
+    test "a moderator of the group can change its boundaries through the settings event" do
+      owner = fake_user!()
+      group = create_group_with_preset(owner, "public_local_community", "Moderated Group")
+      account = fake_account!()
+      mod = fake_user!(account)
+      {:ok, _} = Categories.add_moderator(owner, group, id(mod))
+
+      assert Bonfire.Boundaries.can?(mod, :mediate, group), "control: they moderate it"
+      refute Bonfire.Boundaries.can?(mod, :configure, group), "control: but may not configure it"
+
+      before = Bonfire.Boundaries.Presets.group_dimension_slugs(%{id: group.id})
+      {:ok, view, _html} = live(conn(user: mod, account: account), "/groups")
+
+      render_hook(view, "Bonfire.Classify:set_group_boundaries", %{
+        "id" => group.id,
+        "membership" => "invite_only",
+        "visibility" => "members:private",
+        "participation" => "moderators",
+        "default_content_visibility" => "members:private"
+      })
+
+      after_dims = Bonfire.Boundaries.Presets.group_dimension_slugs(%{id: group.id})
+      refute after_dims == before, "the moderator's change was not applied"
+      assert after_dims[:membership] == "invite_only"
+      assert after_dims[:visibility] in ["members:private", nil]
+    end
+
+    test "someone who doesn't manage a group can't reset its boundary preset" do
+      owner = fake_user!()
+      group = create_group_with_preset(owner, "public_local_community", "Not Yours Either")
+      require Ecto.Query
+
+      group_acls = fn ->
+        Bonfire.Common.Repo.all(
+          Ecto.Query.from(c in Bonfire.Data.AccessControl.Controlled,
+            where: c.id == ^group.id,
+            select: c.acl_id
+          )
+        )
+        |> Enum.sort()
+      end
+
+      before = group_acls.()
+      assert before != [], "control: the group has ACLs to begin with"
+
+      account = fake_account!()
+      stranger = fake_user!(account)
+      # the handler resets the group the page holds, so it is sent from the group's own page
+      {:ok, view, _html} =
+        live(conn(user: stranger, account: account), "/&#{group.character.username}")
+
+      # the handler reads the group off the page, so the refusal below is the permission check and not a missing group
+      assigns = live_assigns(view)
+
+      assert (assigns[:object] || assigns[:category]) |> id() == group.id,
+             "control: the page holds the group the handler resets"
+
+      render_hook(view, "Bonfire.Classify:reset_preset_boundary", %{
+        "boundary_preset" => "local"
+      })
+
+      assert group_acls.() == before,
+             "a stranger changed the ACLs of someone else's group by resetting its boundary preset"
+    end
+
+    test "the group's owner can reset its boundary preset" do
+      account = fake_account!()
+      owner = fake_user!(account)
+      group = create_group_with_preset(owner, "public_local_community", "Mine To Reset")
+      require Ecto.Query
+
+      group_acls = fn ->
+        Bonfire.Common.Repo.all(
+          Ecto.Query.from(c in Bonfire.Data.AccessControl.Controlled,
+            where: c.id == ^group.id,
+            select: c.acl_id
+          )
+        )
+        |> Enum.sort()
+      end
+
+      before = group_acls.()
+      assert before != [], "control: the group has ACLs to begin with"
+
+      {:ok, view, _html} =
+        live(conn(user: owner, account: account), "/&#{group.character.username}")
+
+      assigns = live_assigns(view)
+
+      assert (assigns[:object] || assigns[:category]) |> id() == group.id,
+             "control: the page holds the group the handler resets"
+
+      render_hook(view, "Bonfire.Classify:reset_preset_boundary", %{
+        "boundary_preset" => "local"
+      })
+
+      assert group_acls.() != before,
+             "the owner's reset of the group's boundary preset changed nothing"
     end
   end
 

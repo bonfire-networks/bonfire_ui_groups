@@ -259,6 +259,292 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
     assert [_] = Floki.find(document, "[data-role=sidebar_group_admin_pinned]")
   end
 
+  # The sidebar sits in `PersistentLive`, a sticky child of the page. Posts are published for real (the group's auto-boost broadcasts on its outbox), and the broadcast reaches that process, so the sidebar is read from the child view as it renders.
+  describe "live reorder by activity" do
+    setup do
+      Process.put(:federating, false)
+      account = fake_account!()
+      me = fake_user!(account)
+      other = fake_user!()
+
+      new_group = fn name ->
+        Bonfire.Classify.Simulate.fake_group!(other, %{
+          name: name,
+          membership: "open",
+          visibility: "global",
+          participation: "anyone",
+          default_content_visibility: "public"
+        })
+      end
+
+      a = new_group.("Alpha club")
+      b = new_group.("Beta club")
+      c = new_group.("Gamma club")
+
+      t =
+        Bonfire.Classify.Simulate.fake_category!(other, c, %{
+          name: "Gamma topic",
+          username: "gamma#{System.unique_integer([:positive])}",
+          type: :topic
+        })
+
+      # A above B (newest pin first), and C followed but not pinned (joining would pin it)
+      {:ok, _} = Bonfire.Social.Pins.pin(me, b, nil, to_feeds: [])
+      {:ok, _} = Bonfire.Social.Pins.pin(me, a, nil, to_feeds: [])
+      {:ok, _} = Bonfire.Social.Graph.Follows.follow(me, c)
+
+      %{conn: conn(user: me, account: account), a: a, b: b, c: c, t: t, other: other, me: me}
+    end
+
+    defp group_rows(view),
+      do: render(view) |> Floki.parse_document!() |> Floki.find("[data-role=sidebar-group]")
+
+    defp row_order(view, groups) do
+      ids = Enum.map(groups, & &1.id)
+
+      for row <- group_rows(view),
+          [row_id] = Floki.attribute(row, "id"),
+          id <- ids,
+          String.ends_with?(row_id, "-group-" <> id),
+          do: id
+    end
+
+    defp row_for(view, group),
+      do:
+        Enum.find(group_rows(view), fn row ->
+          Floki.attribute(row, "id") |> List.first() |> String.ends_with?("-group-" <> group.id)
+        end)
+
+    # a broadcast is handled in the child process, and its update to the sidebar component comes after a render asked for in between, so look again for a moment
+    defp eventually(fun, tries \\ 40) do
+      case fun.() do
+        result when result in [nil, false, []] and tries > 0 ->
+          Process.sleep(50)
+          eventually(fun, tries - 1)
+
+        result ->
+          result
+      end
+    end
+
+    defp order_is?(view, groups, expected) do
+      eventually(fn -> row_order(view, groups) == expected end)
+      row_order(view, groups)
+    end
+
+    test "a post moves its group up with a dot, adds a followed group, and dots a topic", %{
+      conn: conn,
+      a: a,
+      b: b,
+      c: c,
+      t: t,
+      other: other
+    } do
+      all = [a, b, c]
+
+      conn
+      |> visit("/dashboard")
+      |> wait_async()
+      |> PhoenixTest.unwrap(fn view ->
+        sidebar = composer_view(view)
+
+        # positive first: pin order, the followed unpinned group isn't there, nothing has a dot
+        assert row_order(sidebar, all) == [a.id, b.id]
+
+        assert [] ==
+                 Floki.find(
+                   render(sidebar) |> Floki.parse_document!(),
+                   "[data-role=group-new-activity]"
+                 )
+
+        # the real path: the group's auto-boost broadcasts on its outbox, and the same message comes again below
+        Phoenix.PubSub.subscribe(Bonfire.Common.PubSub, Bonfire.Social.Feeds.feed_id(:outbox, b))
+        Bonfire.Classify.Simulate.fake_post_in_group!(other, b, "<p>In Beta</p>")
+        assert_receive {{Bonfire.Social.Feeds, :new_activity}, _} = beta_message
+
+        assert order_is?(sidebar, all, [b.id, a.id]) == [b.id, a.id]
+        assert [_] = Floki.find(row_for(sidebar, b), "[data-role=group-new-activity]")
+        assert [] == Floki.find(row_for(sidebar, a), "[data-role=group-new-activity]")
+
+        # a post only in a topic of a followed group that isn't pinned: the group is added at the top and expanded, the topic has the dot, and the group row has none
+        Bonfire.Classify.Simulate.fake_post_in_group!(other, t, "<p>In the topic</p>")
+        assert order_is?(sidebar, all, [c.id, b.id, a.id]) == [c.id, b.id, a.id]
+
+        assert eventually(fn ->
+                 Floki.find(row_for(sidebar, c), "[data-role=topic-new-activity]") != []
+               end)
+
+        # let any message from the group's own outbox for the same post arrive
+        Process.sleep(300)
+        _ = render(sidebar)
+        topics_details = Floki.find(row_for(sidebar, c), "details[id$=-topics]")
+        assert [details] = topics_details
+        assert Floki.attribute(details, "open") != []
+        assert [] == Floki.find(row_for(sidebar, c), "[data-role=group-new-activity]")
+
+        # a post directly in the group dots the group row as well; the group is added at the top, muted, with a button to keep it
+        Bonfire.Classify.Simulate.fake_post_in_group!(other, c, "<p>In Gamma</p>")
+
+        assert eventually(fn ->
+                 Floki.find(row_for(sidebar, c), "[data-role=group-new-activity]") != []
+               end)
+
+        c_row = row_for(sidebar, c)
+        assert [_] = Floki.find(c_row, "[data-role=group-new-activity]")
+        assert [_] = Floki.find(c_row, "[data-unpinned]")
+        assert [] == Floki.find(row_for(sidebar, b), "[data-unpinned]")
+        assert [pin] = Floki.find(c_row, "[data-role=sidebar_group_pin]")
+        assert Floki.attribute(pin, "phx-click") == ["Bonfire.Social.Pins:pin"]
+        assert Floki.attribute(pin, "phx-value-direction") == ["up"]
+        assert Floki.attribute(pin, "phx-value-id") == [c.id]
+        assert Floki.attribute(pin, "phx-value-scope") == ["sidebar"]
+
+        # (the topic row's dot is covered above)
+
+        # one event, one effect: A moves up, and the same message about B's post again changes nothing
+        Bonfire.Classify.Simulate.fake_post_in_group!(other, a, "<p>In Alpha</p>")
+        assert order_is?(sidebar, all, [a.id, c.id, b.id]) == [a.id, c.id, b.id]
+
+        send(sidebar.pid, beta_message)
+        # the view handles it before this render is answered
+        _ = render(sidebar)
+        Process.sleep(200)
+        assert row_order(sidebar, all) == [a.id, c.id, b.id]
+
+        render(view)
+      end)
+    end
+
+    test "the user's own posts neither dot nor move their groups and topics", %{
+      conn: conn,
+      a: a,
+      b: b,
+      c: c,
+      t: t,
+      other: other,
+      me: me
+    } do
+      all = [a, b, c]
+
+      conn
+      |> visit("/dashboard")
+      |> wait_async()
+      |> PhoenixTest.unwrap(fn view ->
+        sidebar = composer_view(view)
+        assert row_order(sidebar, all) == [a.id, b.id]
+
+        # my posts in the lower group, and in the topic of a followed group
+        Bonfire.Classify.Simulate.fake_post_in_group!(me, b, "<p>My post in Beta</p>")
+        Bonfire.Classify.Simulate.fake_post_in_group!(me, t, "<p>My post in the topic</p>")
+        Process.sleep(500)
+        _ = render(sidebar)
+
+        assert row_order(sidebar, all) == [a.id, b.id]
+
+        assert [] ==
+                 Floki.find(
+                   render(sidebar) |> Floki.parse_document!(),
+                   "[data-role=group-new-activity]"
+                 )
+
+        assert [] ==
+                 Floki.find(
+                   render(sidebar) |> Floki.parse_document!(),
+                   "[data-role=topic-new-activity]"
+                 )
+
+        # positive: someone else's post in the same group does move it
+        Bonfire.Classify.Simulate.fake_post_in_group!(other, b, "<p>In Beta</p>")
+        assert order_is?(sidebar, all, [b.id, a.id]) == [b.id, a.id]
+        assert [_] = Floki.find(row_for(sidebar, b), "[data-role=group-new-activity]")
+
+        render(view)
+      end)
+    end
+  end
+
+  describe "one post, announced by its group and by its topic" do
+    setup do
+      Process.put(:federating, false)
+      account = fake_account!()
+      me = fake_user!(account)
+      other = fake_user!()
+
+      new_group = fn name ->
+        Bonfire.Classify.Simulate.fake_group!(other, %{
+          name: name,
+          membership: "open",
+          visibility: "global",
+          participation: "anyone",
+          default_content_visibility: "public"
+        })
+      end
+
+      a = new_group.("Alpha club")
+      b = new_group.("Beta club")
+      c = new_group.("Gamma club")
+
+      t =
+        Bonfire.Classify.Simulate.fake_category!(other, c, %{
+          name: "Gamma topic",
+          username: "gamma#{System.unique_integer([:positive])}",
+          type: :topic
+        })
+
+      {:ok, _} = Bonfire.Social.Pins.pin(me, b, nil, to_feeds: [])
+      {:ok, _} = Bonfire.Social.Pins.pin(me, a, nil, to_feeds: [])
+      {:ok, _} = Bonfire.Social.Graph.Follows.follow(me, c)
+
+      %{conn: conn(user: me, account: account), a: a, b: b, c: c, t: t, other: other}
+    end
+
+    # the sidebar is opened after the post, so both messages reach it as new, in the order the test sends them: the group's first, then the topic's
+    test "the group's message first still dots the topic, and moves the group once", %{
+      conn: conn,
+      a: a,
+      b: b,
+      c: c,
+      t: t,
+      other: other
+    } do
+      all = [a, b, c]
+
+      Phoenix.PubSub.subscribe(Bonfire.Common.PubSub, Bonfire.Social.Feeds.feed_id(:outbox, t))
+      Bonfire.Classify.Simulate.fake_post_in_group!(other, t, "<p>In the topic</p>")
+      assert_receive {{Bonfire.Social.Feeds, :new_activity}, data} = topic_message
+
+      group_message =
+        {{Bonfire.Social.Feeds, :new_activity},
+         Keyword.update!(data, :activity, &%{&1 | subject: nil, subject_id: c.id})}
+
+      conn
+      |> visit("/dashboard")
+      |> wait_async()
+      |> PhoenixTest.unwrap(fn view ->
+        sidebar = composer_view(view)
+        assert row_order(sidebar, all) == [a.id, b.id]
+
+        send(sidebar.pid, group_message)
+        assert order_is?(sidebar, all, [c.id, a.id, b.id]) == [c.id, a.id, b.id]
+        assert [] == Floki.find(row_for(sidebar, c), "[data-role=topic-new-activity]")
+
+        # another group moves above C
+        Bonfire.Classify.Simulate.fake_post_in_group!(other, a, "<p>In Alpha</p>")
+        assert order_is?(sidebar, all, [a.id, c.id, b.id]) == [a.id, c.id, b.id]
+
+        # the topic's message for the same post dots the topic, but the group isn't moved up again
+        send(sidebar.pid, topic_message)
+
+        assert eventually(fn ->
+                 Floki.find(row_for(sidebar, c), "[data-role=topic-new-activity]") != []
+               end)
+
+        assert row_order(sidebar, all) == [a.id, c.id, b.id]
+        render(view)
+      end)
+    end
+  end
+
   test "pinned groups include only visible direct topics", %{
     user: user,
     group: group,

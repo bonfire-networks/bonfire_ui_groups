@@ -17,7 +17,11 @@
             title={e(scope_meta, :disabled, nil) || l("Coming soon")}
             class="flex-1 min-w-fit inline-flex items-center justify-center gap-1.5 h-8 px-3 whitespace-nowrap text-[13px] text-muted opacity-40 cursor-not-allowed"
           >
-            <Iconify.iconify :if={e(scope_meta, :icon, nil)} icon={scope_meta[:icon]} class="size-3.5 shrink-0" />
+            <Iconify.iconify
+              :if={e(scope_meta, :icon, nil)}
+              icon={scope_meta[:icon]}
+              class="size-3.5 shrink-0"
+            />
             {e(scope_meta, :label, scope)}
           </span>
         {/if}
@@ -36,7 +40,11 @@
             "text-muted hover:text-base-content": !is_selected
           }
         >
-          <Iconify.iconify :if={e(scope_meta, :icon, nil)} icon={scope_meta[:icon]} class="size-3.5 shrink-0" />
+          <Iconify.iconify
+            :if={e(scope_meta, :icon, nil)}
+            icon={scope_meta[:icon]}
+            class="size-3.5 shrink-0"
+          />
           {e(scope_meta, :label, scope)}
         </button>
       {/if}
@@ -65,7 +73,11 @@
                 title={e(opt, :disabled, nil) || l("Coming soon")}
                 class="flex-1 min-w-fit inline-flex items-center justify-center gap-1.5 h-8 px-3 whitespace-nowrap text-[13px] text-muted opacity-40 cursor-not-allowed"
               >
-                <Iconify.iconify :if={e(role_meta, :icon, nil)} icon={role_meta[:icon]} class="size-3.5 shrink-0" />
+                <Iconify.iconify
+                  :if={e(role_meta, :icon, nil)}
+                  icon={role_meta[:icon]}
+                  class="size-3.5 shrink-0"
+                />
                 {e(role_meta, :label, nil) || e(opt, :label, slug)}
               </span>
             {/if}
@@ -84,7 +96,11 @@
                 "text-muted hover:text-base-content": !is_selected_access
               }
             >
-              <Iconify.iconify :if={e(role_meta, :icon, nil)} icon={role_meta[:icon]} class="size-3.5 shrink-0" />
+              <Iconify.iconify
+                :if={e(role_meta, :icon, nil)}
+                icon={role_meta[:icon]}
+                class="size-3.5 shrink-0"
+              />
               {e(role_meta, :label, nil) || e(opt, :label, slug)}
             </button>
           {/if}

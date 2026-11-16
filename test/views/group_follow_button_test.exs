@@ -227,4 +227,216 @@ defmodule Bonfire.UI.Groups.GroupFollowButtonTest do
     assert Bonfire.Social.Requests.requested?(joiner, Bonfire.Data.Social.Follow, mirrored),
            "control: the follow of a group hosted elsewhere waits for its answer"
   end
+
+  # Following a group does not follow its topics, so after the group's own Follow a modal offers them, none ticked. The group's Follow takes effect first: the modal is an optional extra.
+  describe "the topics modal after Follow" do
+    @picker "[data-role=group_topics_picker]"
+    @picker_submit "[data-role=group_topics_picker_submit]"
+
+    setup do
+      owner = fake_user!()
+      account = fake_account!()
+      visitor = fake_user!(account)
+
+      group =
+        Bonfire.Classify.Simulate.fake_group!(owner, %{
+          name: "Topical club",
+          membership: "open",
+          visibility: "global",
+          participation: "anyone",
+          default_content_visibility: "public"
+        })
+
+      %{owner: owner, visitor: visitor, account: account, group: group}
+    end
+
+    test "a group with no topics shows no modal, and Follow still follows it", ctx do
+      conn(user: ctx.visitor, account: ctx.account)
+      |> visit(Bonfire.Common.URIs.path(ctx.group))
+      |> wait_async()
+      |> click_button(@visitor_round_follow, "")
+      |> wait_async()
+      |> refute_has(@picker)
+
+      assert Follows.following?(ctx.visitor, ctx.group),
+             "control: the group's own Follow took effect"
+    end
+
+    test "ticking one topic follows only that topic", ctx do
+      t1 =
+        Bonfire.Classify.Simulate.fake_category!(ctx.owner, ctx.group, %{
+          name: "Seed swap",
+          type: :topic
+        })
+
+      t2 =
+        Bonfire.Classify.Simulate.fake_category!(ctx.owner, ctx.group, %{
+          name: "Tool library",
+          type: :topic
+        })
+
+      conn(user: ctx.visitor, account: ctx.account)
+      |> visit(Bonfire.Common.URIs.path(ctx.group))
+      |> wait_async()
+      |> click_button(@visitor_round_follow, "")
+      |> assert_has(@picker, text: "Seed swap")
+      |> assert_has(@picker, text: "Tool library")
+      # none ticked to start with
+      |> refute_has("#{@picker} input[type=checkbox][checked]")
+      |> check("Seed swap")
+      |> click_button(@picker_submit, "Follow")
+
+      assert Follows.following?(ctx.visitor, ctx.group), "the group's own Follow stands"
+      assert Follows.following?(ctx.visitor, t1)
+      refute Follows.following?(ctx.visitor, t2)
+    end
+
+    # a topic already followed is not a locked checkbox but the follow button in its following state, which unfollows it from the modal without opening another modal
+    test "an already followed topic shows the follow button, and unfollowing it opens nothing",
+         ctx do
+      t1 =
+        Bonfire.Classify.Simulate.fake_category!(ctx.owner, ctx.group, %{
+          name: "Seed swap",
+          type: :topic
+        })
+
+      t2 =
+        Bonfire.Classify.Simulate.fake_category!(ctx.owner, ctx.group, %{
+          name: "Tool library",
+          type: :topic
+        })
+
+      assert {:ok, _} = Follows.follow(ctx.visitor, t1)
+
+      session =
+        conn(user: ctx.visitor, account: ctx.account)
+        |> visit(Bonfire.Common.URIs.path(ctx.group))
+        |> wait_async()
+        |> click_button(@visitor_round_follow, "")
+        |> assert_has("#{@picker} [data-topic-id='#{id(t1)}'] [data-id=unfollow]")
+        |> refute_has("#{@picker} input[type=checkbox][disabled]")
+        |> assert_has("#{@picker} input[type=checkbox][value='#{id(t2)}']")
+        |> refute_has("#{@picker} input[type=checkbox][value='#{id(t1)}']")
+        |> click_button("#{@picker} [data-topic-id='#{id(t1)}'] [data-id=unfollow]", "")
+
+      refute Follows.following?(ctx.visitor, t1)
+
+      # still the one modal, not a second one for the topic
+      session |> assert_has(@picker)
+    end
+
+    # the same modal on Unfollow, listing the topics you follow so you can stop those too
+    test "unfollowing the group offers the topics you follow, to stop those too", ctx do
+      t1 =
+        Bonfire.Classify.Simulate.fake_category!(ctx.owner, ctx.group, %{
+          name: "Seed swap",
+          type: :topic
+        })
+
+      _t2 =
+        Bonfire.Classify.Simulate.fake_category!(ctx.owner, ctx.group, %{
+          name: "Tool library",
+          type: :topic
+        })
+
+      assert {:ok, _} = Follows.follow(ctx.visitor, ctx.group)
+      assert {:ok, _} = Follows.follow(ctx.visitor, t1)
+
+      conn(user: ctx.visitor, account: ctx.account)
+      |> visit(Bonfire.Common.URIs.path(ctx.group))
+      |> wait_async()
+      |> click_button(@round_following, "")
+      |> assert_has(@picker, text: "Seed swap")
+      |> refute_has(@picker, text: "Tool library")
+
+      refute Follows.following?(ctx.visitor, ctx.group),
+             "control: the group's own Unfollow took effect"
+    end
+
+    # a group hosted elsewhere: our Follow waits for its answer, and the button reads "Requested" (its click withdraws the request)
+    defp mirror!(object, uri) do
+      assert {:ok, _} = Bonfire.Federate.ActivityPub.Peered.save_canonical_uri(object, uri)
+      object
+    end
+
+    @pending_group_button "button[data-id=unfollow][aria-label='Cancel follow request']"
+
+    test "withdrawing a pending Follow of a group hosted elsewhere offers the topics you follow",
+         ctx do
+      group = mirror!(ctx.group, "https://elsewhere.local/m/topical")
+
+      t1 =
+        Bonfire.Classify.Simulate.fake_category!(ctx.owner, group, %{
+          name: "Seed swap",
+          type: :topic
+        })
+
+      assert {:ok, _} = Follows.follow(ctx.visitor, group)
+      assert {:ok, _} = Follows.follow(ctx.visitor, t1)
+
+      assert Bonfire.Social.Requests.requested?(ctx.visitor, :follow, group),
+             "control: the group's Follow is still a pending request"
+
+      conn(user: ctx.visitor, account: ctx.account)
+      |> visit(Bonfire.Common.URIs.path(group))
+      |> wait_async()
+      |> assert_has_or_open_browser(@pending_group_button)
+      |> click_button(@pending_group_button, "")
+      |> assert_has(@picker, text: "Seed swap")
+
+      refute Bonfire.Social.Requests.requested?(ctx.visitor, :follow, group),
+             "control: the click withdrew the request"
+    end
+
+    test "unfollowing a group offers the topics whose Follow is still a pending request", ctx do
+      group = ctx.group
+
+      t1 =
+        Bonfire.Classify.Simulate.fake_category!(ctx.owner, group, %{
+          name: "Seed swap",
+          type: :topic
+        })
+
+      mirror!(t1, "https://elsewhere.local/m/topical/seed-swap")
+
+      assert {:ok, _} = Follows.follow(ctx.visitor, group)
+      assert {:ok, _} = Follows.follow(ctx.visitor, t1)
+
+      assert Bonfire.Social.Requests.requested?(ctx.visitor, :follow, t1),
+             "control: the topic's Follow is a pending request"
+
+      conn(user: ctx.visitor, account: ctx.account)
+      |> visit(Bonfire.Common.URIs.path(group))
+      |> wait_async()
+      |> click_button(@round_following, "")
+      |> assert_has(@picker, text: "Seed swap")
+    end
+
+    test "ticking every topic follows them all", ctx do
+      t1 =
+        Bonfire.Classify.Simulate.fake_category!(ctx.owner, ctx.group, %{
+          name: "Seed swap",
+          type: :topic
+        })
+
+      t2 =
+        Bonfire.Classify.Simulate.fake_category!(ctx.owner, ctx.group, %{
+          name: "Tool library",
+          type: :topic
+        })
+
+      conn(user: ctx.visitor, account: ctx.account)
+      |> visit(Bonfire.Common.URIs.path(ctx.group))
+      |> wait_async()
+      |> click_button(@visitor_round_follow, "")
+      |> assert_has(@picker)
+      # the "all topics" toggle is Alpine, which this driver does not run: it ticks the same boxes
+      |> check("Seed swap")
+      |> check("Tool library")
+      |> click_button(@picker_submit, "Follow")
+
+      assert Follows.following?(ctx.visitor, t1)
+      assert Follows.following?(ctx.visitor, t2)
+    end
+  end
 end

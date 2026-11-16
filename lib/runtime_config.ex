@@ -25,6 +25,16 @@ defmodule Bonfire.UI.Groups.RuntimeConfig do
     # config :bonfire_ui_groups,
     #   modularity: :disabled
 
+    # The most feeds one open sidebar listens to, for groups and topics moving to the top when something is posted in them (one PubSub subscription each, in the one `PersistentLive` process; pinned ones first, then the ones the user follows). Set it with the SIDEBAR_GROUPS_MAX_SUBSCRIPTIONS env var (a whole number; anything else leaves the default of 500)
+    max_subscriptions =
+      case Integer.parse(System.get_env("SIDEBAR_GROUPS_MAX_SUBSCRIPTIONS", "")) do
+        {max, ""} when max >= 0 -> max
+        _ -> 500
+      end
+
+    config :bonfire_ui_groups, Bonfire.UI.Groups.SidebarGroupsLive,
+      max_subscriptions: max_subscriptions
+
     config :bonfire, :ui,
       activity_preview: [],
       object_preview: [

@@ -30,67 +30,37 @@
   <:trigger>
     <span data-role="group-address" class="[overflow-wrap:anywhere]">
       {!-- a line break, when one is needed, goes before the host rather than mid-word --}
-      {#case String.split(@address, "@", parts: 2)}
+      {#case String.split(@shown_address, "@", parts: 2)}
         {#match [handle, host]}
           {handle}<wbr>@{host}
         {#match _}
-          {@address}
+          {@shown_address}
       {/case}
     </span>
     <#Icon iconify="ph:copy-duotone" class="size-4 shrink-0 mt-0.5" />
   </:trigger>
-  <li>
+  <li class="menu-title" data-role="group-address-heading">{l("Copy address as")}</li>
+  {!-- one row per form, the saved one first; a signed-in user's pick is also saved (the click goes to the live handler as well as to the `Copy` hook, which copies client-side); a guest's pick is only copied. The link row only copies, and shows a label rather than the URL (it is in the `title`). Before this, the rows showed only a prefix and a label (`!…` "Lemmy, PieFed, Mbin…", `@…` "Mastodon and others", the link icon and "Link") --}
+  <li :for={row <- @rows}>
     <button
       type="button"
       phx-hook="Copy"
-      id={"#{@id_prefix}-#{id(@group)}-lemmy"}
+      phx-click={if @save? and row.form != "link", do: "Bonfire.UI.Groups:set_address_form"}
+      phx-value-form={row.form}
+      id={"#{@id_prefix}-#{id(@group)}-#{row.dom_suffix}"}
       data-role="group-address-copy"
-      data-clipboard-text={"!" <> @address}
-      title={"!" <> @address}
+      data-form={row.form}
+      data-clipboard-text={row.value}
+      title={row.value}
       class="flex items-center gap-2 w-full text-sm text-base-content whitespace-nowrap"
     >
-      {!-- each row shows the prefix it adds, not the whole value, which wrapped mid-word in a narrow panel
-      <span class="font-mono [overflow-wrap:anywhere]">!{@address}</span>
-      <span class="text-xs text-muted">{l("Lemmy, PieFed, Mbin…")}</span>
-      --}
-      <span class="w-6 text-center text-muted">!…</span>
-      <span>{l("Lemmy, PieFed, Mbin…")}</span>
-    </button>
-  </li>
-  <li>
-    <button
-      type="button"
-      phx-hook="Copy"
-      id={"#{@id_prefix}-#{id(@group)}-mastodon"}
-      data-role="group-address-copy"
-      data-clipboard-text={"@" <> @address}
-      title={"@" <> @address}
-      class="flex items-center gap-2 w-full text-sm text-base-content whitespace-nowrap"
-    >
-      {!--
-      <span class="font-mono [overflow-wrap:anywhere]">@{@address}</span>
-      <span class="text-xs text-muted">{l("Mastodon and others")}</span>
-      --}
-      <span class="w-6 text-center text-muted">@…</span>
-      <span>{l("Mastodon and others")}</span>
-    </button>
-  </li>
-  <li :if={@link}>
-    <button
-      type="button"
-      phx-hook="Copy"
-      id={"#{@id_prefix}-#{id(@group)}-link"}
-      data-role="group-address-copy"
-      data-clipboard-text={@link}
-      title={@link}
-      class="flex items-center gap-2 w-full text-sm text-base-content whitespace-nowrap"
-    >
-      {!--
-      <span class="font-mono [overflow-wrap:anywhere]">{@link}</span>
-      <span class="text-xs text-muted">{l("Link")}</span>
-      --}
-      <span class="w-6 flex justify-center text-muted"><#Icon iconify="ph:link-simple-duotone" class="size-4" /></span>
-      <span>{l("Link")}</span>
+      {#if row.form == "link"}
+        <span class="flex-1 text-left">{l("Link")}</span>
+      {#else}
+        <span class="flex-1 text-left [overflow-wrap:anywhere]">{row.value}</span>
+      {/if}
+      <span data-role="copy-icon" class="shrink-0 text-muted"><#Icon iconify="ph:copy-duotone" class="size-4" /></span>
+      <span data-role="copied-icon" class="hidden shrink-0 text-success"><#Icon iconify="ph:check-bold" class="size-4" /></span>
     </button>
   </li>
 </Dropdown>

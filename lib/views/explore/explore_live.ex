@@ -1,5 +1,7 @@
 defmodule Bonfire.UI.Groups.ExploreLive do
   use Bonfire.UI.Common.Web, :surface_live_view
+
+  @guest_allowed_events ~w(load_more filter_groups)
   alias Bonfire.Classify.Categories
   alias Bonfire.Classify
 
@@ -100,10 +102,11 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     params = Map.get(params, "group_filters", params)
     # origin = valid_origin(Map.get(params, "origin"))
     # replaced: with no origin in the URL, a guest reads this instance's groups, as they have no origin menu
-    origin = valid_origin(Map.get(params, "origin"), default_origin(current_user(socket)))
+    current_user = current_user(socket)
+    origin = valid_origin(Map.get(params, "origin"), default_origin(current_user))
     view = route_view(socket)
 
-    case guest_view(view, current_user(socket)) do
+    case guest_view(view, current_user) do
       ^view ->
         # socket = load_group_view(socket, view, origin)
         # replaced: a directory view loads the page the cursor names

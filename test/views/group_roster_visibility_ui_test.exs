@@ -164,7 +164,10 @@ defmodule Bonfire.UI.Groups.GroupRosterVisibilityUITest do
        %{moderator: moderator, member: member} do
     group = group_with(moderator, member, "on_request")
     instance_mod_account = fake_account!()
-    {:ok, instance_mod} = Bonfire.Me.Users.make_moderator(fake_user!(instance_mod_account))
+
+    {:ok, instance_mod} =
+      Bonfire.Me.Users.make_moderator(fake_user!(instance_mod_account), skip_boundary_check: true)
+
     refute Bonfire.Me.Accounts.is_admin?(instance_mod), "control: not an admin"
 
     conn(user: instance_mod, account: instance_mod_account)
