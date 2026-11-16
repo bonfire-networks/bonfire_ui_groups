@@ -172,6 +172,28 @@
       data-role="group-card-summary"
       class={["line-clamp-2 text-sm leading-5 text-muted", hidden: Categories.sensitive?(@object)]}
     >{Bonfire.Common.Text.markdown_to_text(e(@object, :profile, :summary, ""))}</p>
+    {!-- same join control as the /groups row; invite-only has none, the chip says so --}
+    <div
+      :if={e(@preview, :membership, nil) != "invite_only" or e(@preview, :joined?, false)}
+      class="mt-auto self-start pt-1"
+      data-role="group-card-action"
+    >
+      <StatefulComponent
+        id={"join_btn_#{id(@object)}"}
+        module={maybe_component(Bonfire.Classify.Web.JoinButtonLive, @__context__)}
+        object_id={id(@object)}
+        object={@object}
+        object_name={name(@object)}
+        membership={e(@preview, :membership, nil)}
+        my_membership={if e(@preview, :joined?, false), do: true}
+        path={@permalink}
+        showing_within={:list}
+        combined
+        hide_follow
+        class="btn btn-sm h-8 min-h-8 rounded-full border-0 bg-fill px-3.5 font-medium text-base-content shadow-none hover:bg-fill-strong"
+        class_joined="btn btn-sm btn-ghost h-8 min-h-8 rounded-full px-3 font-medium text-subtle shadow-none -ml-3"
+      />
+    </div>
   </article>
 {#elseif @showing_within == :feed}
   <div class="group block rounded-box overflow-hidden my-2 bg-base-200 hover:ring-2 hover:ring-primary/20 transition-all">

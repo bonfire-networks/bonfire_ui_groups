@@ -17,14 +17,14 @@
       visible_items={2}
       class={@carousel_class}
     >
-      {!-- the /groups directory card, so a group looks the same wherever a guest meets it --}
+      {!-- compact: the /groups row needs the full width --}
       <:card :let={item: {group, _topics}}>
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
           object={group}
           preview={Map.get(@previews, id(group), %{})}
           permalink={path(group)}
-          showing_within={:discovery}
+          showing_within={:compact}
         />
       </:card>
     </Bonfire.UI.Common.CarouselLive>
