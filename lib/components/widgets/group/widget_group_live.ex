@@ -11,8 +11,11 @@ defmodule Bonfire.UI.Groups.WidgetGroupLive do
 
   prop moderators, :list, default: []
 
-  @doc "Display-ready rules sections, see `Bonfire.CommunityRules.get_entity_rules_sections/1`. Never `nil`: `any_rules?(nil)` reads the instance's rules instead."
+  @doc "The group's own display-ready rules sections, without the instance rules it shares, see `Bonfire.CommunityRules.get_entity_rules_sections/2`. Never `nil`: `any_rules?(nil)` reads the instance's rules instead."
   prop rules_sections, :list, default: []
+
+  @doc "The instance's display-ready rules sections, shown in a closed fold under the group's own."
+  prop instance_rules_sections, :list, default: []
 
   prop membership_slug, :string, default: nil
   prop visibility_slug, :string, default: nil

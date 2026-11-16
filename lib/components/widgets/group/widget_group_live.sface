@@ -46,19 +46,49 @@
       </details>
     </section>
 
-    <section
-      :if={maybe_apply(Bonfire.CommunityRules, :any_rules?, [@rules_sections], fallback_return: false)}
-      data-role="group-widget-rules"
-      class="py-3"
-    >
-      <h3 class="mb-2 type-overline text-subtle">{l("Rules")}</h3>
-      <StatelessComponent
-        module={maybe_component(Bonfire.CommunityRules.Web.RulesDisplayBodyLive, @__context__)}
-        sections={@rules_sections}
-        classes={%{list: "list-none flex flex-col gap-2.5"}}
-        collapsible
-      />
-    </section>
+    {#case {
+        maybe_apply(Bonfire.CommunityRules, :any_rules?, [@rules_sections], fallback_return: false),
+        maybe_apply(Bonfire.CommunityRules, :any_rules?, [@instance_rules_sections],
+          fallback_return: false
+        )
+      }}
+      {#match {false, false}}
+      {#match {own?, instance?}}
+        <section data-role="group-widget-rules" class="py-3">
+          <h3 class="mb-2 type-overline text-subtle">{l("Rules")}</h3>
+          <div :if={own?} data-role="group-widget-own-rules">
+            <StatelessComponent
+              module={maybe_component(Bonfire.CommunityRules.Web.RulesDisplayBodyLive, @__context__)}
+              id={"group-rules-#{id(@group)}"}
+              sections={@rules_sections}
+              classes={%{list: "list-none flex flex-col gap-2.5"}}
+              collapsible
+            />
+          </div>
+          <details
+            :if={instance?}
+            data-role="group-widget-instance-rules"
+            class={"group/instance-rules", "mt-3": own?}
+          >
+            <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-sm font-medium text-muted hover:text-base-content [&::-webkit-details-marker]:hidden">
+              {l("Instance rules")}
+              <#Icon
+                iconify="carbon:chevron-down"
+                class="size-3.5 transition-transform group-open/instance-rules:rotate-180"
+                aria-hidden="true"
+              />
+            </summary>
+            <div class="pt-2">
+              <StatelessComponent
+                module={maybe_component(Bonfire.CommunityRules.Web.RulesDisplayBodyLive, @__context__)}
+                id={"group-instance-rules-#{id(@group)}"}
+                sections={@instance_rules_sections}
+                classes={%{list: "list-none flex flex-col gap-2.5"}}
+              />
+            </div>
+          </details>
+        </section>
+    {/case}
 
     <section
       :if={@selected_tab != "members" and @moderators != []}
