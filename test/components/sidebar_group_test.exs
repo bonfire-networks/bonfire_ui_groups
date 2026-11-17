@@ -316,17 +316,6 @@ defmodule Bonfire.UI.Groups.SidebarGroupTest do
         end)
 
     # a broadcast is handled in the child process, and its update to the sidebar component comes after a render asked for in between, so look again for a moment
-    defp eventually(fun, tries \\ 40) do
-      case fun.() do
-        result when result in [nil, false, []] and tries > 0 ->
-          Process.sleep(50)
-          eventually(fun, tries - 1)
-
-        result ->
-          result
-      end
-    end
-
     defp order_is?(view, groups, expected) do
       eventually(fn -> row_order(view, groups) == expected end)
       row_order(view, groups)
