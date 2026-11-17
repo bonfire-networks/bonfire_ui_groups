@@ -26,7 +26,11 @@ defmodule Bonfire.UI.Groups.QuietComposerTest do
       # a note is the base: the type menu shows the note, first and current, in the header and the phone bar
       assert has_element?(composer, "#composer_type_menu_trigger[aria-label='Post type: Post']")
       assert has_element?(composer, "#bar_composer_type_menu_trigger")
-      assert has_element?(composer, "#composer_type_menu_panel li:first-child button[aria-current=true]")
+
+      assert has_element?(
+               composer,
+               "#composer_type_menu_panel li:first-child button[aria-current=true]"
+             )
 
       # the optional title is only offered when posting in a group/topic
       refute has_element?(composer, "#smart_input_post_title")
