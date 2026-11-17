@@ -54,6 +54,8 @@ defmodule Bonfire.UI.Groups.GroupHeroActionsLive do
           container_class: "inline-flex",
           class: round_button_class(),
           class_already: round_button_class(true),
+          # the placeholder takes the round button's size, so the row doesn't jump when it loads
+          loading_class: "skeleton size-10 rounded-full",
           hide_text: true
         ],
         else: [
