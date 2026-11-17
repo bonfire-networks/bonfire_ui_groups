@@ -47,14 +47,17 @@ defmodule Bonfire.UI.Groups.LiveHandler do
   def handle_event("show_sensitive_group", _, socket),
     do: {:noreply, assign(socket, :sensitive_notice?, false)}
 
-  # a pick in the address dropdown (the `Copy` hook copies it client-side): saved as the user's choice, which the address then shows in from the next page load on. The context is not re-assigned here, since the re-render would reset the row's check icon. A guest has nothing to save it to.
+  # a pick in the address dropdown (the `Copy` hook copies it client-side): saved as the user's choice, and put in the socket's context at once, so the address shows in that form and the components re-render. A guest has nothing to save it to.
   def handle_event("set_address_form", %{"form" => form}, socket)
       when form in ["plain", "bang", "at"] do
     if user = current_user(socket) do
-      Bonfire.Common.Settings.put([:ui, :group_address_form], form, current_user: user)
+      case Bonfire.Common.Settings.put([:ui, :group_address_form], form, current_user: user) do
+        {:ok, settings} -> {:noreply, maybe_assign_context(socket, settings)}
+        _ -> {:noreply, socket}
+      end
+    else
+      {:noreply, socket}
     end
-
-    {:noreply, socket}
   end
 
   def handle_event("load_settings_people", _, socket),

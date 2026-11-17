@@ -114,15 +114,24 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       [other_handle, other_host] = String.split(other_address, "@", parts: 2)
       {user, conn} = signed_in()
       entry = "#{@hero} [data-role=group-address-copy]"
+      trigger = "#{@hero} button[phx-hook=Copy][data-role=group-address-trigger]"
 
       # the positive first: before any choice the plain form shows, with the plain row first
       conn
       |> visit(group_path(group))
+      |> wait_async()
+      |> assert_has("#{trigger}[data-clipboard-text='#{address}']")
       # the visible text breaks before the host (`<wbr>`), so the handle and the host are checked apart
       |> assert_has("#{@hero} [data-role=group-address]", text: handle)
       |> refute_has("#{@hero} [data-role=group-address]", text: "!#{handle}")
       |> assert_has("#{@hero} li:nth-child(2) [data-form=plain]")
       |> click_button("#{entry}[data-form=bang]", "!#{address}")
+      # without a new visit: the pick is at once the address shown, and what the trigger copies
+      |> assert_has("#{@hero} [data-role=group-address]", text: "!#{handle}")
+      |> assert_has("#{trigger}[data-clipboard-text='!#{address}']")
+      # the trigger swaps its icon after a copy (client-side), as the rows do
+      |> assert_has("#{trigger} [data-role=copy-icon]")
+      |> assert_has("#{trigger} [data-role=copied-icon].hidden")
 
       # the choice is stored on the user
       saved_user = Bonfire.Me.Users.get_current(user.id)

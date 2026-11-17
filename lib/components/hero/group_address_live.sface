@@ -15,7 +15,7 @@
   {/case}
 </span>
 --}
-{!-- `no_flip`: always below the address, since flipped up the panel went under the sticky page header. `strategy="fixed"`: placed against the viewport, so the hero's overflow clipping doesn't hide the panel below the address --}
+{!-- `no_flip`: always below the address, since flipped up the panel went under the sticky page header. `strategy="fixed"`: placed against the viewport, so the hero's overflow clipping doesn't hide the panel below the address. `!w-max` on the panel: `.dropdown-panel` is a fixed 16rem, narrower than a long address, which then overflowed the panel and pushed its copy icon outside; it is as wide as the longest address instead, never wider than the screen --}
 <Dropdown
   id={"#{@id_prefix}-#{id(@group)}"}
   position="bottom-start"
@@ -24,8 +24,13 @@
   close_on_select
   wrapper_class={@class}
   trigger_class="inline-flex items-start gap-1.5 text-left cursor-pointer"
-  panel_class="text-base-content"
+  panel_class="text-base-content !w-max max-w-[calc(100vw-2rem)]"
   label={l("Copy the address")}
+  trigger_opts={[
+    "phx-hook": "Copy",
+    "data-role": "group-address-trigger",
+    "data-clipboard-text": @shown_address
+  ]}
 >
   <:trigger>
     <span data-role="group-address" class="[overflow-wrap:anywhere]">
@@ -37,11 +42,13 @@
           {@shown_address}
       {/case}
     </span>
-    <#Icon iconify="ph:copy-duotone" class="size-4 shrink-0 mt-0.5" />
+    <span data-role="copy-icon" class="shrink-0 mt-0.5"><#Icon iconify="ph:copy-duotone" class="size-4" /></span>
+    <span data-role="copied-icon" class="hidden shrink-0 mt-0.5 text-success"><#Icon iconify="ph:check-bold" class="size-4" /></span>
   </:trigger>
   <li class="menu-title" data-role="group-address-heading">{l("Copy address as")}</li>
   {!-- one row per form, the saved one first; a signed-in user's pick is also saved (the click goes to the live handler as well as to the `Copy` hook, which copies client-side); a guest's pick is only copied. The link row only copies, and shows a label rather than the URL (it is in the `title`). Before this, the rows showed only a prefix and a label (`!…` "Lemmy, PieFed, Mbin…", `@…` "Mastodon and others", the link icon and "Link") --}
-  <li :for={row <- @rows}>
+  {!-- `w-full` on the row, `flex!` on its button and `ml-auto` on the icons: each row takes the panel's full width (the widest address sets it), so the copy icons line up at the right edge rather than right after each address. `flex!` because daisyUI's menu makes a row's child a grid whose columns fit their content, which put each icon right after its address --}
+  <li :for={row <- @rows} class="w-full">
     <button
       type="button"
       phx-hook="Copy"
@@ -52,15 +59,15 @@
       data-form={row.form}
       data-clipboard-text={row.value}
       title={row.value}
-      class="flex items-center gap-2 w-full text-sm text-base-content whitespace-nowrap"
+      class="flex! items-center gap-2 w-full text-sm text-base-content whitespace-nowrap"
     >
       {#if row.form == "link"}
         <span class="flex-1 text-left">{l("Link")}</span>
       {#else}
         <span class="flex-1 text-left [overflow-wrap:anywhere]">{row.value}</span>
       {/if}
-      <span data-role="copy-icon" class="shrink-0 text-muted"><#Icon iconify="ph:copy-duotone" class="size-4" /></span>
-      <span data-role="copied-icon" class="hidden shrink-0 text-success"><#Icon iconify="ph:check-bold" class="size-4" /></span>
+      <span data-role="copy-icon" class="ml-auto shrink-0 text-muted"><#Icon iconify="ph:copy-duotone" class="size-4" /></span>
+      <span data-role="copied-icon" class="hidden ml-auto shrink-0 text-success"><#Icon iconify="ph:check-bold" class="size-4" /></span>
     </button>
   </li>
 </Dropdown>
