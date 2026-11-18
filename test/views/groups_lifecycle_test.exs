@@ -797,7 +797,8 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> wait_async()
       |> assert_has("[data-id=group_hero] [data-role=group-hero-status]", text: "Joined")
       |> click_button("#group_hero_leave_#{group.id}", "Leave group")
-      |> click_button("#join_btn_#{group.id}-leave", "Leave group")
+      # the hero's Leave is not a Join button, so its dialog is named by the group
+      |> click_button("#group_#{group.id}-leave", "Leave group")
       |> wait_async()
       |> assert_has("[phx-value-id='#{group.id}']", text: "Join")
     end
@@ -854,8 +855,14 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       |> wait_async()
       |> refute_has("[phx-value-id='#{group.id}']", text: "Join")
       |> refute_has("[phx-value-id='#{group.id}']", text: "Request to join")
-      |> assert_has("button#follow_feed_#{group.id}.btn-primary", text: "Follow")
-      |> assert_has("#follow_feed_#{group.id} [iconify='ph:rss']")
+      # the Join button's own follow toggle
+      |> assert_has(
+        "button#{component_selector(Bonfire.UI.Social.Graph.FollowButtonLive, group.id, parent: "join_button_")}.btn-primary",
+        text: "Follow"
+      )
+      |> assert_has(
+        "#{component_selector(Bonfire.UI.Social.Graph.FollowButtonLive, group.id, parent: "join_button_")} [iconify='ph:rss']"
+      )
     end
 
     # Regression: cond fall-through in join_button_live.sface used to land non-member

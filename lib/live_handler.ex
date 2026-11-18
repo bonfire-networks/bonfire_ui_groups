@@ -185,7 +185,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
       after_membership_change(
         socket,
         id,
-        e(params, "component", "join_btn_#{id}"),
+        e(params, "component", nil),
         # the context functions report only what they changed, so a key being absent means that half did not move
         my_membership:
           if(e(result, :requested, false), do: :requested, else: e(result, :member, false)),
@@ -234,7 +234,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
          {:ok, _} <- Categories.leave_group(current_user, id) do
       following? = Bonfire.Social.Graph.Follows.following?(current_user, id)
 
-      after_membership_change(socket, id, e(params, "component", "join_btn_#{id}"),
+      after_membership_change(socket, id, e(params, "component", nil),
         my_membership: false,
         my_follow: following?
       )
@@ -268,7 +268,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
           modal_component: Bonfire.Classify.Web.LeaveGroupConfirmLive,
           modal_component_stateful?: true,
           object_id: id,
-          button_id: e(params, "component", "join_btn_#{id}"),
+          button_id: e(params, "component", nil),
           group_name: e(params, "group-name", l("this group")),
           join_mode: e(params, "join-mode", nil)
         ]
@@ -288,7 +288,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
         modal_component: Bonfire.Classify.Web.WithdrawJoinRequestLive,
         modal_component_stateful?: true,
         object_id: id,
-        button_id: e(params, "component", "join_btn_#{id}"),
+        button_id: e(params, "component", nil),
         group_name: e(params, "group-name", l("this group")),
         withdrawal_error: nil
       ]
@@ -308,10 +308,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
     set_button = fn my_membership ->
       Bonfire.UI.Common.OpenModalLive.close()
 
-      Phoenix.LiveView.send_update(Bonfire.Classify.Web.JoinButtonLive,
-        id: e(params, "component", "join_btn_#{id}"),
-        my_membership: my_membership
-      )
+      update_join_button(e(params, "component", nil), id, [my_membership: my_membership], nil)
 
       {:noreply, socket}
     end
@@ -365,12 +362,7 @@ defmodule Bonfire.UI.Groups.LiveHandler do
     context = e(assigns(socket), :__context__, %{})
     page_pid = if e(context, :sticky, nil), do: e(context, :parent_pid, nil)
 
-    Bonfire.UI.Common.maybe_send_update(
-      Bonfire.Classify.Web.JoinButtonLive,
-      button_id,
-      button_assigns,
-      pid: page_pid
-    )
+    update_join_button(button_id, group_id, button_assigns, page_pid)
 
     send(page_pid || self(), {{Bonfire.Classify.LiveHandler, :refresh_membership}, group_id})
 
@@ -383,6 +375,32 @@ defmodule Bonfire.UI.Groups.LiveHandler do
 
     reload_sidebar(socket)
   end
+
+  # the button that sent the event, by the id it sent; otherwise every Join button for the group on the page (`ComponentID`), looked up in the page's own process: from the sticky sidebar (`page_pid` set) the lookup is sent there, as the page's ids are only known in its process
+  defp update_join_button(button_id, _group_id, assigns, page_pid) when is_binary(button_id),
+    do:
+      Bonfire.UI.Common.maybe_send_update(
+        Bonfire.Classify.Web.JoinButtonLive,
+        button_id,
+        assigns,
+        pid: page_pid
+      )
+
+  defp update_join_button(_button_id, group_id, assigns, page_pid) when is_pid(page_pid),
+    do:
+      send(
+        page_pid,
+        {{Bonfire.UI.Common.ComponentID, :send_updates},
+         {Bonfire.Classify.Web.JoinButtonLive, group_id, assigns}}
+      )
+
+  defp update_join_button(_button_id, group_id, assigns, _page_pid),
+    do:
+      Bonfire.UI.Common.ComponentID.send_updates(
+        Bonfire.Classify.Web.JoinButtonLive,
+        group_id,
+        assigns
+      )
 
   @doc false
   def handle_info({:joined_groups_changed, {group_id, member?}}, socket) do

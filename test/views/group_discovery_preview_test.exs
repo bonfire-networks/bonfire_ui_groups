@@ -4,6 +4,8 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
 
   alias Bonfire.Classify.Simulate
 
+  defp join_btn(group), do: component_selector(Bonfire.Classify.Web.JoinButtonLive, id(group))
+
   test "discovery keeps joining policy while full visibility details remain on the group page",
        context do
     owner = fake_user!(fake_account!())
@@ -12,7 +14,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
 
     conn(user: context.me, account: context.account)
     |> visit("/groups")
-    |> assert_has("#join_btn_#{id(group)}", text: "Request to join")
+    |> assert_has(join_btn(group), text: "Request to join")
     |> click_link("#group-preview-link-#{id(group)}", "Preview readers")
     # a viewer who only previews the group gets the minimal header and no "Who can" widget
     # |> assert_has("[data-role=group-widget-visibility]",
@@ -52,7 +54,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_has(card, text: "Accessible systems guild")
     |> assert_has(card, text: "Accessibility")
     |> assert_has(card, text: "1 member")
-    |> assert_has("#{card} #join_btn_#{id(group)}", text: "Joined")
+    |> assert_has("#{card} #{join_btn(group)}", text: "Joined")
     |> refute_has(card, text: "What belongs in a shared design token?")
     |> refute_has(card, text: "Recent conversation")
     |> refute_has(card, text: "No topics yet")
@@ -133,7 +135,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> assert_has(card, text: "Joined makers")
     |> assert_has(card, text: "Craft")
     |> assert_has(card, text: "1 member")
-    |> assert_has("#{card} #join_btn_#{id(group)}", text: "Joined")
+    |> assert_has("#{card} #{join_btn(group)}", text: "Joined")
     |> click_link("#group-preview-link-#{id(group)}", "Joined makers")
     |> assert_path("/group/#{group.character.username}")
   end
@@ -152,7 +154,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
 
     conn(user: context.me, account: context.account)
     |> visit("/groups/joined")
-    |> assert_has("#join_btn_#{id(member_group)}", text: "Joined")
+    |> assert_has(join_btn(member_group), text: "Joined")
     |> refute_has("#group-preview-#{id(followed_group)}")
   end
 
@@ -177,7 +179,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> refute_has("#group-preview-#{id(followed_only)}")
     |> click_button("#load_more_joined", "Load more")
     |> assert_has("#group-joined-grid article", count: 3)
-    |> assert_has("#join_btn_#{id(oldest)}", text: "Joined")
+    |> assert_has(join_btn(oldest), text: "Joined")
     |> assert_has("#group-preview-#{id(oldest)}", text: "1 member")
   end
 
@@ -234,8 +236,8 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
 
     conn(user: me, account: account)
     |> visit("/groups")
-    |> assert_has("#{card} #join_btn_#{id(group)}", text: "Join")
-    |> refute_has("#{card} #join_btn_#{id(group)}", text: "Joined")
+    |> assert_has("#{card} #{join_btn(group)}", text: "Join")
+    |> refute_has("#{card} #{join_btn(group)}", text: "Joined")
     |> assert_has("#{invite_card} [data-role=group-card-action]", text: "Invite only")
     |> refute_has("#{invite_card} button")
   end

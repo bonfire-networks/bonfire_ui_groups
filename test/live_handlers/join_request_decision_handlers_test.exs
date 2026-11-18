@@ -72,10 +72,15 @@ defmodule Bonfire.UI.Groups.JoinRequestDecisionHandlersTest do
   defp withdraw(user, group) do
     Bonfire.UI.Groups.LiveHandler.handle_event(
       "cancel_join_request",
-      %{"id" => id(group), "component" => "join_btn_#{id(group)}"},
+      %{"id" => id(group), "component" => join_button_id(group)},
       socket_for(user)
     )
   end
+
+  # the id the group hero's Join button has, which it sends with its events
+  defp join_button_id(group),
+    do:
+      "#{Bonfire.UI.Common.ComponentID.deterministic_id(Bonfire.Classify.Web.JoinButtonLive, Bonfire.UI.Groups.GroupHeroActionsLive)}_for_#{id(group)}"
 
   describe "a moderator reviewing a pending request" do
     test "approving marks the row approved, so Approve is gone", %{
@@ -172,7 +177,7 @@ defmodule Bonfire.UI.Groups.JoinRequestDecisionHandlersTest do
 
         assert {:noreply, _socket} = withdraw(requester, group)
 
-        button_id = "join_btn_#{id(group)}"
+        button_id = join_button_id(group)
         member? = unquote(member?)
 
         assert_received {:phoenix, :send_update,

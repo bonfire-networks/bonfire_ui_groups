@@ -1,6 +1,6 @@
 defmodule Bonfire.UI.Groups.GroupJoinRejectedButtonsTest do
   @moduledoc """
-  The Join button on the page of a group hosted elsewhere, once its host rejects the join: it reads "Joining…" while the host has not answered, and Join again after a Reject, with no pending state left.
+  The Join button on the page of a group hosted elsewhere, once its host answers the join: it reads "Joining…" while the host has not answered, Join again after a Reject, with no pending state left, and Joined after an Accept, on the page already open.
   """
   use Bonfire.UI.Groups.ConnCase, async: false
   @moduletag :ui
@@ -76,5 +76,74 @@ defmodule Bonfire.UI.Groups.GroupJoinRejectedButtonsTest do
     |> assert_has("button", text: "Join", exact: true)
     |> refute_has("button", text: "Joining…")
     |> refute_has("button", text: "Pending")
+  end
+
+  test "the open page turns from Joining… to Joined when the host accepts, with no reload", %{
+    conn: conn,
+    group: group,
+    me: me
+  } do
+    assert {:ok, _} = Categories.join_and_follow_group(me, group)
+    follow = sent_follow(me)
+    assert follow, "control: the Follow went out"
+
+    # the page stays open from here on: no second visit
+    session =
+      conn
+      |> visit(Bonfire.Common.URIs.path(group))
+      |> wait_async()
+      |> assert_has("button", text: "Joining…")
+
+    assert {:ok, _} =
+             Transformer.handle_incoming(%{
+               "@context" => "https://www.w3.org/ns/activitystreams",
+               "type" => "Accept",
+               "id" => "#{@remote_group}/accept/#{System.unique_integer([:positive])}",
+               "actor" => @remote_group,
+               "object" => follow.data["id"],
+               "to" => [follow.data["actor"]]
+             })
+
+    assert Categories.member?(me, group), "control: the Accept made them a member"
+
+    # a member's hero shows its status rather than the Join button
+    session
+    |> wait_async()
+    |> assert_has("[data-id=group_hero] [data-role=group-hero-status]", text: "Joined")
+    |> refute_has("button", text: "Joining…")
+  end
+
+  test "the open page turns from Joining… back to Join when the host rejects, with no reload", %{
+    conn: conn,
+    group: group,
+    me: me
+  } do
+    assert {:ok, _} = Categories.join_and_follow_group(me, group)
+    follow = sent_follow(me)
+    assert follow, "control: the Follow went out"
+
+    # the page stays open from here on: no second visit
+    session =
+      conn
+      |> visit(Bonfire.Common.URIs.path(group))
+      |> wait_async()
+      |> assert_has("button", text: "Joining…")
+
+    assert {:ok, _} =
+             Transformer.handle_incoming(%{
+               "@context" => "https://www.w3.org/ns/activitystreams",
+               "type" => "Reject",
+               "id" => "#{@remote_group}/reject/#{System.unique_integer([:positive])}",
+               "actor" => @remote_group,
+               "object" => follow.data["id"],
+               "to" => [follow.data["actor"]]
+             })
+
+    refute Categories.member?(me, group)
+
+    session
+    |> wait_async()
+    |> assert_has("button", text: "Join", exact: true)
+    |> refute_has("button", text: "Joining…")
   end
 end

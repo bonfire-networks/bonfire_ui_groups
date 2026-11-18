@@ -70,9 +70,12 @@ defmodule Bonfire.UI.Groups.MembershipDialogHandlersTest do
 
     refute Map.get(Categories.member_of_groups?(user, [group_id]), group_id, false)
 
-    assert_received {:phoenix, :send_update,
-                     {{Bonfire.Classify.Web.JoinButtonLive, "join_btn_" <> ^group_id},
-                      %{my_membership: false}}}
+    # the sidebar's Leave names no Join button, so the page is asked to update every Join button for the group it rendered (`ComponentID`, looked up in the page's process)
+    # was: assert_received {:phoenix, :send_update, {{Bonfire.Classify.Web.JoinButtonLive, "join_btn_" <> ^group_id}, %{my_membership: false}}}
+    assert_received {{Bonfire.UI.Common.ComponentID, :send_updates},
+                     {Bonfire.Classify.Web.JoinButtonLive, ^group_id, button_assigns}}
+
+    assert button_assigns[:my_membership] == false
 
     assert_received {{Bonfire.Classify.LiveHandler, :refresh_membership}, ^group_id}
 

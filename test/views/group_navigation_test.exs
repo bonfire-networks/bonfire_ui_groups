@@ -487,7 +487,7 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
       assert has_element?(view, "[data-role=group-hero-members]", "1 member")
       assert has_element?(view, "a[aria-label='Manage'][href='#{ctx.alpha_path}/settings']")
       assert has_element?(view, "[data-id=feed]", "Alpha discussion")
-      refute has_element?(view, "#join_btn_#{id(ctx.alpha)}")
+      refute has_element?(view, component_selector(Bonfire.Classify.Web.JoinButtonLive, id(ctx.alpha)))
 
       sidebar_row(view, "[data-role=sidebar-groups]", ctx.beta_path)
 
@@ -499,7 +499,7 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
       assert has_element?(view, "[data-id=group_hero]", "Beta club")
       assert has_element?(view, "[data-id=group_topics]", "Beta topic")
       assert has_element?(view, "[data-role=group-hero-members]", "2 members")
-      assert has_element?(view, "#join_btn_#{id(ctx.beta)}")
+      assert has_element?(view, component_selector(Bonfire.Classify.Web.JoinButtonLive, id(ctx.beta)))
       assert has_element?(view, "[data-id=feed]", "Beta discussion")
 
       # and none of the first's
@@ -507,7 +507,7 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
       refute has_element?(view, @group_main, "Alpha topic")
       refute has_element?(view, "[data-role=group-hero-members]", "1 member")
       refute has_element?(view, "a[aria-label='Manage']")
-      refute has_element?(view, "#join_btn_#{id(ctx.alpha)}")
+      refute has_element?(view, component_selector(Bonfire.Classify.Web.JoinButtonLive, id(ctx.alpha)))
       refute has_element?(view, "[data-id=feed]", "Alpha discussion")
 
       # the entry page is still where back goes
@@ -523,7 +523,7 @@ defmodule Bonfire.UI.Groups.GroupNavigationTest do
       assert has_element?(view, "a[aria-label='Manage'][href='#{ctx.alpha_path}/settings']")
       assert has_element?(view, "[data-id=feed]", "Alpha discussion")
       refute has_element?(view, "[data-id=feed]", "Beta discussion")
-      refute has_element?(view, "#join_btn_#{id(ctx.beta)}")
+      refute has_element?(view, component_selector(Bonfire.Classify.Web.JoinButtonLive, id(ctx.beta)))
       assert has_element?(view, @back)
     end
 

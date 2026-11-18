@@ -37,7 +37,7 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
      moderator: moderator,
      group: group,
      group_path: "/&#{e(group, :character, :username, nil)}",
-     join_btn: "#join_btn_#{group.id}",
+     join_btn: component_selector(Bonfire.Classify.Web.JoinButtonLive, group.id),
      requester: requester,
      as_requester: fn -> conn(user: requester, account: requester_account) end,
      as_moderator: fn -> conn(user: moderator, account: moderator_account) end}
@@ -73,7 +73,12 @@ defmodule Bonfire.UI.Groups.JoinRequestLifecycleTest do
     |> assert_has(ctx.join_btn, text: "Pending")
     |> click_button(ctx.join_btn, "Pending")
     |> assert_has("[role=dialog]", text: "Withdraw join request?")
-    |> click_button("#join_btn_#{ctx.group.id}-withdraw-request", "Withdraw request")
+    |> click_button(
+      component_selector(Bonfire.Classify.Web.JoinButtonLive, ctx.group.id,
+        suffix: "-withdraw-request"
+      ),
+      "Withdraw request"
+    )
     |> refute_has("[data-id=flash_error]")
     |> assert_has(ctx.join_btn, text: "Request to join")
 

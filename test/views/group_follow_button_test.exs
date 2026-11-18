@@ -132,7 +132,10 @@ defmodule Bonfire.UI.Groups.GroupFollowButtonTest do
       |> visit(Bonfire.Common.URIs.path(context.group))
       |> wait_async()
       # by id: `:on-click` renders `phx-click` as a JS push command, not the event's name
-      |> click_button("button[id^=join_btn_]", "Join")
+      |> click_button(
+        "button#{component_selector(Bonfire.Classify.Web.JoinButtonLive, id(context.group))}",
+        "Join"
+      )
       |> refute_path("/login")
       |> assert_has("*", text: @remote_interaction)
     end
@@ -205,7 +208,7 @@ defmodule Bonfire.UI.Groups.GroupFollowButtonTest do
     conn
     |> visit(Bonfire.Common.URIs.path(mirrored))
     |> wait_async()
-    |> click_button("#join_btn_#{mirrored.id}", "Join")
+    |> click_button(component_selector(Bonfire.Classify.Web.JoinButtonLive, mirrored.id), "Join")
     # |> assert_has("[data-id=group_hero][data-variant=member]")
     |> assert_has("button", text: "Joining…")
     |> refute_has("[data-id=group_hero][data-variant=member]")

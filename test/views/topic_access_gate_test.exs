@@ -25,7 +25,10 @@ defmodule Bonfire.UI.Groups.TopicAccessGateTest do
       |> refute_has("#topic_access_gate button", text: "Follow")
       |> refute_has("[data-id=feed]")
       |> refute_has("#inline_composer_placeholder")
-      |> click_button("#join_btn_#{group.id}", "Request to join")
+      |> click_button(
+        component_selector(Bonfire.Classify.Web.JoinButtonLive, group.id),
+        "Request to join"
+      )
       |> wait_async()
       |> assert_has("#topic_access_gate button", text: "Pending")
     end

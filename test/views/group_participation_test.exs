@@ -6,6 +6,17 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
 
   @joined "[data-id=group_hero][data-variant=member] [data-role=group-hero-status]"
 
+  # the group's Join button (or an element of its dialogs, by `suffix`)
+  defp join_btn(group, suffix \\ nil),
+    do: component_selector(Bonfire.Classify.Web.JoinButtonLive, id(group), suffix: suffix)
+
+  # the hero's own Follow button, not the Join button's follow toggle for the same group
+  defp hero_follow(group),
+    do:
+      component_selector(Bonfire.UI.Social.Graph.FollowButtonLive, id(group),
+        parent: Bonfire.UI.Groups.GroupHeroActionsLive
+      )
+
   test "separate membership and feed controls preserve independent states" do
     Process.put(:federating, false)
     account = fake_account!()
@@ -33,13 +44,13 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
       |> visit(path)
       |> assert_has(@joined, text: "Joined")
       |> assert_has(
-        "button.tooltip[data-tip='Unfollow group']#group_hero_follow_#{group.id}.text-primary[aria-pressed='true']"
+        "button.tooltip[data-tip='Unfollow group']#{hero_follow(group)}.text-primary[aria-pressed='true']"
       )
-      |> assert_has("#group_hero_follow_#{group.id} [iconify='ph:rss']")
-      |> click_button("button#group_hero_follow_#{group.id}[data-id=unfollow]", "")
+      |> assert_has("#{hero_follow(group)} [iconify='ph:rss']")
+      |> click_button("button#{hero_follow(group)}[data-id=unfollow]", "")
       |> assert_has(@joined, text: "Joined")
       |> assert_has(
-        "button.tooltip[data-tip='Follow group']#group_hero_follow_#{group.id}.text-muted[aria-pressed='false']"
+        "button.tooltip[data-tip='Follow group']#{hero_follow(group)}.text-muted[aria-pressed='false']"
       )
 
     refute Follows.following?(user, group)
@@ -48,15 +59,15 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
       session
       |> assert_has(@joined, text: "Joined")
       |> click_button("#group_hero_leave_#{group.id}", "Leave group")
-      # leaving asks first, and staying changes nothing
-      |> click_button("#join_btn_#{group.id}-stay", "Stay")
+      # leaving asks first, and staying changes nothing; the hero's Leave is not a Join button, so its dialog is named by the group
+      |> click_button("#group_#{group.id}-stay", "Stay")
       |> assert_has(@joined, text: "Joined")
       |> click_button("#group_hero_leave_#{group.id}", "Leave group")
-      |> click_button("#join_btn_#{group.id}-leave", "Leave group")
-      |> assert_has("#join_btn_#{group.id}", text: "Join")
-      |> click_button("button#group_hero_follow_#{group.id}[data-id=follow]", "")
+      |> click_button("#group_#{group.id}-leave", "Leave group")
+      |> assert_has(join_btn(group), text: "Join")
+      |> click_button("button#{hero_follow(group)}[data-id=follow]", "")
       |> assert_has(
-        "button.tooltip[data-tip='Unfollow group']#group_hero_follow_#{group.id}.text-primary[aria-pressed='true']"
+        "button.tooltip[data-tip='Unfollow group']#{hero_follow(group)}.text-primary[aria-pressed='true']"
       )
 
     assert Follows.following?(user, group)
@@ -64,7 +75,7 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
 
     session =
       session
-      |> click_button("#join_btn_#{group.id}", "Join")
+      |> click_button(join_btn(group), "Join")
       |> assert_has(@joined, text: "Joined")
 
     assert Follows.following?(user, group)
@@ -72,9 +83,9 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
 
     session
     |> click_button("#group_hero_leave_#{group.id}", "Leave group")
-    |> click_button("#join_btn_#{group.id}-leave", "Leave group")
-    |> assert_has("#join_btn_#{group.id}", text: "Join")
-    |> assert_has("#group_hero_follow_#{group.id}[aria-pressed='true']")
+    |> click_button("#group_#{group.id}-leave", "Leave group")
+    |> assert_has(join_btn(group), text: "Join")
+    |> assert_has("#{hero_follow(group)}[aria-pressed='true']")
 
     assert Follows.following?(user, group)
     refute Map.get(Categories.member_of_groups?(user, [group.id]), group.id, false)
@@ -102,21 +113,21 @@ defmodule Bonfire.UI.Groups.GroupParticipationTest do
     session =
       conn(user: user, account: account)
       |> visit("/&#{group.character.username}")
-      |> click_button("#join_btn_#{group.id}", "Request to join")
-      |> assert_has("#join_btn_#{group.id}", text: "Pending")
+      |> click_button(join_btn(group), "Request to join")
+      |> assert_has(join_btn(group), text: "Pending")
 
     # a join request is typed by the `:join` verb rather than standing in as a pending Follow, which is what lets someone hold one while already subscribed to the same group
     assert requested_to_join?(user, group)
 
     session
-    |> click_button("#join_btn_#{group.id}", "Pending")
+    |> click_button(join_btn(group), "Pending")
     |> assert_has("[role=dialog]", text: "Withdraw join request?")
-    |> click_button("#join_btn_#{group.id}-keep-request", "Keep request")
-    |> refute_has("#join_btn_#{group.id}-withdrawal")
-    |> assert_has("#join_btn_#{group.id}", text: "Pending")
-    |> click_button("#join_btn_#{group.id}", "Pending")
-    |> click_button("#join_btn_#{group.id}-withdraw-request", "Withdraw request")
-    |> assert_has("#join_btn_#{group.id}", text: "Request to join")
+    |> click_button(join_btn(group, "-keep-request"), "Keep request")
+    |> refute_has(join_btn(group, "-withdrawal"))
+    |> assert_has(join_btn(group), text: "Pending")
+    |> click_button(join_btn(group), "Pending")
+    |> click_button(join_btn(group, "-withdraw-request"), "Withdraw request")
+    |> assert_has(join_btn(group), text: "Request to join")
     |> refute_has("[data-id=flash_error]")
 
     refute requested_to_join?(user, group)

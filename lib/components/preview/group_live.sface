@@ -91,7 +91,7 @@
         <span class="inline-flex h-8 items-center text-[0.8125rem] text-subtle">{l("Invite only")}</span>
       {#else}
         <StatefulComponent
-          id={"join_btn_#{id(@object)}"}
+          id={ComponentID.new(Bonfire.Classify.Web.JoinButtonLive, id(@object), __MODULE__)}
           module={maybe_component(Bonfire.Classify.Web.JoinButtonLive, @__context__)}
           object_id={id(@object)}
           object={@object}
@@ -179,7 +179,7 @@
       data-role="group-card-action"
     >
       <StatefulComponent
-        id={"join_btn_#{id(@object)}"}
+        id={ComponentID.new(Bonfire.Classify.Web.JoinButtonLive, id(@object), __MODULE__)}
         module={maybe_component(Bonfire.Classify.Web.JoinButtonLive, @__context__)}
         object_id={id(@object)}
         object={@object}

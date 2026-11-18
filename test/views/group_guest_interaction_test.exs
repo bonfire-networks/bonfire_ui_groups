@@ -24,7 +24,9 @@ defmodule Bonfire.UI.Groups.GroupGuestInteractionTest do
 
     assert {:error, {_redirect, %{to: to}}} =
              view
-             |> element("button[phx-value-component^=join_btn_]")
+             |> element(
+               "button[phx-value-component^='#{Bonfire.UI.Common.ComponentID.id_prefix(Bonfire.Classify.Web.JoinButtonLive)}_']"
+             )
              |> render_click()
 
     to

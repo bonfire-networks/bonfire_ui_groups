@@ -7,7 +7,7 @@
   {#if @variant == "visitor"}
     <div class="order-first flex-1 sm:order-last sm:flex-none [&_.btn]:w-full">
       <StatefulComponent
-        id={"join_btn_#{id(@group)}"}
+        id={ComponentID.new(Bonfire.Classify.Web.JoinButtonLive, id(@group), __MODULE__)}
         module={maybe_component(Bonfire.Classify.Web.JoinButtonLive, @__context__)}
         object_id={id(@group)}
         object={@group}
@@ -22,10 +22,10 @@
         class="btn btn-primary h-10 min-h-0 rounded-full px-5"
       />
     </div>
-    {!-- not `follow_feed_<id>`: `JoinButtonLive` renders its own follow toggle with that id --}
+    {!-- keyed by this module: `JoinButtonLive` renders its own follow toggle for the same group, keyed by itself --}
     <StatefulComponent
       module={maybe_component(Bonfire.UI.Social.Graph.FollowButtonLive, @__context__)}
-      id={"group_hero_follow_#{id(@group)}"}
+      id={ComponentID.new(Bonfire.UI.Social.Graph.FollowButtonLive, id(@group), __MODULE__)}
       {...follow_button_props(@group, @variant)}
     />
     {!-- the bell does not need membership: anyone signed in can ask to be told of a group's new posts --}
@@ -78,7 +78,7 @@
       <li :if={@variant == "member"} data-role="group-hero-follow">
         <StatefulComponent
           module={maybe_component(Bonfire.UI.Social.Graph.FollowButtonLive, @__context__)}
-          id={"group_hero_follow_#{id(@group)}"}
+          id={ComponentID.new(Bonfire.UI.Social.Graph.FollowButtonLive, id(@group), __MODULE__)}
           {...follow_button_props(@group, @variant)}
         />
       </li>

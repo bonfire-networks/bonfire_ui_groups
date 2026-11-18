@@ -53,7 +53,10 @@ defmodule Bonfire.UI.Groups.GroupHeroCompactTest do
     |> visit(Bonfire.Common.URIs.path(context.group))
     |> wait_async()
     |> refute_has(@toggle)
-    |> click_button("button[id^=join_btn_]", "Join")
+    |> click_button(
+      "button#{component_selector(Bonfire.Classify.Web.JoinButtonLive, id(context.group))}",
+      "Join"
+    )
     |> wait_async()
     |> assert_has_or_open_browser(@compact_hero)
     |> assert_has(@toggle)
@@ -67,7 +70,8 @@ defmodule Bonfire.UI.Groups.GroupHeroCompactTest do
     |> wait_async()
     |> assert_has(@toggle)
     |> click_button("#group_hero_leave_#{context.group.id}", "Leave group")
-    |> click_button("#join_btn_#{context.group.id}-leave", "Leave group")
+    # the hero's Leave is not a Join button, so its dialog is named by the group
+    |> click_button("#group_#{context.group.id}-leave", "Leave group")
     |> wait_async()
     |> assert_has_or_open_browser(@full_hero)
     |> refute_has(@toggle)

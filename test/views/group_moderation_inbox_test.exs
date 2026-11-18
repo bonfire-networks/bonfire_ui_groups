@@ -122,21 +122,32 @@ defmodule Bonfire.UI.Groups.GroupModerationInboxTest do
     Bonfire.Social.Graph.Follows.unfollow(moderator, group)
     refute Bonfire.Social.Graph.Follows.following?(moderator, group)
 
-    toggle = "[id^='follow_feed_#{id(group)}_']"
+    # the card's Join button's own follow toggle
+    toggle =
+      component_selector(Bonfire.UI.Social.Graph.FollowButtonLive, id(group),
+        parent: "join_button_"
+      )
+
+    # its bell, whose id is the toggle's with `_bell`
+    bell =
+      component_selector(Bonfire.UI.Social.Graph.FollowButtonLive, id(group),
+        parent: "join_button_",
+        suffix: "_bell"
+      )
 
     conn(user: moderator, account: moderator_account)
     |> visit("/group/#{group.character.username}/settings/moderation")
     |> wait_async()
     # the control: the card's follow toggle is there, so a missing bell is the toggle's choice
     |> assert_has_or_open_browser(toggle)
-    |> refute_has("#{toggle}[id$='_bell'][data-role=bell_button]")
+    |> refute_has("#{bell}[data-role=bell_button]")
 
     {:ok, _} = Bonfire.Social.Graph.Follows.follow(moderator, group)
 
     conn(user: moderator, account: moderator_account)
     |> visit("/group/#{group.character.username}/settings/moderation")
     |> wait_async()
-    |> assert_has_or_open_browser("#{toggle}[id$='_bell'][data-role=bell_button]")
+    |> assert_has_or_open_browser("#{bell}[data-role=bell_button]")
   end
 
   test "someone who doesn't moderate the group doesn't see its reports in the group's inbox", %{
