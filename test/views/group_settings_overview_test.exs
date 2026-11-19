@@ -138,8 +138,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     remote_name = e(remote, :profile, :name, nil)
 
     {:ok, view, _html} = live(conn, "/&#{group.character.username}/settings")
-    view |> element("#group_settings_people_add_open") |> render_click()
-    assert has_element?(view, "#add_member_form")
+    assert has_element?(view, "#add_member_form"), "the add search shows without a click"
 
     ls_id = live_select_simulate_search(view, "#add_member_form", "zqadd")
     assert has_element?(view, "##{ls_id} li", candidate.profile.name), "control: offered"
@@ -166,7 +165,7 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     conn
     |> visit("/&#{group.character.username}/settings")
     |> assert_has("#group-settings-people")
-    |> refute_has("#group_settings_people_add_open")
+    |> refute_has("#add_member_form")
   end
 
   test "saving identity updates the overview and the persisted profile", %{

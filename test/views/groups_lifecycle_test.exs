@@ -645,6 +645,66 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
       assert after_dims[:visibility] in ["members:private", nil]
     end
 
+    # a topic copies its group's boundaries when it is made, so saving the group's settings offers its topics the new ones
+    @members_only_settings %{
+      "membership" => "invite_only",
+      "visibility" => "members:private",
+      "participation" => "group_members",
+      "default_content_visibility" => "members:private"
+    }
+
+    test "saving the boundaries offers the group's topics, ticked, and applies them on submit" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group_with_preset(me, "public_local_community", "Topical Settings Group")
+
+      ticked =
+        Bonfire.Classify.Simulate.fake_category!(me, group, %{name: "Ticked topic", type: :topic})
+
+      stranger = fake_user!()
+
+      assert Bonfire.Boundaries.can?(stranger, :read, ticked),
+             "control: a non-member can read the topic to begin with"
+
+      session =
+        conn(user: me, account: account)
+        |> visit("/&#{group.character.username}/settings/boundaries")
+        |> wait_async()
+        |> unwrap(fn view ->
+          view
+          |> element("#group_settings_boundaries_form")
+          |> render_submit(@members_only_settings)
+        end)
+        |> assert_has("[data-role=group_topics_picker]", text: "Ticked topic")
+        |> assert_has("[data-role=group_topics_picker] input[type=checkbox][checked]")
+        |> assert_has("[data-id=flash_info]", text: "Boundary updated!")
+
+      assert Bonfire.Boundaries.can?(stranger, :read, ticked),
+             "control: saving the group alone leaves its topic as it was"
+
+      click_button(session, "[data-role=group_topics_picker_submit]", "Apply")
+
+      refute Bonfire.Boundaries.can?(stranger, :read, ticked),
+             "submitting the modal applied the group's boundaries to the topic"
+    end
+
+    test "saving the boundaries of a group with no topics goes back to the group, as before" do
+      account = fake_account!()
+      me = fake_user!(account)
+      group = create_group_with_preset(me, "public_local_community", "Topicless Settings Group")
+
+      conn(user: me, account: account)
+      |> visit("/&#{group.character.username}/settings/boundaries")
+      |> wait_async()
+      |> unwrap(fn view ->
+        view
+        |> element("#group_settings_boundaries_form")
+        |> render_submit(@members_only_settings)
+      end)
+      |> refute_has("[data-role=group_topics_picker]")
+      |> assert_path(Bonfire.Common.URIs.path(group))
+    end
+
     test "someone who doesn't manage a group can't reset its boundary preset" do
       owner = fake_user!()
       group = create_group_with_preset(owner, "public_local_community", "Not Yours Either")

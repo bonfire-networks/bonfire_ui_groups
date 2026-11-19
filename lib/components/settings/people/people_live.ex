@@ -13,7 +13,7 @@ defmodule Bonfire.UI.Groups.Settings.PeopleLive do
 
   @doc "Whether the viewer may add members directly (`Categories.can_add_members?/2`), worked out once per group"
   data can_add?, :boolean, default: false
-  data add_open?, :boolean, default: false
+  # data add_open?, :boolean, default: false
 
   @doc "Whether the viewer may ghost, silence, block or remove members of the group (`:mediate`), worked out once per group"
   data may_moderate?, :boolean, default: false

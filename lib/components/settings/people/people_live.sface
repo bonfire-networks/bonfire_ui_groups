@@ -54,7 +54,7 @@
         <#Icon iconify="ph:magnifying-glass" class="size-5" />
         <span class="sr-only">{l("Search members")}</span>
       </button>
-      {!-- adding someone directly, for a moderator of the group who also moderates the instance (`Categories.can_add_members?/2`) --}
+      {!-- the add search shows by default, no toggle needed
       <button
         :if={@can_add?}
         id="group_settings_people_add_open"
@@ -67,9 +67,10 @@
       >
         <#Icon iconify="ph:user-plus" class="size-5" />
         <span class="sr-only">{l("Add member")}</span>
-      </button>
+      </button> --}
     </div>
-    <div :if={@can_add? and @add_open?} class="px-4 pb-3 sm:px-5">
+    {!-- adding someone directly, for a moderator of the group who also moderates the instance (`Categories.can_add_members?/2`) --}
+    <div :if={@can_add?} class="px-4 pb-3 sm:px-5">
       <StatefulComponent
         module={Bonfire.UI.Groups.Settings.AddPersonLive}
         id={"add_member_#{id(@category)}"}
