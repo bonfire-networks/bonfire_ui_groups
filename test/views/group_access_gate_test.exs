@@ -99,6 +99,156 @@ defmodule Bonfire.UI.Groups.GroupAccessGateTest do
     |> refute_has("#group_settings_boundaries_form")
   end
 
+  # The instance's admins have authority over the groups it hosts, so a group whose own moderators can't open its settings can still be managed.
+  test "an instance admin who is not a member opens a preview group's settings; a plain user or an instance moderator does not",
+       context do
+    path = "/&#{context.group.character.username}/settings/boundaries"
+
+    admin_account = fake_account!()
+    admin = fake_admin!(admin_account)
+
+    refute Bonfire.Classify.Categories.member?(admin, context.group)
+
+    plain = fake_user!(context.account)
+
+    conn(user: plain, account: context.account)
+    |> visit(path)
+    |> wait_async()
+    |> assert_has("#group_access_gate")
+    |> refute_has("#group_settings_boundaries_form")
+
+    instance_moderator_account = fake_account!()
+    instance_moderator = fake_user!(instance_moderator_account)
+    Bonfire.Me.Fake.instance_moderator!(instance_moderator)
+
+    conn(user: instance_moderator, account: instance_moderator_account)
+    |> visit(path)
+    |> wait_async()
+    |> assert_has("#group_access_gate")
+    |> refute_has("#group_settings_boundaries_form")
+
+    conn(user: admin, account: admin_account)
+    |> visit(path)
+    |> wait_async()
+    |> refute_has("#group_access_gate")
+    |> assert_has("#group_settings_boundaries_form")
+    |> assert_has("[data-role=instance-admin-notice]",
+      text: "You're managing this group as an instance admin."
+    )
+
+    # the group's own moderator gets the settings without the notice
+    conn(user: context.owner, account: context.account)
+    |> visit(path)
+    |> wait_async()
+    |> assert_has("#group_settings_boundaries_form")
+    |> refute_has("[data-role=instance-admin-notice]")
+
+    # a members-private group denies everyone but its members even `:see`, so the page itself would be not-found for the admin: the settings still open, and only the settings
+    private =
+      Bonfire.Classify.Simulate.fake_group!(context.owner, %{
+        name: "Members only club",
+        membership: "invite_only",
+        visibility: "members:private",
+        participation: "group_members",
+        default_content_visibility: "members:private"
+      })
+
+    refute Bonfire.Boundaries.can?(admin, :see, private)
+
+    conn(user: admin, account: admin_account)
+    |> visit("/&#{private.character.username}/settings/boundaries")
+    |> wait_async()
+    |> assert_has("#group_settings_boundaries_form")
+
+    conn(user: plain, account: context.account)
+    |> visit("/&#{private.character.username}/settings/boundaries")
+    |> wait_async()
+    |> refute_has("#group_settings_boundaries_form")
+  end
+
+  # Older groups were scaffolded by a backfill that ignored whether the moderators circle's `:moderate` grant on the group went through. A moderator of such a group is listed as one, yet holds no verb on it.
+  test "a moderator whose circle has no :moderate role on the group still gets settings, once the groups are backfilled",
+       context do
+    group = context.group
+    path = "/&#{group.character.username}/settings/boundaries"
+
+    moderator = fake_user!(context.account)
+    assert {:ok, _} = Bonfire.Classify.Categories.add_moderator(context.owner, group, moderator)
+
+    # positive first: a moderator of a normally created group may edit it
+    assert Bonfire.Boundaries.can?(moderator, :edit, group)
+
+    # rewind to the old state, through the real tables: the circle stays, its role row on the group goes
+    {:ok, circle} = Bonfire.Boundaries.Scaffold.Groups.moderators_circle(group)
+
+    Bonfire.Boundaries.Controlleds.remove_role(id(circle), group, :moderate,
+      current_user: group,
+      skip_boundary_check: true
+    )
+
+    assert id(moderator) in Enum.map(
+             Bonfire.Boundaries.Scaffold.Groups.list_moderators(group),
+             &id/1
+           ),
+           "still listed as a moderator"
+
+    refute Bonfire.Boundaries.can?(moderator, :edit, group),
+           "the old state: listed as a moderator, yet holding no :edit"
+
+    run_moderators_backfill()
+    # safe to re-run
+    run_moderators_backfill()
+
+    assert Bonfire.Boundaries.can?(moderator, :edit, group)
+
+    conn(user: moderator, account: context.account)
+    |> visit(path)
+    |> wait_async()
+    |> refute_has("#group_access_gate")
+    |> assert_has("#group_settings_boundaries_form")
+  end
+
+  defp run_moderators_backfill do
+    # the merge of duplicate circles runs first, as in the migration
+    Bonfire.Boundaries.Scaffold.DuplicateStereotypeCirclesDataMigration.base_query()
+    |> Bonfire.Common.Repo.all()
+    |> Bonfire.Boundaries.Scaffold.DuplicateStereotypeCirclesDataMigration.migrate()
+
+    Bonfire.Classify.Boundaries.GroupModeratorsGrantDataMigration.base_query()
+    |> Bonfire.Common.Repo.all()
+    |> Bonfire.Classify.Boundaries.GroupModeratorsGrantDataMigration.migrate()
+  end
+
+  test "a moderator of a group with a second moderators circle still gets settings, once the groups are backfilled",
+       context do
+    group = context.group
+    path = "/&#{group.character.username}/settings/boundaries"
+
+    # the second `:group_moderators` circle, made the way `Circles.get_or_create_stereotype_circle/2` makes one (two jobs racing on a new group)
+    assert {:ok, _} =
+             Bonfire.Boundaries.Circles.create_stereotype_circle(group, :group_moderators)
+
+    assert [_, _] = Bonfire.Boundaries.Circles.get_stereotype_circles(group, [:group_moderators])
+
+    moderator = fake_user!(context.account)
+
+    # not silent: with two moderators circles, making someone a moderator fails with an error
+    assert {:error, _} =
+             Bonfire.Classify.Categories.add_moderator(context.owner, group, moderator)
+
+    run_moderators_backfill()
+
+    assert [_] = Bonfire.Boundaries.Circles.get_stereotype_circles(group, [:group_moderators])
+    assert {:ok, _} = Bonfire.Classify.Categories.add_moderator(context.owner, group, moderator)
+    assert Bonfire.Boundaries.can?(moderator, :edit, group)
+
+    conn(user: moderator, account: context.account)
+    |> visit(path)
+    |> wait_async()
+    |> refute_has("#group_access_gate")
+    |> assert_has("#group_settings_boundaries_form")
+  end
+
   test "leaving a populated private group immediately gates content while preserving following",
        context do
     Process.put(:federating, false)

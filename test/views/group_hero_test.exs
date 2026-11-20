@@ -220,6 +220,52 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       |> assert_has("div.text-sm", text: "Known members")
     end
 
+    # a group hosted here answers to its instance's admins and rules; a mirror's admins and rules are elsewhere
+    test "the moderators lists name the instance's authority over a group hosted here, and not over a mirror",
+         %{creator: creator, creator_account: creator_account, group: group} do
+      conn = conn(user: creator, account: creator_account)
+      username = group.character.username
+
+      conn
+      |> visit("/group/#{username}/members")
+      |> wait_async()
+      |> click_button("Moderators")
+      |> assert_has("[data-role=group-instance-authority]",
+        text: "The instance's admins can also manage it, and the instance's rules apply here too."
+      )
+      |> assert_has("[data-role=group-instance-authority] a", text: "Read the instance's rules")
+      |> visit("/&#{username}/settings/moderators")
+      |> wait_async()
+      |> assert_has("#group-moderators")
+      |> assert_has("[data-role=group-instance-authority]",
+        text: "The instance's admins can also manage it, and the instance's rules apply here too."
+      )
+      |> assert_has("[data-role=group-instance-authority] a", text: "Read the instance's rules")
+      |> visit("/group/#{username}/about")
+      |> wait_async()
+      |> assert_has("div.type-heading", text: "Members")
+      |> refute_has("[data-role=group-instance-authority]")
+
+      mirrored = Simulate.fake_group!(creator, %{name: "Mirrored", visibility: "global"})
+
+      assert {:ok, _} =
+               Bonfire.Federate.ActivityPub.Peered.save_canonical_uri(
+                 mirrored,
+                 "https://elsewhere.local/c/mirrored"
+               )
+
+      conn
+      |> visit("/group/#{mirrored.id}/members")
+      |> wait_async()
+      |> click_button("Moderators")
+      |> assert_has("#group-member-directory")
+      |> refute_has("[data-role=group-instance-authority]")
+      |> visit("/&#{mirrored.character.username}/settings/moderators")
+      |> wait_async()
+      |> assert_has("#group-moderators")
+      |> refute_has("[data-role=group-instance-authority]")
+    end
+
     # the same tile as the sidebar's, so a group looks the same in both
     test "a group without an avatar shows its initial", %{group: group} do
       # a guest has no LiveView socket, so the page they get is the static render, which `visit` does not give (it connects a LiveView)

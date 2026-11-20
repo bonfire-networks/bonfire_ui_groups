@@ -90,6 +90,12 @@
       >{label}</button>
     {/for}
   </div>
+  <div :if={@member_role == "moderators"} class="px-4 sm:px-6">
+    <StatelessComponent
+      module={maybe_component(Bonfire.UI.Groups.InstanceAuthorityLive, @__context__)}
+      category={@category}
+    />
+  </div>
   <ul class="divide-hair divide-divider">
     {#for entry <- @visible_entries}
       <li id={"directory-member-#{entry.id}"} class="flex items-center gap-3 px-4 py-3 sm:px-6">

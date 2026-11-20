@@ -1,3 +1,10 @@
+<div
+  :if={Bonfire.Classify.managing_as_instance_admin?(current_user(@__context__), @category)}
+  data-role="instance-admin-notice"
+  class="mx-auto w-full max-w-3xl px-4 pt-4 sm:px-8"
+>
+  <p class="p-3 text-sm rounded-box bg-info/10 text-base-content">{l("You're managing this group as an instance admin.")}</p>
+</div>
 {#if !Bonfire.Classify.ensure_update_allowed(current_user(@__context__), @category)}
   <p class="p-4 text-sm text-muted">{l("You don't have permission to edit this group's settings.")}</p>
 {#elseif @settings_component == Bonfire.UI.Groups.Settings.GeneralLive}

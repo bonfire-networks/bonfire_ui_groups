@@ -1,0 +1,11 @@
+<div
+  :if={Bonfire.Classify.Categories.hosted_here?(@category)}
+  data-role="group-instance-authority"
+  class="mt-4 mb-3 text-sm text-muted"
+>
+  {l(
+    "This group is hosted on %{instance}. The instance's admins can also manage it, and the instance's rules apply here too.",
+    instance: instance_name()
+  )}
+  <LinkLive to={rules_path()} class="link link-hover">{l("Read the instance's rules")}</LinkLive>
+</div>

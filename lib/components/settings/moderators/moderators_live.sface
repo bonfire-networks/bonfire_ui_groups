@@ -51,4 +51,11 @@
       </ul>
     </div>
   {/if}
+
+  <div class="px-4">
+    <StatelessComponent
+      module={maybe_component(Bonfire.UI.Groups.InstanceAuthorityLive, @__context__)}
+      category={@category}
+    />
+  </div>
 </section>
