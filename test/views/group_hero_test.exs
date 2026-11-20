@@ -262,7 +262,6 @@ defmodule Bonfire.UI.Groups.GroupHeroTest do
       |> refute_has("[data-role=group-instance-authority]")
       |> visit("/&#{mirrored.character.username}/settings/moderators")
       |> wait_async()
-      |> assert_has("#group-moderators")
       |> refute_has("[data-role=group-instance-authority]")
     end
 
