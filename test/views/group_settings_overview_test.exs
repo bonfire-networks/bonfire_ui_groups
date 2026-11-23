@@ -407,4 +407,52 @@ defmodule Bonfire.UI.Groups.GroupSettingsOverviewTest do
     |> assert_has("[data-role=page_title]", text: "Instance settings")
     |> refute_has("#group_settings_auto_join_form")
   end
+
+  describe "the overview's avatar" do
+    @tile "#group-settings-overview [data-role=group_tile]"
+    @icon "ph:baby-fill"
+
+    test "a group with a picked icon and no image shows the icon in its colour", %{
+      conn: conn,
+      group: group,
+      owner: owner
+    } do
+      {:ok, _} = Bonfire.Classify.Appearance.set_icon(group, @icon, current_user: owner)
+      {:ok, _} = Bonfire.Classify.Appearance.set_colour(group, "teal", current_user: owner)
+
+      conn
+      |> visit("/&#{group.character.username}/settings")
+      |> assert_has("#{@tile}[data-icon='#{@icon}'].topic-teal")
+    end
+
+    test "a group with neither an image nor an icon shows its letter tile", %{
+      conn: conn,
+      group: group
+    } do
+      initial = group.profile.name |> String.first() |> String.upcase()
+
+      conn
+      |> visit("/&#{group.character.username}/settings")
+      |> assert_has(@tile, text: initial)
+      |> refute_has("#{@tile}[data-icon]")
+    end
+
+    @tag Bonfire.Common.RuntimeConfig.skip_in_ci()
+    test "a group with an uploaded image shows the image, over its picked icon", %{
+      conn: conn,
+      group: group,
+      owner: owner
+    } do
+      {:ok, _} = Bonfire.Classify.Appearance.set_icon(group, @icon, current_user: owner)
+      media = Bonfire.Social.Fake.upload_media(:images, owner)
+      {:ok, with_image} = Categories.update(owner, group, %{profile: %{icon_id: media.id}})
+
+      conn
+      |> visit("/&#{group.character.username}/settings")
+      |> assert_has(
+        "#group-settings-overview img[src='#{Bonfire.Common.Media.avatar_url(with_image)}']"
+      )
+      |> refute_has(@tile)
+    end
+  end
 end

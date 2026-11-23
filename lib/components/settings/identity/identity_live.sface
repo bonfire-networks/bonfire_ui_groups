@@ -88,4 +88,10 @@
       </button>
     </div>
   </Phoenix.Component.form>
+
+  {!-- its colour and icon, saved on their own (not with the form), for those who may configure the group --}
+  <Bonfire.Classify.Web.AppearanceLive
+    id={"group_appearance_#{id(@category)}"}
+    category={@category}
+  />
 </section>

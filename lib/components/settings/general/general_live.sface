@@ -17,12 +17,11 @@
           <img src={banner} alt="" aria-hidden="true" class="h-20 w-full object-cover sm:h-24">
       {/case}
       <div class="flex items-center gap-4 px-4 py-4 sm:px-5">
-        <img
-          src={Media.avatar_url(@category)}
-          alt=""
-          width="56"
-          height="56"
-          class="size-14 shrink-0 rounded-full bg-base-200 object-cover"
+        <Bonfire.UI.Common.GroupAvatarLive
+          object={@category}
+          name={e(@category, :profile, :name, nil)}
+          image_class="size-14 shrink-0 rounded-full bg-base-200 object-cover"
+          tile_class="!size-14 !rounded-full !text-xl"
         />
         <div class="min-w-0 flex-1">
           <h1 id="settings-group-name" class="break-words text-lg font-bold leading-snug">

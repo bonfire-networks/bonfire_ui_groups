@@ -49,7 +49,7 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
   def render(assigns) do
     assigns
     |> assign(
-      avatar_url: Media.avatar_url(assigns.group),
+      avatar_url: Bonfire.UI.Common.NavTileLive.uploaded_avatar_url(assigns.group),
       banner_url: Media.banner_url(assigns.group, fallback: false),
       variant: variant(assigns.my_membership),
       preview: assigns.view_mode == :preview,
@@ -76,6 +76,13 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
       do: lp("%{count} known member", "%{count} known members", count, count: count),
       else: lp("%{count} member", "%{count} members", count, count: count)
   end
+
+  @doc "The icon the group has picked (nil if none, or its settings are not loaded), shown when it has no uploaded image."
+  def picked_icon(group), do: Bonfire.Classify.Appearance.icon(group)
+
+  @doc "The CSS class of the swatch the group has set for its colour, nil if it has none (or its settings are not loaded): then its hero has no band."
+  def band_class(group),
+    do: group |> Bonfire.Classify.Appearance.own_colour() |> Bonfire.Common.Swatches.class()
 
   @doc """
   The avatars in the members pill: the first members for whoever may see the list, else the (already loaded) moderators, as the members tab lists only those to them.
@@ -119,21 +126,21 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
       iex> Bonfire.UI.Groups.GroupHeroLive.page_header_assigns(%{id: "01G"}, false, :preview)[:page_header_aside]
       nil
   """
-  def page_header_assigns(group, my_membership, view_mode \\ :full) do
+  def page_header_assigns(group, my_membership, view_mode \\ :full, topic \\ nil) do
     cond do
       is_nil(group) ->
         []
 
       variant(my_membership) == "member" ->
         [
-          page_header_icon: page_header_icon(group),
+          page_header_icon: page_header_icon(group, topic),
           page_header_aside: [
             {Bonfire.UI.Groups.GroupHeroToggleLive, [hero_id: dom_id(group, "member")]}
           ]
         ]
 
       view_mode == :preview ->
-        [page_header_icon: page_header_icon(group), page_header_aside: nil]
+        [page_header_icon: page_header_icon(group, topic), page_header_aside: nil]
 
       true ->
         []
@@ -149,12 +156,21 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
   #   end
   # end
 
+  # a topic page (`topic`: the topic shown in the group's frame) with a picked icon of its own shows that icon, over the group's avatar; else the group's. The icon is read from the settings the page already loaded
+  defp page_header_icon(group, topic) when not is_nil(topic) do
+    if Bonfire.Classify.Appearance.icon(topic) && id(topic) != id(group),
+      do: %{id: id(topic), object: topic, src: nil, name: e(topic, :profile, :name, nil)},
+      else: page_header_icon(group)
+  end
+
+  defp page_header_icon(group, _topic), do: page_header_icon(group)
+
   defp page_header_icon(group) do
     %{
       id: id(group),
       object: group,
       # nil without an avatar, so the header draws the group's tile
-      src: if((url = Media.avatar_url(group)) != "/images/avatar.png", do: url),
+      src: Bonfire.UI.Common.NavTileLive.uploaded_avatar_url(group),
       name: e(group, :profile, :name, nil)
     }
   end
@@ -162,8 +178,8 @@ defmodule Bonfire.UI.Groups.GroupHeroLive do
   @doc """
   Assigns `page_header_assigns/3`, clearing only its own toggle.
   """
-  def assign_page_header(socket, group, my_membership, view_mode \\ :full) do
-    case page_header_assigns(group, my_membership, view_mode) do
+  def assign_page_header(socket, group, my_membership, view_mode \\ :full, topic \\ nil) do
+    case page_header_assigns(group, my_membership, view_mode, topic) do
       [] ->
         if toggle_aside?(e(assigns(socket), :page_header_aside, nil)),
           do: assign(socket, page_header_icon: nil, page_header_aside: nil),

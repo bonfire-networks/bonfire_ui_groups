@@ -43,23 +43,19 @@
       ]}>
         {!-- a group marked sensitive gets its generated tile, not its icon: too small to blur and reveal.
              On touch, avatars grow to 32px circles so the picture carries the row and the label can stay regular weight --}
-        {#case if(Bonfire.Classify.Categories.sensitive?(@category),
-            do: "/images/avatar.png",
-            else: Media.avatar_url(@category)
-          )}
+        {!-- the picked icon in its colour, else the initial: never the uploaded image (not loaded here). Was, before the icon:
+        {#case if(Bonfire.Classify.Categories.sensitive?(@category), do: "/images/avatar.png", else: Media.avatar_url(@category))}
           {#match "/images/avatar.png"}
-            <Bonfire.UI.Common.NavTileLive
-              object={@category}
-              name={@group_name}
-              class="!size-6 !text-xs [@media(pointer:coarse)]:!size-8 [@media(pointer:coarse)]:!rounded-full [@media(pointer:coarse)]:!text-sm"
-            />
+            <Bonfire.UI.Common.NavTileLive object={@category} name={@group_name} class="..." />
           {#match url}
-            <div
-              class="size-6 rounded-[5px] [@media(pointer:coarse)]:size-8 [@media(pointer:coarse)]:rounded-full bg-cover bg-center bg-no-repeat bg-base-300 shrink-0 outline outline-1 -outline-offset-1 outline-base-content/10"
-              style={"background-image: url('#{URI.encode(url)}');"}
-              aria-hidden="true"
-            />
+            <div class="size-6 rounded-[5px] ... bg-cover" style={"background-image: url('#{URI.encode(url)}');"} aria-hidden="true" />
         {/case}
+        --}
+        <Bonfire.UI.Common.NavTileLive
+          object={@category}
+          name={@group_name}
+          class="!size-6 !text-xs [@media(pointer:coarse)]:!size-8 [@media(pointer:coarse)]:!rounded-full [@media(pointer:coarse)]:!text-sm"
+        />
       </span>
       <span class={["nav-label", Bonfire.UI.Common.LinkWidgetLive.active_label_class(@active?)]}>{@group_name}</span>
       <span

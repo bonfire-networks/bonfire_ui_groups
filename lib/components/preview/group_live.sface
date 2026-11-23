@@ -4,6 +4,7 @@
     id={"group-preview-#{id(@object)}"}
     class="relative grid min-w-0 grid-cols-[2.75rem_minmax(0,1fr)] items-start sm:grid-cols-[2.75rem_minmax(0,1fr)_auto] gap-x-4 rounded-box px-2 py-4 transition-colors hover:bg-fill sm:px-4 has-[a:focus-visible]:outline has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2"
   >
+    {!-- the uploaded image first, else the tile: the picked icon (in its colour), else the initial --}
     {#case Media.avatar_url(@object)}
       {#match "/images/avatar.png"}
         <Bonfire.UI.Common.NavTileLive

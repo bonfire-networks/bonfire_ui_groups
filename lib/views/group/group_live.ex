@@ -78,7 +78,8 @@ defmodule Bonfire.UI.Groups.GroupLive do
       |> Bonfire.UI.Groups.GroupHeroLive.assign_page_header(
         if(shown?, do: socket.assigns.frame_group),
         e(socket.assigns, :my_group_membership, false),
-        e(socket.assigns, :view_mode, :full)
+        e(socket.assigns, :view_mode, :full),
+        if(e(socket.assigns, :type, nil) == :topic, do: socket.assigns.category)
       )
 
     socket =

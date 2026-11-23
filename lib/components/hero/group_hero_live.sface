@@ -38,9 +38,26 @@
         />
       </div>
 
+      {!-- with no banner, a band in the group's colour, only if it has set one --}
+      <div
+        :if={not is_binary(@banner_url) and not @preview and band_class(@group)}
+        data-role="group_hero_band"
+        aria-hidden="true"
+        class={"h-16 w-full topic-wash", band_class(@group)}
+      />
+
       <div class="px-4">
         <div class={"flex", if(is_binary(@banner_url), do: if(@preview, do: "mt-4", else: "-mt-9"), else: "mt-4")}>
-          {#if @avatar_url == "/images/avatar.png"}
+          {#if is_nil(@avatar_url) and picked_icon(@group)}
+            {!-- no uploaded image: the picked icon --}
+            <div
+              data-role="group-hero-icon"
+              class="grid size-18 shrink-0 place-items-center rounded-box bg-primary text-primary-content ring-4 ring-base-100"
+              aria-hidden="true"
+            >
+              <Iconify.iconify icon={picked_icon(@group)} class="size-9" />
+            </div>
+          {#elseif is_nil(@avatar_url)}
             <Bonfire.UI.Common.NavTileLive
               object={@group}
               name={e(@group, :profile, :name, nil)}

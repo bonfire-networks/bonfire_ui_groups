@@ -705,6 +705,9 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   end
 
   defp hydrate_group_filters(groups, current_user, topics? \\ true) do
+    # the groups' picked icon and colour for their tiles: one batched query for the whole page of groups
+    groups = repo().maybe_preload(groups, :settings)
+
     topics_by_group =
       if topics?,
         do: Categories.list_topics_for_groups(groups, current_user: current_user),

@@ -453,7 +453,8 @@ defmodule Bonfire.UI.Groups.LiveHandler do
           socket,
           group,
           member?,
-          e(assigns(socket), :view_mode, :full)
+          e(assigns(socket), :view_mode, :full),
+          if(e(assigns(socket), :type, nil) == :topic, do: e(assigns(socket), :category, nil))
         ),
       else: socket
   end
