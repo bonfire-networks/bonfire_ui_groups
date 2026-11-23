@@ -6,6 +6,13 @@ defmodule Bonfire.UI.Groups.WidgetGroupsCarouselLive do
 
   alias Bonfire.Common.Cache
 
+  # "Groups" takes the domain of an extension that already translates it; a stable id, as the guest home's links and tests point at it
+  declare_widget(l("Groups", [], nil, :bonfire_ui_common),
+    id: :groups,
+    width: :wide,
+    props: [id: "guest_groups_widget", title: l("Groups", [], nil, :bonfire_ui_common)]
+  )
+
   prop title, :string, default: nil
   prop subtitle, :string, default: nil
 

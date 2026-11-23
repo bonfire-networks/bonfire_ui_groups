@@ -1,6 +1,6 @@
 defmodule Bonfire.UI.Groups.DashboardMyGroupsFeedTest do
   @moduledoc """
-  My groups in the dashboard's "Latest activity" feed: a member who chooses it as their default feed sees their groups' posts at the end of the dashboard, and its tab stays while another tab is open.
+  My groups in the dashboard's feed widget: a member who chooses it as the dashboard's feed sees their groups' posts at the end of the dashboard, and its tab stays while another tab is open.
 
   The feed's query is covered in `Bonfire.Classify.GroupFeedPresetsTest`; the default feed's tab and the dropdown in `Bonfire.UI.Me.DashboardSettingsTest`.
   """
@@ -46,14 +46,14 @@ defmodule Bonfire.UI.Groups.DashboardMyGroupsFeedTest do
 
   defp default_my_groups(me) do
     {:ok, %{__context__: %{current_user: me}}} =
-      Bonfire.Common.Settings.put([Bonfire.UI.Social.FeedLive, :default_feed], :my_groups,
+      Bonfire.Common.Settings.put([Bonfire.UI.Social.WidgetFeedLive, :feed], :my_groups,
         current_user: me
       )
 
     me
   end
 
-  test "a member whose default feed is My groups sees their groups' posts on the dashboard", %{
+  test "a member whose dashboard feed is My groups sees their groups' posts on the dashboard", %{
     account: account,
     me: me
   } do
@@ -62,12 +62,12 @@ defmodule Bonfire.UI.Groups.DashboardMyGroupsFeedTest do
     conn(user: me, account: account)
     |> visit("/dashboard")
     |> wait_async()
-    |> assert_has("[data-id=dashboard_feed] article", text: "A post in my dashboard group")
-    |> assert_has("[data-id=dashboard_feed] [data-role=published_in]",
+    |> assert_has("[data-widget-id=feed] article", text: "A post in my dashboard group")
+    |> assert_has("[data-widget-id=feed] [data-role=published_in]",
       text: "Dashboard Joined Group"
     )
-    |> refute_has("[data-id=dashboard_feed] article", text: "A post in the other dashboard group")
-    |> assert_has("[data-id=dashboard_feed] #feed-tab-my_groups[aria-current=page]")
+    |> refute_has("[data-widget-id=feed] article", text: "A post in the other dashboard group")
+    |> assert_has("[data-widget-id=feed] #feed-tab-my_groups[aria-current=page]")
   end
 
   test "the My groups tab stays when another tab is open", %{account: account, me: me} do
@@ -76,10 +76,8 @@ defmodule Bonfire.UI.Groups.DashboardMyGroupsFeedTest do
     conn(user: me, account: account)
     |> visit("/dashboard?feed=local")
     |> wait_async()
-    |> assert_has("[data-id=dashboard_feed] #feed-tab-local[aria-current=page]")
-    |> assert_has(
-      "[data-id=dashboard_feed] a#feed-tab-my_groups[href='/dashboard?feed=my_groups']"
-    )
+    |> assert_has("[data-widget-id=feed] #feed-tab-local[aria-current=page]")
+    |> assert_has("[data-widget-id=feed] a#feed-tab-my_groups[href='/dashboard?feed=my_groups']")
   end
 
   test "choosing My groups in the dashboard settings puts it on the dashboard", %{
@@ -89,18 +87,18 @@ defmodule Bonfire.UI.Groups.DashboardMyGroupsFeedTest do
     conn(user: me, account: account)
     |> visit("/dashboard")
     |> wait_async()
-    |> refute_has("[data-id=dashboard_feed] #feed-tab-my_groups")
+    |> refute_has("[data-widget-id=feed] #feed-tab-my_groups")
     |> visit("/settings/user/dashboard")
     # by its selector, not within the block: `within` hides the form the select belongs to
     |> PhoenixTest.select(
-      "[data-role=dashboard_feed_setting] #dashboard-default-feed-select",
-      "Default feed",
+      "[data-role=dashboard_feed_setting] #dashboard-feed-select",
+      "Feed shown on the dashboard",
       option: "My groups"
     )
     |> visit("/dashboard")
     |> wait_async()
-    |> assert_has("[data-id=dashboard_feed] #feed-tab-my_groups[aria-current=page]")
-    |> assert_has("[data-id=dashboard_feed] article", text: "A post in my dashboard group")
+    |> assert_has("[data-widget-id=feed] #feed-tab-my_groups[aria-current=page]")
+    |> assert_has("[data-widget-id=feed] article", text: "A post in my dashboard group")
   end
 
   test "a member of no group with My groups as default sees the generic empty feed" do
@@ -118,9 +116,9 @@ defmodule Bonfire.UI.Groups.DashboardMyGroupsFeedTest do
     conn(user: loner, account: account)
     |> visit("/dashboard")
     |> wait_async()
-    |> assert_has("[data-id=dashboard_feed] #feed-tab-my_groups[aria-current=page]")
-    |> assert_has("[data-id=dashboard_feed] [data-id=feed]")
+    |> assert_has("[data-widget-id=feed] #feed-tab-my_groups[aria-current=page]")
+    |> assert_has("[data-widget-id=feed] [data-id=feed]")
     # no custom empty state: the feed ends as any empty feed does (with a time limit, its "Last N days" line rather than `EmptyFeed`)
-    |> refute_has("[data-id=dashboard_feed] article")
+    |> refute_has("[data-widget-id=feed] article")
   end
 end
