@@ -341,7 +341,7 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
     end
   end
 
-  # two posts in the joined group: the older one has replies, the newer one has none, so newest first and most replied put them in opposite orders
+  # two posts in the joined group: the older one has replies, the newer one has none, so newest first lists the quiet one first, and most replied lists only the one with replies (a count sort lists only posts with a count)
   describe "Most replied on the feed views" do
     @replied_post "An older post with replies"
     @quiet_post "A newer post without replies"
@@ -374,7 +374,7 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
     end
 
     for path <- ["/groups/feed", "/groups/feed/all"] do
-      test "#{path}: Most replied puts the post with more replies first", %{
+      test "#{path}: Most replied lists the post with replies, not the one without", %{
         account: account,
         me: me
       } do
@@ -385,7 +385,8 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
         |> PhoenixTest.select("Sort", option: "Most replied")
         |> wait_async()
         |> assert_has("select[name=feed_order] option[value=reply_count][selected]")
-        |> assert_feed_order(@replied_post, @quiet_post)
+        |> assert_has("[data-id=feed] article", text: @replied_post)
+        |> refute_has("[data-id=feed] article", text: @quiet_post)
       end
     end
   end
