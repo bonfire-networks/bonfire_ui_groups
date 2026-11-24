@@ -169,9 +169,9 @@ defmodule Bonfire.UI.Groups.GroupSensitiveCardTest do
     end
   end
 
-  # the icon shows outside the card too: in the sidebar it is left out (too small to blur), elsewhere blurred
+  # the icon shows outside the card too: the sidebar shows no uploaded icon for any group, only the group's tile (its picked icon or initial), so a marked one has nothing to hide there; elsewhere it is blurred
   describe "outside the card" do
-    test "the sidebar shows the icon of a group not marked sensitive, and not that of one marked",
+    test "the sidebar shows no uploaded icon, marked sensitive or not, only the group's tile",
          %{
            account: account,
            owner: owner,
@@ -183,8 +183,12 @@ defmodule Bonfire.UI.Groups.GroupSensitiveCardTest do
       conn(user: owner, account: account)
       |> visit("/groups")
       |> assert_has(row.(plain), text: "Still lifes")
-      |> assert_has("#{row.(plain)} [style*=background-image]")
+      # the sidebar used to show a plain group's uploaded icon and leave out a marked one's; it now shows neither
+      # |> assert_has("#{row.(plain)} [style*=background-image]")
+      |> assert_has("#{row.(plain)} [data-role=group_tile]")
+      |> refute_has("#{row.(plain)} [style*=background-image]")
       |> assert_has(row.(marked), text: "Life drawing")
+      |> assert_has("#{row.(marked)} [data-role=group_tile]")
       |> refute_has("#{row.(marked)} [style*=background-image]")
     end
 
