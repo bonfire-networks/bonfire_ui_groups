@@ -10,7 +10,8 @@ defmodule Bonfire.UI.Groups.WidgetGroupsCarouselLive do
   declare_widget(l("Groups", [], nil, :bonfire_ui_common),
     id: :groups,
     width: :wide,
-    props: [id: "guest_groups_widget", title: l("Groups", [], nil, :bonfire_ui_common)]
+    props: [id: "guest_groups_widget", title: l("Groups", [], nil, :bonfire_ui_common)],
+    skeleton: :cards
   )
 
   prop title, :string, default: nil
