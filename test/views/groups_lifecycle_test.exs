@@ -84,7 +84,7 @@ defmodule Bonfire.UI.Groups.LiveHandlerTest do
 
       {:ok, _view, html} = live(conn, "/groups")
 
-      assert html =~ "Create group"
+      assert html =~ "New group"
     end
 
     test "group is accessible at its URL after creation" do

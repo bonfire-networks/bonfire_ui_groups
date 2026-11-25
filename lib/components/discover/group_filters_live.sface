@@ -5,33 +5,14 @@
   method="get"
   phx-change="filter_groups"
   phx-submit="filter_groups"
-  class="flex flex-col gap-4 px-4 pt-4 sm:px-6"
+  class="flex flex-col gap-4 px-4 pb-4 sm:px-6"
 >
-  {!-- the list of the chosen groups, or their feed --}
-  <nav
-    :if={modes(@view, @origin) != []}
-    id="group-mode-switch"
-    aria-label={l("Groups or their latest updates")}
-    class="flex gap-1 self-start rounded-field bg-fill p-1"
-  >
-    {#for {label, to, current?} <- modes(@view, @origin)}
-      <LinkPatchLive
-        to={to}
-        class={
-          "btn btn-sm h-8 min-h-8 rounded-field border-0 px-3 font-medium shadow-none",
-          "bg-base-100 text-base-content": current?,
-          "btn-ghost text-muted hover:text-base-content": !current?
-        }
-      >{label}</LinkPatchLive>
-    {/for}
-  </nav>
-
-  {!-- the view tabs; on the feed views, the origin menu sits at the end of their row, as there is no search row --}
+  {!-- the view tabs, first, right under the page header --}
   {!-- was `:if={current_user_id(@__context__) || feed_view?(@view)}`; the origin menu is now for signed-in users only, so a guest has nothing in this row --}
   <div
     :if={current_user_id(@__context__)}
     id="group-view-filter"
-    class="flex items-center gap-6 border-b-hair border-divider"
+    class="-mx-4 px-4 sm:-mx-6 sm:px-6 flex items-center gap-6 border-b-hair border-divider"
   >
     {!-- a guest only has one view, so there is nothing to switch between --}
     <div
@@ -57,12 +38,38 @@
         </label>
       {/for}
     </div>
+  </div>
 
+  {!-- the Directory | Latest updates switch, with the filter chips at the row's end --}
+  <div
+    :if={modes(@view, @origin) != [] or current_user_id(@__context__)}
+    class={"flex flex-wrap items-center justify-between gap-2", "mt-4": !current_user_id(@__context__)}
+  >
+    {!-- the list of the chosen groups, or their feed --}
+    <nav
+      :if={modes(@view, @origin) != []}
+      id="group-mode-switch"
+      aria-label={l("Groups or their latest updates")}
+      class="flex gap-1 rounded-field bg-fill p-1"
+    >
+      {#for {label, to, current?} <- modes(@view, @origin)}
+        <LinkPatchLive
+          to={to}
+          class={
+            "btn btn-sm h-8 min-h-8 rounded-field border-0 px-3 font-medium shadow-none",
+            "bg-base-100 text-base-content": current?,
+            "btn-ghost text-muted hover:text-base-content": !current?
+          }
+        >{label}</LinkPatchLive>
+      {/for}
+    </nav>
+
+    {!-- `menus/1` swaps the joining policy for public/private while the index answers a typed term --}
     <Bonfire.UI.Groups.GroupFilterMenusLive
-      :if={feed_view?(@view)}
+      :if={current_user_id(@__context__)}
       menus={menus(assigns)}
       form={@form}
-      class="ml-auto flex items-center gap-1 pb-1"
+      class="ml-auto flex flex-wrap items-center gap-2"
     />
   </div>
 
@@ -93,8 +100,5 @@
         class="min-w-0 grow bg-transparent text-base sm:text-sm"
       />
     </div>
-
-    {!-- was a fixed list of the origin and joining-policy menus; `menus/1` puts the public/private switch in the joining policy's place while the index answers a typed term. The dropdowns moved into `GroupFilterMenusLive`, which the feed views render in the tabs row --}
-    <Bonfire.UI.Groups.GroupFilterMenusLive menus={menus(assigns)} form={@form} />
   </div>
 </.form>

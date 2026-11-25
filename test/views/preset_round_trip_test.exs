@@ -99,7 +99,7 @@ defmodule Bonfire.UI.Groups.PresetRoundTripTest do
 
         conn
         |> visit("/groups/discover")
-        |> click_button("[data-role=open_modal]", "Create group")
+        |> click_button("[data-role=open_modal]", "New group")
         |> click_button("[data-preset=#{preset_slug}]", to_string(meta.label))
         |> PhoenixTest.unwrap(fn view ->
           view

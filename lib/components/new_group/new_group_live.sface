@@ -19,9 +19,9 @@
         {#if slot_assigned?(:open_btn)}
           <#slot {@open_btn} />
         {#elseif @header_action}
-          <span id="groups-create-header" class="btn btn-primary max-sm:btn-circle btn-sm">
-            <#Icon iconify="ph:plus" class="size-5" />
-            <span class="sr-only sm:not-sr-only">{l("Create group")}</span>
+          <span id="groups-create-header" class="btn btn-sm btn-outline border-divider shrink-0 gap-1.5">
+            <#Icon iconify="ph:plus" class="size-4" />
+            <span>{l("New group")}</span>
           </span>
         {#else}
           <div class={@open_btn_class}>

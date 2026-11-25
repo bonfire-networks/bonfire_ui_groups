@@ -1,16 +1,17 @@
 <div class={@class}>
   {#for {field, id, icon, options, value, default_value, legend} <- @menus}
+    {!-- a chip: outline at the default, inverse fill once set --}
     <Dropdown
       id={id}
-      position="bottom-end"
+      position="bottom-start"
       menu={false}
       close_on_select
       label={legend}
       panel_class="!w-56"
       trigger_class={
-        "btn btn-sm h-10 min-h-10 gap-1.5 rounded-field border-0 px-3 font-normal shadow-none",
-        "btn-ghost text-muted hover:text-base-content": value == default_value,
-        "bg-fill text-base-content": value != default_value
+        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors",
+        "border-divider text-base-content hover:bg-fill": value == default_value,
+        "border-base-content bg-base-content text-base-100": value != default_value
       }
     >
       <:trigger>

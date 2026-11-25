@@ -227,8 +227,8 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
     end
   end
 
-  # archived groups have no feed, and the origin menu joins the view tabs' row
-  test "the feed views have no Archived tab, and the origin menu sits in the tabs row", %{
+  # archived groups have no feed; the origin menu is not in the tabs row
+  test "the feed views have no Archived tab, and the origin menu sits under the tabs", %{
     account: account,
     me: me
   } do
@@ -236,7 +236,8 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
     |> visit("/groups/feed/all")
     |> assert_has("#group-view-joined")
     |> refute_has("#group-view-archived")
-    |> assert_has("#group-view-filter #group-origin-filters")
+    |> assert_has("#group-origin-filters")
+    |> refute_has("#group-view-filter #group-origin-filters")
 
     conn(user: me, account: account)
     |> visit("/groups/discover")
@@ -250,7 +251,7 @@ defmodule Bonfire.UI.Groups.GroupsActivityViewTest do
     for path <- ["/groups/discover", "/groups/feed/all"] do
       conn(user: me, account: account)
       |> visit(path)
-      |> assert_has("label[for=group-view-discover]", text: "All known groups")
+      |> assert_has("label[for=group-view-discover]", text: "Discover")
     end
   end
 

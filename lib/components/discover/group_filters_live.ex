@@ -34,7 +34,7 @@ defmodule Bonfire.UI.Groups.GroupFiltersLive do
   # was `l("All groups")`, a string the sidebar still uses
   @doc "The view tabs: the set of groups each lists or follows. Archived groups have no feed, so the feed views have no Archived tab."
   def views(view \\ :discover) do
-    [{"discover", l("All known groups")}, {"joined", l("Joined")}, {"archived", l("Archived")}]
+    [{"discover", l("Discover")}, {"joined", l("Joined")}, {"archived", l("Archived")}]
     |> Enum.reject(fn {value, _} -> value == "archived" and feed_view?(view) end)
   end
 

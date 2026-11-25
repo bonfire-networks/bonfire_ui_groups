@@ -305,7 +305,7 @@ defmodule Bonfire.UI.Groups.GroupDiscoveryPreviewTest do
     |> fill_in("Search groups", with: "")
     |> assert_has("a", text: "Archived garden")
     |> assert_has("#group-view-archived[checked]")
-    |> choose("All known groups")
+    |> choose("Discover")
     |> assert_has("#group-preview-#{id(joined)}")
     |> refute_has("#group-preview-#{id(archived)}")
   end
