@@ -58,9 +58,9 @@ defmodule Bonfire.UI.Groups.GroupDiscussionsViewOptionsTest do
 
     assert order(session) == [:b, :a]
 
-    # A has a reply, B none
+    # A has a reply, B none: a count sort lists only posts with a count
     session = session |> choose("Most replies") |> wait_async()
-    assert order(session) == [:a, :b]
+    assert order(session) == [:a]
   end
 
   test "a member lists every post, then one entry per thread again", %{
