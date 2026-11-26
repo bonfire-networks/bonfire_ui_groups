@@ -9,7 +9,17 @@
     subtitle_class="mt-1 text-sm text-muted theme-light:text-sm"
   >
     <:action>
-      <Bonfire.UI.Common.CarouselArrowsLive track={"#{@id}-carousel"} count={length(@groups)} />
+      <div class="flex items-center gap-3">
+        {!-- `label` is what `LinkLive` turns into the aria-label --}
+        <LinkLive
+          to="/groups"
+          class="text-xs font-medium text-muted hover:text-primary"
+          label={l("Browse all groups")}
+        >
+          {l("View all")}
+        </LinkLive>
+        <Bonfire.UI.Common.CarouselArrowsLive track={"#{@id}-carousel"} count={length(@groups)} />
+      </div>
     </:action>
     <Bonfire.UI.Common.CarouselLive
       id={"#{@id}-carousel"}
@@ -28,11 +38,5 @@
         />
       </:card>
     </Bonfire.UI.Common.CarouselLive>
-    <div class={@footer_class}>
-      <LinkLive
-        to="/groups"
-        class="inline-flex min-h-11 items-center text-sm font-medium text-primary underline-offset-3 hover:underline"
-      >{l("Browse all groups")}</LinkLive>
-    </div>
   </Bonfire.UI.Common.WidgetBlockLive>
 </div>
