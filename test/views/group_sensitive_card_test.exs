@@ -140,15 +140,15 @@ defmodule Bonfire.UI.Groups.GroupSensitiveCardTest do
     end
   end
 
-  describe "the compact card" do
+  describe "the groups widget row" do
     test "of a group not marked sensitive is clear", %{plain: plain} do
-      doc = card(plain, :compact)
+      doc = card(plain, :widget_row)
       refute has?(doc, "[data-role=sensitive_badge]")
       refute has?(doc, "img[data-sensitive]")
     end
 
     test "of a group marked sensitive has a badge and a blurred icon", %{marked: marked} do
-      doc = card(marked, :compact)
+      doc = card(marked, :widget_row)
       assert has?(doc, "[data-role=sensitive_badge]")
       assert has?(doc, "img[data-sensitive]")
       assert has?(doc, "[data-role=group-card-summary].hidden")

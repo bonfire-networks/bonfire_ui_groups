@@ -1,4 +1,4 @@
-<Bonfire.UI.Common.WidgetBlockLive class="w-full flex-auto mx-auto border-y-hair border-divider">
+<Bonfire.UI.Common.WidgetBlockLive class="flex-auto mx-auto border-y-hair border-divider">
   <div data-id="group_widget" class="flex flex-col divide-hair divide-divider text-sm">
     <section class="pb-3">
       <h3 class="mb-2 type-overline text-subtle">{l("About")}</h3>
@@ -107,7 +107,6 @@
             compact
             character={e(user, :character, nil)}
             profile={e(user, :profile, nil)}
-            class="btn btn-circle btn-ghost btn-sm"
             parent_id={"group-widget-moderator-#{id(user)}"}
           />
         {/for}

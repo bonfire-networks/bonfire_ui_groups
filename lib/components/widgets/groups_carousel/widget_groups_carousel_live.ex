@@ -1,6 +1,6 @@
 defmodule Bonfire.UI.Groups.WidgetGroupsCarouselLive do
   @moduledoc """
-  A horizontal carousel of compact group cards, showcasing this instance's own groups that guests can see on the guest homepage board (federated groups are left out). Lists them via the same boundary-checked query as the groups directory, and renders nothing when there are none.
+  Rows of groups, showcasing this instance's own groups that guests can see on the guest homepage board (federated groups are left out). Lists them via the same boundary-checked query as the groups directory, and renders nothing when there are none.
   """
   use Bonfire.UI.Common.Web, :stateful_component
 
@@ -17,12 +17,8 @@ defmodule Bonfire.UI.Groups.WidgetGroupsCarouselLive do
   prop title, :string, default: nil
   prop subtitle, :string, default: nil
 
-  @doc "Classes of the widget, header and track, so a page can set its own surface and gutter."
-  prop wrapper_class, :css_class, default: "board-card w-full py-5 sm:py-6"
-  prop title_class, :css_class, default: "gap-3 px-5 pb-4 sm:px-6"
-  prop carousel_class, :css_class, default: "px-5 scroll-px-5 sm:px-6 sm:scroll-px-6"
-
-  @limit 12
+  # five rows, a short list next to other widgets; "View all" leads to the rest
+  @limit 5
   # guests all see the same list, so it's cached briefly like the other guest-page loaders; new groups show up within this window
   @guest_cache_ttl 1_000 * 60 * 10
 
@@ -39,7 +35,7 @@ defmodule Bonfire.UI.Groups.WidgetGroupsCarouselLive do
   def list_guest_groups(opts \\ []) do
     Cache.maybe_apply_cached(
       &Bonfire.UI.Groups.ExploreLive.list_groups_with_previews/2,
-      [nil, [limit: @limit, topics: false, local: true]],
+      [nil, [limit: @limit, topics: false, local: true, faces: true]],
       Keyword.put_new(opts, :expire, @guest_cache_ttl)
     )
   end
@@ -49,6 +45,7 @@ defmodule Bonfire.UI.Groups.WidgetGroupsCarouselLive do
       Bonfire.UI.Groups.ExploreLive.list_groups_with_previews(current_user,
         limit: @limit,
         topics: false,
-        local: true
+        local: true,
+        faces: true
       )
 end

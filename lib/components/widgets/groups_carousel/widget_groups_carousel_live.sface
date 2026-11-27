@@ -1,42 +1,21 @@
 <div data-id="groups_carousel_widget">
   <Bonfire.UI.Common.WidgetBlockLive
     :if={@groups != []}
-    class={@wrapper_class}
     widget_title={@title}
     widget_subtitle={@subtitle}
-    title_class={@title_class}
-    heading_class="text-lg font-bold leading-snug tracking-[-0.01em] theme-light:text-lg theme-light:font-bold"
-    subtitle_class="mt-1 text-sm text-muted theme-light:text-sm"
+    view_all_to="/groups"
+    view_all_label={l("Browse all groups")}
   >
-    <:action>
-      <div class="flex items-center gap-3">
-        {!-- `label` is what `LinkLive` turns into the aria-label --}
-        <LinkLive
-          to="/groups"
-          class="text-xs font-medium text-muted hover:text-primary"
-          label={l("Browse all groups")}
-        >
-          {l("View all")}
-        </LinkLive>
-        <Bonfire.UI.Common.CarouselArrowsLive track={"#{@id}-carousel"} count={length(@groups)} />
-      </div>
-    </:action>
-    <Bonfire.UI.Common.CarouselLive
-      id={"#{@id}-carousel"}
-      items={@groups}
-      visible_items={2}
-      class={@carousel_class}
-    >
-      {!-- compact: the /groups row needs the full width --}
-      <:card :let={item: {group, _topics}}>
+    <div class="widget-rows" data-role="widget-body" data-id="groups-widget-rows">
+      {#for {group, _topics} <- @groups}
         <StatelessComponent
           module={maybe_component(Bonfire.UI.Groups.Preview.GroupLive, @__context__)}
           object={group}
           preview={Map.get(@previews, id(group), %{})}
           permalink={path(group)}
-          showing_within={:compact}
+          showing_within={:widget_row}
         />
-      </:card>
-    </Bonfire.UI.Common.CarouselLive>
+      {/for}
+    </div>
   </Bonfire.UI.Common.WidgetBlockLive>
 </div>

@@ -4,34 +4,19 @@
     id={"group-preview-#{id(@object)}"}
     class="relative grid min-w-0 grid-cols-[2.75rem_minmax(0,1fr)] items-start sm:grid-cols-[2.75rem_minmax(0,1fr)_auto] gap-x-4 rounded-box px-2 py-4 transition-colors hover:bg-fill sm:px-4 has-[a:focus-visible]:outline has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2"
   >
-    {!-- the uploaded image first, else the tile: the picked icon (in its colour), else the initial --}
-    {#case Media.avatar_url(@object)}
-      {#match "/images/avatar.png"}
-        <Bonfire.UI.Common.NavTileLive
-          object={@object}
-          name={name(@object)}
-          class="!size-11 !rounded-box !text-base"
-        />
-      {#match url}
-        {!-- a group marked sensitive: its icon blurred, as a sensitive post's media is, until "Sensitive content" is pressed --}
-        <div class="relative size-11">
-          <img
-            src={url}
-            alt=""
-            width="44"
-            height="44"
-            class="size-11 rounded-box bg-fill object-cover"
-            loading="lazy"
-            aria-hidden="true"
-            data-sensitive={Categories.sensitive?(@object)}
-          />
-          <div
-            :if={Categories.sensitive?(@object)}
-            id={CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
-            class="absolute inset-0 backdrop-blur-sm bg-black/50 z-40 cursor-pointer rounded-md"
-          />
-        </div>
-    {/case}
+    {!-- the uploaded image first, else the tile: the picked icon (in its colour), else the initial. A group marked sensitive: its icon blurred, as a sensitive post's media is, until "Sensitive content" is pressed --}
+    <div class="relative size-11">
+      <Bonfire.UI.Common.GroupAvatarLive
+        object={@object}
+        name={name(@object)}
+        size={44}
+        lazy
+        image_class="size-11 rounded-box bg-fill object-cover"
+        tile_class="!size-11 !rounded-box !text-base"
+        sensitive_id={if Categories.sensitive?(@object),
+          do: CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
+      />
+    </div>
 
     <div class="flex min-w-0 flex-col gap-0.5">
       <LinkLive
@@ -109,74 +94,76 @@
       {/if}
     </div>
   </article>
-{#elseif @showing_within == :compact}
-  {!-- compact card for carousels (eg. the guest homepage): no cover, nothing reserved for missing text --}
+{#elseif @showing_within == :widget_row}
+  {!-- a groups widget row; the summary shows only once the widget is wide (container query) --}
   <article
     id={"group-preview-#{id(@object)}"}
-    data-role="group-card-compact"
-    class="flex h-full min-w-0 flex-col gap-2 rounded-box bg-surface p-4"
+    data-role="group-row-widget"
+    class="@container widget-row"
   >
-    <div class="flex min-w-0 items-center gap-3">
-      <div
-        class="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-box bg-base-200 text-base-content"
-        aria-hidden="true"
-      >
-        {#case Media.avatar_url(@object)}
-          {#match "/images/avatar.png"}
-            <#Icon iconify="ph:users-three-duotone" class="size-5" />
-          {#match url}
-            <img
-              src={url}
-              alt=""
-              width="40"
-              height="40"
-              class="absolute inset-0 h-full w-full object-cover"
-              loading="lazy"
-              data-sensitive={Categories.sensitive?(@object)}
+    {!-- the same avatar as the /groups row and the sidebar: the uploaded image, else the picked icon, else the initial --}
+    <div class="widget-row-media bg-base-200 text-base-content" aria-hidden="true">
+      <Bonfire.UI.Common.GroupAvatarLive
+        object={@object}
+        name={name(@object)}
+        size={40}
+        lazy
+        image_class="absolute inset-0 h-full w-full object-cover"
+        tile_class="!size-10 !rounded-box !text-base"
+        sensitive_id={if Categories.sensitive?(@object),
+          do: CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
+      />
+    </div>
+    <div class="min-w-0 flex-1">
+      <LinkLive
+        opts={[id: "group-preview-link-#{id(@object)}", title: handle(@object)]}
+        to={@permalink}
+        class="widget-row-title underline-offset-2 hover:underline"
+      >{name(@object)}</LinkLive>
+      <div class="widget-row-meta">
+        <button
+          :if={Categories.sensitive?(@object)}
+          type="button"
+          data-role="sensitive_badge"
+          phx-click={CategoryLive.show_sensitive(@object, @showing_within)}
+          class="btn btn-primary btn-xs gap-1"
+        ><#Icon iconify="ph:warning-circle" class="size-3.5" />{l("Sensitive content")}</button>
+        {!-- the faces the widget loaded (members, or moderators for those who may not see the list; none for a viewer who only gets a preview, as the group's header: `put_group_faces/3`) --}
+        <span
+          :if={e(@preview, :faces, []) != []}
+          data-role="group-row-faces"
+          class="mr-1.5 inline-flex -space-x-1.5 align-middle"
+        >
+          {#for face <- e(@preview, :faces, [])}
+            <Bonfire.UI.Common.AvatarLive
+              parent_id={"group-row-#{id(@object)}-face-#{id(face)}"}
+              wrapper_class="border-0 avatar !flex shrink-0"
+              title={e(face, :profile, :name, nil) || e(face, :character, :username, nil)}
+              class="size-5 rounded-full ring-2 ring-base-100"
+              user_id={id(face)}
+              fallback_class="size-5"
+              src={Media.avatar_url(face)}
             />
-            <div
-              :if={Categories.sensitive?(@object)}
-              id={CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
-              class="absolute inset-0 backdrop-blur-sm bg-black/50 z-40 cursor-pointer rounded-md"
-            />
+          {/for}
+        </span>
+        <span class="tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
+        {#case Bonfire.Boundaries.Presets.dimension_meta(:membership, e(@preview, :membership, nil))}
+          {#match %{} = meta}
+            <span data-role="group-card-membership-policy">· {e(meta, :label, nil)}</span>
+          {#match _}
         {/case}
-      </div>
-      <div class="min-w-0 flex-1">
-        <LinkLive
-          opts={[id: "group-preview-link-#{id(@object)}", title: handle(@object)]}
-          to={@permalink}
-          class="block truncate text-base font-bold leading-6 text-base-content underline-offset-2 hover:underline"
-        >{name(@object)}</LinkLive>
-        <div class="flex min-w-0 flex-wrap items-center gap-x-2 text-xs leading-5 text-muted">
-          <button
-            :if={Categories.sensitive?(@object)}
-            type="button"
-            data-role="sensitive_badge"
-            phx-click={CategoryLive.show_sensitive(@object, @showing_within)}
-            class="btn btn-primary btn-xs gap-1"
-          ><#Icon iconify="ph:warning-circle" class="size-3.5" />{l("Sensitive content")}</button>
-          <span class="tabular-nums">{member_label(e(@preview, :member_count, 0), remote?(@object))}</span>
-          {#case Bonfire.Boundaries.Presets.dimension_meta(:membership, e(@preview, :membership, nil))}
-            {#match %{} = meta}
-              <span class="inline-flex items-center gap-1" data-role="group-card-membership-policy">
-                <Iconify.iconify icon={e(meta, :icon, "ph:users")} class="size-3.5" />
-                {e(meta, :label, nil)}
-              </span>
-            {#match _}
-          {/case}
-        </div>
+        <span
+          :if={e(@object, :profile, :summary, "") not in [nil, ""]}
+          id={CategoryLive.sensitive_part_id("summary", @object, @showing_within)}
+          data-role="group-card-summary"
+          class={if Categories.sensitive?(@object), do: "hidden", else: "hidden @md:inline"}
+        >· {Bonfire.Common.Text.markdown_to_text(e(@object, :profile, :summary, ""))}</span>
       </div>
     </div>
-    <p
-      :if={e(@object, :profile, :summary, "") not in [nil, ""]}
-      id={CategoryLive.sensitive_part_id("summary", @object, @showing_within)}
-      data-role="group-card-summary"
-      class={["line-clamp-2 text-sm leading-5 text-muted", hidden: Categories.sensitive?(@object)]}
-    >{Bonfire.Common.Text.markdown_to_text(e(@object, :profile, :summary, ""))}</p>
-    {!-- same join control as the /groups row; invite-only has none, the chip says so --}
+    {!-- invite-only has no join control: the meta line already says so --}
     <div
       :if={e(@preview, :membership, nil) != "invite_only" or e(@preview, :joined?, false)}
-      class="mt-auto self-start pt-1"
+      class="shrink-0"
       data-role="group-card-action"
     >
       <StatefulComponent
@@ -191,8 +178,8 @@
         showing_within={:list}
         combined
         hide_follow
-        class="btn btn-sm h-8 min-h-8 rounded-full border-0 bg-fill px-3.5 font-medium text-base-content shadow-none hover:bg-fill-strong"
-        class_joined="btn btn-sm btn-ghost h-8 min-h-8 rounded-full px-3 font-medium text-subtle shadow-none -ml-3"
+        class="btn btn-sm widget-action"
+        class_joined="btn btn-sm widget-action widget-action-quiet"
       />
     </div>
   </article>
@@ -230,23 +217,18 @@
       <LinkLive to={@permalink} class="group flex items-center gap-3">
         {!-- Avatar --}
         <div class="shrink-0 -mt-10 relative z-10">
-          {#case Media.avatar_url(@object)}
-            {#match "/images/avatar.png"}
-              <div class="size-14 rounded-box bg-base-100 shadow-lg flex items-center justify-center">
-                <#Icon iconify="ph:users-three-duotone" class="size-7 text-subtle" />
-              </div>
-            {#match url}
-              <img
-                src={url}
-                class="size-14 rounded-box ring-2 ring-base-100 object-cover"
-                data-sensitive={Categories.sensitive?(@object)}
-              />
-              <div
-                :if={Categories.sensitive?(@object)}
-                id={CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
-                class="absolute inset-0 backdrop-blur-sm bg-black/50 z-40 cursor-pointer rounded-md"
-              />
-          {/case}
+          <Bonfire.UI.Common.GroupAvatarLive
+            object={@object}
+            name={name(@object)}
+            size={56}
+            image_class="size-14 rounded-box ring-2 ring-base-100 object-cover"
+            sensitive_id={if Categories.sensitive?(@object),
+              do: CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
+          >
+            <div class="size-14 rounded-box bg-base-100 shadow-lg flex items-center justify-center">
+              <#Icon iconify="ph:users-three-duotone" class="size-7 text-subtle" />
+            </div>
+          </Bonfire.UI.Common.GroupAvatarLive>
         </div>
 
         <div class="flex flex-col flex-1 min-w-0 gap-1">
@@ -291,28 +273,23 @@
       <div class="flex items-start gap-card">
         {!-- Avatar --}
         <LinkLive to={@permalink} class="shrink-0 block" tabindex="-1" aria-hidden="true">
-          {#case Media.avatar_url(@object)}
-            {#match "/images/avatar.png"}
+          <span class="relative block">
+            <Bonfire.UI.Common.GroupAvatarLive
+              object={@object}
+              name={name(@object)}
+              size={115}
+              image_class="size-28.75 rounded-box object-cover"
+              sensitive_id={if Categories.sensitive?(@object),
+                do: CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
+            >
               <div class="size-28.75 rounded-box bg-primary flex items-center justify-center">
                 <#Icon
                   iconify="ph:users-three-duotone"
                   class="size-12 text-primary-content group-hover:text-primary-content"
                 />
               </div>
-            {#match url}
-              <span class="relative block">
-                <img
-                  src={url}
-                  class="size-28.75 rounded-box object-cover"
-                  data-sensitive={Categories.sensitive?(@object)}
-                />
-                <span
-                  :if={Categories.sensitive?(@object)}
-                  id={CategoryLive.sensitive_part_id("icon", @object, @showing_within)}
-                  class="absolute inset-0 backdrop-blur-sm bg-black/50 z-40 cursor-pointer rounded-md"
-                />
-              </span>
-          {/case}
+            </Bonfire.UI.Common.GroupAvatarLive>
+          </span>
         </LinkLive>
 
         {!-- Identity + summary + meta --}

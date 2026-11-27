@@ -89,9 +89,9 @@ defmodule Bonfire.UI.Groups.DashboardMyGroupsFeedTest do
     |> wait_async()
     |> refute_has("[data-widget-id=feed] #feed-tab-my_groups")
     |> visit("/settings/user/dashboard")
-    # by its selector, not within the block: `within` hides the form the select belongs to
+    # on the Feed widget's tile; by its selector, not within the tile: `within` hides the form the select belongs to
     |> PhoenixTest.select(
-      "[data-role=dashboard_feed_setting] #dashboard-feed-select",
+      "[data-widget-id=feed] [data-role=widget-edit-controls] select",
       "Feed shown on the dashboard",
       option: "My groups"
     )

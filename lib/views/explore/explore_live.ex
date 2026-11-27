@@ -693,15 +693,69 @@ defmodule Bonfire.UI.Groups.ExploreLive do
   def list_groups_with_previews(current_user, opts \\ []) do
     {topics?, opts} = Keyword.pop(opts, :topics, true)
     {local?, opts} = Keyword.pop(opts, :local, false)
+    {faces?, opts} = Keyword.pop(opts, :faces, false)
 
     case Categories.list_tree(
            [:default, type: :group, tree_max_depth: 1, preload: :follow_count] ++
              if(local?, do: [:local], else: []),
            Keyword.merge([current_user: current_user], opts)
          ) do
-      %{edges: [_ | _] = list} -> hydrate_group_previews(list, current_user, topics?)
-      _ -> {[], %{}}
+      %{edges: [_ | _] = list} ->
+        {categories, previews} = hydrate_group_previews(list, current_user, topics?)
+
+        {categories,
+         if(faces?, do: put_group_faces(previews, list, current_user), else: previews)}
+
+      _ ->
+        {[], %{}}
     end
+  end
+
+  # as the group's header: the first three members for whoever may see the list, else the moderators, and none for a viewer who only gets a preview (no `:read`), whose members are then not loaded; two batched queries
+  defp put_group_faces(previews, groups, current_user) do
+    readable = readable_group_ids(groups, current_user)
+
+    faces =
+      groups
+      |> Enum.flat_map(fn group ->
+        case faces_circle(group, readable) do
+          nil -> []
+          stereotype -> [{id(group), stereotype}]
+        end
+      end)
+      |> Map.new()
+      |> Categories.first_members(3)
+
+    Map.new(groups, fn group ->
+      group_id = id(group)
+
+      {group_id, Map.put(Map.get(previews, group_id, %{}), :faces, Map.get(faces, group_id, []))}
+    end)
+  end
+
+  # the hero's choice (`Categories.roster_visible?/2`, then its `not @preview`): `{roster_visible?, readable_ids}`
+  defp faces_circle(group, {visible, readable}) do
+    cond do
+      MapSet.member?(visible, id(group)) -> :group_members
+      MapSet.member?(readable, id(group)) -> :group_moderators
+      true -> nil
+    end
+  end
+
+  # which groups show their roster, and, for the others, which the viewer may `:read`, in one boundary query (as `Bonfire.Social.Tags.readable_quotes/2`)
+  defp readable_group_ids(groups, current_user) do
+    {visible, hidden} = Enum.split_with(groups, &Categories.roster_visible?(&1, current_user))
+
+    readable =
+      hidden
+      |> Bonfire.Boundaries.load_pointers(
+        current_user: current_user,
+        verbs: [:read],
+        ids_only: true
+      )
+      |> MapSet.new(&id/1)
+
+    {MapSet.new(visible, &id/1), readable}
   end
 
   defp hydrate_group_filters(groups, current_user, topics? \\ true) do
@@ -719,7 +773,7 @@ defmodule Bonfire.UI.Groups.ExploreLive do
     {categories, dimensions}
   end
 
-  # `joined` is the page's held set of the viewer's group ids, which marks the cards as joined with no query; without it (the carousel widget), membership is checked for these groups
+  # `joined` is the page's held set of the viewer's group ids, which marks the cards as joined with no query; without it (the groups widget), membership is checked for these groups
   defp hydrate_group_previews(groups, current_user, topics? \\ true, joined \\ nil) do
     {categories, dimensions} = hydrate_group_filters(groups, current_user, topics?)
     member_counts = Categories.member_counts(groups)
